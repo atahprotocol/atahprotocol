@@ -1,0 +1,1701 @@
+openapi: 3.1.0
+info:
+  title: ATAH — Agent to Authenticated Human Protocol
+  version: 0.8.0
+  description: |
+    ATAH REST binding (v0.8). One of the v0.8 reference bindings; alternative or
+    additional bindings may be defined in future. The protocol-level requirements
+    that this binding exposes are defined in the Core Protocol and Registry
+    Operation Profile schemas under `./schemas/` and in `spec/v0.8/full-spec.md`.
+
+    This contract conforms to ATAH binding conformance (spec Section 14.2).
+
+    **v0.8.0 status note:** External API, Auth, and discovery endpoints carry full
+    operation definitions with examples. Professional, Partner, Independent
+    Verifier, and Admin endpoints are documented at stub level — operation,
+    scopes, and key body/response refs only. Per-endpoint examples for those four
+    surfaces are scheduled for v0.8.1.
+  license:
+    name: Apache-2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+  contact:
+    name: ATAH Protocol
+    url: https://atahprotocol.org
+    email: hello@atahprotocol.org
+
+servers:
+  - url: https://api.atahprotocol.org
+    description: Reference registry (operated by the ATAH project)
+
+tags:
+  - name: External
+    description: Consumer- and AI-agent-facing endpoints (spec §7.4).
+  - name: Professional
+    description: Endpoints used by professionals operating their own profile (spec §7.5).
+  - name: Partner
+    description: Endpoints used by trusted partners pushing verified data (spec §7.6).
+  - name: Verifier
+    description: Endpoints used by approved independent verifiers (spec §7.7).
+  - name: Admin
+    description: Governance and admin operations (spec §7.8).
+  - name: Auth
+    description: OAuth 2.1 authentication endpoints.
+  - name: Discovery
+    description: Implementation discovery and capability endpoints.
+
+security:
+  - oauth2: []
+
+paths:
+  # ============================================================
+  # External API
+  # ============================================================
+  /v1/query:
+    post:
+      tags: [External]
+      operationId: postQuery
+      summary: Find professionals — Type 1 consumer introduction.
+      description: |
+        Submit a query for professionals. Returns a ranked shortlist with full
+        trusted partner data payload, `presentation_disclosure`, and
+        `protocol_version`. AI platforms MUST surface `presentation_disclosure`
+        to the end user.
+      security:
+        - oauth2: [atah:find]
+      parameters:
+        - $ref: '#/components/parameters/AcceptVersion'
+        - $ref: '#/components/parameters/IdempotencyKeyOptional'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './schemas/query.schema.json'
+            examples:
+              urgentPrCrisis:
+                $ref: '#/components/examples/QueryExample'
+      responses:
+        '200':
+          description: Ranked shortlist.
+          content:
+            application/json:
+              schema:
+                $ref: './schemas/match-response.schema.json'
+              examples:
+                singleResult:
+                  $ref: '#/components/examples/MatchResponseExample'
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/InternalError' }
+
+  /v1/professionals/{atah_id}:
+    get:
+      tags: [External]
+      operationId: getProfessional
+      summary: Get the public professional profile.
+      description: |
+        Returns the credentialled or established professional profile. The
+        response shape is one of the two profile schemas; the discriminator is
+        `professional_tier`.
+      security:
+        - oauth2: [atah:find]
+      parameters:
+        - name: atah_id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^atah-[A-Za-z0-9-]{6,64}$'
+        - $ref: '#/components/parameters/AcceptVersion'
+      responses:
+        '200':
+          description: Professional profile.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: './schemas/professional-identity-credentialled.schema.json'
+                  - $ref: './schemas/professional-identity-established.schema.json'
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '410':
+          description: Profile withdrawn or deceased; gone.
+          content:
+            application/json:
+              schema: { $ref: './schemas/error.schema.json' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+
+  /v1/introductions:
+    post:
+      tags: [External]
+      operationId: postIntroduction
+      summary: Initiate a new introduction (Type 1 or Type 3).
+      description: |
+        Creates a handoff record and returns a `handoff_id` plus a
+        `handoff_access_token`. Subsequent state-changing calls MUST present the
+        `handoff_access_token`. `handoff_id` alone is NOT a bearer token; the
+        tiered handoff-access model is defined in spec §11.5.
+
+        Returns 409 Conflict if the consumer already has an active introduction
+        to this professional.
+      security:
+        - oauth2: [atah:introductions:create]
+      parameters:
+        - $ref: '#/components/parameters/AcceptVersion'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                introduction_type:
+                  type: string
+                  enum: [type_1_consumer_introduction, type_3_client_referral]
+                atah_id:
+                  type: string
+                  pattern: '^atah-[A-Za-z0-9-]{6,64}$'
+                consent_receipt_id:
+                  type: string
+                  pattern: '^cr-[A-Za-z0-9-]{6,64}$'
+                matter_type:
+                  type: string
+                location_or_jurisdiction:
+                  type: string
+                urgency:
+                  type: string
+                  enum: [routine, standard, urgent, emergency]
+                # Type 3-only fields
+                referring_professional_id:
+                  type: string
+                  pattern: '^atah-[A-Za-z0-9-]{6,64}$'
+                client_consent_attestation:
+                  type: object
+              required: [introduction_type, atah_id, consent_receipt_id]
+              additionalProperties: false
+      responses:
+        '201':
+          description: Handoff created.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  handoff_id:
+                    type: string
+                    pattern: '^hf-[A-Za-z0-9-]{6,64}$'
+                  handoff_access_token:
+                    type: string
+                  current_state:
+                    type: string
+                  protocol_version:
+                    type: string
+                    const: '0.8'
+                  pre_handoff_check_required:
+                    type: string
+                    enum: [conflict_check, scope_confirmation, capacity_confirmation, fee_alignment, none]
+                required: [handoff_id, handoff_access_token, current_state, protocol_version, pre_handoff_check_required]
+                additionalProperties: false
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409':
+          description: Conflict — an active introduction to this professional already exists.
+          content:
+            application/json:
+              schema: { $ref: './schemas/error.schema.json' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+
+  /v1/introductions/{handoff_id}:
+    get:
+      tags: [External]
+      operationId: getIntroduction
+      summary: Get current introduction state.
+      description: |
+        Read access per spec §11.5. Available to the original asserter platform
+        and to authenticated AI platforms presenting a `consumer_ref` matching
+        the handoff record. Does NOT return personal data.
+      security:
+        - oauth2: [atah:introductions:read]
+      parameters:
+        - $ref: '#/components/parameters/HandoffId'
+        - $ref: '#/components/parameters/AcceptVersion'
+        - name: consumer_ref
+          in: query
+          schema:
+            type: string
+            minLength: 1
+      responses:
+        '200':
+          description: Handoff record (Type 1).
+          content:
+            application/json:
+              schema: { $ref: './schemas/handoff-type1.schema.json' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /v1/introductions/{handoff_id}/stage-2:
+    post:
+      tags: [External]
+      operationId: postIntroductionStage2
+      summary: Submit Stage 2 pre-handoff check data.
+      description: |
+        Personal data lands in the transient encrypted vault (spec §11.6).
+        It does NOT leave the vault via SMS or email; the professional retrieves
+        it through authenticated retrieval.
+      security:
+        - oauth2: [atah:introductions:write]
+      parameters:
+        - $ref: '#/components/parameters/HandoffId'
+        - $ref: '#/components/parameters/HandoffAccessToken'
+        - $ref: '#/components/parameters/AcceptVersion'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: './schemas/stage2-prehandoff.schema.json' }
+      responses:
+        '200':
+          description: Stage 2 data accepted; vault reference returned.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  current_state: { type: string }
+                  vault_reference:
+                    type: string
+                    pattern: '^vault-[A-Za-z0-9-]{6,64}$'
+                  confirmation_id: { type: string }
+                required: [current_state, vault_reference, confirmation_id]
+                additionalProperties: false
+        '202':
+          description: Held — professional has a concurrent Stage 2 in flight.
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /v1/introductions/{handoff_id}/stage-3:
+    post:
+      tags: [External]
+      operationId: postIntroductionStage3
+      summary: Submit Stage 3 contact release.
+      description: |
+        Releases consumer contact details to the selected professional via the
+        transient encrypted vault. PII is NOT transmitted via SMS or email.
+      security:
+        - oauth2: [atah:introductions:write]
+      parameters:
+        - $ref: '#/components/parameters/HandoffId'
+        - $ref: '#/components/parameters/HandoffAccessToken'
+        - $ref: '#/components/parameters/AcceptVersion'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: './schemas/stage3-contact.schema.json' }
+      responses:
+        '200':
+          description: Contact details released to vault; reference returned.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  current_state: { type: string }
+                  vault_reference:
+                    type: string
+                    pattern: '^vault-[A-Za-z0-9-]{6,64}$'
+                  confirmation_id: { type: string }
+                required: [current_state, vault_reference, confirmation_id]
+                additionalProperties: false
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /v1/introductions/{handoff_id}/outcome:
+    post:
+      tags: [External]
+      operationId: postIntroductionOutcome
+      summary: Submit outcome report.
+      description: |
+        Reports the outcome of an introduction when it concludes. The
+        `consumer-reported-concern` outcome routes to the concern flag mechanism
+        (spec §5.10) — admin-only visibility, professional notified with right
+        of reply. ATAH does not adjudicate.
+      security:
+        - oauth2: [atah:outcomes:write]
+      parameters:
+        - $ref: '#/components/parameters/HandoffId'
+        - $ref: '#/components/parameters/HandoffAccessToken'
+        - $ref: '#/components/parameters/AcceptVersion'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                outcome_code:
+                  type: string
+                  enum:
+                    - introduction-successful
+                    - professional-declined-conflict
+                    - professional-declined-scope
+                    - professional-declined-capacity
+                    - professional-declined-fee
+                    - professional-declined-other
+                    - consumer-chose-alternative
+                    - matter-not-proceeding
+                    - no-response-from-consumer
+                    - consumer-reported-concern
+                    - consumer-cancelled
+                    - consent-revoked
+                outcome_notes:
+                  type: string
+              required: [outcome_code]
+              additionalProperties: false
+      responses:
+        '200':
+          description: Outcome recorded.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  current_state: { type: string }
+                  confirmation_id: { type: string }
+                  concern_flag_id:
+                    type: string
+                    pattern: '^flag-[A-Za-z0-9-]{6,64}$'
+                required: [current_state, confirmation_id]
+                additionalProperties: false
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /v1/introductions/{handoff_id}/cancel:
+    post:
+      tags: [External]
+      operationId: postIntroductionCancel
+      summary: Consumer cancellation of an introduction.
+      description: Triggers data deletion in the transient vault.
+      security:
+        - oauth2: [atah:introductions:write]
+      parameters:
+        - $ref: '#/components/parameters/HandoffId'
+        - $ref: '#/components/parameters/HandoffAccessToken'
+        - $ref: '#/components/parameters/AcceptVersion'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                cancellation_reason: { type: string }
+              additionalProperties: false
+      responses:
+        '200':
+          description: Introduction cancelled.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  current_state:
+                    type: string
+                    const: consumer-cancelled
+                  confirmation_id: { type: string }
+                  vault_data_deleted_at:
+                    type: string
+                    format: date-time
+                required: [current_state, confirmation_id]
+                additionalProperties: false
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /v1/introductions/{handoff_id}/revoke-consent:
+    post:
+      tags: [External]
+      operationId: postIntroductionRevokeConsent
+      summary: Consumer revocation of consent.
+      security:
+        - oauth2: [atah:introductions:write]
+      parameters:
+        - $ref: '#/components/parameters/HandoffId'
+        - $ref: '#/components/parameters/HandoffAccessToken'
+        - $ref: '#/components/parameters/AcceptVersion'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                consent_receipt_id:
+                  type: string
+                  pattern: '^cr-[A-Za-z0-9-]{6,64}$'
+              required: [consent_receipt_id]
+              additionalProperties: false
+      responses:
+        '200':
+          description: Consent revoked; vault data deleted.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  consent_receipt_id:
+                    type: string
+                    pattern: '^cr-[A-Za-z0-9-]{6,64}$'
+                  revocation_status:
+                    type: string
+                    enum: [active, revoked, expired]
+                  vault_data_deleted_at:
+                    type: string
+                    format: date-time
+                  confirmation_id: { type: string }
+                required: [consent_receipt_id, revocation_status, confirmation_id]
+                additionalProperties: false
+
+  /v1/referral-proposals:
+    post:
+      tags: [External]
+      operationId: postReferralProposal
+      summary: Initiate Type 2 referral partner proposal.
+      security:
+        - oauth2: [atah:introductions:create]
+      parameters:
+        - $ref: '#/components/parameters/AcceptVersion'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: './schemas/handoff-type2.schema.json' }
+      responses:
+        '201':
+          description: Proposal created.
+          content:
+            application/json:
+              schema: { $ref: './schemas/handoff-type2.schema.json' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /v1/referral-proposals/{proposal_id}:
+    get:
+      tags: [External]
+      operationId: getReferralProposal
+      summary: Get proposal status.
+      security:
+        - oauth2: [atah:introductions:read]
+      parameters:
+        - name: proposal_id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^proposal-[A-Za-z0-9-]{6,64}$'
+        - $ref: '#/components/parameters/AcceptVersion'
+      responses:
+        '200':
+          description: Proposal record.
+          content:
+            application/json:
+              schema: { $ref: './schemas/handoff-type2.schema.json' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /v1/webhooks/register:
+    post:
+      tags: [External]
+      operationId: postWebhookRegister
+      summary: Register a webhook endpoint (Phase 2).
+      description: Webhook delivery is a Phase 2 capability. Endpoint shape may evolve before general availability.
+      security:
+        - oauth2: [atah:introductions:write]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+                  format: uri
+                events:
+                  type: array
+                  items: { type: string }
+              required: [url, events]
+              additionalProperties: false
+      responses:
+        '201':
+          description: Webhook registered.
+
+  # ============================================================
+  # Discovery
+  # ============================================================
+  /.well-known/atah:
+    get:
+      tags: [Discovery]
+      operationId: getWellKnownAtah
+      summary: Implementation discovery (no auth).
+      security: []
+      responses:
+        '200':
+          description: Discovery document.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  protocol_version: { type: string, const: '0.8' }
+                  api_base_url: { type: string, format: uri }
+                  mcp_endpoint: { type: string, format: uri }
+                  oauth_metadata_url: { type: string, format: uri }
+                  capabilities_url: { type: string, format: uri }
+                  conformance_classes_supported:
+                    type: array
+                    items:
+                      type: string
+                      enum: [core_object, binding_rest, binding_mcp, registry, governance]
+                required: [protocol_version, api_base_url, oauth_metadata_url, capabilities_url, conformance_classes_supported]
+                additionalProperties: false
+
+  /v1/capabilities:
+    get:
+      tags: [Discovery]
+      operationId: getCapabilities
+      summary: Detailed implementation capabilities.
+      security: []
+      responses:
+        '200':
+          description: Capabilities document.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+
+  # ============================================================
+  # Auth
+  # ============================================================
+  /v1/auth/token:
+    post:
+      tags: [Auth]
+      operationId: postAuthToken
+      summary: OAuth 2.1 token endpoint (client credentials).
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                grant_type:
+                  type: string
+                  enum: [client_credentials, authorization_code]
+                client_id: { type: string }
+                client_secret: { type: string }
+                scope: { type: string }
+                code: { type: string }
+                redirect_uri: { type: string, format: uri }
+                code_verifier: { type: string }
+              required: [grant_type]
+      responses:
+        '200':
+          description: Access token issued.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token: { type: string }
+                  token_type:
+                    type: string
+                    enum: [Bearer]
+                  expires_in: { type: integer, minimum: 1 }
+                  scope: { type: string }
+                required: [access_token, token_type, expires_in]
+                additionalProperties: false
+
+  /v1/auth/register-client:
+    post:
+      tags: [Auth]
+      operationId: postAuthRegisterClient
+      summary: RFC 7591 dynamic client registration.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        '201':
+          description: Client registered.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+
+  /.well-known/oauth-authorization-server:
+    get:
+      tags: [Auth]
+      operationId: getWellKnownOauthAs
+      summary: OAuth 2.1 Authorization Server metadata.
+      security: []
+      responses:
+        '200':
+          description: AS metadata.
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+
+  /.well-known/oauth-protected-resource:
+    get:
+      tags: [Auth]
+      operationId: getWellKnownOauthPr
+      summary: OAuth 2.1 Protected Resource metadata.
+      security: []
+      responses:
+        '200':
+          description: PR metadata.
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+
+  # ============================================================
+  # Professional API (stub-level for v0.8.0; full per-endpoint examples in v0.8.1)
+  # ============================================================
+  /v1/professionals/register:
+    post:
+      tags: [Professional]
+      operationId: postProfessionalRegister
+      summary: Register a new professional (claim or self-register).
+      description: 'Individual self-registration requires `acknowledged_rollup_terms: true`.'
+      security:
+        - oauth2: [atah:professionals:self_write]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: './schemas/professional-identity-credentialled.schema.json'
+                - $ref: './schemas/professional-identity-established.schema.json'
+      responses:
+        '201':
+          description: Professional registered.
+
+  /v1/professionals/me:
+    get:
+      tags: [Professional]
+      operationId: getProfessionalSelf
+      summary: Get own profile.
+      security:
+        - oauth2: [atah:professionals:self_read]
+      responses:
+        '200':
+          description: Own profile.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: './schemas/professional-identity-credentialled.schema.json'
+                  - $ref: './schemas/professional-identity-established.schema.json'
+    put:
+      tags: [Professional]
+      operationId: putProfessionalSelf
+      summary: Update own profile (self-managed fields only).
+      security:
+        - oauth2: [atah:professionals:self_write]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        '200':
+          description: Updated profile.
+
+  /v1/professionals/me/verify-document:
+    post:
+      tags: [Professional]
+      operationId: postProfessionalVerifyDocument
+      summary: Submit a document for verification.
+      security:
+        - oauth2: [atah:professionals:self_write]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                document_type: { type: string }
+                file: { type: string, format: binary }
+              required: [document_type, file]
+      responses:
+        '202':
+          description: Document submitted; review pending.
+
+  /v1/professionals/me/mcp-connect:
+    post:
+      tags: [Professional]
+      operationId: postProfessionalMcpConnect
+      summary: Connect an MCP-capable AI assistant to the professional's profile.
+      security:
+        - oauth2: [atah:professionals:self_write]
+      responses:
+        '200':
+          description: Connection established.
+
+  /v1/introductions/received:
+    get:
+      tags: [Professional]
+      operationId: getIntroductionsReceived
+      summary: List introductions addressed to this professional.
+      security:
+        - oauth2: [atah:professionals:self_read]
+      responses:
+        '200':
+          description: List of received introductions.
+
+  /v1/introductions/{handoff_id}/respond:
+    post:
+      tags: [Professional]
+      operationId: postIntroductionRespond
+      summary: Professional responds to an introduction (accept / decline / hold).
+      security:
+        - oauth2: [atah:professionals:self_write]
+      parameters:
+        - $ref: '#/components/parameters/HandoffId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                response:
+                  type: string
+                  enum: [accept, decline, hold]
+                reason: { type: string }
+              required: [response]
+              additionalProperties: false
+      responses:
+        '200':
+          description: Response recorded.
+
+  /v1/referral-network:
+    get:
+      tags: [Professional]
+      operationId: getReferralNetwork
+      summary: List the professional's established referral relationships.
+      security:
+        - oauth2: [atah:professionals:self_read]
+      responses:
+        '200':
+          description: Referral network.
+
+  /v1/referral-proposals/{proposal_id}/respond:
+    post:
+      tags: [Professional]
+      operationId: postReferralProposalRespond
+      summary: Respond to a Type 2 referral proposal.
+      security:
+        - oauth2: [atah:professionals:self_write]
+      parameters:
+        - name: proposal_id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^proposal-[A-Za-z0-9-]{6,64}$'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                response:
+                  type: string
+                  enum: [accept, decline]
+              required: [response]
+              additionalProperties: false
+      responses:
+        '200':
+          description: Response recorded.
+
+  /v1/professionals/me/disputes:
+    get:
+      tags: [Professional]
+      operationId: getProfessionalDisputes
+      summary: List own disputes.
+      security:
+        - oauth2: [atah:professionals:self_read]
+      responses:
+        '200':
+          description: List of disputes.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: './schemas/dispute-record.schema.json' }
+    post:
+      tags: [Professional]
+      operationId: postProfessionalDispute
+      summary: Raise a new dispute.
+      security:
+        - oauth2: [atah:professionals:self_write]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: './schemas/dispute-record.schema.json' }
+      responses:
+        '201':
+          description: Dispute recorded.
+
+  /v1/professionals/me/enhanced-verifications:
+    get:
+      tags: [Professional]
+      operationId: getProfessionalEnhancedVerifications
+      summary: List own enhanced verification records.
+      security:
+        - oauth2: [atah:professionals:self_read]
+      responses:
+        '200':
+          description: List of enhanced verifications.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: './schemas/enhanced-verification.schema.json' }
+
+  /v1/professionals/me/concern-flags:
+    get:
+      tags: [Professional]
+      operationId: getProfessionalConcernFlags
+      summary: List concern flags raised against this professional.
+      security:
+        - oauth2: [atah:professionals:self_read]
+      responses:
+        '200':
+          description: List of concern flags.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: './schemas/concern-flag-record.schema.json' }
+
+  /v1/professionals/me/concern-flags/{flag_id}/reply:
+    post:
+      tags: [Professional]
+      operationId: postProfessionalConcernFlagReply
+      summary: Submit a right-of-reply response to a concern flag.
+      security:
+        - oauth2: [atah:professionals:self_write]
+      parameters:
+        - name: flag_id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^flag-[A-Za-z0-9-]{6,64}$'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reply: { type: string, minLength: 1 }
+              required: [reply]
+              additionalProperties: false
+      responses:
+        '200':
+          description: Reply recorded.
+
+  # ============================================================
+  # Partner API (stub-level for v0.8.0)
+  # ============================================================
+  /v1/partners/register:
+    post:
+      tags: [Partner]
+      operationId: postPartnerRegister
+      summary: Register as a trusted partner (governance review required).
+      security:
+        - oauth2: [atah:partner:data.write]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: './schemas/trusted-partner.schema.json' }
+      responses:
+        '202':
+          description: Registration submitted; awaiting governance review.
+
+  /v1/partners/{partner_id}:
+    parameters:
+      - name: partner_id
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: '^tp-[A-Za-z0-9-]{6,64}$'
+    get:
+      tags: [Partner]
+      operationId: getPartner
+      summary: Get partner record.
+      security:
+        - oauth2: [atah:find]
+      responses:
+        '200':
+          description: Partner record.
+          content:
+            application/json:
+              schema: { $ref: './schemas/trusted-partner.schema.json' }
+    put:
+      tags: [Partner]
+      operationId: putPartner
+      summary: Update own partner record (governance-reviewed fields).
+      security:
+        - oauth2: [atah:partner:data.write]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: './schemas/trusted-partner.schema.json' }
+      responses:
+        '200':
+          description: Updated.
+
+  /v1/partners/{partner_id}/data:
+    post:
+      tags: [Partner]
+      operationId: postPartnerData
+      summary: Push partner data batch.
+      security:
+        - oauth2: [atah:partner:data.write]
+      parameters:
+        - name: partner_id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^tp-[A-Za-z0-9-]{6,64}$'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: './schemas/partner-data-push.schema.json' }
+      responses:
+        '200':
+          description: Validation report.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+
+  /v1/partners/{partner_id}/score:
+    get:
+      tags: [Partner]
+      operationId: getPartnerScore
+      summary: Get partner score (freshness, completeness, conflict_rate).
+      security:
+        - oauth2: [atah:partner:data.write]
+      parameters:
+        - name: partner_id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^tp-[A-Za-z0-9-]{6,64}$'
+      responses:
+        '200':
+          description: Score block.
+
+  /v1/partners/{partner_id}/conflicts:
+    get:
+      tags: [Partner]
+      operationId: getPartnerConflicts
+      summary: List conflicts involving this partner's data.
+      security:
+        - oauth2: [atah:partner:data.write]
+      parameters:
+        - name: partner_id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^tp-[A-Za-z0-9-]{6,64}$'
+      responses:
+        '200':
+          description: Conflicts.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: './schemas/conflict-record.schema.json' }
+
+  /v1/partners/{partner_id}/retract:
+    post:
+      tags: [Partner]
+      operationId: postPartnerRetract
+      summary: Retract a previously-pushed partner record.
+      security:
+        - oauth2: [atah:partner:data.write]
+      parameters:
+        - name: partner_id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^tp-[A-Za-z0-9-]{6,64}$'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                record_id: { type: string }
+                reason: { type: string }
+              required: [record_id]
+              additionalProperties: false
+      responses:
+        '200':
+          description: Retraction recorded.
+
+  # ============================================================
+  # Verifier API (stub-level for v0.8.0)
+  # ============================================================
+  /v1/verifiers/register:
+    post:
+      tags: [Verifier]
+      operationId: postVerifierRegister
+      summary: Register as an independent verifier (governance review required).
+      security:
+        - oauth2: [atah:verifier:verification.write]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: './schemas/independent-verifier.schema.json' }
+      responses:
+        '202':
+          description: Registration submitted.
+
+  /v1/verifiers/{verifier_id}:
+    get:
+      tags: [Verifier]
+      operationId: getVerifier
+      summary: Get verifier record.
+      security:
+        - oauth2: [atah:find]
+      parameters:
+        - name: verifier_id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^iv-[A-Za-z0-9-]{6,64}$'
+      responses:
+        '200':
+          description: Verifier record.
+          content:
+            application/json:
+              schema: { $ref: './schemas/independent-verifier.schema.json' }
+
+  /v1/verifiers/{verifier_id}/verifications:
+    post:
+      tags: [Verifier]
+      operationId: postVerifierVerification
+      summary: Submit an enhanced verification record.
+      security:
+        - oauth2: [atah:verifier:verification.write]
+      parameters:
+        - name: verifier_id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^iv-[A-Za-z0-9-]{6,64}$'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: './schemas/enhanced-verification.schema.json' }
+      responses:
+        '201':
+          description: Verification recorded.
+
+  /v1/verifiers/{verifier_id}/verifications/{id}:
+    put:
+      tags: [Verifier]
+      operationId: putVerifierVerification
+      summary: Update an enhanced verification record.
+      security:
+        - oauth2: [atah:verifier:verification.write]
+      parameters:
+        - name: verifier_id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^iv-[A-Za-z0-9-]{6,64}$'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^ev-[A-Za-z0-9-]{6,64}$'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: './schemas/enhanced-verification.schema.json' }
+      responses:
+        '200':
+          description: Updated.
+
+  /v1/verifiers/{verifier_id}/revoke/{id}:
+    post:
+      tags: [Verifier]
+      operationId: postVerifierRevoke
+      summary: Revoke an enhanced verification record.
+      security:
+        - oauth2: [atah:verifier:verification.write]
+      parameters:
+        - name: verifier_id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^iv-[A-Za-z0-9-]{6,64}$'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^ev-[A-Za-z0-9-]{6,64}$'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason: { type: string }
+              additionalProperties: false
+      responses:
+        '200':
+          description: Revoked.
+
+  /v1/verifiers/{verifier_id}/audit-status:
+    get:
+      tags: [Verifier]
+      operationId: getVerifierAuditStatus
+      summary: Get the verifier's annual audit status.
+      security:
+        - oauth2: [atah:verifier:verification.write]
+      parameters:
+        - name: verifier_id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^iv-[A-Za-z0-9-]{6,64}$'
+      responses:
+        '200':
+          description: Audit status.
+
+  # ============================================================
+  # Admin API (stub-level for v0.8.0)
+  # ============================================================
+  /v1/admin/professionals:
+    get:
+      tags: [Admin]
+      operationId: getAdminProfessionals
+      summary: List professionals (admin view).
+      security:
+        - oauth2: [atah:admin]
+      responses:
+        '200':
+          description: Professional list.
+
+  /v1/admin/professionals/{atah_id}/verify:
+    post:
+      tags: [Admin]
+      operationId: postAdminProfessionalVerify
+      summary: Admin-initiated verification action.
+      security:
+        - oauth2: [atah:admin]
+      parameters:
+        - name: atah_id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^atah-[A-Za-z0-9-]{6,64}$'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '200': { description: Verification action recorded. }
+
+  /v1/admin/professionals/{atah_id}/suspend:
+    post:
+      tags: [Admin]
+      operationId: postAdminProfessionalSuspend
+      summary: Admin suspension of a professional.
+      security:
+        - oauth2: [atah:admin]
+      parameters:
+        - name: atah_id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^atah-[A-Za-z0-9-]{6,64}$'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason: { type: string }
+              required: [reason]
+              additionalProperties: false
+      responses:
+        '200': { description: Suspension recorded. }
+
+  /v1/admin/introductions:
+    get:
+      tags: [Admin]
+      operationId: getAdminIntroductions
+      summary: List introductions (admin view).
+      security:
+        - oauth2: [atah:admin]
+      responses:
+        '200': { description: Introduction list. }
+
+  /v1/admin/metrics:
+    get:
+      tags: [Admin]
+      operationId: getAdminMetrics
+      summary: Operational metrics.
+      security:
+        - oauth2: [atah:admin]
+      responses:
+        '200': { description: Metrics. }
+
+  /v1/admin/disputes:
+    get:
+      tags: [Admin]
+      operationId: getAdminDisputes
+      summary: List disputes.
+      security:
+        - oauth2: [atah:admin]
+      responses:
+        '200':
+          description: Dispute list.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: './schemas/dispute-record.schema.json' }
+
+  /v1/admin/disputes/{dispute_id}/resolve:
+    post:
+      tags: [Admin]
+      operationId: postAdminDisputeResolve
+      summary: Resolve a dispute.
+      security:
+        - oauth2: [atah:admin]
+      parameters:
+        - name: dispute_id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^dispute-[A-Za-z0-9-]{6,64}$'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                resolution: { type: string }
+                resolution_notes: { type: string }
+              required: [resolution]
+              additionalProperties: false
+      responses:
+        '200': { description: Resolution recorded. }
+
+  /v1/admin/concern-flags:
+    get:
+      tags: [Admin]
+      operationId: getAdminConcernFlags
+      summary: List concern flags (admin-only visibility).
+      security:
+        - oauth2: [atah:admin]
+      responses:
+        '200':
+          description: Concern flag list.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: './schemas/concern-flag-record.schema.json' }
+
+  /v1/admin/concern-flags/{flag_id}/review:
+    post:
+      tags: [Admin]
+      operationId: postAdminConcernFlagReview
+      summary: Admin review of a concern flag.
+      security:
+        - oauth2: [atah:admin]
+      parameters:
+        - name: flag_id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^flag-[A-Za-z0-9-]{6,64}$'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                outcome:
+                  type: string
+                  enum: [closed_no_action, closed_escalated_to_regulator, discarded_bad_faith, pattern_review_triggered]
+                notes: { type: string }
+              required: [outcome]
+              additionalProperties: false
+      responses:
+        '200': { description: Review recorded. }
+
+  /v1/admin/rollup-queue:
+    get:
+      tags: [Admin]
+      operationId: getAdminRollupQueue
+      summary: List pending roll-up matches.
+      security:
+        - oauth2: [atah:admin]
+      responses:
+        '200':
+          description: Roll-up queue.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: './schemas/rollup-match-record.schema.json' }
+
+  /v1/admin/rollup-queue/{match_id}/decide:
+    post:
+      tags: [Admin]
+      operationId: postAdminRollupDecide
+      summary: Decide a pending roll-up match.
+      security:
+        - oauth2: [atah:admin]
+      parameters:
+        - name: match_id
+          in: path
+          required: true
+          schema: { type: string, minLength: 1 }
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                decision:
+                  type: string
+                  enum: [merged, merged_with_dispute, not_a_match]
+                notes: { type: string }
+              required: [decision]
+              additionalProperties: false
+      responses:
+        '200': { description: Decision recorded. }
+
+  /v1/admin/partners:
+    get:
+      tags: [Admin]
+      operationId: getAdminPartners
+      summary: List partners (admin view).
+      security:
+        - oauth2: [atah:admin]
+      responses:
+        '200':
+          description: Partner list.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: './schemas/trusted-partner.schema.json' }
+
+  /v1/admin/partners/{partner_id}/suspend:
+    post:
+      tags: [Admin]
+      operationId: postAdminPartnerSuspend
+      summary: Suspend a partner.
+      security:
+        - oauth2: [atah:admin]
+      parameters:
+        - name: partner_id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^tp-[A-Za-z0-9-]{6,64}$'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason: { type: string }
+              required: [reason]
+              additionalProperties: false
+      responses:
+        '200': { description: Suspension recorded. }
+
+  /v1/admin/partners/{partner_id}/resolve-conflict/{conflict_id}:
+    post:
+      tags: [Admin]
+      operationId: postAdminResolveConflict
+      summary: Resolve a meaningful conflict between partner data points.
+      security:
+        - oauth2: [atah:admin]
+      parameters:
+        - name: partner_id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^tp-[A-Za-z0-9-]{6,64}$'
+        - name: conflict_id
+          in: path
+          required: true
+          schema: { type: string, minLength: 1 }
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                resolution:
+                  type: string
+                  enum:
+                    - resolved-by-retraction
+                    - resolved-by-update
+                    - resolved-by-admin
+                    - resolved-by-professional
+                notes: { type: string }
+              required: [resolution]
+              additionalProperties: false
+      responses:
+        '200': { description: Conflict resolution recorded. }
+
+# =================================================================
+# components
+# =================================================================
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      description: |
+        OAuth 2.1. Client credentials for AI platforms, partners, and verifiers.
+        Authorization code with PKCE for professional and admin user sessions.
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.atahprotocol.org/v1/auth/token
+          scopes:
+            'atah:find': Query for professionals via /v1/query and find_professional.
+            'atah:introductions:create': Initiate introductions.
+            'atah:introductions:read': Read introduction status.
+            'atah:introductions:write': Submit data, advance state, cancel, revoke on introductions.
+            'atah:outcomes:write': Report introduction outcomes.
+            'atah:professionals:self_read': Read own professional profile.
+            'atah:professionals:self_write': Update own professional profile.
+            'atah:partner:data.write': Push partner data.
+            'atah:verifier:verification.write': Submit enhanced verification records.
+            'atah:admin': Admin operations (governance/admin role only).
+        authorizationCode:
+          authorizationUrl: https://api.atahprotocol.org/v1/auth/authorize
+          tokenUrl: https://api.atahprotocol.org/v1/auth/token
+          scopes:
+            'atah:professionals:self_read': Read own professional profile.
+            'atah:professionals:self_write': Update own professional profile.
+            'atah:admin': Admin operations (governance/admin role only).
+
+  parameters:
+    AcceptVersion:
+      name: Accept-Version
+      in: header
+      required: false
+      schema:
+        type: string
+        default: '0.8'
+      description: Negotiate API version. Defaults to current major.minor.
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema:
+        type: string
+        minLength: 16
+        maxLength: 128
+      description: |
+        Idempotency key for mutating operations. Server returns the original
+        result for repeated keys within a 24-hour retention window. Replay
+        with a different payload returns 409.
+    IdempotencyKeyOptional:
+      name: Idempotency-Key
+      in: header
+      required: false
+      schema:
+        type: string
+        minLength: 16
+        maxLength: 128
+      description: Optional on /v1/query (queries are read-like but stateful enough to support idempotency).
+    HandoffId:
+      name: handoff_id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: '^hf-[A-Za-z0-9-]{6,64}$'
+    HandoffAccessToken:
+      name: X-Handoff-Access-Token
+      in: header
+      required: true
+      schema:
+        type: string
+        minLength: 1
+      description: |
+        Tiered handoff-access (spec §11.5). Required on every state-changing
+        introduction call. handoff_id alone is NOT a bearer token.
+
+  responses:
+    ValidationError:
+      description: Validation error.
+      content:
+        application/json:
+          schema: { $ref: './schemas/error.schema.json' }
+    Unauthorized:
+      description: Missing or invalid authentication.
+      content:
+        application/json:
+          schema: { $ref: './schemas/error.schema.json' }
+    Forbidden:
+      description: Authenticated but not authorised for this resource.
+      content:
+        application/json:
+          schema: { $ref: './schemas/error.schema.json' }
+    NotFound:
+      description: Resource not found.
+      content:
+        application/json:
+          schema: { $ref: './schemas/error.schema.json' }
+    RateLimited:
+      description: Rate limit exceeded.
+      content:
+        application/json:
+          schema: { $ref: './schemas/error.schema.json' }
+    InternalError:
+      description: Internal server error.
+      content:
+        application/json:
+          schema: { $ref: './schemas/error.schema.json' }
+
+  examples:
+    QueryExample:
+      summary: Urgent crisis-response PR query in Greater London.
+      value:
+        query_id: q-01HQXRD3U8VWXAB0CDEF2GHIJK
+        schema_version: '0.8'
+        protocol_version: '0.8'
+        query_type: consumer_introduction
+        requesting_agent:
+          platform_id: platform_openai_example
+          client_id: client_123
+        consent_receipt_id: cr-01HQXRB1S6TUVZ8A9BCD0EFGHI
+        matter:
+          category: pr_professional
+          matter_type: crisis_response
+          location: GB-LON
+          urgency: urgent
+        filters:
+          professional_tier: established
+          partner_verified_only: true
+          enhanced_verification_required: false
+          max_response_time_hours: 4
+          virtual: true
+        shortlist_size: 3
+    MatchResponseExample:
+      summary: Single result with full presentation_disclosure block.
+      value:
+        query_id: q-01HQXRD3U8VWXAB0CDEF2GHIJK
+        schema_version: '0.8'
+        protocol_version: '0.8'
+        deprecation_warning: null
+        presentation_disclosure:
+          atah_is_not_recommending: true
+          ranking_basis: [relevance, verification_quality, availability_response, profile_completeness, inbound_referral_signal]
+          commercial_weighting: false
+          user_facing_disclosure: 'ATAH does not recommend or endorse any professional. This is a provenance-visible shortlist based on the matter described and verification evidence available.'
+        result_count: 1
+        results:
+          - atah_id: atah-01HQXR8M2P3QRV5WTYZAB6CDEF
+            professional_tier: established
+            registration_route: partner
+            match_score: 0.91
+            match_factors:
+              relevance: 0.93
+              verification_quality: 0.88
+              availability_score: 1.0
+              profile_completeness: 0.86
+              inbound_referral_signal: 0.82
+              verification_quality_subcomponents:
+                credential_verification: 0.92
+                enhanced_score: 0.0
+                review_signals: 0.84
+                scope_completeness: 0.95
