@@ -124,13 +124,15 @@ The protocol moves to v1.0 once at least one trusted partner integration is live
 
 Breaking changes are possible until v1.0. The version negotiation and deprecation policy is defined in the spec.
 
+**Note on maintenance.** ATAH is currently maintained by a small team with limited bandwidth. Published response times for security disclosures, governance objections, and review of contributions are best-effort targets and reflect that posture. The protocol's longer-term sustainability depends on transitioning to independent governance and on partners and implementers contributing to the work. Anyone interested in supporting the project — whether as a partner, implementer, reviewer, or volunteer maintainer — is encouraged to get in touch.
+
 ## Governance
 
 ATAH is founded by [Grahame Cohen](https://github.com/grahamecohen). The protocol operates under the founding [CHARTER](CHARTER.md), which is intended to operate as a public governance covenant binding the founder to administer ATAH consistently with its commitments.
 
-It is the founding commitment that governance of the protocol will transition to an independent structure — a not-for-profit, foundation, or equivalent — within 12 months of v0.8 publication, or earlier upon two trusted partner integrations being live and one external conforming implementation being demonstrated. Any deadline revision requires public explanation and approval by the interim advisory group.
+It is the founding commitment that governance of the protocol will transition to an independent structure — a not-for-profit, foundation, or equivalent — when two trusted partner integrations are live and at least one external conforming implementation has been demonstrated. The trigger framework reflects that the protocol works with cross-industry organisations whose decision cycles are inherently slower than software-industry timelines, and that independent governance is appropriate when there is an ecosystem to govern rather than at an arbitrary calendar point.
 
-Within 90 days of publication, ATAH will publish an interim governance plan defining the interim governance body and decision-making process.
+An interim advisory group will be convened when suitable members are identified and available to serve. The status of governance transition will be reviewed and reported publicly when there is meaningful progress to share.
 
 The Charter's permanent core commitments — regardless of corporate structure — include:
 

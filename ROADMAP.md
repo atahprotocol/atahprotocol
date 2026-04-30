@@ -16,23 +16,25 @@ The v0.8 publication includes:
 
 ## Release strategy
 
-v0.8 is published with the explicit expectation that early reviewers will surface issues. The release plan handles that openly:
+v0.8.1 is published as the release-candidate version. The release plan handles ongoing iteration openly:
 
-- **v0.8.1 — patch-level fixes.** Within weeks of feedback if needed. Editorial corrections, schema clarifications, minor inconsistencies, small spec amendments that don't change semantics.
-- **v0.9 — substantive next release.** Items listed below. Timing depends on feedback volume and depth of the deferred work picked up.
-- **v1.0 — stable.** When at least one third-party conforming implementation exists, governance has transferred to an independent structure, and the deferred items below are addressed (or deliberately deferred further with stated reasons).
+- **v0.8.1.x — patch-level fixes.** Editorial corrections, schema clarifications, minor inconsistencies, and small spec amendments that don't change semantics may be incorporated in patch versions as feedback arrives and time and resources allow. There is no committed cadence; patches land when meaningful work has accumulated.
+- **v0.9 — substantive next release.** Items listed below. Timing depends on feedback volume, partner integration progress, and the resources available to pick up deferred work.
+- **v1.0 — stable.** When at least one third-party conforming implementation exists, governance has transitioned to an independent structure per the Charter triggers, and the deferred items below are addressed (or deliberately deferred further with stated reasons).
 
 Breaking changes are possible up to v1.0; the version negotiation and deprecation policy in [spec Section 7.1](spec/v0.8/full-spec.md#71-versioning-and-backward-compatibility) governs how those changes are managed.
 
-## v0.8.1 candidates
+## v0.8.1.x and v0.8.2 candidates
 
-Items expected to be small enough to land as a patch release rather than wait for v0.9:
+Items expected to be small enough to land as patch releases rather than wait for v0.9:
 
 - Editorial corrections from peer review
 - Schema clarifications where wording has been ambiguous in practice
 - Cross-document consistency fixes surfaced after publication
-- Repository directory restructure into `core/`, `bindings/`, `registry-profile/` subdirectories — deferred from v0.8 to avoid schema-reference reflow risk pre-publication
-- Press release materials updated to v0.8 references
+- Repository directory restructure into `core/`, `bindings/`, `registry-profile/` subdirectories — deferred from v0.8.1 to avoid schema-reference reflow risk pre-publication
+- `verification_confidence` schema implementation (committed in spec §4.12 at v0.8.1; schema lands in v0.8.2)
+
+These are best-effort; patch versions land when meaningful work has accumulated rather than on a fixed cadence.
 
 ## v0.9 candidates
 

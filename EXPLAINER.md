@@ -325,7 +325,7 @@ These are acknowledged as known limits, not pretended to be solved.
 
 ATAH is founded by Grahame Cohen. The protocol specification is published under Apache 2.0 and is permanently open. The MCP endpoint is free to query.
 
-The Charter is intended to operate as a public governance covenant. The founder undertakes to administer ATAH consistently with its commitments. Within 90 days of v0.8 publication, an interim governance plan is published. Within 12 months, or earlier on triggers (two trusted partner integrations and one external conforming implementation), governance transfers to an independent structure — or a public explanation and revised deadline is published.
+The Charter is intended to operate as a public governance covenant. The founder undertakes to administer ATAH consistently with its commitments. An interim advisory group will be convened when suitable members are identified and available to serve. Governance transitions to an independent structure when two trusted partner integrations are live and at least one external conforming implementation has been demonstrated — recognising that the cross-industry organisations the protocol works with have inherently slower decision cycles than the software industry. Transition progress is reported publicly when there is meaningful progress to share.
 
 The founder retains a permanent advisory seat with no veto rights, no preferential commercial advantage, and explicit conflict-of-interest, recusal, and disclosure rules. After transition the seat carries consultation rights but not approval rights for core amendments.
 
@@ -337,8 +337,8 @@ This is a v0.8 release candidate. The work that follows falls into four streams:
 
 - **Community review.** The specification needs eyes on it from people building AI products, working in professional standards, running professional bodies, and thinking about related problems in the standards space. Feedback is invited via GitHub issues and discussions.
 - **Trusted partner conversations.** First conversations are open with regulatory databases, professional bodies, and review platforms. The natural first movers are the categories where the AEO question is sharpest right now — legal, property and casualty insurance, communications, coaching, project management.
-- **Reference implementation.** A reference registry implementation is in scope for Phase 1. The implementation is separate from the protocol and does not change protocol governance. Anyone can build their own implementation against the same spec.
-- **Independent governance structure.** Legal advice on the right structure (UK CIC, foundation model, US public benefit corporation, or equivalent) is being commissioned. The transition to independent governance happens within the 12-month deadline or earlier on triggers.
+- **Reference implementation.** A reference registry implementation is the Phase 2 build, commencing once resources allow. The implementation is separate from the protocol and does not change protocol governance. Anyone can build their own implementation against the same spec.
+- **Independent governance structure.** Legal advice on the right structure (UK CIC, foundation model, US public benefit corporation, or equivalent) will be taken when transition is in prospect. The transition happens when two trusted partner integrations are live and at least one external conforming implementation has been demonstrated, per the Charter.
 
 ATAH is offered to the community to refine, adopt, fork, or improve.
 

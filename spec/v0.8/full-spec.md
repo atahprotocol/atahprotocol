@@ -2094,7 +2094,7 @@ The v0.8 MVP is complete when all of the following are true.
 - Public MCP endpoint live and accessible
 - End-to-end audit trail reconstructable for any introduction
 - `SECURITY.md`, `GOVERNANCE.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `CHANGELOG.md`, `CHANGES-FROM-V0_7-TO-V0_8.md` published
-- Interim governance plan published per Charter (Section: Transition to independent governance) within 90 days
+- Interim advisory group convened per Charter (Section: Transition to independent governance) when suitable members are identified and available to serve
 - Press materials updated to reflect v0.8
 
 ---

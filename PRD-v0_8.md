@@ -54,7 +54,7 @@ The initial ATAH reference registry is the first implementation of that layer, n
 - **Bidirectional by design.** ATAH manages the full lifecycle of every introduction in both directions, with explicit consent at each stage captured as a structured consent receipt.
 - **AI-assistant first.** ATAH actively encourages professionals to connect their AI assistant as the primary channel for receiving and managing introductions.
 - **Privacy as a structural commitment, not a policy.** Consumer personal data is never written to the main registry database. It is held only in a transient encrypted vault during active handoffs and crypto-erased on resolution. Notification channels carry no personal data — only authenticated retrieval references. This is built into the protocol, not added on top.
-- **Independent governance with concrete deadlines.** Governance is committed to transitioning to an independent structure within 12 months of v0.8 publication, or earlier on defined triggers, with a public-explanation safety valve for any deadline revision.
+- **Independent governance on trigger-based transition.** Governance is committed to transitioning to an independent structure when two trusted partner integrations are live and at least one external conforming implementation has been demonstrated. Transition progress is reported publicly when there is meaningful progress to share. The trigger framework reflects that cross-industry standards work runs on multi-month-to-multi-year decision cycles, not software-industry calendars.
 - **Built for federation, single-registry at v0.8.** The protocol architecture supports federation. v0.8 launches with a single reference registry. Federation mechanics deferred to v0.9 / v1.0.
 
 ## 5. Professional Scope
@@ -434,9 +434,9 @@ The choice of legal structure for the protocol's interim and long-term governanc
 
 This is set out in detail in the Charter and summarised here:
 
-- Within **90 days** of v0.8 publication, ATAH publishes an interim governance plan defining the interim governance body and decision-making process.
-- Within **12 months** of v0.8 publication, **or earlier upon two trusted partner integrations being live and one external conforming implementation being demonstrated**, ATAH will either transfer governance to an independent entity, or publish a public explanation and revised deadline approved by the interim advisory group.
-- Subsequent revisions of the deadline must be public and approved by the interim advisory group.
+- An interim advisory group will be convened when suitable members are identified and available to serve.
+- Governance transitions to an independent entity when two trusted partner integrations are live and at least one external conforming implementation has been demonstrated. The trigger framework reflects the realistic adoption timelines of cross-industry standards work — established standards bodies (W3C, OASIS, OCDS, IEEE) operate on implementation evidence rather than calendar deadlines, and ATAH follows the same pattern.
+- Transition progress is reported publicly when there is meaningful progress to share. The report covers progress toward the trigger conditions, the state of partner integrations, and any factors affecting the path to independent governance.
 
 ### Interim advisory structure
 
@@ -472,29 +472,35 @@ ATAH composes with established standards rather than replacing them: OAuth 2.1 (
 
 ## 14. Roadmap
 
-The roadmap below describes targets for the **ATAH-operated reference registry**, not protocol-level conformance requirements. Conforming registries are not bound to these dates or category coverage; they are bound to the conformance principles in the specification (Section 14). Where protocol-level commitments evolve (e.g. new schema versions, new bindings), they are tracked in the spec CHANGELOG and the top-level [ROADMAP.md](ROADMAP.md).
+The roadmap below describes the direction of work for the **ATAH-operated reference registry**, not protocol-level conformance requirements. The phases describe sequence — what comes before what — not a delivery schedule. Calendar dates have been removed because the work depends on the people clock: regulator conversations, professional body decisions, partner agreement negotiations, and AI platform partnership cycles all run on multi-month-to-multi-year timelines that no software roadmap can compress. Phase progression reflects what those conversations produce, not what was hoped for.
 
-### Phase 1 — Foundation (Now — Q2 2026)
+Conforming registries are not bound to this roadmap; they are bound to the conformance principles in the specification (Section 14). Where protocol-level commitments evolve (e.g. new schema versions, new bindings), they are tracked in the spec CHANGELOG and the top-level [ROADMAP.md](ROADMAP.md).
 
-Protocol specification v0.8 published on GitHub with all schemas, OpenAPI contract, MCP tool definitions, and full governance machinery (GOVERNANCE, CONTRIBUTING, CODE_OF_CONDUCT, SECURITY, CHANGELOG, CHANGES-FROM-V0_7-TO-V0_8). Registry launches with verified registration for property and casualty insurance agents across all 50 US states via NIPR; for lawyers in priority US states with self-declared profiles in non-priority states correctly labelled; for financial advisors via FINRA where ready. All other categories open for self-declared registration. Healthcare and any other compliance-pending categories open for registration but not surfaced in matching.
+### Phase 1 — Publication and community review
 
-MCP endpoint conformant with current MCP authorisation guidance (OAuth 2.1-compatible, protected resource metadata, audience validation) and REST API live. Web portal with magic link / OIDC authentication. Tiered notification + authenticated retrieval live across SMS and email — no PII through notification channels. Consumer AI agent polling and cross-platform status check support. Trusted partner API live, including W3C Verifiable Credential submission acceptance path. First trusted partner integrations established. Both registration routes (partner and individual) live with roll-up logic and pre-merge notification for high-risk categories. Concern flag mechanism with admin-only visibility and right of reply. Interim governance plan published within 90 days. Press launch.
+Protocol specification v0.8.1 published on GitHub with all schemas, OpenAPI contract, MCP tool definitions, and governance machinery (CHARTER, GOVERNANCE, CONTRIBUTING, CODE_OF_CONDUCT, SECURITY, CONFORMANCE, ROADMAP, CHANGELOG, CHANGES-FROM-V0_7-TO-V0_8). Repository accepts issues, discussions, and contributions. Community review begins — feedback from standards reviewers, AI platform technical staff, professional bodies, and prospective trusted partners may be incorporated in subsequent patch versions as time and resources allow. Publication announcement, press cycle, and outreach to associations and AI platforms begin. An interim advisory group will be convened when suitable members are identified and available to serve.
 
-### Phase 2 — Enrichment (Q3 2026)
+The reference registry is in design; build commences as resources allow. The reference registry's eventual operational scope (which categories, which jurisdictions, which verification routes are live) depends on partner conversations advancing and on the resources available to the build. Phase 1 has no committed end date — it runs until the work of Phase 2 begins to overlap with it, at which point Phase 1 activity (community review, governance maturation) continues alongside reference registry build and first partner conversations.
 
-AI assistant MCP connection for profile maintenance. United Kingdom — SRA and FCA verification. First W3C Verifiable Credential partner submissions in production. First association partner integrations across credentialled and established practitioner fields. Expanded trusted partner network. First approved independent verifier operational; first enhanced verification records visible in match responses. First review platform integrated with anti-gaming attestations confirmed. Healthcare compliance annex drafted with specialist legal advice. Conduct handling framework developed. Webhook push delivery to consumer AI agents activated. MCP push notifications to professional AI assistants activated. State bar verification expanded beyond priority states. Folder sync feature designed. Independent governance structure assessment completed.
+### Phase 2 — Reference registry build and first partner conversations
 
-### Phase 3 — Platform Integration (Q4 2026)
+Reference registry implementation may begin if resources allow. Alternatively, an external implementer may build a conforming registry against the spec — the protocol is open and any conforming implementation moves the protocol forward. First partner conversations may advance with regulators, professional bodies, and review platforms across the categories where the AI-discoverability question is sharpest. AI assistant MCP connection for profile maintenance, first W3C Verifiable Credential submission paths, first independent verifier conversations, healthcare compliance annex work with specialist legal input, conduct handling framework, webhook push delivery, and MCP push notifications all sit in this phase as design and development work that proceeds as conversations and resources allow.
 
-Formal submission to Anthropic, OpenAI, and Google for recommended tool directory inclusion. A2A protocol support. Additional category verification pathways. Referral analytics platform launched as commercial product. Healthcare category opens for matching subject to compliance annex completion. Multiple independent verifiers active across different categories and jurisdictions. Independent governance entity established.
+This phase is dependent on partner conversations advancing and on resources for reference registry build (whether by ATAH directly or by an external implementer). Decision cycles in cross-industry standards work are inherently slower than software-industry timelines; phase progression reflects what those conversations produce, not a calendar.
 
-### Phase 4 — Federation Foundations (2027)
+### Phase 3 — Reference registry operational and first integrations
 
-Federation mechanics specified in v0.9 / v1.0: cross-registry trust, atah_id resolution across registries, handoff routing between registries, federated governance. Native support for digital twin identity and data sharing as personal AI agent standards emerge. Professional profiles maintained entirely by the professional's personal AI agent. Sybil/referral-ring detection beyond v0.8 baseline.
+Reference registry deployed and operational. First trusted partner integrations live with verified data flow. First AI platform integration conversations advance toward production integration. First approved independent verifier operational; first enhanced verification records visible in match responses. First review platform integrated with anti-gaming attestations confirmed. A2A protocol binding work begins. Additional category verification pathways come online as partner conversations conclude.
 
-### Phase 5 — Global Scale (2027–2028)
+The transition to independent governance is not a Phase 3 deliverable; it is triggered when two trusted partner integrations are live and at least one external conforming implementation has been demonstrated, per the Charter. The transition may occur during, before, or after Phase 3 depending on when the trigger conditions are met.
 
-Additional jurisdictions — EU, Canada, Australia. Full healthcare category with confirmed compliance variant. Additional regulated and established practitioner categories. Trusted partner network at scale across multiple jurisdictions and all professional categories.
+### Phase 4 — Federation and broader adoption
+
+Federation mechanics specified in v0.9 / v1.0: cross-registry trust, atah_id resolution across registries, handoff routing between registries, federated governance. Broader trusted partner network. Additional jurisdictions opened as partner agreements and compliance annexes mature. Native support for digital twin identity and data sharing as personal AI agent standards emerge. Sybil/referral-ring detection beyond v0.8 baseline.
+
+### Phase 5 — Maturity
+
+Trusted partner network across multiple jurisdictions and a broad range of professional categories. Full healthcare category with confirmed compliance variant. Independent governance transitioned per Charter triggers. Conformance test suite published. Multilingual support. The protocol matures from release-candidate through stable releases as adoption broadens and the independent governance body forms its operating cadence.
 
 ## 15. Success Metrics
 
@@ -512,7 +518,7 @@ Success metrics are split into three layers — protocol, reference registry, an
 
 ### Reference registry success (Phase 1)
 
-- Interim governance plan published within 90 days of v0.8 publication
+- Interim advisory group convened (no fixed deadline; convened when suitable members are identified and available to serve, per Charter)
 - Reference registry MCP endpoint live and queryable by at least two different AI platforms
 - All three introduction types demonstrated successfully end to end through the reference registry
 - End-to-end handoff demonstrated in at least one high-stakes category
@@ -522,7 +528,7 @@ Success metrics are split into three layers — protocol, reference registry, an
 - Consent receipt generation, hash storage, and revocation working end-to-end
 - Tiered handoff access control validated (cross-platform read; write-token write)
 - At least two trusted partner integrations live and contributing data to the reference registry
-- Insurance agent verification live across all 50 US states via NIPR; lawyer verification live for priority states with non-priority states correctly labelled as self-declared
+- Verification routes live for at least one regulated category in at least one jurisdiction, with appropriate labelling for jurisdictions where verification is not yet in place
 - Privacy and deletion controls (transient vault, crypto-erasure, deletion scope) tested under load
 - Reference registry conformance statement published
 
@@ -531,7 +537,7 @@ Success metrics are split into three layers — protocol, reference registry, an
 - Conversations initiated with at least five professional associations or trusted partner organisations
 - At least one professional body in active conversation about issuing W3C Verifiable Credentials to its members
 - Legal entity incorporated or founding charter signed
-- First conversations begun with potential successor independent governance bodies (foundation, CIC, public benefit corporation)
+- First conversations begun with potential successor independent governance structures (foundation, CIC, public benefit corporation, or equivalent)
 
 ### Longer Term
 
@@ -572,6 +578,6 @@ The trusted partner model is what makes the registry credible and the operationa
 
 The protocol composes with existing identity and credential standards rather than competing with them. Its specific contribution is the layer above: professional categorisation, the staged introduction lifecycle, the matching engine, the trusted-partner trust model, and the commercial-neutrality and provenance-visibility commitments.
 
-The protocol is designed to be implementable. The MCP endpoint is free to query. The governance commitments are clear and set out in the CHARTER, with a concrete transition deadline. The trusted partner model is commercially coherent. The privacy architecture is structural, not policy.
+The protocol is designed to be implementable. The MCP endpoint is free to query. The governance commitments are set out in the CHARTER, with a trigger-based transition framework rather than a calendar deadline. The trusted partner model is commercially coherent. The privacy architecture is structural, not policy.
 
 This is a v0.8 release candidate intended for technical review and reference implementation work. Hardening continues through community review, partner integration feedback, and reference implementation experience.

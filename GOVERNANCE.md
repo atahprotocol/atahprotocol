@@ -11,9 +11,7 @@ project, this document specifies *how* decisions are made and recorded.
 
 ## 1. Purpose
 
-The Charter is the binding public covenant. This document is operational. Where
-the two disagree, the Charter prevails. Substantive amendments to either are
-made through the processes below.
+The Charter is the public governance covenant and founding commitment. This document is operational. Where the two disagree, the Charter prevails. Substantive amendments to either are made through the processes below.
 
 ## 2. Current state — interim governance
 
@@ -23,13 +21,13 @@ Until transition to independent governance:
   requiring interim advisory consultation. The founder is named and the
   founder's role, conflicts, recusal duties, and compensation are public per
   Charter §"Founder accountability".
-- **An interim advisory group is being convened** within 90 days of v0.8
-  publication. Composition principles, member identities, and operating
-  procedures will be published here when finalised.
+- **An interim advisory group will be convened** when suitable members are identified and available to serve. Composition principles, member identities, and operating procedures will be published here when finalised.
 - **Decisions requiring interim advisory consultation** (per Charter §"Interim
   advisory structure"): approval of the first independent verifier; approval
   of the first review platform; first commercial partner agreement; first
   category compliance annex; any Charter change.
+
+**Maintenance posture.** ATAH at v0.8.1 publication is maintained by a small team — currently a single founder with significant other commitments. The SLAs published in this document and in SECURITY.md are best-effort targets reflecting that posture. Where response times are missed because of capacity constraints, that is itself information worth surfacing in any review of governance status. The protocol's path to sustained, well-staffed maintenance runs through partner integrations, external implementer engagement, and the eventual transition to independent governance.
 
 ## 3. Decision types
 
@@ -78,25 +76,17 @@ closed; the closure rationale is recorded publicly.
 
 ## 6. Transition to independent governance
 
-The Charter sets the transition covenant: 12 months from v0.8 publication, or
-sooner on documented triggers (founder incapacity; sustained governance
-escalation; partner-base or registered-professional thresholds).
+The Charter sets the transition framework: transition is triggered when two trusted partner integrations are live and at least one external conforming implementation has been demonstrated. Independent governance is appropriate when there is an ecosystem to govern; the trigger conditions reflect that the protocol works with cross-industry organisations whose decision cycles are inherently slower than software-industry timelines.
 
-The transition process:
+The transition process, once triggered:
 
-1. The interim advisory group convenes, takes legal advice on candidate
-   structures (foundation, association, multi-stakeholder body, etc.), and
-   conducts public consultation on the chosen structure.
+1. The interim advisory group (or, if it has not yet been convened by trigger time, an advisory body convened at that point) takes legal advice on candidate structures (foundation, association, multi-stakeholder body, etc.), and conducts public consultation on the chosen structure.
 2. Decision is made transparently, with reasons published.
-3. The independent body is constituted and assumes the decisions listed in
-   §3 above.
-4. The founder seat continues per Charter §"Founder seat post-transition" — a
-   single seat, no veto, with the same recusal duties as any other seat-holder.
-5. The advisory group is dissolved or restructured into a permanent role of
-   the new body, as appropriate.
+3. The independent body is constituted and assumes the decisions listed in §3 above.
+4. The founder seat continues per Charter §"Founder's role and compensation" — a single seat, no veto, with the same recusal duties as any other seat-holder.
+5. The advisory group is dissolved or restructured into a permanent role of the new body, as appropriate.
 
-Any revision to the transition deadline requires public explanation under the
-"public-explanation safety valve" in the Charter.
+Annual review of transition progress is published per the Charter when there is meaningful progress to report. The review reports on progress toward the trigger conditions, the state of partner integrations, and any factors affecting the path to independent governance. Where circumstances change in a way that affects the transition approach, the change is explained publicly.
 
 ## 7. Amendment of this document
 

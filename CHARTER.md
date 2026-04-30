@@ -2,7 +2,7 @@
 
 **Founding governance commitments of the Agent to Authenticated Human Protocol**
 
-*Version 1.2 — April 2026*
+*Version 1.3 — April 2026*
 
 ---
 
@@ -91,23 +91,19 @@ These commitments describe how the protocol operates today and may evolve throug
 
 ### Transition to independent governance
 
-It is the founding commitment that governance of the ATAH protocol will transition to an independent structure — a not-for-profit, foundation, standards body, or equivalent — within the timeline set out below.
+It is the founding commitment that governance of the ATAH protocol will transition to an independent structure — a not-for-profit, foundation, standards body, or equivalent — once the protocol has demonstrated real-world adoption.
 
-**Transition covenant:**
+**Transition triggers.** Transition is triggered when two trusted partner integrations are live and at least one external conforming implementation has been demonstrated. These triggers reflect that independent governance is appropriate when there is an ecosystem to govern, rather than when an arbitrary calendar deadline is reached. The protocol works with cross-industry organisations whose decision cycles are inherently slower than software-industry timelines, and the transition framework recognises that.
 
-- Within 90 days of v0.8 publication, ATAH will publish an interim governance plan defining the interim governance body and decision-making process.
-- Within 12 months of v0.8 publication, **or earlier upon two trusted partner integrations being live and one external conforming implementation being demonstrated**, ATAH will either:
-  - Transfer governance to an independent entity, or
-  - Publish a public explanation of why transition has been delayed, the steps being taken, and a revised deadline approved by the interim advisory group.
-- Subsequent revisions of the deadline must be public and approved by the interim advisory group.
+**Interim period.** Until the transition is complete, the protocol operates under this Charter, with the founder undertaking to administer ATAH consistently with its commitments. An interim advisory group will be convened when suitable members are identified and available to serve. The composition, member identities, and operating procedures will be published when finalised.
 
-The choice of governance structure will be made transparently and in consultation with active contributors and trusted partners at that time. The protocol specification will remain open and licensed under Apache 2.0 regardless of the corporate structure chosen for governance.
+**Annual review.** The status of governance transition will be reviewed periodically and published as warranted. The review will report on progress toward the trigger conditions, the state of partner integrations, and any factors affecting the path to independent governance. If circumstances change in a way that affects the transition approach, the change will be explained publicly.
 
-Until the transition is complete, the protocol operates under this Charter, with the founder undertaking to administer ATAH consistently with its commitments.
+**Continuity.** The choice of governance structure will be made transparently and in consultation with active contributors and trusted partners at that time. The protocol specification will remain open and licensed under Apache 2.0 regardless of the corporate structure chosen for governance.
 
 ### Interim advisory structure
 
-Before the interim governance body is formed (within 90 days of publication), the founder will convene an interim advisory group. The interim advisory group must be consulted before any of the following decisions:
+Before the interim governance body is formed, the founder will convene an interim advisory group when suitable members are identified and available to serve. Once convened, the interim advisory group must be consulted before any of the following decisions:
 
 - Approval of the first independent verifier
 - Approval of the first review platform
@@ -202,6 +198,7 @@ This Charter takes effect from the date of its first commit to the public reposi
 
 ## Version history
 
+- **v1.3 — April 2026.** Governance transition reworked. Removed the 90-day interim advisory group deadline and the 12-month transition deadline; replaced with trigger-based transition (two trusted partner integrations + one external conforming implementation) and annual public review. Aligns governance commitments with the realistic adoption timelines of cross-industry standards work. No changes to Part One core commitments.
 - **v1.2 — April 2026.** Protocol-layer refinement. Updated Open specification (Core commitment 1) to make royalty-free protocol implementation explicit and clarify that commercial charges live at the implementation or operational layer. Updated Open MCP endpoint (Core commitment 4) to distinguish the ATAH-operated reference MCP endpoint from the protocol itself, and to clarify that future third-party conforming implementations may operate their own endpoints subject to conformance principles. Added scope clarification that registry-operations references in the Charter apply to the ATAH-operated reference registry. No changes to substantive commitments.
 - **v1.1 — April 2026.** Added privacy floor and compliance gating floor as core commitments. Added founder conflict-of-interest, recusal, and disclosure rules. Added concrete transition covenant with deadline. Added interim advisory structure. Added partner principles, professional participation principles, and verifier/review platform principles. Strengthened amendment process. Added accessibility commitment. Clarified the Charter's operation as a public governance covenant.
 - **v1.0 — April 2026.** Initial Charter.

@@ -4,6 +4,8 @@ This document is a file-by-file change log between the v0.7 internal package and
 
 For the high-level release notes, see [CHANGELOG.md](CHANGELOG.md).
 
+**Note on v0.8.1.** This document covers the v0.7 → v0.8 transition. The substantive pre-publication review round that produced the published version led to a v0.8.1 bump rather than v0.8.0; the v0.8.1 changes are documented in CHANGELOG.md and replace several v0.8 governance commitments (notably the 90-day interim advisory deadline and the 12-month transition deadline, both removed in favour of trigger-based transition). The v0.7 → v0.8 changes recorded below remain accurate as a description of how the protocol matured between those two internal versions.
+
 The v0.8 package incorporates pre-publication peer review remediation. The protocol's purpose, actors, and lifecycle are unchanged from v0.7. v0.8 tightens, completes, and clarifies what was previously implied or under-specified.
 
 ## Architecture review note (final)
