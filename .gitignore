@@ -1,0 +1,25 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+
+# Local build / temp
+node_modules/
+dist/
+build/
+
+# Private working documents (DO NOT COMMIT)
+_PUBLICATION-RUNBOOK.md
+_*.md
+SESSION-HANDOVER-FOR-NEXT-CHAT.md
+HANDOVER-TO-CLAUDE-CODE.md
+private/
+notes/
+drafts/
+
+# Architecture diagram (kept private)
+ATAH-Architecture-Diagram-*.html
