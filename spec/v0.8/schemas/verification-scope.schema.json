@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atahprotocol.org/spec/v0.8/schemas/verification-scope.schema.json",
+  "title": "ATAH Trusted Partner Verification Scope",
+  "description": "ATAH Registry Operation Profile object: the `verification_scope` block on a trusted partner record describing what the partner verifies and how (spec/v0.8 Section 5.2). Required for implementations claiming Registry Conformance.",
+  "type": "object",
+  "properties": {
+    "verification_method": {
+      "type": "string",
+      "enum": ["api_lookup", "scheduled_data_push", "manual_audit", "verifiable_credential_push"]
+    },
+    "verification_frequency_days": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Partner's declared maximum interval between updates."
+    },
+    "supports_verifiable_credentials": {
+      "type": "boolean"
+    },
+    "verifies_membership": { "type": "boolean" },
+    "verifies_active_licence": { "type": "boolean" },
+    "verifies_disciplinary_record": { "type": "boolean" },
+    "verifies_cpd_compliance": { "type": "boolean" },
+    "verifies_insurance": { "type": "boolean" }
+  },
+  "required": ["verification_method", "verification_frequency_days", "supports_verifiable_credentials"],
+  "additionalProperties": false,
+  "examples": [
+    {
+      "verifies_membership": true,
+      "verifies_active_licence": false,
+      "verifies_disciplinary_record": true,
+      "verifies_cpd_compliance": true,
+      "verifies_insurance": false,
+      "verification_method": "scheduled_data_push",
+      "verification_frequency_days": 90,
+      "supports_verifiable_credentials": false
+    }
+  ]
+}

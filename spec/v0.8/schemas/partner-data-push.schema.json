@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atahprotocol.org/spec/v0.8/schemas/partner-data-push.schema.json",
+  "title": "ATAH Partner Data Push",
+  "description": "ATAH Registry Operation Profile object: body of POST /v1/partners/:partner_id/data (spec/v0.8 Section 7.6). Required for implementations claiming Registry Conformance.",
+  "type": "object",
+  "properties": {
+    "batch_id": { "type": "string", "minLength": 1 },
+    "schema_version": { "type": "string", "const": "0.8" },
+    "submitted_at": { "type": "string", "format": "date-time" },
+    "partner_id": {
+      "type": "string",
+      "pattern": "^tp-[A-Za-z0-9-]{6,64}$"
+    },
+    "partner_signature": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Signature over the canonical batch payload using the partner's registered signing key. Algorithm and encoding governed by spec Section 13."
+    },
+    "partial_failure_policy": {
+      "type": "string",
+      "enum": ["all_or_nothing", "accept_valid"]
+    },
+    "records": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/Record" }
+    }
+  },
+  "required": [
+    "batch_id",
+    "schema_version",
+    "submitted_at",
+    "partner_id",
+    "partner_signature",
+    "records",
+    "partial_failure_policy"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "Record": {
+      "type": "object",
+      "properties": {
+        "operation": {
+          "type": "string",
+          "enum": ["upsert", "retract", "replace"]
+        },
+        "record_type": {
+          "type": "string",
+          "enum": ["professional_profile", "enhanced_verification", "verification_data_point"]
+        },
+        "record_id": { "type": "string", "minLength": 1 },
+        "source_last_updated": { "type": "string", "format": "date-time" },
+        "payload": {
+          "type": "object",
+          "description": "Record content. Shape depends on record_type. Open object at the partner-data-push level; per-type schemas validate downstream.",
+          "additionalProperties": true
+        },
+        "idempotency_key": { "type": "string", "minLength": 1 }
+      },
+      "required": ["operation", "record_type", "record_id", "source_last_updated", "payload"],
+      "additionalProperties": false
+    },
+    "ValidationReport": {
+      "type": "object",
+      "description": "Response shape for POST /v1/partners/:partner_id/data. Returned to the partner after batch processing.",
+      "properties": {
+        "batch_id": { "type": "string", "minLength": 1 },
+        "accepted": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "description": "record_id values that were accepted."
+        },
+        "rejected": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "description": "record_id values that were rejected."
+        },
+        "errors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "record_id": { "type": "string", "minLength": 1 },
+              "code": { "type": "string", "minLength": 1 },
+              "message": { "type": "string", "minLength": 1 }
+            },
+            "required": ["record_id", "code", "message"],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": ["batch_id", "accepted", "rejected", "errors"],
+      "additionalProperties": false
+    }
+  },
+  "examples": [
+    {
+      "batch_id": "batch-2026-04-10-tp-statebar-tx-001-001",
+      "schema_version": "0.8",
+      "submitted_at": "2026-04-10T01:00:00Z",
+      "partner_id": "tp-statebar-tx-001",
+      "partner_signature": "v1:hmac-sha256:c0ffeebabe0123456789abcdef0123456789abcdef0123456789abcdef012345",
+      "partial_failure_policy": "accept_valid",
+      "records": [
+        {
+          "operation": "upsert",
+          "record_type": "professional_profile",
+          "record_id": "tp-statebar-tx-001:TX-BAR-12345",
+          "source_last_updated": "2026-04-09T23:59:00Z",
+          "payload": {
+            "licence_number": "TX-BAR-12345",
+            "licence_status": "active",
+            "disciplinary_record": "none_found",
+            "admission_date": "2008-09-15"
+          },
+          "idempotency_key": "ik-tp-statebar-tx-001-2026-04-10-001"
+        }
+      ]
+    }
+  ]
+}

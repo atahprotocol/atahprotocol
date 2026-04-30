@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atahprotocol.org/spec/v0.8/schemas/conflict-record.schema.json",
+  "title": "ATAH Conflict Record",
+  "description": "ATAH Registry Operation Profile object: record of a meaningful conflict between data points contributed by two trusted partners about the same professional (spec/v0.8 Section 5.5). Required for implementations claiming Registry Conformance.",
+  "type": "object",
+  "properties": {
+    "conflict_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "schema_version": { "type": "string", "const": "0.8" },
+    "professional_id": {
+      "type": "string",
+      "pattern": "^atah-[A-Za-z0-9-]{6,64}$"
+    },
+    "conflict_field": {
+      "type": "string",
+      "enum": ["licence_status", "disciplinary_record", "matching_status", "membership_status"]
+    },
+    "partner_a_id": {
+      "type": "string",
+      "pattern": "^tp-[A-Za-z0-9-]{6,64}$"
+    },
+    "partner_a_value": {},
+    "partner_b_id": {
+      "type": "string",
+      "pattern": "^tp-[A-Za-z0-9-]{6,64}$"
+    },
+    "partner_b_value": {},
+    "detected_at": { "type": "string", "format": "date-time" },
+    "current_status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "under_review",
+        "resolved-by-retraction",
+        "resolved-by-update",
+        "resolved-by-admin",
+        "resolved-by-professional"
+      ]
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["meaningful", "benign"]
+    }
+  },
+  "required": [
+    "conflict_id",
+    "schema_version",
+    "professional_id",
+    "conflict_field",
+    "partner_a_id",
+    "partner_a_value",
+    "partner_b_id",
+    "partner_b_value",
+    "detected_at",
+    "current_status",
+    "severity"
+  ],
+  "additionalProperties": false,
+  "examples": [
+    {
+      "conflict_id": "conflict-2026-04-10-001",
+      "schema_version": "0.8",
+      "professional_id": "atah-01HQXR7K9NBVZ8M3PXFG2YT5WA",
+      "conflict_field": "disciplinary_record",
+      "partner_a_id": "tp-statebar-tx-001",
+      "partner_a_value": "none_found",
+      "partner_b_id": "tp-stateberlin-001",
+      "partner_b_value": "present",
+      "detected_at": "2026-04-10T02:00:00Z",
+      "current_status": "under_review",
+      "severity": "meaningful"
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atahprotocol.org/spec/v0.8/schemas/rollup-match-record.schema.json",
+  "title": "ATAH Roll-up Match Record",
+  "description": "ATAH Registry Operation Profile object: a record of a partner-to-individual roll-up match — the lifecycle by which partner-pushed records are merged into a claimed individual professional profile (spec/v0.8 Section 15). Required for implementations claiming Registry Conformance.",
+  "type": "object",
+  "properties": {
+    "match_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "schema_version": { "type": "string", "const": "0.8" },
+    "partner_id": {
+      "type": "string",
+      "pattern": "^tp-[A-Za-z0-9-]{6,64}$"
+    },
+    "partner_record_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "individual_atah_id": {
+      "type": "string",
+      "pattern": "^atah-[A-Za-z0-9-]{6,64}$"
+    },
+    "match_confidence": {
+      "type": "string",
+      "enum": ["high_confidence", "low_confidence"]
+    },
+    "criteria_met": {
+      "type": "object",
+      "properties": {
+        "name_match": { "type": "boolean" },
+        "jurisdiction_match": { "type": "boolean" },
+        "firm_match": { "type": "boolean" },
+        "email_match": { "type": "boolean" },
+        "licence_number_match": { "type": "boolean" }
+      },
+      "required": ["name_match", "jurisdiction_match", "firm_match", "email_match", "licence_number_match"],
+      "additionalProperties": false
+    },
+    "current_status": {
+      "type": "string",
+      "enum": [
+        "pending_pre_merge_notification",
+        "pre_merge_notification_sent",
+        "objection_window",
+        "objected",
+        "pending_review",
+        "merged",
+        "merged_with_dispute",
+        "not_a_match"
+      ]
+    },
+    "created_at": { "type": "string", "format": "date-time" },
+    "pre_merge_notification_sent_at": { "type": "string", "format": "date-time" },
+    "objection_window_ends_at": { "type": "string", "format": "date-time" },
+    "objected_at": { "type": "string", "format": "date-time" },
+    "merged_at": { "type": "string", "format": "date-time" }
+  },
+  "required": [
+    "match_id",
+    "schema_version",
+    "partner_id",
+    "partner_record_id",
+    "individual_atah_id",
+    "match_confidence",
+    "criteria_met",
+    "current_status",
+    "created_at"
+  ],
+  "additionalProperties": false,
+  "examples": [
+    {
+      "match_id": "rollup-2026-04-10-001",
+      "schema_version": "0.8",
+      "partner_id": "tp-statebar-tx-001",
+      "partner_record_id": "TX-BAR-12345",
+      "individual_atah_id": "atah-01HQXR7K9NBVZ8M3PXFG2YT5WA",
+      "match_confidence": "high_confidence",
+      "criteria_met": {
+        "name_match": true,
+        "jurisdiction_match": true,
+        "firm_match": true,
+        "email_match": true,
+        "licence_number_match": true
+      },
+      "current_status": "objection_window",
+      "created_at": "2026-04-10T01:00:00Z",
+      "pre_merge_notification_sent_at": "2026-04-10T01:05:00Z",
+      "objection_window_ends_at": "2026-04-24T01:05:00Z"
+    }
+  ]
+}

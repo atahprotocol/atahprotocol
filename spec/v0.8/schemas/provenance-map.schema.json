@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atahprotocol.org/spec/v0.8/schemas/provenance-map.schema.json",
+  "title": "ATAH Provenance Map",
+  "description": "ATAH Core Protocol object: the parallel `_provenance` map referenced from any object containing verifiable claims (spec/v0.8 Section 4.2). Keys are field paths within the parent object using dot notation for nested fields and bracket notation (`field[0]`) for arrays. Values describe per-field verification status, source, and freshness. Required for any ATAH-conformant implementation.",
+  "type": "object",
+  "patternProperties": {
+    "^[a-zA-Z_][a-zA-Z0-9_.\\[\\]]*$": {
+      "$ref": "#/$defs/ProvenanceEntry"
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "ProvenanceEntry": {
+      "type": "object",
+      "properties": {
+        "verification_status": {
+          "type": "string",
+          "enum": [
+            "registry-verified",
+            "partner-verified",
+            "vc-verified",
+            "self-declared",
+            "verification-failed",
+            "verification-deferred",
+            "not-provided"
+          ],
+          "description": "How the field's value was established. Closed enum (spec/v0.8 Section 4.3)."
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Identifier of the verifying source — partner_id, verifier_id, the literals 'professional', 'atah-registry', or 'self', or a VC issuer DID."
+        },
+        "as_of": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the field's value was last verified (RFC 3339 UTC)."
+        }
+      },
+      "required": ["verification_status", "source", "as_of"],
+      "additionalProperties": false
+    }
+  },
+  "examples": [
+    {
+      "name": {
+        "verification_status": "partner-verified",
+        "source": "tp-statebar-tx-001",
+        "as_of": "2026-04-01T00:00:00Z"
+      },
+      "licence.status": {
+        "verification_status": "registry-verified",
+        "source": "atah-registry",
+        "as_of": "2026-04-01T00:00:00Z"
+      },
+      "licensed_jurisdictions[0]": {
+        "verification_status": "self-declared",
+        "source": "professional",
+        "as_of": "2026-03-15T00:00:00Z"
+      }
+    }
+  ]
+}

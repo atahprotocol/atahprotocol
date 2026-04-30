@@ -1,0 +1,226 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atahprotocol.org/spec/v0.8/schemas/professional-identity-established.schema.json",
+  "title": "ATAH Professional Identity — Established Tier",
+  "description": "ATAH Core Protocol object: established-tier professional profile (spec/v0.8 Section 4.7). The `membership` block replaces the credentialled tier's `licence`. Required for any ATAH-conformant implementation that produces or consumes professional profile objects.",
+  "type": "object",
+  "properties": {
+    "atah_id": {
+      "type": "string",
+      "pattern": "^atah-[A-Za-z0-9-]{6,64}$"
+    },
+    "schema_version": { "type": "string", "const": "0.8" },
+    "protocol_version": { "type": "string", "const": "0.8" },
+    "professional_tier": { "type": "string", "const": "established" },
+    "category": { "type": "string", "minLength": 1 },
+    "name": { "type": "string", "minLength": 1 },
+    "firm": { "type": "string", "minLength": 1 },
+    "licensed_jurisdictions": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true,
+      "description": "Optional for established tier; required for credentialled tier."
+    },
+    "service_locations": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "physical_locations": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "remote_service_available": { "type": "boolean" },
+    "specialisms": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "matter_types": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "matching_status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "compliance-pending",
+        "regulatory-suspended",
+        "admin-suspended",
+        "pending-rollup",
+        "pending-integrity-review",
+        "withdrawn",
+        "deceased"
+      ]
+    },
+    "matching_status_reason": { "type": "string", "minLength": 1 },
+    "registration_route": {
+      "type": "string",
+      "enum": ["partner", "individual"]
+    },
+    "membership": {
+      "type": "object",
+      "properties": {
+        "body": { "type": "string", "minLength": 1 },
+        "level": { "type": "string", "minLength": 1 },
+        "member_number": { "type": "string", "minLength": 1 },
+        "verified_at": { "type": "string", "format": "date-time" },
+        "disciplinary_record": {
+          "type": "string",
+          "enum": ["none_found", "present", "under_review"]
+        }
+      },
+      "required": ["body", "level", "member_number", "verified_at"],
+      "additionalProperties": false
+    },
+    "experience": {
+      "type": "object",
+      "properties": {
+        "years_in_practice": { "type": "integer", "minimum": 0 },
+        "years_in_specialism": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "response_time": {
+      "type": "object",
+      "properties": {
+        "declared_hours": { "type": "integer", "minimum": 0 },
+        "applies_to": { "type": "string", "enum": ["working_hours", "wall_clock_hours"] },
+        "operating_timezone": { "type": "string", "minLength": 1 }
+      },
+      "required": ["declared_hours", "applies_to", "operating_timezone"],
+      "additionalProperties": false
+    },
+    "engagement": {
+      "type": "object",
+      "properties": {
+        "model": { "type": "string", "minLength": 1 },
+        "virtual": { "type": "boolean" },
+        "languages": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^[a-z]{2,3}$" },
+          "uniqueItems": true
+        },
+        "availability": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "referral_network": {
+      "type": "object",
+      "properties": {
+        "inbound_relationship_count": { "type": "integer", "minimum": 0 },
+        "inbound_relationship_quality_score": { "type": "number", "minimum": 0, "maximum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "trusted_partner_data": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/PartnerDataPayload" }
+    },
+    "enhanced_verification": {
+      "type": "array",
+      "items": {
+        "$ref": "enhanced-verification.schema.json"
+      }
+    },
+    "data_conflicts": {
+      "type": "array",
+      "items": { "type": "object" }
+    },
+    "ai_assistant_connected": { "type": "boolean" },
+    "profile_completeness_score": { "type": "number", "minimum": 0, "maximum": 1 },
+    "profile_maintained": { "type": "boolean" },
+    "_provenance": {
+      "$ref": "provenance-map.schema.json"
+    }
+  },
+  "required": [
+    "atah_id",
+    "schema_version",
+    "protocol_version",
+    "professional_tier",
+    "category",
+    "name",
+    "service_locations",
+    "remote_service_available",
+    "specialisms",
+    "matching_status",
+    "registration_route",
+    "membership"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "PartnerDataPayload": {
+      "type": "object",
+      "properties": {
+        "partner_id": { "type": "string", "pattern": "^tp-[A-Za-z0-9-]{6,64}$" },
+        "partner_name": { "type": "string", "minLength": 1 },
+        "partner_type": {
+          "type": "string",
+          "enum": [
+            "regulatory_database",
+            "professional_body",
+            "review_platform",
+            "independent_verifier",
+            "firm_or_institution"
+          ]
+        },
+        "data_points": {
+          "type": "object",
+          "description": "Partner-supplied structured data points. Open object — content varies by partner_type and category.",
+          "additionalProperties": true
+        },
+        "last_updated": { "type": "string", "format": "date-time" },
+        "trust_tier": {
+          "type": "string",
+          "enum": ["partner-verified", "probationary-partner", "suspended-partner", "revoked-partner"]
+        }
+      },
+      "required": ["partner_id", "partner_name", "partner_type", "data_points", "last_updated", "trust_tier"],
+      "additionalProperties": false
+    }
+  },
+  "examples": [
+    {
+      "atah_id": "atah-01HQXR8M2P3QRV5WTYZAB6CDEF",
+      "schema_version": "0.8",
+      "protocol_version": "0.8",
+      "professional_tier": "established",
+      "category": "pr_professional",
+      "name": "Alex Johnson",
+      "firm": "Johnson Communications Ltd",
+      "service_locations": ["GB-LON"],
+      "physical_locations": ["London, UK"],
+      "remote_service_available": true,
+      "specialisms": ["corporate_communications", "crisis_management"],
+      "matching_status": "active",
+      "registration_route": "partner",
+      "membership": {
+        "body": "Chartered Institute of Public Relations",
+        "level": "Fellow",
+        "member_number": "FCIPR-12345",
+        "verified_at": "2026-04-01T00:00:00Z"
+      },
+      "trusted_partner_data": [
+        {
+          "partner_id": "tp-cipr-001",
+          "partner_name": "Chartered Institute of Public Relations",
+          "partner_type": "professional_body",
+          "data_points": {
+            "membership_status": "fellow",
+            "member_since": "2011-03-01",
+            "cpd_compliant": true,
+            "disciplinary_record": "none_found"
+          },
+          "last_updated": "2026-04-01T00:00:00Z",
+          "trust_tier": "partner-verified"
+        }
+      ],
+      "enhanced_verification": [],
+      "data_conflicts": [],
+      "ai_assistant_connected": false,
+      "profile_completeness_score": 0.88
+    }
+  ]
+}

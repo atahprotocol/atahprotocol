@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atahprotocol.org/spec/v0.8/schemas/stage3-contact.schema.json",
+  "title": "ATAH Stage 3 Contact Release",
+  "description": "ATAH Registry Operation Profile object: body of POST /v1/introductions/{handoff_id}/stage-3 (spec/v0.8 Section 6). Personal contact details land in the transient encrypted vault for authenticated retrieval — they are not transmitted to the professional via SMS or email. Required for implementations claiming Registry Conformance.",
+  "type": "object",
+  "properties": {
+    "handoff_id": {
+      "type": "string",
+      "pattern": "^hf-[A-Za-z0-9-]{6,64}$"
+    },
+    "consent_receipt_id": {
+      "type": "string",
+      "pattern": "^cr-[A-Za-z0-9-]{6,64}$"
+    },
+    "consumer_contact": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "email": { "type": "string", "format": "email" },
+        "phone": {
+          "type": "string",
+          "pattern": "^\\+[1-9][0-9]{1,14}$",
+          "description": "E.164 international phone format (leading +, country code, up to 15 digits total)."
+        }
+      },
+      "required": ["name", "email", "phone"],
+      "additionalProperties": false
+    },
+    "matter_summary": { "type": "string", "minLength": 1 }
+  },
+  "required": ["handoff_id", "consent_receipt_id", "consumer_contact"],
+  "additionalProperties": false,
+  "examples": [
+    {
+      "handoff_id": "hf-01HQXRC2T7UVWZ9ABCDE1FGHIJ",
+      "consent_receipt_id": "cr-01HQXRB1S6TUVZ8A9BCD0EFGHI",
+      "consumer_contact": {
+        "name": "Jordan Q. Public",
+        "email": "jordan@example.com",
+        "phone": "+15125550123"
+      },
+      "matter_summary": "Drafting a vendor-side master services agreement for a 12-month engagement."
+    }
+  ]
+}

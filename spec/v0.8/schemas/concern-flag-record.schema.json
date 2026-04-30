@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atahprotocol.org/spec/v0.8/schemas/concern-flag-record.schema.json",
+  "title": "ATAH Concern Flag Record",
+  "description": "ATAH Registry Operation Profile object: concern flag raised through the `consumer-reported-concern` outcome code (spec/v0.8 Section 5.10). Named `concern flag` rather than `conduct flag` because ATAH does not adjudicate professional conduct. Visibility is admin-only and the flag is NOT used in matching weighting. Required for implementations claiming Registry Conformance.",
+  "type": "object",
+  "properties": {
+    "flag_id": {
+      "type": "string",
+      "pattern": "^flag-[A-Za-z0-9-]{6,64}$"
+    },
+    "schema_version": { "type": "string", "const": "0.8" },
+    "professional_id": {
+      "type": "string",
+      "pattern": "^atah-[A-Za-z0-9-]{6,64}$"
+    },
+    "handoff_id": {
+      "type": "string",
+      "pattern": "^hf-[A-Za-z0-9-]{6,64}$"
+    },
+    "flag_reason": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Free-text reason as captured from the reporting party. Stored verbatim; not a closed enum."
+    },
+    "submitted_at": { "type": "string", "format": "date-time" },
+    "current_status": {
+      "type": "string",
+      "enum": [
+        "submitted",
+        "professional_notified",
+        "awaiting_reply",
+        "reply_received",
+        "under_admin_review",
+        "closed_no_action",
+        "closed_escalated_to_regulator",
+        "discarded_bad_faith"
+      ]
+    },
+    "professional_notified_at": { "type": ["string", "null"], "format": "date-time" },
+    "right_of_reply_due_by": { "type": ["string", "null"], "format": "date-time" },
+    "right_of_reply_received_at": { "type": ["string", "null"], "format": "date-time" },
+    "professional_reply": { "type": ["string", "null"] },
+    "admin_review_status": {
+      "type": "string",
+      "enum": ["not_yet_reviewed", "under_review", "pattern_review_triggered", "escalated", "closed"]
+    }
+  },
+  "required": [
+    "flag_id",
+    "schema_version",
+    "professional_id",
+    "handoff_id",
+    "flag_reason",
+    "submitted_at",
+    "current_status",
+    "professional_notified_at",
+    "right_of_reply_due_by",
+    "right_of_reply_received_at",
+    "professional_reply",
+    "admin_review_status"
+  ],
+  "additionalProperties": false,
+  "examples": [
+    {
+      "flag_id": "flag-01HQXRK9A4BCDEF8MNOPQRSTUV",
+      "schema_version": "0.8",
+      "professional_id": "atah-01HQXR7K9NBVZ8M3PXFG2YT5WA",
+      "handoff_id": "hf-01HQXRC2T7UVWZ9ABCDE1FGHIJ",
+      "flag_reason": "Professional did not follow up after initial contact and ignored two emails over a four-week period.",
+      "submitted_at": "2026-05-10T10:00:00Z",
+      "current_status": "professional_notified",
+      "professional_notified_at": "2026-05-10T18:00:00Z",
+      "right_of_reply_due_by": "2026-05-24T18:00:00Z",
+      "right_of_reply_received_at": null,
+      "professional_reply": null,
+      "admin_review_status": "not_yet_reviewed"
+    }
+  ]
+}

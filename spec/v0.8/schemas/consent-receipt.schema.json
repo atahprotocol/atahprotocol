@@ -1,0 +1,146 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atahprotocol.org/spec/v0.8/schemas/consent-receipt.schema.json",
+  "title": "ATAH Consent Receipt (full)",
+  "description": "ATAH Core Protocol object: the full structured consent receipt retained by the asserting platform (spec/v0.8 Section 4.10). Replaces a boolean `consumer_consent` flag. ATAH stores only the hash and metadata — see consent-receipt-stored.schema.json for the form ATAH retains. Required for any ATAH-conformant implementation.",
+  "type": "object",
+  "properties": {
+    "consent_receipt_id": {
+      "type": "string",
+      "pattern": "^cr-[A-Za-z0-9-]{6,64}$",
+      "description": "Opaque identifier issued at consent capture."
+    },
+    "schema_version": {
+      "type": "string",
+      "const": "0.8"
+    },
+    "asserted": {
+      "type": "boolean",
+      "description": "Whether the consent was given. A receipt with `asserted: false` records a refusal."
+    },
+    "asserted_by": {
+      "type": "object",
+      "properties": {
+        "actor_type": {
+          "type": "string",
+          "enum": ["ai_platform", "professional"]
+        },
+        "platform_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "client_id": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": ["actor_type", "platform_id"],
+      "additionalProperties": false
+    },
+    "consumer_ref": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Opaque platform-side reference to the consumer. Not personally identifiable. ATAH does not learn the consumer identity from this field."
+    },
+    "scope": {
+      "type": "string",
+      "enum": [
+        "query_submission",
+        "stage_1_introduction",
+        "stage_2_prehandoff_submission",
+        "stage_3_contact_release",
+        "type_2_referral_participation",
+        "type_3_referred_client",
+        "outcome_reporting"
+      ]
+    },
+    "professional_id": {
+      "type": "string",
+      "pattern": "^atah-[A-Za-z0-9-]{6,64}$"
+    },
+    "handoff_id": {
+      "type": "string",
+      "pattern": "^hf-[A-Za-z0-9-]{6,64}$"
+    },
+    "data_categories": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "matter_summary",
+          "jurisdiction",
+          "contact_details",
+          "consumer_name",
+          "other_party_name",
+          "engagement_timeline",
+          "budget_range",
+          "client_summary",
+          "contact_preference"
+        ]
+      },
+      "uniqueItems": true
+    },
+    "consent_text_version": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Identifier of the canonical consent text the consumer was shown. Versions are published in the protocol documentation."
+    },
+    "captured_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "revocation_supported": {
+      "type": "boolean"
+    },
+    "revocation_endpoint": {
+      "type": "string",
+      "format": "uri"
+    },
+    "revocation_status": {
+      "type": "string",
+      "enum": ["active", "revoked", "expired"]
+    }
+  },
+  "required": [
+    "consent_receipt_id",
+    "schema_version",
+    "asserted",
+    "asserted_by",
+    "consumer_ref",
+    "scope",
+    "data_categories",
+    "consent_text_version",
+    "captured_at",
+    "expires_at",
+    "revocation_supported",
+    "revocation_status"
+  ],
+  "additionalProperties": false,
+  "examples": [
+    {
+      "consent_receipt_id": "cr-01HQXRB1S6TUVZ8A9BCD0EFGHI",
+      "schema_version": "0.8",
+      "asserted": true,
+      "asserted_by": {
+        "actor_type": "ai_platform",
+        "platform_id": "platform_openai_example",
+        "client_id": "client_123"
+      },
+      "consumer_ref": "opaque-platform-user-ref",
+      "scope": "stage_2_prehandoff_submission",
+      "professional_id": "atah-01HQXR7K9NBVZ8M3PXFG2YT5WA",
+      "handoff_id": "hf-01HQXRC2T7UVWZ9ABCDE1FGHIJ",
+      "data_categories": ["matter_summary", "jurisdiction", "contact_preference"],
+      "consent_text_version": "stage2-conflict-check-v0.8",
+      "captured_at": "2026-04-10T14:21:00Z",
+      "expires_at": "2026-04-10T18:21:00Z",
+      "revocation_supported": true,
+      "revocation_endpoint": "https://platform.example/atah/revoke",
+      "revocation_status": "active"
+    }
+  ]
+}

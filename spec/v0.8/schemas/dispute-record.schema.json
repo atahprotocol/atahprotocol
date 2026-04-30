@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atahprotocol.org/spec/v0.8/schemas/dispute-record.schema.json",
+  "title": "ATAH Dispute Record",
+  "description": "ATAH Registry Operation Profile object: a professional's dispute of partner data, an enhanced verification record, a roll-up merge, or a concern flag (spec/v0.8 Section 5.10). Required for implementations claiming Registry Conformance.",
+  "type": "object",
+  "properties": {
+    "dispute_id": {
+      "type": "string",
+      "pattern": "^dispute-[A-Za-z0-9-]{6,64}$"
+    },
+    "schema_version": { "type": "string", "const": "0.8" },
+    "professional_id": {
+      "type": "string",
+      "pattern": "^atah-[A-Za-z0-9-]{6,64}$"
+    },
+    "dispute_type": {
+      "type": "string",
+      "enum": ["partner_data", "enhanced_verification", "rollup_merge", "concern_flag", "other"]
+    },
+    "disputed_data_ref": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Reference to the disputed item (e.g., partner record id, ev id, match id, flag id)."
+    },
+    "dispute_reason": {
+      "type": "string",
+      "minLength": 1
+    },
+    "submitted_at": { "type": "string", "format": "date-time" },
+    "current_status": {
+      "type": "string",
+      "enum": ["open", "partner_review", "verifier_review", "admin_review", "resolved", "withdrawn"]
+    }
+  },
+  "required": [
+    "dispute_id",
+    "schema_version",
+    "professional_id",
+    "dispute_type",
+    "disputed_data_ref",
+    "dispute_reason",
+    "submitted_at",
+    "current_status"
+  ],
+  "additionalProperties": false,
+  "examples": [
+    {
+      "dispute_id": "dispute-01HQXRJ8Z3ABCDEF7LMNOPQRST",
+      "schema_version": "0.8",
+      "professional_id": "atah-01HQXR7K9NBVZ8M3PXFG2YT5WA",
+      "dispute_type": "partner_data",
+      "disputed_data_ref": "tp-statebar-tx-001:TX-BAR-12345:disciplinary_record",
+      "dispute_reason": "Disciplinary record reflects a historical matter that was vacated on appeal in 2018; partner data has not been updated.",
+      "submitted_at": "2026-04-10T16:00:00Z",
+      "current_status": "partner_review"
+    }
+  ]
+}

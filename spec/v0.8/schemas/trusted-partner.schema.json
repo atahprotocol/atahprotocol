@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atahprotocol.org/spec/v0.8/schemas/trusted-partner.schema.json",
+  "title": "ATAH Trusted Partner",
+  "description": "ATAH Registry Operation Profile object: trusted partner record (spec/v0.8 Sections 5.1–5.6). Required for implementations claiming Registry Conformance.",
+  "type": "object",
+  "properties": {
+    "partner_id": {
+      "type": "string",
+      "pattern": "^tp-[A-Za-z0-9-]{6,64}$"
+    },
+    "schema_version": { "type": "string", "const": "0.8" },
+    "partner_name": { "type": "string", "minLength": 1 },
+    "partner_type": {
+      "type": "string",
+      "enum": [
+        "regulatory_database",
+        "professional_body",
+        "review_platform",
+        "independent_verifier",
+        "firm_or_institution"
+      ]
+    },
+    "vetting_strength": {
+      "type": "string",
+      "enum": ["regulatory", "strong_membership", "open_membership"]
+    },
+    "partner_tier": {
+      "type": "string",
+      "enum": ["partner-verified", "probationary-partner", "suspended-partner", "revoked-partner"]
+    },
+    "verification_scope": {
+      "$ref": "verification-scope.schema.json"
+    },
+    "partner_score": {
+      "type": "object",
+      "properties": {
+        "freshness_score": { "type": "number", "minimum": 0, "maximum": 1 },
+        "completeness_score": { "type": "number", "minimum": 0, "maximum": 1 },
+        "conflict_rate": { "type": "number", "minimum": 0, "maximum": 1 },
+        "last_calculated_at": { "type": "string", "format": "date-time" }
+      },
+      "required": ["freshness_score", "completeness_score", "conflict_rate", "last_calculated_at"],
+      "additionalProperties": false
+    },
+    "approved_by": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Reference to the governance approval that authorised this partner."
+    },
+    "approved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "categories_in_scope": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "jurisdictions_in_scope": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "webhook_url": {
+      "type": "string",
+      "format": "uri"
+    }
+  },
+  "required": [
+    "partner_id",
+    "schema_version",
+    "partner_name",
+    "partner_type",
+    "vetting_strength",
+    "partner_tier",
+    "verification_scope",
+    "partner_score",
+    "approved_by",
+    "approved_at"
+  ],
+  "additionalProperties": false,
+  "examples": [
+    {
+      "partner_id": "tp-statebar-tx-001",
+      "schema_version": "0.8",
+      "partner_name": "State Bar of Texas",
+      "partner_type": "regulatory_database",
+      "vetting_strength": "regulatory",
+      "partner_tier": "partner-verified",
+      "verification_scope": {
+        "verifies_membership": true,
+        "verifies_active_licence": true,
+        "verifies_disciplinary_record": true,
+        "verifies_cpd_compliance": false,
+        "verifies_insurance": false,
+        "verification_method": "scheduled_data_push",
+        "verification_frequency_days": 30,
+        "supports_verifiable_credentials": false
+      },
+      "partner_score": {
+        "freshness_score": 0.97,
+        "completeness_score": 0.94,
+        "conflict_rate": 0.01,
+        "last_calculated_at": "2026-04-10T00:00:00Z"
+      },
+      "approved_by": "atah-governance-2026-q1",
+      "approved_at": "2026-02-12T00:00:00Z",
+      "categories_in_scope": ["lawyer"],
+      "jurisdictions_in_scope": ["US-TX"]
+    }
+  ]
+}

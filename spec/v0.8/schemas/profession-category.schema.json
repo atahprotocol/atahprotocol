@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atahprotocol.org/spec/v0.8/schemas/profession-category.schema.json",
+  "title": "ATAH Profession Category",
+  "description": "ATAH Registry Operation Profile object: profession category metadata record (spec/v0.8 Section 4.4). The `matching_weight_profile` weights MUST sum to 1.0; this is asserted in the description rather than enforced structurally because JSON Schema cannot express sum invariants. Required for implementations claiming Registry Conformance.",
+  "type": "object",
+  "properties": {
+    "category_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[a-z][a-z0-9_]*$"
+    },
+    "schema_version": { "type": "string", "const": "0.8" },
+    "category_name": { "type": "string", "minLength": 1 },
+    "professional_tier": {
+      "type": "string",
+      "enum": ["credentialled", "established"]
+    },
+    "body_membership_type": {
+      "type": "string",
+      "enum": [
+        "mandatory_per_jurisdiction",
+        "mandatory_global",
+        "optional_with_strong_signal",
+        "optional_with_weak_signal",
+        "none"
+      ]
+    },
+    "compliance_status": {
+      "type": "string",
+      "enum": ["active", "compliance-pending", "not-supported"]
+    },
+    "default_pre_handoff_check": {
+      "type": "string",
+      "enum": ["conflict_check", "scope_confirmation", "capacity_confirmation", "fee_alignment", "none"]
+    },
+    "matching_weight_profile": {
+      "type": "object",
+      "properties": {
+        "relevance": { "type": "number", "minimum": 0, "maximum": 1 },
+        "verification_quality": { "type": "number", "minimum": 0, "maximum": 1 },
+        "availability_response": { "type": "number", "minimum": 0, "maximum": 1 },
+        "profile_completeness": { "type": "number", "minimum": 0, "maximum": 1 },
+        "inbound_referral_signal": { "type": "number", "minimum": 0, "maximum": 1 }
+      },
+      "required": [
+        "relevance",
+        "verification_quality",
+        "availability_response",
+        "profile_completeness",
+        "inbound_referral_signal"
+      ],
+      "additionalProperties": false,
+      "minProperties": 5,
+      "maxProperties": 5
+    },
+    "review_signal_weight_cap": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "stage2_auth_tier": {
+      "type": "string",
+      "enum": ["tier_1", "tier_2", "tier_3"]
+    }
+  },
+  "required": [
+    "category_id",
+    "schema_version",
+    "category_name",
+    "professional_tier",
+    "body_membership_type",
+    "compliance_status",
+    "default_pre_handoff_check",
+    "matching_weight_profile",
+    "review_signal_weight_cap",
+    "stage2_auth_tier"
+  ],
+  "additionalProperties": false,
+  "examples": [
+    {
+      "category_id": "lawyer",
+      "schema_version": "0.8",
+      "category_name": "Lawyer",
+      "professional_tier": "credentialled",
+      "body_membership_type": "mandatory_per_jurisdiction",
+      "compliance_status": "active",
+      "default_pre_handoff_check": "conflict_check",
+      "matching_weight_profile": {
+        "relevance": 0.30,
+        "verification_quality": 0.40,
+        "availability_response": 0.15,
+        "profile_completeness": 0.05,
+        "inbound_referral_signal": 0.10
+      },
+      "review_signal_weight_cap": 0.10,
+      "stage2_auth_tier": "tier_2"
+    }
+  ]
+}

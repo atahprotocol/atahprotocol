@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atahprotocol.org/spec/v0.8/schemas/query.schema.json",
+  "title": "ATAH Query — Type 1 Consumer Introduction",
+  "description": "ATAH Registry Operation Profile object: query body for POST /v1/query and `find_professional` MCP tool input (spec/v0.8 Section 4.11). Required for implementations claiming Registry Conformance.",
+  "type": "object",
+  "properties": {
+    "query_id": {
+      "type": "string",
+      "pattern": "^q-[A-Za-z0-9-]{6,64}$"
+    },
+    "schema_version": { "type": "string", "const": "0.8" },
+    "protocol_version": { "type": "string", "const": "0.8" },
+    "query_type": {
+      "type": "string",
+      "enum": ["consumer_introduction"]
+    },
+    "requesting_agent": {
+      "type": "object",
+      "properties": {
+        "platform_id": { "type": "string", "minLength": 1 },
+        "client_id": { "type": "string", "minLength": 1 }
+      },
+      "required": ["platform_id", "client_id"],
+      "additionalProperties": false
+    },
+    "consent_receipt_id": {
+      "type": "string",
+      "pattern": "^cr-[A-Za-z0-9-]{6,64}$"
+    },
+    "matter": {
+      "type": "object",
+      "properties": {
+        "category": { "type": "string", "minLength": 1 },
+        "matter_type": { "type": "string", "minLength": 1 },
+        "location": { "type": "string", "minLength": 1 },
+        "urgency": {
+          "type": "string",
+          "enum": ["routine", "standard", "urgent", "emergency"]
+        }
+      },
+      "required": ["category", "matter_type", "location", "urgency"],
+      "additionalProperties": false
+    },
+    "filters": {
+      "type": "object",
+      "properties": {
+        "professional_tier": {
+          "type": "string",
+          "enum": ["credentialled", "established", "any"]
+        },
+        "partner_verified_only": { "type": "boolean" },
+        "enhanced_verification_required": { "type": "boolean" },
+        "virtual": { "type": "boolean" },
+        "max_response_time_hours": { "type": "integer", "minimum": 1 },
+        "languages": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^[a-z]{2}$" },
+          "uniqueItems": true
+        },
+        "insured_only": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "shortlist_size": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5
+    }
+  },
+  "required": [
+    "query_id",
+    "schema_version",
+    "protocol_version",
+    "query_type",
+    "requesting_agent",
+    "consent_receipt_id",
+    "matter",
+    "shortlist_size"
+  ],
+  "additionalProperties": false,
+  "examples": [
+    {
+      "query_id": "q-01HQXRD3U8VWXAB0CDEF2GHIJK",
+      "schema_version": "0.8",
+      "protocol_version": "0.8",
+      "query_type": "consumer_introduction",
+      "requesting_agent": {
+        "platform_id": "platform_openai_example",
+        "client_id": "client_123"
+      },
+      "consent_receipt_id": "cr-01HQXRB1S6TUVZ8A9BCD0EFGHI",
+      "matter": {
+        "category": "pr_professional",
+        "matter_type": "crisis_response",
+        "location": "GB-LON",
+        "urgency": "urgent"
+      },
+      "filters": {
+        "professional_tier": "established",
+        "partner_verified_only": true,
+        "enhanced_verification_required": false,
+        "max_response_time_hours": 4,
+        "virtual": true
+      },
+      "shortlist_size": 3
+    }
+  ]
+}

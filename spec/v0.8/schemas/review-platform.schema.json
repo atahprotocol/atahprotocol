@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atahprotocol.org/spec/v0.8/schemas/review-platform.schema.json",
+  "title": "ATAH Review Platform",
+  "description": "ATAH Registry Operation Profile object: review platform record — a specialised partner type with anti-gaming attestation requirements (spec/v0.8 Section 5.8). Required for implementations claiming Registry Conformance.",
+  "type": "object",
+  "properties": {
+    "partner_id": {
+      "type": "string",
+      "pattern": "^tp-[A-Za-z0-9-]{6,64}$",
+      "description": "References a trusted-partner record whose partner_type MUST be `review_platform`."
+    },
+    "schema_version": { "type": "string", "const": "0.8" },
+    "review_platform_class": {
+      "type": "string",
+      "enum": ["verified_transaction", "verified_account", "open_review"]
+    },
+    "anti_gaming_attestation": {
+      "type": "object",
+      "properties": {
+        "reviewer_identity_verification": { "type": "boolean" },
+        "engagement_verification": { "type": "boolean" },
+        "outlier_detection": { "type": "boolean" },
+        "removal_transparency": { "type": "boolean" },
+        "self_review_prevention": { "type": "boolean" },
+        "transparency_report_url": { "type": "string", "format": "uri" }
+      },
+      "required": [
+        "reviewer_identity_verification",
+        "engagement_verification",
+        "outlier_detection",
+        "removal_transparency",
+        "self_review_prevention"
+      ],
+      "additionalProperties": false
+    },
+    "last_attestation_at": { "type": "string", "format": "date-time" },
+    "next_attestation_due": { "type": "string", "format": "date-time" }
+  },
+  "required": [
+    "partner_id",
+    "schema_version",
+    "review_platform_class",
+    "anti_gaming_attestation",
+    "last_attestation_at",
+    "next_attestation_due"
+  ],
+  "additionalProperties": false,
+  "examples": [
+    {
+      "partner_id": "tp-avvo-001",
+      "schema_version": "0.8",
+      "review_platform_class": "verified_account",
+      "anti_gaming_attestation": {
+        "reviewer_identity_verification": true,
+        "engagement_verification": false,
+        "outlier_detection": true,
+        "removal_transparency": true,
+        "self_review_prevention": true,
+        "transparency_report_url": "https://avvo.example/transparency-2026.pdf"
+      },
+      "last_attestation_at": "2026-03-01T00:00:00Z",
+      "next_attestation_due": "2027-03-01T00:00:00Z"
+    }
+  ]
+}

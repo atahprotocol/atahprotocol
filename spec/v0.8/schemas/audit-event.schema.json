@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atahprotocol.org/spec/v0.8/schemas/audit-event.schema.json",
+  "title": "ATAH Audit Event",
+  "description": "ATAH Core Protocol object: a single audit log entry returned by audit endpoints. Internal storage representation may differ; this is the over-the-wire shape. Required for any ATAH-conformant implementation (spec/v0.8 Section 13).",
+  "type": "object",
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Opaque audit event identifier."
+    },
+    "schema_version": {
+      "type": "string",
+      "const": "0.8"
+    },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "introduction_initiated",
+        "stage_advanced",
+        "consent_asserted",
+        "consent_revoked",
+        "data_retrieved",
+        "data_erased",
+        "partner_data_pushed",
+        "verifier_data_submitted",
+        "admin_action",
+        "dispute_raised",
+        "dispute_resolved",
+        "concern_flag_raised",
+        "concern_flag_reviewed",
+        "meaningful_conflict_detected",
+        "partner_suspended",
+        "verifier_suspended",
+        "security_event"
+      ]
+    },
+    "occurred_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "actor": {
+      "type": "object",
+      "properties": {
+        "actor_type": {
+          "type": "string",
+          "enum": ["ai_platform", "professional", "partner", "verifier", "admin", "system"]
+        },
+        "actor_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Identifier of the actor — pseudonymous where the actor is a consumer-facing platform."
+        }
+      },
+      "required": ["actor_type", "actor_id"],
+      "additionalProperties": false
+    },
+    "subject": {
+      "type": "object",
+      "properties": {
+        "subject_type": {
+          "type": "string",
+          "enum": ["handoff", "professional", "partner", "verifier", "consent_receipt", "dispute", "flag"]
+        },
+        "subject_id": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": ["subject_type", "subject_id"],
+      "additionalProperties": false
+    },
+    "request_id": {
+      "type": ["string", "null"],
+      "description": "Originating request_id, if any. Null for system-emitted events."
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Open object for event-type-specific structured detail.",
+      "additionalProperties": true
+    }
+  },
+  "required": ["event_id", "schema_version", "event_type", "occurred_at", "actor", "subject", "request_id"],
+  "additionalProperties": false,
+  "examples": [
+    {
+      "event_id": "evt-01HQXRM1C6DEFGHIJKLMNOPQRS",
+      "schema_version": "0.8",
+      "event_type": "consent_asserted",
+      "occurred_at": "2026-04-10T14:21:00Z",
+      "actor": {
+        "actor_type": "ai_platform",
+        "actor_id": "platform_openai_example"
+      },
+      "subject": {
+        "subject_type": "consent_receipt",
+        "subject_id": "cr-01HQXRB1S6TUVZ8A9BCD0EFGHI"
+      },
+      "request_id": "req-01HQXRM1C6DEFGHIJKLMNOPQRS",
+      "metadata": {
+        "scope": "stage_2_prehandoff_submission"
+      }
+    }
+  ]
+}

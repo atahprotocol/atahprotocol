@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atahprotocol.org/spec/v0.8/schemas/independent-verifier.schema.json",
+  "title": "ATAH Independent Verifier",
+  "description": "ATAH Registry Operation Profile object: independent verifier record (spec/v0.8 Section 5.7). Required for implementations claiming Registry Conformance.",
+  "type": "object",
+  "properties": {
+    "verifier_id": {
+      "type": "string",
+      "pattern": "^iv-[A-Za-z0-9-]{6,64}$"
+    },
+    "schema_version": { "type": "string", "const": "0.8" },
+    "verifier_name": { "type": "string", "minLength": 1 },
+    "approved_by": { "type": "string", "minLength": 1 },
+    "approved_at": { "type": "string", "format": "date-time" },
+    "categories_in_scope": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "jurisdictions_in_scope": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "scope_tier": {
+      "type": "string",
+      "enum": ["narrow_scope", "multi_scope", "global_scope"]
+    },
+    "verification_methodology_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "annual_audit_status": {
+      "type": "string",
+      "enum": ["passed", "pending", "failed", "not_yet_due"]
+    },
+    "annual_audit_last_completed": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "vetting_strength_for_outputs": {
+      "type": "string",
+      "enum": ["regulatory", "strong_membership", "open_membership"]
+    },
+    "current_status": {
+      "type": "string",
+      "enum": ["active", "suspended", "revoked", "under_review"]
+    },
+    "change_of_control_pending": { "type": "boolean" }
+  },
+  "required": [
+    "verifier_id",
+    "schema_version",
+    "verifier_name",
+    "approved_by",
+    "approved_at",
+    "categories_in_scope",
+    "jurisdictions_in_scope",
+    "scope_tier",
+    "verification_methodology_url",
+    "annual_audit_status",
+    "vetting_strength_for_outputs",
+    "current_status"
+  ],
+  "additionalProperties": false,
+  "examples": [
+    {
+      "verifier_id": "iv-globalcheck-001",
+      "schema_version": "0.8",
+      "verifier_name": "GlobalCheck Independent Verification",
+      "approved_by": "atah-governance-2026-q1",
+      "approved_at": "2026-02-12T00:00:00Z",
+      "categories_in_scope": ["lawyer", "tax_planner", "accountant"],
+      "jurisdictions_in_scope": ["US-TX", "US-NY", "GB-LON"],
+      "scope_tier": "multi_scope",
+      "verification_methodology_url": "https://globalcheck.example/methodology-v3.pdf",
+      "annual_audit_status": "passed",
+      "annual_audit_last_completed": "2026-01-15T00:00:00Z",
+      "vetting_strength_for_outputs": "strong_membership",
+      "current_status": "active",
+      "change_of_control_pending": false
+    }
+  ]
+}

@@ -1,0 +1,146 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atahprotocol.org/spec/v0.8/schemas/enhanced-verification.schema.json",
+  "title": "ATAH Enhanced Verification",
+  "description": "ATAH Registry Operation Profile object: enhanced verification record commissioned through an approved independent verifier (spec/v0.8 Section 4.9). Required for implementations claiming Registry Conformance.",
+  "type": "object",
+  "properties": {
+    "verification_id": {
+      "type": "string",
+      "pattern": "^ev-[A-Za-z0-9-]{6,64}$"
+    },
+    "schema_version": { "type": "string", "const": "0.8" },
+    "verifier_id": {
+      "type": "string",
+      "pattern": "^iv-[A-Za-z0-9-]{6,64}$"
+    },
+    "verifier_name": { "type": "string", "minLength": 1 },
+    "verifier_approved_by": { "type": "string", "minLength": 1 },
+    "commissioned_by": {
+      "type": "string",
+      "pattern": "^(self|employer|other|body:tp-[A-Za-z0-9-]{6,64})$",
+      "description": "Who commissioned the verification: `self`, `body:<partner_id>`, `employer`, or `other`. Recorded for transparency only; not used in matching weighting."
+    },
+    "verified_dimensions": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/Dimension" }
+    },
+    "verified_at": { "type": "string", "format": "date-time" },
+    "next_review_due": { "type": "string", "format": "date-time" },
+    "current_status": {
+      "type": "string",
+      "enum": ["active", "expired", "revoked", "under_review"]
+    },
+    "breadth_score": { "type": "number", "minimum": 0, "maximum": 1 },
+    "depth_score": { "type": "number", "minimum": 0, "maximum": 1 },
+    "freshness_score": { "type": "number", "minimum": 0, "maximum": 1 }
+  },
+  "required": [
+    "verification_id",
+    "schema_version",
+    "verifier_id",
+    "verifier_name",
+    "verifier_approved_by",
+    "commissioned_by",
+    "verified_dimensions",
+    "verified_at",
+    "next_review_due",
+    "current_status",
+    "breadth_score",
+    "depth_score",
+    "freshness_score"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "Dimension": {
+      "type": "object",
+      "properties": {
+        "dimension": {
+          "type": "string",
+          "enum": [
+            "identity",
+            "qualifications",
+            "professional_standing",
+            "professional_history",
+            "insurance",
+            "references",
+            "client_feedback",
+            "compliance_obligations",
+            "sanctions_screening",
+            "custom"
+          ],
+          "description": "Seed dimension list. New core dimensions are added through governance review; bespoke dimensions use `custom` plus a structured `custom_dimension` block."
+        },
+        "depth": {
+          "type": "string",
+          "enum": ["confirmed", "evidenced", "audited", "not_assessed"]
+        },
+        "last_confirmed": { "type": "string", "format": "date-time" },
+        "custom_dimension": {
+          "type": "object",
+          "properties": {
+            "custom_dimension_id": { "type": "string", "minLength": 1 },
+            "description": { "type": "string", "minLength": 1 },
+            "evidence_type": { "type": "string", "minLength": 1 },
+            "scoring_mapping": {
+              "type": "string",
+              "enum": ["confirmed", "evidenced", "audited", "not_assessed"]
+            },
+            "governance_approval_ref": { "type": "string", "minLength": 1 },
+            "category_scope": {
+              "type": "array",
+              "items": { "type": "string", "minLength": 1 },
+              "minItems": 1,
+              "uniqueItems": true
+            }
+          },
+          "required": [
+            "custom_dimension_id",
+            "description",
+            "evidence_type",
+            "scoring_mapping",
+            "governance_approval_ref",
+            "category_scope"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": ["dimension", "depth", "last_confirmed"],
+      "additionalProperties": false,
+      "if": {
+        "properties": { "dimension": { "const": "custom" } },
+        "required": ["dimension"]
+      },
+      "then": {
+        "properties": {
+          "custom_dimension": { "type": "object" }
+        },
+        "required": ["custom_dimension"]
+      }
+    }
+  },
+  "examples": [
+    {
+      "verification_id": "ev-01HQXRA0R5STXY7Z8ABC9DEFG",
+      "schema_version": "0.8",
+      "verifier_id": "iv-globalcheck-001",
+      "verifier_name": "GlobalCheck Independent Verification",
+      "verifier_approved_by": "atah-governance-2026-q1",
+      "commissioned_by": "self",
+      "verified_dimensions": [
+        { "dimension": "identity", "depth": "evidenced", "last_confirmed": "2026-03-15T00:00:00Z" },
+        { "dimension": "qualifications", "depth": "evidenced", "last_confirmed": "2026-03-15T00:00:00Z" },
+        { "dimension": "professional_standing", "depth": "audited", "last_confirmed": "2026-03-15T00:00:00Z" },
+        { "dimension": "insurance", "depth": "evidenced", "last_confirmed": "2026-03-15T00:00:00Z" },
+        { "dimension": "sanctions_screening", "depth": "confirmed", "last_confirmed": "2026-03-15T00:00:00Z" }
+      ],
+      "verified_at": "2026-03-15T00:00:00Z",
+      "next_review_due": "2027-03-15T00:00:00Z",
+      "current_status": "active",
+      "breadth_score": 0.62,
+      "depth_score": 0.78,
+      "freshness_score": 0.95
+    }
+  ]
+}

@@ -1,0 +1,207 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atahprotocol.org/spec/v0.8/schemas/match-response.schema.json",
+  "title": "ATAH Match Response",
+  "description": "ATAH Core Protocol object: response from POST /v1/query and the `find_professional` MCP tool (spec/v0.8 Section 4.12). Includes `presentation_disclosure` that AI platforms MUST surface to the user. Required for any ATAH-conformant implementation.",
+  "type": "object",
+  "properties": {
+    "query_id": {
+      "type": "string",
+      "pattern": "^q-[A-Za-z0-9-]{6,64}$"
+    },
+    "schema_version": { "type": "string", "const": "0.8" },
+    "protocol_version": { "type": "string", "const": "0.8" },
+    "deprecation_warning": {
+      "type": ["string", "null"]
+    },
+    "presentation_disclosure": {
+      "type": "object",
+      "properties": {
+        "atah_is_not_recommending": { "type": "boolean", "const": true },
+        "ranking_basis": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "relevance",
+              "verification_quality",
+              "availability_response",
+              "profile_completeness",
+              "inbound_referral_signal"
+            ]
+          },
+          "uniqueItems": true,
+          "minItems": 1
+        },
+        "commercial_weighting": { "type": "boolean", "const": false },
+        "user_facing_disclosure": { "type": "string", "minLength": 1 }
+      },
+      "required": ["atah_is_not_recommending", "ranking_basis", "commercial_weighting", "user_facing_disclosure"],
+      "additionalProperties": false
+    },
+    "result_count": { "type": "integer", "minimum": 0 },
+    "results": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/MatchResult" }
+    }
+  },
+  "required": [
+    "query_id",
+    "schema_version",
+    "protocol_version",
+    "deprecation_warning",
+    "presentation_disclosure",
+    "result_count",
+    "results"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "MatchResult": {
+      "type": "object",
+      "properties": {
+        "atah_id": { "type": "string", "pattern": "^atah-[A-Za-z0-9-]{6,64}$" },
+        "professional_tier": {
+          "type": "string",
+          "enum": ["credentialled", "established"]
+        },
+        "registration_route": {
+          "type": "string",
+          "enum": ["partner", "individual"]
+        },
+        "match_score": { "type": "number", "minimum": 0, "maximum": 1 },
+        "match_factors": {
+          "type": "object",
+          "properties": {
+            "relevance": { "type": "number", "minimum": 0, "maximum": 1 },
+            "verification_quality": { "type": "number", "minimum": 0, "maximum": 1 },
+            "availability_score": { "type": "number", "minimum": 0, "maximum": 1 },
+            "profile_completeness": { "type": "number", "minimum": 0, "maximum": 1 },
+            "inbound_referral_signal": { "type": "number", "minimum": 0, "maximum": 1 },
+            "verification_quality_subcomponents": {
+              "type": "object",
+              "properties": {
+                "credential_verification": { "type": "number", "minimum": 0, "maximum": 1 },
+                "enhanced_score": { "type": "number", "minimum": 0, "maximum": 1 },
+                "review_signals": { "type": "number", "minimum": 0, "maximum": 1 },
+                "scope_completeness": { "type": "number", "minimum": 0, "maximum": 1 }
+              },
+              "required": ["credential_verification", "enhanced_score", "review_signals", "scope_completeness"],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "relevance",
+            "verification_quality",
+            "availability_score",
+            "profile_completeness",
+            "inbound_referral_signal",
+            "verification_quality_subcomponents"
+          ],
+          "additionalProperties": false
+        },
+        "verification_status_summary": {
+          "type": "object",
+          "description": "Per-field summary of verification status. Open object — keys vary by category.",
+          "additionalProperties": { "type": "string" }
+        },
+        "enhanced_verification_summary": {
+          "type": "object",
+          "properties": {
+            "active_count": { "type": "integer", "minimum": 0 },
+            "highest_combined_score": { "type": "number", "minimum": 0, "maximum": 1 },
+            "verifier_names": {
+              "type": "array",
+              "items": { "type": "string", "minLength": 1 }
+            }
+          },
+          "required": ["active_count", "highest_combined_score", "verifier_names"],
+          "additionalProperties": false
+        },
+        "review_signal_summary": {
+          "type": "object",
+          "properties": {
+            "platforms_contributing": {
+              "type": "array",
+              "items": { "type": "string", "minLength": 1 }
+            },
+            "total_review_count": { "type": "integer", "minimum": 0 },
+            "time_decayed_score": { "type": "number", "minimum": 0, "maximum": 1 },
+            "highest_review_platform_class": {
+              "type": "string",
+              "enum": ["verified_transaction", "verified_account", "open_review"]
+            }
+          },
+          "required": ["platforms_contributing", "total_review_count", "time_decayed_score", "highest_review_platform_class"],
+          "additionalProperties": false
+        },
+        "trusted_partner_data": {
+          "type": "array",
+          "description": "Full trusted partner data payload (or summary at the registry's discretion). Items conform to the partner data payload shape on profile schemas. Items MAY be a string (e.g. a placeholder reference) or an object (the full payload).",
+          "items": {
+            "anyOf": [
+              { "type": "object" },
+              { "type": "string", "minLength": 1 }
+            ]
+          }
+        },
+        "_provenance": {
+          "$ref": "provenance-map.schema.json"
+        }
+      },
+      "required": ["atah_id", "professional_tier", "registration_route", "match_score", "match_factors"],
+      "additionalProperties": false
+    }
+  },
+  "examples": [
+    {
+      "query_id": "q-01HQXRD3U8VWXAB0CDEF2GHIJK",
+      "schema_version": "0.8",
+      "protocol_version": "0.8",
+      "deprecation_warning": null,
+      "presentation_disclosure": {
+        "atah_is_not_recommending": true,
+        "ranking_basis": ["relevance", "verification_quality", "availability_response", "profile_completeness", "inbound_referral_signal"],
+        "commercial_weighting": false,
+        "user_facing_disclosure": "ATAH does not recommend or endorse any professional. This is a provenance-visible shortlist based on the matter described and verification evidence available."
+      },
+      "result_count": 1,
+      "results": [
+        {
+          "atah_id": "atah-01HQXR7K9NBVZ8M3PXFG2YT5WA",
+          "professional_tier": "credentialled",
+          "registration_route": "individual",
+          "match_score": 0.94,
+          "verification_status_summary": {
+            "licence_status": "registry-verified",
+            "disciplinary_record": "partner-verified",
+            "pi_insurance": "partner-verified"
+          },
+          "enhanced_verification_summary": {
+            "active_count": 1,
+            "highest_combined_score": 0.78,
+            "verifier_names": ["GlobalCheck Independent Verification"]
+          },
+          "review_signal_summary": {
+            "platforms_contributing": ["Avvo"],
+            "total_review_count": 47,
+            "time_decayed_score": 0.86,
+            "highest_review_platform_class": "verified_account"
+          },
+          "match_factors": {
+            "relevance": 0.96,
+            "verification_quality": 0.95,
+            "verification_quality_subcomponents": {
+              "credential_verification": 0.97,
+              "enhanced_score": 0.78,
+              "review_signals": 0.86,
+              "scope_completeness": 1.0
+            },
+            "profile_completeness": 0.92,
+            "availability_score": 1.0,
+            "inbound_referral_signal": 0.84
+          }
+        }
+      ]
+    }
+  ]
+}

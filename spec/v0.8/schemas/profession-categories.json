@@ -1,0 +1,272 @@
+[
+  {
+    "category_id": "lawyer",
+    "schema_version": "0.8",
+    "category_name": "Lawyer",
+    "professional_tier": "credentialled",
+    "body_membership_type": "mandatory_per_jurisdiction",
+    "compliance_status": "active",
+    "default_pre_handoff_check": "conflict_check",
+    "matching_weight_profile": {
+      "relevance": 0.30,
+      "verification_quality": 0.40,
+      "availability_response": 0.15,
+      "profile_completeness": 0.05,
+      "inbound_referral_signal": 0.10
+    },
+    "review_signal_weight_cap": 0.10,
+    "stage2_auth_tier": "tier_2"
+  },
+  {
+    "category_id": "pr_professional",
+    "schema_version": "0.8",
+    "category_name": "PR Professional",
+    "professional_tier": "established",
+    "body_membership_type": "optional_with_strong_signal",
+    "compliance_status": "active",
+    "default_pre_handoff_check": "scope_confirmation",
+    "matching_weight_profile": {
+      "relevance": 0.30,
+      "verification_quality": 0.25,
+      "availability_response": 0.20,
+      "profile_completeness": 0.10,
+      "inbound_referral_signal": 0.15
+    },
+    "review_signal_weight_cap": 0.20,
+    "stage2_auth_tier": "tier_1"
+  },
+  {
+    "category_id": "physician",
+    "schema_version": "0.8",
+    "category_name": "Physician",
+    "professional_tier": "credentialled",
+    "body_membership_type": "mandatory_per_jurisdiction",
+    "compliance_status": "compliance-pending",
+    "default_pre_handoff_check": "capacity_confirmation",
+    "matching_weight_profile": {
+      "relevance": 0.30,
+      "verification_quality": 0.40,
+      "availability_response": 0.15,
+      "profile_completeness": 0.05,
+      "inbound_referral_signal": 0.10
+    },
+    "review_signal_weight_cap": 0.10,
+    "stage2_auth_tier": "tier_3"
+  },
+  {
+    "category_id": "tax_planner",
+    "schema_version": "0.8",
+    "category_name": "Tax Planner",
+    "professional_tier": "established",
+    "body_membership_type": "optional_with_strong_signal",
+    "compliance_status": "active",
+    "default_pre_handoff_check": "scope_confirmation",
+    "matching_weight_profile": {
+      "relevance": 0.30,
+      "verification_quality": 0.25,
+      "availability_response": 0.20,
+      "profile_completeness": 0.10,
+      "inbound_referral_signal": 0.15
+    },
+    "review_signal_weight_cap": 0.20,
+    "stage2_auth_tier": "tier_2"
+  },
+  {
+    "category_id": "accountant",
+    "schema_version": "0.8",
+    "category_name": "Accountant",
+    "professional_tier": "established",
+    "body_membership_type": "optional_with_strong_signal",
+    "compliance_status": "active",
+    "default_pre_handoff_check": "scope_confirmation",
+    "matching_weight_profile": {
+      "relevance": 0.30,
+      "verification_quality": 0.25,
+      "availability_response": 0.20,
+      "profile_completeness": 0.10,
+      "inbound_referral_signal": 0.15
+    },
+    "review_signal_weight_cap": 0.20,
+    "stage2_auth_tier": "tier_2"
+  },
+  {
+    "category_id": "financial_advisor",
+    "schema_version": "0.8",
+    "category_name": "Financial Advisor",
+    "professional_tier": "credentialled",
+    "body_membership_type": "mandatory_per_jurisdiction",
+    "compliance_status": "active",
+    "default_pre_handoff_check": "scope_confirmation",
+    "matching_weight_profile": {
+      "relevance": 0.30,
+      "verification_quality": 0.40,
+      "availability_response": 0.15,
+      "profile_completeness": 0.05,
+      "inbound_referral_signal": 0.10
+    },
+    "review_signal_weight_cap": 0.10,
+    "stage2_auth_tier": "tier_2"
+  },
+  {
+    "category_id": "insurance_agent_pc",
+    "schema_version": "0.8",
+    "category_name": "Insurance Agent (P&C)",
+    "professional_tier": "credentialled",
+    "body_membership_type": "mandatory_per_jurisdiction",
+    "compliance_status": "active",
+    "default_pre_handoff_check": "scope_confirmation",
+    "matching_weight_profile": {
+      "relevance": 0.30,
+      "verification_quality": 0.40,
+      "availability_response": 0.15,
+      "profile_completeness": 0.05,
+      "inbound_referral_signal": 0.10
+    },
+    "review_signal_weight_cap": 0.10,
+    "stage2_auth_tier": "tier_2"
+  },
+  {
+    "category_id": "architect",
+    "schema_version": "0.8",
+    "category_name": "Architect",
+    "professional_tier": "credentialled",
+    "body_membership_type": "mandatory_per_jurisdiction",
+    "compliance_status": "active",
+    "default_pre_handoff_check": "scope_confirmation",
+    "matching_weight_profile": {
+      "relevance": 0.30,
+      "verification_quality": 0.40,
+      "availability_response": 0.15,
+      "profile_completeness": 0.05,
+      "inbound_referral_signal": 0.10
+    },
+    "review_signal_weight_cap": 0.10,
+    "stage2_auth_tier": "tier_2"
+  },
+  {
+    "category_id": "executive_coach",
+    "schema_version": "0.8",
+    "category_name": "Executive Coach",
+    "professional_tier": "established",
+    "body_membership_type": "optional_with_weak_signal",
+    "compliance_status": "active",
+    "default_pre_handoff_check": "scope_confirmation",
+    "matching_weight_profile": {
+      "relevance": 0.30,
+      "verification_quality": 0.25,
+      "availability_response": 0.20,
+      "profile_completeness": 0.10,
+      "inbound_referral_signal": 0.15
+    },
+    "review_signal_weight_cap": 0.20,
+    "stage2_auth_tier": "tier_1"
+  },
+  {
+    "category_id": "management_consultant",
+    "schema_version": "0.8",
+    "category_name": "Management Consultant",
+    "professional_tier": "established",
+    "body_membership_type": "optional_with_weak_signal",
+    "compliance_status": "active",
+    "default_pre_handoff_check": "scope_confirmation",
+    "matching_weight_profile": {
+      "relevance": 0.30,
+      "verification_quality": 0.25,
+      "availability_response": 0.20,
+      "profile_completeness": 0.10,
+      "inbound_referral_signal": 0.15
+    },
+    "review_signal_weight_cap": 0.20,
+    "stage2_auth_tier": "tier_1"
+  },
+  {
+    "category_id": "project_manager",
+    "schema_version": "0.8",
+    "category_name": "Project Manager",
+    "professional_tier": "established",
+    "body_membership_type": "optional_with_weak_signal",
+    "compliance_status": "active",
+    "default_pre_handoff_check": "scope_confirmation",
+    "matching_weight_profile": {
+      "relevance": 0.30,
+      "verification_quality": 0.25,
+      "availability_response": 0.20,
+      "profile_completeness": 0.10,
+      "inbound_referral_signal": 0.15
+    },
+    "review_signal_weight_cap": 0.20,
+    "stage2_auth_tier": "tier_1"
+  },
+  {
+    "category_id": "hr_professional",
+    "schema_version": "0.8",
+    "category_name": "HR Professional",
+    "professional_tier": "established",
+    "body_membership_type": "optional_with_weak_signal",
+    "compliance_status": "active",
+    "default_pre_handoff_check": "scope_confirmation",
+    "matching_weight_profile": {
+      "relevance": 0.30,
+      "verification_quality": 0.25,
+      "availability_response": 0.20,
+      "profile_completeness": 0.10,
+      "inbound_referral_signal": 0.15
+    },
+    "review_signal_weight_cap": 0.20,
+    "stage2_auth_tier": "tier_1"
+  },
+  {
+    "category_id": "marketing_specialist",
+    "schema_version": "0.8",
+    "category_name": "Marketing Specialist",
+    "professional_tier": "established",
+    "body_membership_type": "optional_with_weak_signal",
+    "compliance_status": "active",
+    "default_pre_handoff_check": "scope_confirmation",
+    "matching_weight_profile": {
+      "relevance": 0.30,
+      "verification_quality": 0.25,
+      "availability_response": 0.20,
+      "profile_completeness": 0.10,
+      "inbound_referral_signal": 0.15
+    },
+    "review_signal_weight_cap": 0.20,
+    "stage2_auth_tier": "tier_1"
+  },
+  {
+    "category_id": "mediator",
+    "schema_version": "0.8",
+    "category_name": "Mediator",
+    "professional_tier": "established",
+    "body_membership_type": "optional_with_strong_signal",
+    "compliance_status": "active",
+    "default_pre_handoff_check": "scope_confirmation",
+    "matching_weight_profile": {
+      "relevance": 0.30,
+      "verification_quality": 0.25,
+      "availability_response": 0.20,
+      "profile_completeness": 0.10,
+      "inbound_referral_signal": 0.15
+    },
+    "review_signal_weight_cap": 0.20,
+    "stage2_auth_tier": "tier_2"
+  },
+  {
+    "category_id": "certified_translator",
+    "schema_version": "0.8",
+    "category_name": "Certified Translator",
+    "professional_tier": "established",
+    "body_membership_type": "optional_with_strong_signal",
+    "compliance_status": "active",
+    "default_pre_handoff_check": "scope_confirmation",
+    "matching_weight_profile": {
+      "relevance": 0.30,
+      "verification_quality": 0.25,
+      "availability_response": 0.20,
+      "profile_completeness": 0.10,
+      "inbound_referral_signal": 0.15
+    },
+    "review_signal_weight_cap": 0.20,
+    "stage2_auth_tier": "tier_1"
+  }
+]

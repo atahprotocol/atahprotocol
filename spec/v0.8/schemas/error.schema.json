@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atahprotocol.org/spec/v0.8/schemas/error.schema.json",
+  "title": "ATAH Error Response",
+  "description": "ATAH Core Protocol object: structured error response returned by any ATAH binding. Required for any ATAH-conformant implementation. Closed `code` enum at v0.8.",
+  "type": "object",
+  "properties": {
+    "error": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string",
+          "enum": [
+            "consent_receipt_invalid",
+            "consent_receipt_expired",
+            "consent_receipt_revoked",
+            "handoff_access_token_invalid",
+            "handoff_access_token_expired",
+            "handoff_not_found",
+            "professional_not_found",
+            "partner_not_found",
+            "verifier_not_found",
+            "category_compliance_pending",
+            "category_not_supported",
+            "idempotency_key_required",
+            "idempotency_key_replay_with_different_payload",
+            "validation_error",
+            "unauthorized",
+            "forbidden",
+            "rate_limited",
+            "conflict_active_introduction_exists",
+            "internal_error"
+          ]
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Human-readable explanation of the error. Not localised at v0.8."
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Server-generated request identifier for support and audit correlation."
+        },
+        "details": {
+          "type": "object",
+          "description": "Additional structured detail. Open object — shape depends on the error code.",
+          "additionalProperties": true
+        }
+      },
+      "required": ["code", "message", "request_id"],
+      "additionalProperties": false
+    }
+  },
+  "required": ["error"],
+  "additionalProperties": false,
+  "examples": [
+    {
+      "error": {
+        "code": "consent_receipt_invalid",
+        "message": "The consent receipt referenced has expired",
+        "request_id": "req-01HQXRM1C6DEFGHIJKLMNOPQRS",
+        "details": {
+          "consent_receipt_id": "cr-01HQXRB1S6TUVZ8A9BCD0EFGHI",
+          "expired_at": "2026-04-10T18:21:00Z"
+        }
+      }
+    }
+  ]
+}

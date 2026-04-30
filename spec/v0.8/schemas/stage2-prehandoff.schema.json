@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atahprotocol.org/spec/v0.8/schemas/stage2-prehandoff.schema.json",
+  "title": "ATAH Stage 2 Pre-Handoff Submission",
+  "description": "ATAH Registry Operation Profile object: body of POST /v1/introductions/{handoff_id}/stage-2 (spec/v0.8 Section 6). The `prehandoff_data` shape is polymorphic on `check_type`. Required for implementations claiming Registry Conformance.",
+  "type": "object",
+  "properties": {
+    "handoff_id": {
+      "type": "string",
+      "pattern": "^hf-[A-Za-z0-9-]{6,64}$"
+    },
+    "consent_receipt_id": {
+      "type": "string",
+      "pattern": "^cr-[A-Za-z0-9-]{6,64}$"
+    },
+    "check_type": {
+      "type": "string",
+      "enum": ["conflict_check", "scope_confirmation", "capacity_confirmation", "fee_alignment"]
+    },
+    "prehandoff_data": { "type": "object" }
+  },
+  "required": ["handoff_id", "consent_receipt_id", "check_type", "prehandoff_data"],
+  "additionalProperties": false,
+  "oneOf": [
+    {
+      "properties": {
+        "check_type": { "const": "conflict_check" },
+        "prehandoff_data": {
+          "type": "object",
+          "properties": {
+            "consumer_name": { "type": "string", "minLength": 1 },
+            "other_party_name": { "type": "string", "minLength": 1 }
+          },
+          "required": ["consumer_name"],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "properties": {
+        "check_type": { "const": "scope_confirmation" },
+        "prehandoff_data": {
+          "type": "object",
+          "properties": {
+            "consumer_name": { "type": "string", "minLength": 1 },
+            "scope_summary": { "type": "string", "minLength": 1 }
+          },
+          "required": ["consumer_name", "scope_summary"],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "properties": {
+        "check_type": { "const": "capacity_confirmation" },
+        "prehandoff_data": {
+          "type": "object",
+          "properties": {
+            "consumer_name": { "type": "string", "minLength": 1 },
+            "engagement_timeline": { "type": "string", "minLength": 1 }
+          },
+          "required": ["consumer_name", "engagement_timeline"],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "properties": {
+        "check_type": { "const": "fee_alignment" },
+        "prehandoff_data": {
+          "type": "object",
+          "properties": {
+            "consumer_name": { "type": "string", "minLength": 1 },
+            "budget_range": { "type": "string", "minLength": 1 }
+          },
+          "required": ["consumer_name", "budget_range"],
+          "additionalProperties": false
+        }
+      }
+    }
+  ],
+  "examples": [
+    {
+      "handoff_id": "hf-01HQXRC2T7UVWZ9ABCDE1FGHIJ",
+      "consent_receipt_id": "cr-01HQXRB1S6TUVZ8A9BCD0EFGHI",
+      "check_type": "conflict_check",
+      "prehandoff_data": {
+        "consumer_name": "Jordan Q. Public",
+        "other_party_name": "Acme Holdings LLC"
+      }
+    }
+  ]
+}

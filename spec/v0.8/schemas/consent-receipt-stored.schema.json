@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atahprotocol.org/spec/v0.8/schemas/consent-receipt-stored.schema.json",
+  "title": "ATAH Consent Receipt (stored form)",
+  "description": "ATAH Core Protocol object: the stored form of a consent receipt. Distinct from consent-receipt.schema.json. Contains only hash and reference metadata. The full receipt remains with the asserting platform; ATAH does not store consumer-identifying fields or free-text consent in this schema. Privacy-floor enforcement: a Stage 8 build-time test reads this file and rejects the literal field names that the privacy floor (Charter Part One) excludes. Required for any ATAH-conformant implementation.",
+  "type": "object",
+  "properties": {
+    "consent_receipt_id": {
+      "type": "string",
+      "pattern": "^cr-[A-Za-z0-9-]{6,64}$"
+    },
+    "receipt_hash": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "description": "SHA-256 hash of the canonicalised full consent receipt held by the asserting platform."
+    },
+    "asserted_by_platform_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "scope": {
+      "type": "string",
+      "enum": [
+        "query_submission",
+        "stage_1_introduction",
+        "stage_2_prehandoff_submission",
+        "stage_3_contact_release",
+        "type_2_referral_participation",
+        "type_3_referred_client",
+        "outcome_reporting"
+      ]
+    },
+    "captured_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "revocation_status": {
+      "type": "string",
+      "enum": ["active", "revoked", "expired"]
+    },
+    "professional_id": {
+      "type": "string",
+      "pattern": "^atah-[A-Za-z0-9-]{6,64}$",
+      "description": "Absent before Stage 3."
+    },
+    "handoff_id": {
+      "type": "string",
+      "pattern": "^hf-[A-Za-z0-9-]{6,64}$",
+      "description": "Absent before handoff creation."
+    }
+  },
+  "required": [
+    "consent_receipt_id",
+    "receipt_hash",
+    "asserted_by_platform_id",
+    "scope",
+    "captured_at",
+    "expires_at",
+    "revocation_status"
+  ],
+  "additionalProperties": false,
+  "examples": [
+    {
+      "consent_receipt_id": "cr-01HQXRB1S6TUVZ8A9BCD0EFGHI",
+      "receipt_hash": "sha256:9f8a2c1b4d6e7a3c5b8d9f0e1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b",
+      "asserted_by_platform_id": "platform_openai_example",
+      "scope": "stage_2_prehandoff_submission",
+      "professional_id": "atah-01HQXR7K9NBVZ8M3PXFG2YT5WA",
+      "handoff_id": "hf-01HQXRC2T7UVWZ9ABCDE1FGHIJ",
+      "captured_at": "2026-04-10T14:21:00Z",
+      "expires_at": "2026-04-10T18:21:00Z",
+      "revocation_status": "active"
+    }
+  ]
+}
