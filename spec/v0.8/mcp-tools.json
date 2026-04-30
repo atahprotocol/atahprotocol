@@ -1,0 +1,643 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schema_version": "0.8",
+  "protocol_version": "0.8",
+  "title": "ATAH MCP Binding (v0.8)",
+  "description": "ATAH MCP Binding (v0.8): MCP tool definitions exposing ATAH operations. One of the v0.8 reference bindings; alternative or additional bindings may be defined in future. The protocol-level requirements that these tools surface are defined in the Core Protocol and Registry Operation Profile schemas.",
+  "tools": [
+    {
+      "name": "find_professional",
+      "description": "Find a credentialled or established professional for a matter requiring human expertise. Returns a ranked shortlist with the full trusted partner data payload, presentation_disclosure that AI platforms MUST surface to the user, and protocol_version. Professionals with matching_status of compliance-pending, regulatory-suspended, or admin-suspended are excluded from results regardless of filters. The input conforms to the ATAH query schema; the output conforms to the ATAH match-response schema.",
+      "input_schema": {
+        "$ref": "https://atahprotocol.org/spec/v0.8/schemas/query.schema.json"
+      },
+      "output_schema": {
+        "$ref": "https://atahprotocol.org/spec/v0.8/schemas/match-response.schema.json"
+      },
+      "error_codes": [
+        "consent_receipt_invalid",
+        "consent_receipt_expired",
+        "category_not_supported",
+        "category_compliance_pending",
+        "validation_error",
+        "unauthorized",
+        "rate_limited"
+      ],
+      "safety_metadata": {
+        "is_read_only": true,
+        "transmits_personal_data": false,
+        "requires_explicit_user_approval": false,
+        "state_change_scope": "none"
+      },
+      "examples": [
+        {
+          "input": {
+            "query_id": "q-01HQXRD3U8VWXAB0CDEF2GHIJK",
+            "schema_version": "0.8",
+            "protocol_version": "0.8",
+            "query_type": "consumer_introduction",
+            "requesting_agent": {
+              "platform_id": "platform_openai_example",
+              "client_id": "client_123"
+            },
+            "consent_receipt_id": "cr-01HQXRB1S6TUVZ8A9BCD0EFGHI",
+            "matter": {
+              "category": "pr_professional",
+              "matter_type": "crisis_response",
+              "location": "GB-LON",
+              "urgency": "urgent"
+            },
+            "filters": {
+              "professional_tier": "established",
+              "partner_verified_only": true,
+              "max_response_time_hours": 4,
+              "virtual": true
+            },
+            "shortlist_size": 3
+          },
+          "output": {
+            "query_id": "q-01HQXRD3U8VWXAB0CDEF2GHIJK",
+            "schema_version": "0.8",
+            "protocol_version": "0.8",
+            "deprecation_warning": null,
+            "presentation_disclosure": {
+              "atah_is_not_recommending": true,
+              "ranking_basis": ["relevance", "verification_quality", "availability_response", "profile_completeness", "inbound_referral_signal"],
+              "commercial_weighting": false,
+              "user_facing_disclosure": "ATAH does not recommend or endorse any professional. This is a provenance-visible shortlist based on the matter described and verification evidence available."
+            },
+            "result_count": 1,
+            "results": [
+              {
+                "atah_id": "atah-01HQXR8M2P3QRV5WTYZAB6CDEF",
+                "professional_tier": "established",
+                "registration_route": "partner",
+                "match_score": 0.91,
+                "match_factors": {
+                  "relevance": 0.93,
+                  "verification_quality": 0.88,
+                  "availability_score": 1.0,
+                  "profile_completeness": 0.86,
+                  "inbound_referral_signal": 0.82,
+                  "verification_quality_subcomponents": {
+                    "credential_verification": 0.92,
+                    "enhanced_score": 0.0,
+                    "review_signals": 0.84,
+                    "scope_completeness": 0.95
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "initiate_introduction",
+      "description": "Initiate a structured introduction. Returns a handoff_id and a handoff_access_token that subsequent state-changing calls (submit_stage2_data, submit_stage3_data, cancel_introduction) MUST present. handoff_id alone is not a bearer token (spec §11.5). For Type 3 referrals, the input includes referral-specific consent. Returns 409 Conflict if the consumer already has an active introduction to this professional.",
+      "input_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "atah_id": {
+            "type": "string",
+            "pattern": "^atah-[A-Za-z0-9-]{6,64}$"
+          },
+          "matter_type": { "type": "string", "minLength": 1 },
+          "location_or_jurisdiction": { "type": "string", "minLength": 1 },
+          "consent_receipt_id": {
+            "type": "string",
+            "pattern": "^cr-[A-Za-z0-9-]{6,64}$"
+          },
+          "urgency": {
+            "type": "string",
+            "enum": ["routine", "standard", "urgent", "emergency"]
+          }
+        },
+        "required": ["atah_id", "matter_type", "location_or_jurisdiction", "consent_receipt_id"],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "handoff_id": {
+            "type": "string",
+            "pattern": "^hf-[A-Za-z0-9-]{6,64}$"
+          },
+          "handoff_access_token": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Opaque short-lived token. Required for subsequent state-changing tool calls. Treat as a credential; do not log."
+          },
+          "current_state": { "type": "string", "minLength": 1 },
+          "protocol_version": { "type": "string", "const": "0.8" },
+          "pre_handoff_check_required": {
+            "type": "string",
+            "enum": ["conflict_check", "scope_confirmation", "capacity_confirmation", "fee_alignment", "none"]
+          }
+        },
+        "required": ["handoff_id", "handoff_access_token", "current_state", "protocol_version", "pre_handoff_check_required"],
+        "additionalProperties": false
+      },
+      "error_codes": [
+        "consent_receipt_invalid",
+        "consent_receipt_expired",
+        "professional_not_found",
+        "category_compliance_pending",
+        "conflict_active_introduction_exists",
+        "validation_error",
+        "unauthorized",
+        "idempotency_key_required"
+      ],
+      "safety_metadata": {
+        "is_read_only": false,
+        "transmits_personal_data": false,
+        "requires_explicit_user_approval": true,
+        "state_change_scope": "handoff"
+      },
+      "examples": [
+        {
+          "input": {
+            "atah_id": "atah-01HQXR8M2P3QRV5WTYZAB6CDEF",
+            "matter_type": "crisis_response",
+            "location_or_jurisdiction": "GB-LON",
+            "consent_receipt_id": "cr-01HQXRB1S6TUVZ8A9BCD0EFGHI",
+            "urgency": "urgent"
+          },
+          "output": {
+            "handoff_id": "hf-01HQXRC2T7UVWZ9ABCDE1FGHIJ",
+            "handoff_access_token": "hat_aBcDeFgHiJkLmNoPqRsTuVwXyZ0123456789",
+            "current_state": "introduction-initiated",
+            "protocol_version": "0.8",
+            "pre_handoff_check_required": "scope_confirmation"
+          }
+        }
+      ]
+    },
+    {
+      "name": "check_introduction_status",
+      "description": "Check the current status of an active introduction. Available to the original asserter platform and to authenticated AI platforms presenting a consumer reference matching the handoff record (spec §11.5). Does NOT return personal data — only state, history, and timestamps.",
+      "input_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "handoff_id": {
+            "type": "string",
+            "pattern": "^hf-[A-Za-z0-9-]{6,64}$"
+          },
+          "consumer_ref": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Cross-platform check: the calling platform's consumer reference must match the handoff's consumer_ref."
+          }
+        },
+        "required": ["handoff_id"],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "handoff_id": {
+            "type": "string",
+            "pattern": "^hf-[A-Za-z0-9-]{6,64}$"
+          },
+          "current_state": { "type": "string", "minLength": 1 },
+          "state_history": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "state": { "type": "string", "minLength": 1 },
+                "entered_at": { "type": "string", "format": "date-time" },
+                "actor_type": {
+                  "type": "string",
+                  "enum": ["ai_platform", "professional", "consumer", "system", "admin"]
+                }
+              },
+              "required": ["state", "entered_at", "actor_type"],
+              "additionalProperties": false
+            }
+          },
+          "protocol_version": { "type": "string", "const": "0.8" },
+          "last_updated": { "type": "string", "format": "date-time" }
+        },
+        "required": ["handoff_id", "current_state", "state_history", "protocol_version", "last_updated"],
+        "additionalProperties": false
+      },
+      "error_codes": [
+        "handoff_not_found",
+        "unauthorized",
+        "rate_limited"
+      ],
+      "safety_metadata": {
+        "is_read_only": true,
+        "transmits_personal_data": false,
+        "requires_explicit_user_approval": false,
+        "state_change_scope": "none"
+      },
+      "examples": [
+        {
+          "input": {
+            "handoff_id": "hf-01HQXRC2T7UVWZ9ABCDE1FGHIJ"
+          },
+          "output": {
+            "handoff_id": "hf-01HQXRC2T7UVWZ9ABCDE1FGHIJ",
+            "current_state": "stage-1-accepted",
+            "state_history": [
+              { "state": "introduction-initiated", "entered_at": "2026-04-10T14:21:00Z", "actor_type": "ai_platform" },
+              { "state": "stage-1-pending", "entered_at": "2026-04-10T14:21:01Z", "actor_type": "system" },
+              { "state": "stage-1-accepted", "entered_at": "2026-04-10T15:02:34Z", "actor_type": "professional" }
+            ],
+            "protocol_version": "0.8",
+            "last_updated": "2026-04-10T15:02:34Z"
+          }
+        }
+      ]
+    },
+    {
+      "name": "submit_stage2_data",
+      "description": "Submit Stage 2 pre-handoff check data after the professional has accepted Stage 1. Renamed from submit_stage2_consent because this tool transmits both consent and data. The structure of prehandoff_data depends on the pre-handoff check type required by the category (conflict_check, scope_confirmation, capacity_confirmation, or fee_alignment). Personal data lands in the transient encrypted vault (spec §11.6) and is retrieved by the professional through authenticated retrieval — it does not leave the vault via SMS or email.",
+      "input_schema": {
+        "$ref": "https://atahprotocol.org/spec/v0.8/schemas/stage2-prehandoff.schema.json"
+      },
+      "output_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "current_state": { "type": "string", "minLength": 1 },
+          "vault_reference": {
+            "type": "string",
+            "pattern": "^vault-[A-Za-z0-9-]{6,64}$",
+            "description": "Opaque reference to the transient vault entry holding the submitted data."
+          },
+          "confirmation_id": { "type": "string", "minLength": 1 },
+          "held_status": {
+            "type": "object",
+            "description": "Present when the professional has a concurrent Stage 2 in flight. The submission is held until the prior submission resolves.",
+            "properties": {
+              "held_until": { "type": "string", "format": "date-time" },
+              "reason": { "type": "string", "minLength": 1 }
+            },
+            "required": ["held_until", "reason"],
+            "additionalProperties": false
+          }
+        },
+        "required": ["current_state", "vault_reference", "confirmation_id"],
+        "additionalProperties": false
+      },
+      "error_codes": [
+        "handoff_access_token_invalid",
+        "handoff_access_token_expired",
+        "consent_receipt_invalid",
+        "consent_receipt_expired",
+        "consent_receipt_revoked",
+        "handoff_not_found",
+        "validation_error",
+        "idempotency_key_required"
+      ],
+      "safety_metadata": {
+        "is_read_only": false,
+        "transmits_personal_data": true,
+        "requires_explicit_user_approval": true,
+        "state_change_scope": "handoff"
+      },
+      "examples": [
+        {
+          "input": {
+            "handoff_id": "hf-01HQXRC2T7UVWZ9ABCDE1FGHIJ",
+            "consent_receipt_id": "cr-01HQXRB1S6TUVZ8A9BCD0EFGHI",
+            "check_type": "conflict_check",
+            "prehandoff_data": {
+              "consumer_name": "Jordan Q. Public",
+              "other_party_name": "Acme Holdings LLC"
+            }
+          },
+          "output": {
+            "current_state": "pending-stage-2",
+            "vault_reference": "vault-01HQXRH7Y2ZABCDEF6KLMNOPQRS",
+            "confirmation_id": "conf-2026-04-10-001"
+          }
+        }
+      ]
+    },
+    {
+      "name": "submit_stage3_data",
+      "description": "Release consumer contact details to the selected professional after explicit Stage 3 consent. Renamed from submit_stage3_consent. Stored in the transient encrypted vault (spec §11.6) and retrieved by the professional through authenticated retrieval — it does not leave the vault via SMS or email.",
+      "input_schema": {
+        "$ref": "https://atahprotocol.org/spec/v0.8/schemas/stage3-contact.schema.json"
+      },
+      "output_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "current_state": { "type": "string", "minLength": 1 },
+          "vault_reference": {
+            "type": "string",
+            "pattern": "^vault-[A-Za-z0-9-]{6,64}$"
+          },
+          "confirmation_id": { "type": "string", "minLength": 1 }
+        },
+        "required": ["current_state", "vault_reference", "confirmation_id"],
+        "additionalProperties": false
+      },
+      "error_codes": [
+        "handoff_access_token_invalid",
+        "handoff_access_token_expired",
+        "consent_receipt_invalid",
+        "consent_receipt_expired",
+        "consent_receipt_revoked",
+        "handoff_not_found",
+        "validation_error",
+        "idempotency_key_required"
+      ],
+      "safety_metadata": {
+        "is_read_only": false,
+        "transmits_personal_data": true,
+        "requires_explicit_user_approval": true,
+        "state_change_scope": "handoff"
+      },
+      "examples": [
+        {
+          "input": {
+            "handoff_id": "hf-01HQXRC2T7UVWZ9ABCDE1FGHIJ",
+            "consent_receipt_id": "cr-01HQXRB1S6TUVZ8A9BCD0EFGHI",
+            "consumer_contact": {
+              "name": "Jordan Q. Public",
+              "email": "jordan@example.com",
+              "phone": "+15125550123"
+            },
+            "matter_summary": "Drafting a vendor-side master services agreement for a 12-month engagement."
+          },
+          "output": {
+            "current_state": "stage-3-released",
+            "vault_reference": "vault-01HQXRH7Y2ZABCDEF6KLMNOPQRS",
+            "confirmation_id": "conf-2026-04-10-002"
+          }
+        }
+      ]
+    },
+    {
+      "name": "cancel_introduction",
+      "description": "Consumer cancellation of an active introduction. Triggers data deletion in the transient vault and notifies the professional that the introduction has been cancelled. Final state is consumer-cancelled.",
+      "input_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "handoff_id": {
+            "type": "string",
+            "pattern": "^hf-[A-Za-z0-9-]{6,64}$"
+          },
+          "handoff_access_token": { "type": "string", "minLength": 1 },
+          "cancellation_reason": { "type": "string", "minLength": 1 }
+        },
+        "required": ["handoff_id", "handoff_access_token"],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "current_state": { "type": "string", "const": "consumer-cancelled" },
+          "confirmation_id": { "type": "string", "minLength": 1 },
+          "vault_data_deleted_at": { "type": "string", "format": "date-time" }
+        },
+        "required": ["current_state", "confirmation_id"],
+        "additionalProperties": false
+      },
+      "error_codes": [
+        "handoff_access_token_invalid",
+        "handoff_access_token_expired",
+        "handoff_not_found",
+        "validation_error"
+      ],
+      "safety_metadata": {
+        "is_read_only": false,
+        "transmits_personal_data": false,
+        "requires_explicit_user_approval": true,
+        "state_change_scope": "handoff"
+      },
+      "examples": [
+        {
+          "input": {
+            "handoff_id": "hf-01HQXRC2T7UVWZ9ABCDE1FGHIJ",
+            "handoff_access_token": "hat_aBcDeFgHiJkLmNoPqRsTuVwXyZ0123456789",
+            "cancellation_reason": "Consumer no longer requires the engagement."
+          },
+          "output": {
+            "current_state": "consumer-cancelled",
+            "confirmation_id": "conf-2026-04-10-003",
+            "vault_data_deleted_at": "2026-04-10T16:45:00Z"
+          }
+        }
+      ]
+    },
+    {
+      "name": "revoke_consent",
+      "description": "Consumer revocation of a previously-issued consent receipt. Triggers data deletion in the transient vault for any data covered by the revoked receipt and prevents further actions under that receipt. handoff_access_token is required when the receipt is associated with a handoff.",
+      "input_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "consent_receipt_id": {
+            "type": "string",
+            "pattern": "^cr-[A-Za-z0-9-]{6,64}$"
+          },
+          "handoff_access_token": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Required if the receipt is associated with a handoff; otherwise optional."
+          }
+        },
+        "required": ["consent_receipt_id"],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "consent_receipt_id": {
+            "type": "string",
+            "pattern": "^cr-[A-Za-z0-9-]{6,64}$"
+          },
+          "revocation_status": {
+            "type": "string",
+            "enum": ["active", "revoked", "expired"]
+          },
+          "vault_data_deleted_at": { "type": "string", "format": "date-time" },
+          "confirmation_id": { "type": "string", "minLength": 1 }
+        },
+        "required": ["consent_receipt_id", "revocation_status", "confirmation_id"],
+        "additionalProperties": false
+      },
+      "error_codes": [
+        "consent_receipt_invalid",
+        "handoff_access_token_invalid",
+        "handoff_access_token_expired",
+        "validation_error"
+      ],
+      "safety_metadata": {
+        "is_read_only": false,
+        "transmits_personal_data": false,
+        "requires_explicit_user_approval": true,
+        "state_change_scope": "consent"
+      },
+      "examples": [
+        {
+          "input": {
+            "consent_receipt_id": "cr-01HQXRB1S6TUVZ8A9BCD0EFGHI",
+            "handoff_access_token": "hat_aBcDeFgHiJkLmNoPqRsTuVwXyZ0123456789"
+          },
+          "output": {
+            "consent_receipt_id": "cr-01HQXRB1S6TUVZ8A9BCD0EFGHI",
+            "revocation_status": "revoked",
+            "vault_data_deleted_at": "2026-04-10T17:00:00Z",
+            "confirmation_id": "conf-2026-04-10-004"
+          }
+        }
+      ]
+    },
+    {
+      "name": "get_consent_requirements",
+      "description": "Retrieve the consent requirements for a specific scope and category. Allows AI platforms to determine what consent text and data categories must be captured before issuing a consent receipt. Returns the canonical consent text for the current version so the asserting platform can show the consumer text matching the consent_text_version it then records.",
+      "input_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "scope": {
+            "type": "string",
+            "enum": [
+              "query_submission",
+              "stage_1_introduction",
+              "stage_2_prehandoff_submission",
+              "stage_3_contact_release",
+              "type_2_referral_participation",
+              "type_3_referred_client",
+              "outcome_reporting"
+            ]
+          },
+          "category": { "type": "string", "minLength": 1 }
+        },
+        "required": ["scope", "category"],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "required_data_categories": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 },
+            "uniqueItems": true
+          },
+          "consent_text_version": { "type": "string", "minLength": 1 },
+          "consent_text": { "type": "string", "minLength": 1 },
+          "default_expiry_seconds": { "type": "integer", "minimum": 0 }
+        },
+        "required": ["required_data_categories", "consent_text_version", "consent_text", "default_expiry_seconds"],
+        "additionalProperties": false
+      },
+      "error_codes": [
+        "validation_error",
+        "category_not_supported"
+      ],
+      "safety_metadata": {
+        "is_read_only": true,
+        "transmits_personal_data": false,
+        "requires_explicit_user_approval": false,
+        "state_change_scope": "none"
+      },
+      "examples": [
+        {
+          "input": {
+            "scope": "stage_2_prehandoff_submission",
+            "category": "lawyer"
+          },
+          "output": {
+            "required_data_categories": ["consumer_name", "other_party_name"],
+            "consent_text_version": "stage2-conflict-check-v0.8",
+            "consent_text": "To run a conflict check, your name and any opposing party's name will be sent to the lawyer for the purpose of confirming there is no conflict of interest. The information will not be retained beyond the period needed for that check.",
+            "default_expiry_seconds": 14400
+          }
+        }
+      ]
+    },
+    {
+      "name": "report_introduction_outcome",
+      "description": "Report the outcome of an introduction when it concludes. The outcome_code values cover successful introductions, professional declines, consumer cancellations, no-response, and concern reports. The consumer-reported-concern outcome routes to the concern flag mechanism (spec §5.10) — admin-only visibility, professional notified with right of reply. ATAH does not adjudicate; serious matters route to the relevant regulatory or professional body.",
+      "input_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "handoff_id": {
+            "type": "string",
+            "pattern": "^hf-[A-Za-z0-9-]{6,64}$"
+          },
+          "handoff_access_token": { "type": "string", "minLength": 1 },
+          "outcome_code": {
+            "type": "string",
+            "enum": [
+              "introduction-successful",
+              "professional-declined-conflict",
+              "professional-declined-scope",
+              "professional-declined-capacity",
+              "professional-declined-fee",
+              "professional-declined-other",
+              "consumer-chose-alternative",
+              "matter-not-proceeding",
+              "no-response-from-consumer",
+              "consumer-reported-concern",
+              "consumer-cancelled",
+              "consent-revoked"
+            ]
+          },
+          "outcome_notes": { "type": "string", "minLength": 1 }
+        },
+        "required": ["handoff_id", "handoff_access_token", "outcome_code"],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "current_state": { "type": "string", "minLength": 1 },
+          "confirmation_id": { "type": "string", "minLength": 1 },
+          "concern_flag_id": {
+            "type": "string",
+            "pattern": "^flag-[A-Za-z0-9-]{6,64}$",
+            "description": "Present when outcome_code is consumer-reported-concern."
+          }
+        },
+        "required": ["current_state", "confirmation_id"],
+        "additionalProperties": false
+      },
+      "error_codes": [
+        "handoff_access_token_invalid",
+        "handoff_access_token_expired",
+        "handoff_not_found",
+        "validation_error"
+      ],
+      "safety_metadata": {
+        "is_read_only": false,
+        "transmits_personal_data": false,
+        "requires_explicit_user_approval": false,
+        "state_change_scope": "handoff"
+      },
+      "examples": [
+        {
+          "input": {
+            "handoff_id": "hf-01HQXRC2T7UVWZ9ABCDE1FGHIJ",
+            "handoff_access_token": "hat_aBcDeFgHiJkLmNoPqRsTuVwXyZ0123456789",
+            "outcome_code": "introduction-successful",
+            "outcome_notes": "Engagement letter signed; matter is proceeding."
+          },
+          "output": {
+            "current_state": "outcome-reported",
+            "confirmation_id": "conf-2026-04-10-005"
+          }
+        }
+      ]
+    }
+  ]
+}
