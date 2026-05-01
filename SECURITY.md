@@ -125,25 +125,68 @@ The following events are recorded in the audit log:
 - Admin actions (suspensions, conflict resolutions, dispute decisions, flag
   reviews)
 
-Audit log entries are hash-chained, store pseudonymous identifiers only, and
-are retained for 7 years. Subjects of audit (professionals, partners,
+Audit log entries are hash-chained and use minimised, pseudonymous identifiers. They are not directly identifying within ATAH alone but may constitute personal data where linkable by ATAH, the asserting platform, a partner, or a regulator. Retention period is 7 years, justified by the purposes of fraud detection, dispute resolution, and regulator engagement. The lawful basis is legitimate interest, with the balancing test reflected in the operational privacy policy. Subjects of audit (professionals, partners,
 verifiers) may request entries concerning themselves through the
 `/v1/professionals/me/disputes` and admin paths.
 
-## 7. Vulnerability hall of fame
+## 7. Incident response
+
+ATAH maintains an incident-response posture for two specific scenarios that
+have a material consumer impact: confirmed professional fraud and confirmed
+professional account compromise.
+
+### Confirmed professional fraud
+
+On confirmed fraud (e.g. a professional uses ATAH-routed introductions to
+defraud consumers, or a professional record is shown to be fraudulent in
+ways the registration credibility checks did not catch):
+
+- **Immediate suspension** of the affected professional record, removing it
+  from match results.
+- **Partner notification** where the professional was represented through a
+  partner.
+- **Affected-introduction review** of recent and in-flight introductions
+  involving the professional.
+- **Consumer notification** through the asserting AI platforms for affected
+  introductions.
+- **Cooperation** with law enforcement and regulators where legally
+  appropriate.
+- **Public disclosure** through the security advisory channel where the
+  fraud was facilitated by a protocol-level weakness.
+
+ATAH does not commit to compensation for losses arising from professional
+fraud. Consumer-side compensation considerations sit with the consumer,
+their AI platform, the professional's regulator (where applicable), and any
+relevant law enforcement.
+
+### Professional account compromise — sensitive change controls
+
+Sensitive changes to a professional's record — contact details, payout or
+payment details, licence jurisdiction, firm affiliation, fee model, and
+availability routing — require step-up authentication beyond the standard
+magic link or SMS one-time code. The change is also notified to the
+prior verified channel, allowing the professional to detect unauthorised
+changes through a channel that has not itself been compromised.
+
+This control is operational from launch. Full claim-authentication
+hardening with anomaly detection on attempted changes (rapid succession from
+new IPs, attempts to immediately edit fee or contact fields after a claim)
+is deferred to v0.9 per ROADMAP.
+
+## 8. Vulnerability hall of fame
 
 This section will be populated as disclosures are resolved. Reporters who wish
 to be credited will be listed with the disclosure date and a one-line
 description of the issue.
 
-## 8. Bounty programme
+## 9. Bounty programme
 
 ATAH does not currently operate a paid bounty programme. We commit to
 handling responsible disclosures in good faith, crediting reporters where
 they wish, and to publishing a transparent post-disclosure summary for any
 substantive issue. A bounty programme may be considered post-transition.
 
-## 9. Contact
+## 10. Contact
 
 - Security: `security@atahprotocol.org`
 - General: `hello@atahprotocol.org`

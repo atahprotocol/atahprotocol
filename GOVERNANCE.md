@@ -46,6 +46,8 @@ Until transition to independent governance:
 The following are published and kept current:
 
 - Trusted partner registry (`tp-*` records)
+  - Standard partner agreement template (including data-protection terms
+    appropriate to the partner's role under GDPR and equivalent frameworks)
 - Independent verifier registry (`iv-*` records)
 - Review platform classifications and their anti-gaming attestations
 - Category compliance annexes

@@ -26,7 +26,7 @@ ATAH is the protocol layer that fills that gap.
 
 ATAH is an open protocol layer that gives AI systems a structured, trusted way to connect users to verified human professionals at the point AI reaches the limit of what it can helpfully provide.
 
-It is not a directory product. It is not a recommendation engine. It is a **trust and handoff contract** — a common machine-readable standard defining the data model, consent receipts, provenance rules, handoff lifecycle, and conformance requirements for AI-to-authenticated-human professional handoff. AI systems integrate with an ATAH-compatible endpoint and receive validated professional options together with transparent credential, provenance, and trust signals, so they can support a clean handoff without leaving users stranded.
+It is not a directory product. It is not a recommendation engine. It is a **trust and handoff contract** — a common machine-readable standard defining the data model, consent receipts, provenance rules, handoff lifecycle, and conformance requirements for AI-to-authenticated-human professional handoff. AI systems integrate with an ATAH-compatible endpoint and receive verified professional options together with transparent credential, provenance, and trust signals, so they can support a clean handoff without leaving users stranded.
 
 If the analogy helps: MCP standardises how AI systems reach tools and data. ATAH standardises the trust and handoff payload for reaching verified human professionals. ATAH can itself be exposed through MCP — and is, in v0.8 — so it is not a competitor to MCP. It composes with MCP, A2A, OAuth 2.1, and W3C Verifiable Credentials, sitting in the layer above them.
 
@@ -57,7 +57,7 @@ v0.8 is single-registry by design; the architecture is built so federation can b
 
 ATAH is designed to:
 
-- Provide a common machine-readable contract, with an initial reference endpoint, that returns relevant validated professional options for any authorised AI system that asks
+- Provide a common machine-readable contract, with an initial reference endpoint, that returns verified candidate professional options for any authorised AI system that asks
 - Cover both formally licensed professionals (lawyers, doctors, engineers) and established practitioners whose standing is real but not formally licensed (PR specialists, consultants, coaches, project managers)
 - Make the basis of trust visible to AI systems and end users — every data point tagged with how it was verified and by whom, through a parallel provenance map
 - Manage the full introduction lifecycle from initial match through to professional engagement, with explicit consent at every stage captured as a structured consent receipt
@@ -69,12 +69,14 @@ ATAH is designed to:
 
 ATAH is explicitly *not* designed to:
 
-- **Recommend specific professionals as the "best" choice for a specific outcome.** ATAH presents validated options and the evidence behind them. The AI system applies its own context. The user makes the choice. Every match response carries a `presentation_disclosure` block that AI platforms are expected to surface to users — making the non-recommendation framing machine-readable.
+- **Recommend specific professionals as the "best" choice for a specific outcome.** ATAH presents verified options and the evidence behind them. The AI system applies its own context. The user makes the choice. Every match response carries a `presentation_disclosure` block that AI platforms are expected to surface to users — making the non-recommendation framing machine-readable.
 - **Replace professional regulators or membership bodies.** ATAH surfaces what regulators and bodies already know. It does not adjudicate professional conduct or set professional standards. Concerns reported through ATAH are routed to the relevant regulatory body, never investigated by ATAH itself.
 - **Operate as a paid lead-generation marketplace.** Matching is never weighted by commercial relationships. Payment funds data integration and protocol participation, not ranking.
 - **Function as a consumer-facing product.** Consumers reach ATAH only through their AI system. There is no ATAH website where users browse for professionals.
 - **Solve every category of professional service from day one.** Some categories require specific compliance work — for example, healthcare requires HIPAA-compliant handling — before they can be surfaced in matching. Those categories can register, but are excluded from match results until the relevant compliance work is signed off.
 - **Warrant outcomes.** ATAH commits to specific data freshness windows, dispute resolution timelines, and concern-routing protocols. It does not warrant the suitability, competence, or behaviour of any individual professional.
+
+ATAH presents verified *options* against the query — it does not recommend, endorse, or vouch for any specific professional. AI platforms integrating with ATAH are expected to preserve that framing in how they present results to users, and not describe ATAH-sourced professionals as "recommended," "approved," "best," or "endorsed" by ATAH. The `presentation_disclosure` block in every match response captures this requirement in machine-readable form.
 
 ## A note on terminology — "consumer"
 
@@ -84,7 +86,7 @@ Throughout this explainer and the spec, "consumer" is used as a protocol-neutral
 
 ATAH supports three distinct introduction types, all sharing the same underlying protocol infrastructure but differing in who initiates them and how data flows.
 
-**Consumer introduction (Type 1).** The most common case. A consumer's AI system identifies that human expertise is needed and queries ATAH on the consumer's behalf. ATAH returns a shortlist of relevant validated professionals; the AI system presents the options to the consumer; the introduction proceeds through staged consent.
+**Consumer introduction (Type 1).** The most common case. A consumer's AI system identifies that human expertise is needed and queries ATAH on the consumer's behalf. ATAH returns a shortlist of verified candidate professionals; the AI system presents the options to the consumer; the introduction proceeds through staged consent.
 
 **Professional referral relationship (Type 2).** A professional's AI assistant identifies a potential complementary professional in a different field — a tax planner connecting with a corporate lawyer, for example, or a PR specialist with a crisis communications barrister. ATAH proposes the referral relationship to both. Nothing flows unless both professionals independently agree. Type 2 establishes a relationship between professionals; it does not transmit client personal data. Established referral relationships become a quality signal in consumer matching, because professionals tend to refer to people they trust.
 
@@ -120,7 +122,29 @@ ATAH itself stores only a hash of the receipt and its metadata — no personal d
 
 This pattern is borrowed from how transparency logs work for software supply chains and certificate authorities. It is designed to support evidence of consent and align with consent-receipt models such as GDPR Article 7 and ISO/IEC 29184, without making ATAH a personal data store.
 
+What the receipt model proves and what it does not. The receipt-and-hash
+pattern proves that the consent receipt has not been altered between the
+moment the asserting platform captured consent and the moment a dispute
+arises. It does not, on its own, prove that the user actually saw or
+understood the consent text. Responsibility for capturing consent properly
+— the consent ceremony, the wording, evidence that the user actively
+consented — sits with the asserting AI platform under its developer terms.
+ATAH verifies receipt integrity; the platform is responsible for the consent
+itself. The v0.9 platform-light consent mode (see ROADMAP) will offer an
+alternative model where ATAH provides more of the consent ceremony directly,
+for platforms that prefer to invoke a standard ATAH-driven flow.
+
 Cancelling and revoking consent are first-class operations. The MCP tools `cancel_introduction` and `revoke_consent` are equally available alongside the consent-submission tools. Privacy-first means revoke must be as easy as submit.
+
+What revocation actually achieves depends on the stage of the introduction.
+Before Stage 2, revocation is clean — no professional has seen any data.
+After a Stage 2 pre-handoff check has been completed, the professional has
+seen the scope-confirmation data; that cannot be unseen, though no further
+data flows. After Stage 3 retrieval, the professional has the consumer's
+contact details; the transient vault is crypto-erased on revocation, but
+the professional's own systems hold the data and ATAH cannot compel its
+deletion. Revocation in all cases prevents further ATAH-mediated use of the
+introduction.
 
 ## How the handoff is secured — and why it matters
 
@@ -186,6 +210,17 @@ A membership body with looser standards — where membership is essentially open
 
 The protocol surfaces these differences in the partner record, so AI systems and end users can interpret partner-verified status accurately. A "partner-verified" status from a state bar association carries a different weight from a "partner-verified" status from an open membership body. Both are honest claims; they describe different things.
 
+The protocol records this distinction in a structured field, `vetting_strength`,
+with three values: `regulatory` (a regulator with statutory or constitutional
+authority over the profession), `strong_membership` (a membership body with
+chartered/fellow status, CPD requirements, and active disciplinary processes),
+and `open_membership` (a membership body where membership is essentially open
+to anyone who pays the joining fee). The classification is set by ATAH
+governance at partner approval and may only be revised through governance
+review, never by the partner unilaterally. Match responses surface the
+classification so AI platforms can present partner-verified status with
+appropriate context.
+
 ## Enhanced verification — going beyond the standard layer
 
 Standard partner verification is enough for most cases. Sometimes professionals, employers, or professional bodies want a deeper, ongoing, independently-audited verification — covering identity, qualifications, professional history, insurance, references, client feedback, compliance obligations, and sanctions screening.
@@ -239,7 +274,7 @@ ATAH is a proposal for what that layer should look like. It does not replace any
 
 ## Who this serves
 
-**AI platforms** get a common ATAH-compatible handoff contract — available through the v0.8 MCP and REST bindings — that returns validated professional options when their users need human expertise. No bespoke integration per professional category or per jurisdiction. No directory deals to negotiate. Free to query (no per-query or licensing fee — querying still requires authentication for protocol integrity). Conforms to current MCP authorisation guidance. The initial reference registry provides the first live endpoint; future conforming implementations may expose the same protocol.
+**AI platforms** get a common ATAH-compatible handoff contract — available through the v0.8 MCP and REST bindings — that returns verified professional options when their users need human expertise. No bespoke integration per professional category or per jurisdiction. No directory deals to negotiate. Free to query (no per-query or licensing fee — querying still requires authentication for protocol integrity). Conforms to current MCP authorisation guidance. The initial reference registry provides the first live endpoint; future conforming implementations may expose the same protocol.
 
 The proposition to AI platforms is direct: supporting ATAH addresses the broken handoff problem that every AI system currently hits. It turns a limitation into a capability without each platform having to solve it independently.
 
@@ -271,7 +306,7 @@ Trust and commercial logic are structurally separate. Payment funds participatio
 
 ## Privacy and data — structural, not policy
 
-ATAH is built around minimising central retention of consumer personal data. This isn't a policy that could be loosened later — it's a Charter Part One core commitment that requires supermajority governance to change.
+ATAH is built around minimising central retention of consumer personal data. This isn't a policy that could be loosened later — it's a Charter Part One entrenched commitment that requires supermajority governance to change.
 
 The system distinguishes data categories and treats each separately:
 
@@ -285,6 +320,16 @@ The system distinguishes data categories and treats each separately:
 Every introduction requires fresh explicit consent, captured as a structured consent receipt. ATAH never re-uses personal data from a previous introduction.
 
 The transient encrypted vault and the authenticated retrieval portal mean personal data never sits in a notification provider's logs, an inbox, a phone notification history, or a device backup. The professional gets a notification with no personal data; they tap the link; they authenticate at the appropriate tier (light for low-sensitivity scope confirmations; step-up authentication for healthcare or sensitive legal matters); they see the data; the data is then crypto-erased.
+
+A note on professional data. The privacy commitments above describe how ATAH
+handles consumer personal data — minimised, transient, never stored centrally.
+Professional data is treated separately. ATAH holds and maintains professional
+records, and professionals have the standard data protection rights —
+access, rectification, objection, erasure (subject to public-interest
+carve-outs for regulator-sourced data), restriction, and portability.
+Professionals appearing through a trusted partner are notified by their
+partner; self-registered professionals are notified at registration.
+Detailed treatment is in the PRD and specification.
 
 ## Alternatives considered
 

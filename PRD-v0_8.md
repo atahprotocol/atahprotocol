@@ -26,11 +26,11 @@ AI systems are becoming the first place many users turn when they have legal, me
 
 This creates a structural problem for three groups.
 
-**For consumers.** When an AI reaches the limit of what it can handle alone — a legal matter requiring licensed advice, a property and casualty insurance question requiring a licensed agent, a tax matter requiring a qualified planner, a PR crisis requiring experienced judgment, a structural concern requiring a certified engineer — there is currently no common, trusted, machine-readable way for it to move a user from AI interaction to validated human help.
+**For consumers.** When an AI reaches the limit of what it can handle alone — a legal matter requiring licensed advice, a property and casualty insurance question requiring a licensed agent, a tax matter requiring a qualified planner, a PR crisis requiring experienced judgment, a structural concern requiring a certified engineer — there is currently no common, trusted, machine-readable way for it to move a user from AI interaction to verified human help.
 
 **For professionals.** Credentialled and established professionals across every field are largely invisible to AI systems. There is no machine-readable standard for representing who they are, what they handle, where they practise, and how they want to be engaged. Answer Engine Optimisation is a specialism most professionals will never master. They need infrastructure that supports this consistently, at scale, through a structure they can join without becoming AI experts. At the same time, professionals have always relied on referral networks. Building those manually takes years.
 
-**For AI platforms.** Without a trusted, structured, and machine-readable source of professional identity and trust signals, AI systems cannot safely and consistently move users from general AI interaction to validated human help. Building bespoke integrations with every professional directory in every jurisdiction is not feasible. A shared open standard addresses this for every platform simultaneously.
+**For AI platforms.** Without a trusted, structured, and machine-readable source of professional identity and trust signals, AI systems cannot safely and consistently move users from general AI interaction to verified human help. Building bespoke integrations with every professional directory in every jurisdiction is not feasible. A shared open standard addresses this for every platform simultaneously.
 
 There is also a structural commercial opportunity for professional bodies. Every association's members are asking the same question: how do I stay visible and relevant when AI becomes the first port of call? ATAH gives associations a concrete, practical answer — and a new revenue stream built on what they already know about their members.
 
@@ -102,7 +102,7 @@ Every data point in a professional's profile carries its own provenance via the 
 - **VC-verified** — confirmed via cryptographic verification of a W3C Verifiable Credential. Treated equivalently to partner-verified for matching purposes.
 - **Self-declared** — provided by the professional, not yet independently verified.
 
-The registry gets richer as trusted partners connect and contribute verified data. Better-validated profiles carry stronger trust signals within matching calculations.
+The registry gets richer as trusted partners connect and contribute verified data. Better-verified profiles carry stronger trust signals within matching calculations.
 
 ### What partners actually verify
 
@@ -228,6 +228,34 @@ A core condition of trusted partner status is keeping data current. Partners are
 
 It is fundamental to ATAH's integrity that partner payments do not influence user-facing ordering or matching outcomes. Where partner-provided data influences trust presentation, the source and verification basis remain transparent.
 
+**Disciplinary data — special handling.** Disciplinary records are the
+highest-stakes content surfaced by partners. Partners contributing
+disciplinary data are required to:
+
+- Categorise records by severity (e.g. caution, suspension, strike-off,
+  restriction).
+- Reflect spent or expired discipline where the regulator's own rules
+  permit removal after a defined period.
+- Reflect withdrawal of complaints that did not result in finding.
+- Update the record on outcome of any appeal or review.
+
+Professionals have the right of reply on disciplinary records held against
+them in the registry, exercised through the professional portal. Where the
+professional disputes a disciplinary record, the dispute flow described in
+§8.10 applies; during an active dispute, the disciplinary record is flagged
+in the profile and may be suppressed from matching where it materially
+conflicts with another source.
+
+**Conflict resolution hierarchy.** Where partner sources conflict on a
+verifiable fact (for example, two partners reporting different licence
+statuses for the same professional), the affected profile is suppressed
+from matching pending resolution. The data hierarchy applied to resolution
+is: regulator > statutory register > mandatory professional body > strong
+voluntary body > independent verifier > review platform > self-declared.
+Resolution timelines apply per the affected partners' SLAs. The professional
+is notified when their record is suppressed and is informed of the conflict
+through the professional portal.
+
 #### Independent verifiers and enhanced verification
 
 ATAH supports an optional enhanced verification layer. This is a deeper, ongoing, independently-audited verification commissioned by professional bodies (for their members), employers (for their employees), or individual professionals (for themselves). It is administered by approved independent verifiers — separate from professional bodies, separate from review platforms, and approved by the protocol governance body before they may operate.
@@ -256,7 +284,7 @@ Review-derived signals contribute only above a minimum volume threshold (default
 
 ### 8.5 Matching Engine
 
-AI systems query an ATAH-conformant registry via the MCP or REST binding. The registry runs the matching algorithm and returns a set of relevant validated professional options with the full trusted partner data payload, the `presentation_disclosure` block, and per-sub-component contribution metadata. The AI system applies its own contextual layer to refine and present options.
+AI systems query an ATAH-conformant registry via the MCP or REST binding. The registry runs the matching algorithm and returns a set of verified candidate professional options with the full trusted partner data payload, the `presentation_disclosure` block, and per-sub-component contribution metadata. The AI system applies its own contextual layer to refine and present options.
 
 Matching should be understood primarily as eligibility filtering plus transparent trust-signal presentation. Ordering reflects declared relevance and trust inputs. ATAH does not make a substantive recommendation that a particular professional is the correct or best choice for a particular outcome. Ordering must not be affected by commercial payments.
 
@@ -267,6 +295,16 @@ Matching should be understood primarily as eligibility filtering plus transparen
 **Anti-gaming controls on inbound referral signal:** reciprocal cap (closed pairs and triangles discounted), time decay, referrer verification quality weighting, evidence of successful referral outcomes for full weight, dense-cluster discounting. Sophisticated Sybil/ring detection deferred to v0.9.
 
 No commercial weighting at any point. No weight assigned to which review platform contributed data beyond the platform's published verification rigour classification. The `presentation_disclosure` block on every match response makes ATAH's non-recommendation stance machine-readable; AI platforms are expected to surface its content to end users.
+
+**Cross-jurisdiction default.** ATAH does not return cross-jurisdiction
+matches by default for regulated categories. Cross-jurisdiction results
+require explicit query parameters indicating the consumer's intent to
+engage cross-border, category-specific support for cross-jurisdiction
+matching, and a `presentation_disclosure` note that the professional's
+licensing or authorisation may not cover the consumer's jurisdiction or
+the specific matter. This default is set per category in
+`profession-categories.json` and may be amended only through governance
+review.
 
 ### 8.6 Bidirectional Protocol and Introduction Lifecycle
 
@@ -280,11 +318,24 @@ ATAH manages the full lifecycle of every introduction as a bidirectional protoco
 
 Cancel and revoke are first-class operations: `cancel_introduction` and `revoke_consent` MCP tools and corresponding API endpoints, both triggering immediate vault crypto-erasure.
 
+What revocation actually achieves depends on the stage of the introduction. Before Stage 2, revocation is clean — no professional has seen any data. After a Stage 2 pre-handoff check has been completed, the professional has seen the scope-confirmation data; that cannot be unseen, though no further data flows. After Stage 3 retrieval, the professional has the consumer's contact details; the transient vault is crypto-erased on revocation, but the professional's own systems hold the data and ATAH cannot compel its deletion. Revocation in all cases prevents further ATAH-mediated use of the introduction.
+
+**Mid-handoff status change.** If a professional's matching status changes to
+`regulatory-suspended`, `withdrawn`, `deceased`, `admin-suspended`, or
+`compliance-blocked` while a handoff to that professional is in flight, the
+handoff is paused immediately, further data release is blocked, the asserting
+AI platform is notified through the standard `check_introduction_status`
+mechanism, and the consumer is offered cancellation or rematching. The
+transient vault content for that handoff is crypto-erased within the standard
+vault retention window.
+
 ### 8.7 Consent Receipts
 
 Every consent action in ATAH is captured as a structured consent receipt rather than a boolean flag. Receipts include scope, data categories, professional/handoff reference, asserting platform, captured timestamp, expiry, revocation support, and revocation status. ATAH stores a hash of the receipt and metadata; the asserting platform stores the full receipt. At dispute time the platform produces the receipt and ATAH verifies the hash matches what was stored at consent time.
 
 This provides demonstrable consent suitable for GDPR Article 7, ISO/IEC 29184, and similar frameworks, while keeping ATAH from becoming a personal data store.
+
+ATAH verifies that a submitted consent receipt matches the stored hash. ATAH does not independently verify that the user saw or understood the consent text. The asserting platform remains responsible for the consent ceremony and for evidence that consent was validly captured. This is reflected in the platform's developer terms and is monitored through audit-log analysis. The optional platform-light consent mode (deferred to v0.9) will allow platforms to invoke a standard ATAH-driven consent flow as an alternative to constructing receipts themselves.
 
 ### 8.8 Tiered Handoff Access
 
@@ -310,7 +361,18 @@ Professionals may dispute data contributed by trusted partners (including enhanc
 
 ### 8.11 Concern Flag Mechanism
 
-The `consumer-reported-concern` outcome code creates a concern flag against the professional's record. Concern flags are admin-only visibility — never published, never used in matching weighting. The professional named is notified of any flag against them and has a 30-day right of reply. Patterns of flags trigger admin review and may result in escalation to the relevant regulatory or professional body. ATAH does not adjudicate professional conduct. Bad-faith flag detection (rapid succession from same consumer, contradictory content) applies — flagged for review and may be discarded.
+The `consumer-reported-concern` outcome code creates a concern flag against the professional's record. The full flag lifecycle is:
+
+- **Intake.** Flag is created with admin-only visibility. Never published. Never used in matching weighting at any point in its lifecycle.
+- **Professional notification.** The professional is notified that a flag exists against them. They are given a 30-day right of reply.
+- **Review.** ATAH admin reviews the flag against the professional's response and any contextual signals. Bad-faith indicators (rapid succession from the same consumer, contradictory content, coordinated campaigns) result in a bad-faith finding.
+- **Escalation or no escalation.** Where the flag and the response together indicate a regulatory concern, ATAH may escalate to the relevant regulatory or professional body. ATAH does not adjudicate professional conduct.
+- **Reporter handling.** Where a bad-faith finding is made, the reporter's flag is discarded and future flags from the same source are weighted lower or rejected. The professional is informed of the bad-faith finding.
+- **Retention.** Confirmed flags are retained as part of the professional's record for the duration of the professional's registration plus a defined regulatory-engagement window. Bad-faith flags are deleted after the bad-faith finding, with minimal metadata retained against the reporter for pattern detection.
+- **Professional rights.** Professionals have the right of access to flag content concerning them, subject to limited redaction where reporter privacy or regulatory considerations apply. The right of access is exercised through the professional portal.
+- **Reporter expectations.** Consumers reporting concerns through ATAH should understand that, where the flag is escalated to a regulator, the reporter's identity may be passed onward as part of the escalation. This is disclosed at the point of reporting.
+
+For full data handling rules (lawful basis, retention by flag status, escalation thresholds), see GOVERNANCE.md §7.
 
 This protects against both consumer harm (bad actors gaming the flag system) and professional harm (defamation through unverified flags).
 
@@ -343,7 +405,7 @@ ATAH handles consumer personal data as a transient conduit, never a repository. 
 - **Consent receipt metadata** — hash and metadata only. No PII. Retained per receipt expiry plus 90 days.
 - **Introduction lifecycle data** — state transitions logged with pseudonymous identifiers. No PII.
 - **Consumer personal data** — strictly transient. Held only in the encrypted vault during active handoffs. Crypto-erased on resolution. Never written to the main registry database. Never transmitted through SMS or email.
-- **Audit log** — pseudonymous identifiers only. Tamper-evident hash-chained. Retained 7 years.
+- **Audit log** — minimised, pseudonymous identifiers; not directly identifying within ATAH alone but may constitute personal data where linkable. Tamper-evident hash-chained. Retained 7 years on legitimate-interest basis, scoped to fraud detection, dispute resolution, and regulator engagement.
 - **Anonymised post-introduction data** — non-PII outcome data only. Retained two years then deleted.
 
 ### Notification policy
@@ -360,9 +422,83 @@ Because ATAH holds consumer personal data only transiently, the standard right t
 
 Every introduction requires fresh explicit consent captured as a structured consent receipt. ATAH never re-uses personal data from a previous introduction.
 
+### Professional data protection
+
+The privacy floor described above concerns *consumer* personal data.
+Professional data is also personal data where it relates to identifiable
+professionals, and is governed separately.
+
+**ATAH's role.** ATAH operates as a data controller (or, depending on the
+data flow, joint controller with a contributing partner) for professional
+data held in the registry. Specific role assignment by data flow is
+documented in operational policy and reflected in partner agreements.
+
+**Lawful basis.** ATAH relies on the following lawful bases for processing
+professional data, by source:
+- *Regulator-sourced data* — public-task / legal-obligation basis under
+  GDPR Article 6(1)(c) or 6(1)(e), reflecting the public-interest function
+  of regulatory registers.
+- *Partner-contributed membership data* — legitimate interest under Article
+  6(1)(f), supported by a balancing test and the partner's own member
+  notice.
+- *Self-declared individual registration* — consent under Article 6(1)(a),
+  captured at registration.
+- *Verification records and provenance metadata* — legitimate interest,
+  scoped to the purpose of supporting verifiable handoff.
+
+**Professional notice.** Professionals appearing in the registry through
+the partner route are notified by the partner under the partner's own
+member terms. For high-risk regulated categories, the 7-day pre-merge
+notification window described in §10.4 of the spec applies. Self-registered
+professionals receive notice at registration.
+
+**Professional rights.** Professionals have the following rights, exercised
+through the professional portal or by contacting ATAH at
+`privacy@atahprotocol.org`:
+- *Access* — right to see what data ATAH holds about them and how it has
+  been used.
+- *Rectification* — right to correct inaccurate data, subject to partner
+  data-source rules where the data originates with a regulator or
+  professional body.
+- *Objection* — right to object to processing, subject to overriding
+  legitimate interest assessment.
+- *Erasure* — right to request deletion. Where the data originates with a
+  regulator under public-interest carve-outs, the right is more limited;
+  ATAH may suppress the record from matching while retaining minimal
+  audit-trail data.
+- *Restriction and portability* — supported in line with GDPR Articles 18
+  and 20.
+
+**Partner-route opt-out.** A professional appearing in the registry through
+a partner who does not wish to be present may request removal at any time.
+Where the partner is a regulator and the data is regulatory-status data,
+removal may not be possible; in that case, ATAH will suppress the record
+from matching while retaining the minimal data required for audit and
+conflict-resolution purposes.
+
+**Partner agreements.** Partner agreements include appropriate data-protection
+terms, including controller/processor or joint-controller arrangements
+under GDPR Articles 26 and 28 where required.
+
+**Audit log treatment.** Audit log entries use minimised, pseudonymous
+identifiers. They are not directly identifying within ATAH alone but may be
+personal data where linkable by ATAH, the asserting platform, a partner, or
+a regulator. Retention period is 7 years and is justified by the purposes of
+fraud detection, dispute resolution, and regulator engagement; the basis is
+legitimate interest.
+
+### Consumer capacity assumption
+
+ATAH assumes the asserting AI platform has determined that the consumer has
+capacity to consent, or has captured appropriate guardian or representative
+consent where required. ATAH does not independently verify consumer
+capacity. Categories involving services for minors, patients, or vulnerable
+adults may specify additional platform-side verification requirements in
+their compliance annex.
+
 ### Regulatory considerations by category
 
-- **Lawyers** — attorney-client privilege. Stage 1 contains no personal data. Stage 2 minimum for category-appropriate check (typically conflict check). Full matter content never flows through ATAH.
+- **Lawyers** — attorney-client privilege. Stage 1 contains no personal data. Stage 2 minimum for category-appropriate check (typically conflict check). Full matter content never flows through ATAH. **Stage 2 conflict screening is preliminary and does not replace the lawyer's own professional conflict-checking obligations before engagement.** Legal-services matching is also subject to jurisdiction-specific advertising, referral, lead-generation, and unauthorised-practice rules. ATAH does not permit per-referral fees, outcome-contingent fees, or ranking based on payment. Listing fees (where applicable) are flat fees for registry presence — not referral fees, not contingent on consumer engagement or outcome, not paid on a per-introduction basis. Legal-category participation may be gated by jurisdiction-specific annexes.
 - **Property and casualty insurance agents** — licence and appointment verification enforced at matching layer where partner agreements are in place. Authoritative US licensing data sources (NIPR is a representative example) can provide automated verification subject to partner agreement. Stage 2 is typically a capacity confirmation or scope alignment. Such integrations verify licensing and appointment data where available; category fit (lines of authority, carrier appointments, farm/commercial/personal focus) still depends on declared and partner-verified specialisms, product lines, and engagement scope.
 - **Tax planners and accountants** — Stage 2 is typically a scope confirmation. Verification depends on the relevant accounting body (AICPA, equivalents) and any regulatory licensing where applicable.
 - **Financial advisors** — registration, RIA status, and disclosed disciplinary history surfaced from authoritative US registers (FINRA-style sources are representative examples), subject to redistribution terms and partner agreements.
@@ -394,6 +530,16 @@ ATAH is best-effort within the published rubric and verification freshness windo
 
 Where matching surfaces a professional whose status has changed (recent suspension, disciplinary action) faster than partner data freshness can reflect, ATAH's commitment is the published verification-deferred handling and the meaningful conflict suppression mechanism — not a guarantee of real-time accuracy.
 
+AI platforms are expected to surface verification freshness and source information to users when presenting ATAH match results. ATAH does not warrant accuracy of partner-supplied data beyond the published freshness windows. Platforms should not present ATAH data as current beyond those windows without independent re-verification, and any reliance beyond the published windows is on the platform.
+
+### Platform presentation obligations
+
+ATAH presents candidate professionals against query parameters and disclosed verification signals. ATAH does not recommend, endorse, or vouch for any individual professional, and platforms integrating with ATAH are expected to preserve that framing in their user-facing presentation.
+
+Specifically, platforms must not describe ATAH match results to users as "recommended," "approved," "best," "endorsed," or "vouched for" by ATAH. Platforms must present results as candidate professionals returned against query parameters and disclosed verification signals. Platforms remain responsible for any additional contextual ranking they apply and for the language they use to introduce ATAH-sourced options to their users.
+
+These obligations are reflected in the `presentation_disclosure` block on every match response and are documented in detail in the AI platform developer terms.
+
 ### Capture resistance
 
 The protocol is designed against capture by large early partners. Specific structural protections:
@@ -420,7 +566,7 @@ Three explicit commercial commitments:
 - Where partner-provided data influences trust presentation, the source and verification basis remain transparent.
 - Where paid services generate verification evidence, that evidence is scored under the same public rubric available to all approved sources.
 
-The proposition to professional bodies is direct: contribute data on your members, give them structured machine-readable presence at the point AI systems need validated human sources, and earn from providing it.
+The proposition to professional bodies is direct: contribute data on your members, give them structured machine-readable presence at the point AI systems need verified human sources, and earn from providing it.
 
 Beyond the protocol: a referral analytics platform, association white-label programmes, managed onboarding, and premium analytics may exist as adjacent commercial products. None of these touch the protocol's neutrality, and ATAH governance audits the boundary between the open protocol and any adjacent commercial activity.
 
@@ -572,7 +718,7 @@ Success metrics are split into three layers — protocol, reference registry, an
 
 ATAH is open infrastructure for a problem that is real and currently unsolved across every professional field — regulated and established alike.
 
-AI platforms are increasingly the interface for everything. They can handle products, transactions, and services. The one thing they cannot reliably do is complete the journey from AI interaction to the right human professional in a structured, trusted, validated way. ATAH addresses that gap. For AI platforms, it turns a broken handoff into a capability. For professionals, it provides a structural way to be discoverable to AI systems without each one solving Answer Engine Optimisation alone. For professional bodies, it is a new membership benefit and a new revenue stream built on data they already hold.
+AI platforms are increasingly the interface for everything. They can handle products, transactions, and services. The one thing they cannot reliably do is complete the journey from AI interaction to the right human professional in a structured, trusted, verified way. ATAH addresses that gap. For AI platforms, it turns a broken handoff into a capability. For professionals, it provides a structural way to be discoverable to AI systems without each one solving Answer Engine Optimisation alone. For professional bodies, it is a new membership benefit and a new revenue stream built on data they already hold.
 
 The trusted partner model is what makes the registry credible and the operational model coherent. Sustainability rests on that network — partner integrations, verifier governance fees, and adjacent operational services — and the network grows every time a new category opens or a new jurisdiction is added.
 

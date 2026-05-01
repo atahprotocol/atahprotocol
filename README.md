@@ -22,7 +22,7 @@ ATAH is an open protocol layer that gives AI systems a structured, trusted way t
 
 It is a **trust and handoff contract** — a common machine-readable standard defining the data model, consent receipts, provenance rules, handoff lifecycle, and conformance requirements for AI-to-authenticated-human professional handoff. The protocol is transport-compatible: it can be exposed through MCP tools, REST APIs, A2A-compatible agents, or future bindings. The v0.8 package defines MCP and REST bindings and an initial reference registry.
 
-ATAH separates the standard from the service that first implements it. AI systems integrate with an ATAH-compatible endpoint and receive validated professional options together with transparent credential, provenance, and trust signals — supporting a clean handoff without leaving users stranded.
+ATAH separates the standard from the service that first implements it. AI systems integrate with an ATAH-compatible endpoint and receive verified professional options together with transparent credential, provenance, and trust signals — supporting a clean handoff without leaving users stranded.
 
 The protocol works for two categories of professional, through identical infrastructure:
 
@@ -90,7 +90,7 @@ ATAH does not duplicate the work of identity, credential, or commerce standards.
 
 ## Who this is for
 
-**AI platforms.** A common ATAH-compatible handoff contract, available through the v0.8 MCP and REST bindings, that returns validated professional options when your users need human expertise. No bespoke integration per category or jurisdiction. Free to query (no per-query or licensing fee — querying still requires authentication for protocol integrity). Conforms to current MCP authorisation guidance (OAuth 2.1-compatible). The initial reference registry provides the first live endpoint; future conforming implementations may expose the same protocol.
+**AI platforms.** A common ATAH-compatible handoff contract, available through the v0.8 MCP and REST bindings, that returns verified professional options when your users need human expertise. No bespoke integration per category or jurisdiction. Free to query (no per-query or licensing fee — querying still requires authentication for protocol integrity). Conforms to current MCP authorisation guidance (OAuth 2.1-compatible). The initial reference registry provides the first live endpoint; future conforming implementations may expose the same protocol.
 
 **Professional associations.** A practical answer to the question every member is asking: *how do I stay visible and trusted when AI becomes the first call for professional advice?* Associations participate as trusted partners — contributing what they already know about their members, and giving those members structured machine-readable presence in AI-mediated environments. Public partner fee schedules; waivers available for public-interest bodies.
 
@@ -140,7 +140,7 @@ It is the founding commitment that governance of the protocol will transition to
 
 An interim advisory group will be convened when suitable members are identified and available to serve. The status of governance transition will be reviewed and reported publicly when there is meaningful progress to share.
 
-The Charter's permanent core commitments — regardless of corporate structure — include:
+The Charter's entrenched core commitments — regardless of corporate structure — include:
 
 - The protocol specification is open and licensed under Apache 2.0
 - The ATAH-operated reference MCP endpoint remains free to query (free meaning no per-query or licensing fee — querying still requires authentication); the protocol itself is royalty-free to implement

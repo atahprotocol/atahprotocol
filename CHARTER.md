@@ -12,7 +12,7 @@ This Charter sets out the founding governance commitments of the Agent to Authen
 
 The Charter applies to all versions of the protocol, regardless of the corporate or foundation structure that holds governance over time.
 
-The Charter is divided into two parts. **Core commitments** are non-amendable except by the process set out in the Amendments section below. They define the protocol's neutrality, openness, and minimum privacy commitments, and exist to make those properties durable across changes in leadership. **Operational commitments** can evolve through normal governance processes as described in [GOVERNANCE.md](GOVERNANCE.md).
+The Charter is divided into two parts. **Core commitments** are entrenched and amendable only by the process set out in the Amendments section below. They define the protocol's neutrality, openness, and minimum privacy commitments, and exist to make those properties durable across changes in leadership. **Operational commitments** can evolve through normal governance processes as described in [GOVERNANCE.md](GOVERNANCE.md).
 
 The Charter is published in the protocol's public repository. It takes effect from the date of its first commit. Amendments to operational commitments are made through pull request to this document, following the process set out in GOVERNANCE.md. Amendments to core commitments require the supermajority threshold defined below and are recorded in the document's revision history.
 
@@ -20,7 +20,7 @@ The Charter is published in the protocol's public repository. It takes effect fr
 
 ## Part One: Core commitments
 
-These commitments are intended to be permanent. They define what makes ATAH neutral infrastructure rather than a commercial product, and they protect those properties against future drift.
+These commitments are entrenched. They may be amended only through the supermajority core-commitment process set out in the Amendments section below. They define what makes ATAH neutral infrastructure rather than a commercial product, and they protect those properties against future drift.
 
 ### 1. Open specification
 
@@ -59,6 +59,11 @@ References to registry operations elsewhere in this Charter apply to the ATAH-op
 
 ATAH must not operate as a central repository of consumer personal data. Consumer personal data may be processed only for explicit, staged handoff purposes and must be minimised, time-limited, and auditable. Notification channels (such as SMS and email) must not carry consumer personal data; they may carry only non-sensitive notification text and authenticated retrieval references. The detailed data governance commitments are set out in the specification and may be strengthened, but not weakened, through governance review.
 
+This privacy floor concerns consumer personal data. Professional data is
+also personal data where it relates to identifiable professionals, and is
+governed by the operational commitments on professional data protection set
+out in Part Two and in the specification.
+
 ### 6. Compliance gating floor
 
 No professional category may be surfaced in matching unless category-specific minimum verification, compliance, and disclosure requirements have been approved and published as a compliance annex. Categories may be open for registration before the annex is complete, but professionals in such categories must not be returned in match results until compliance gating has been satisfied.
@@ -73,7 +78,7 @@ The founder retains a permanent advisory seat on the governance body of the prot
 
 The founder is subject to the following conflict-of-interest, recusal, and disclosure rules:
 
-- Annual public conflict-of-interest disclosure, listing all entities in which the founder holds a material interest and which are or may become participants in the ATAH ecosystem
+- Annual public conflict-of-interest disclosure, listing all entities in which the founder or members of the founder's immediate family hold a material interest and which are or may become participants in the ATAH ecosystem
 - Disclosure of any founder-affiliated entity participating in ATAH as a partner, verifier, review platform, or registered professional
 - Recusal from governance decisions affecting any founder-affiliated entity
 - Public register of related-party transactions involving ATAH and any founder-affiliated entity
@@ -81,7 +86,7 @@ The founder is subject to the following conflict-of-interest, recusal, and discl
 
 Reasonable compensation for the founder's time spent on protocol work is permitted, set transparently and reviewed by the governance body once established. The founder does not receive a personal share of partner integration fees, professional registration fees, enhanced verification fees, or any commercial benefit conditional on the registry's growth. Where the founder draws compensation for protocol work, the amount and basis are publicly disclosed.
 
-After transition to independent governance, the founder advisory seat may be occupied by the founder or, if unavailable, may lapse or be converted into a non-voting historical adviser seat appointed by the independent governance body. No nominee may hold approval rights over core amendments.
+The founder advisory seat is a personal seat. It is non-transferable and non-inheritable. After transition to independent governance, the seat may be occupied only by the founder. If the founder is unavailable, becomes incapacitated, or withdraws, the seat lapses; the independent governance body may, at its discretion, convert it into a non-voting historical adviser role appointed at its own decision. No founder nominee may hold approval rights over core amendments.
 
 ---
 
@@ -125,6 +130,8 @@ The following partner principles apply:
 - A public partner registry showing partner status, scope, and approval date
 - Data quality criteria independent of payment level
 - Equal data-handling and provenance treatment regardless of fee tier
+- Partner agreements include appropriate data-protection terms, including
+  controller/processor or joint-controller arrangements where required
 
 Partner contributions are subject to data quality and freshness obligations. Partners failing to meet these obligations may have their data deprioritised, suspended, or removed under the conflict and integrity processes described in the specification. Detailed partner terms are documented in [GOVERNANCE.md](GOVERNANCE.md) and may evolve through governance review.
 
@@ -164,6 +171,10 @@ These operational commitments implement the Part One privacy floor. They may be 
 - Every introduction requires fresh explicit consent, captured as a structured consent receipt
 - ATAH never re-uses personal data from a previous introduction
 - Detailed data governance is set out in the specification
+- Professional data is also personal data where it relates to identifiable
+  professionals. Operational commitments on professional data protection
+  (controller role, lawful basis, professional rights, partner notice,
+  erasure and objection) are set out in the PRD §9 and the specification §11.
 
 ### Code of conduct
 

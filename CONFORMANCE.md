@@ -51,6 +51,13 @@ A conforming implementation publishes a public conformance statement at a discov
 
 The reference registry publishes its conformance statement as part of the v0.8 launch package.
 
+**Self-certification status until v0.9.** Until the v0.9 conformance test
+suite is published, conformance statements are self-declarations by their
+publishers. They are not ATAH certification or endorsement of any
+implementation. ATAH may publicly contest conformance statements that
+misrepresent compliance with the protocol or with the conformance principles
+in §14 of the specification.
+
 ## Record portability across registries
 
 Record portability between conforming registries — including export format, duplicate resolution, and cross-registry provenance trust — is deferred to federation work in v0.9 or v1.0. The v0.8 architecture is federation-ready (atah_id namespaces are reserved, no part of the data model assumes single-registry operation), but the cross-registry trust mechanics are not yet specified.
