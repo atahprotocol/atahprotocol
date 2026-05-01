@@ -67,6 +67,12 @@ The **ATAH reference registry** is the first operational implementation. It stor
 
 Future conforming registries may exist once federation and cross-registry trust mechanics are specified. Until then, v0.8 is single-registry by design and federation-ready by architecture.
 
+### A note on named organisations
+
+Throughout this package, named professional bodies, regulators, and review platforms (state bar associations, NIPR, FINRA, PRSA, CIPR, the International Coaching Federation, and others) appear as **illustrative examples** of the *types* of organisations the protocol is designed to work with. They are not partners with whom agreements exist. They appear because they are the most recognisable bodies in their respective categories and jurisdictions, and they help readers understand who the protocol's trusted-partner framework is for.
+
+Becoming a trusted partner requires a partner agreement, data integration work, and governance approval. None of those are in place at v0.8 publication. The protocol's value is demonstrated by its design — not by claiming relationships that do not yet exist.
+
 ## Where ATAH sits
 
 ATAH is the missing layer above the existing agent-web stack and composes with established identity standards rather than replacing them:

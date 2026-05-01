@@ -137,9 +137,9 @@ The result: random possession of a `handoff_id` cannot expose data or move an in
 
 ATAH serves two distinct categories of professional, through identical infrastructure.
 
-**Credentialled professionals** hold a formal licence, certification, or accreditation from a recognised regulatory or professional body. Their standing can be verified directly against an authoritative source. Lawyers verified against bar association databases. Property and casualty insurance agents verified against NIPR across all 50 US states. Tax planners and accountants verified against professional accounting bodies and national registries. Doctors verified against medical board records. If their licence lapses or a disciplinary action is recorded, that fact is reflected in their profile.
+**Credentialled professionals** hold a formal licence, certification, or accreditation from a recognised regulatory or professional body. Their standing can be verified directly against an authoritative source. Lawyers are verifiable against bar association databases (state bar associations are the representative US example) where partner agreements exist. Property and casualty insurance agents are verifiable against authoritative licensing data (NIPR is a representative example for US licensing) where the relevant partner agreement is in place. Tax planners and accountants are verifiable against professional accounting bodies and national registries. Doctors are verifiable against medical board records (state medical boards are the representative US example) where partner agreements exist. If their licence lapses or a disciplinary action is recorded, that fact is reflected in their profile.
 
-**Established professionals** are recognised practitioners in fields where formal licensing does not exist but professional standing is real, verifiable, and commercially meaningful. PR specialists with chartered status from CIPR or fellow status from PRSA. Coaches credentialled by the International Coaching Federation. Project managers certified by PMI. HR professionals through SHRM. Their standing is verified through trusted partner data — the relevant body confirms membership, level, and good standing.
+**Established professionals** are recognised practitioners in fields where formal licensing does not exist but professional standing is real, verifiable, and commercially meaningful. PR specialists with chartered or fellow status from communications and PR membership bodies (CIPR and PRSA are representative examples). Coaches credentialled by professional coaching bodies (the International Coaching Federation is a representative example). Project managers certified by project management bodies (PMI is a representative example). HR professionals through HR membership bodies (SHRM is a representative example). Their standing is verified through trusted partner data — the relevant body confirms membership, level, and good standing.
 
 The trusted partner model handles both categories the same way. The evidence differs. The protocol is identical.
 
@@ -167,7 +167,7 @@ Every data point in a professional's profile carries its own verification status
 
 This is delivered through a **parallel provenance map** — alongside the profile data, a `_provenance` block records, for every verifiable field, how it was verified, by whom, and when. The verification statuses include:
 
-- **Registry-verified** — confirmed active against an authoritative source by ATAH directly. Bar association lookups for lawyers in covered jurisdictions, NIPR API checks for insurance agents.
+- **Registry-verified** — confirmed active against an authoritative source by ATAH directly. Bar association lookups for lawyers in covered jurisdictions (such as state bar association integrations), and licensing-data lookups for insurance agents (such as integrations with US licensing data sources like NIPR), are representative examples of the type of verification this status describes.
 - **Partner-verified** — confirmed by a named trusted partner with active partner status. The partner is always identified.
 - **VC-verified** — confirmed by cryptographically verifying a W3C Verifiable Credential issued by an approved partner. Treated equivalently to partner-verified for matching, with the issuer recorded.
 - **Self-declared** — the professional has stated this and it has not yet been independently verified. Always surfaced as such.
@@ -202,7 +202,7 @@ Enhanced verification is particularly valuable for professionals who don't have 
 
 ## Review platforms — treated as a distinct signal class
 
-Review platforms — Google reviews, Avvo, Trustpilot, Healthgrades, Martindale-Hubbell — contribute aggregated review and feedback data. This data is meaningful when sourced from a platform with strong anti-gaming controls. It is unreliable when not. The protocol does not pretend otherwise.
+Review platforms — such as general consumer review platforms, legal review platforms (Avvo and Martindale-Hubbell are representative examples), healthcare review platforms (Healthgrades is a representative example), and broad-spectrum review platforms (Google reviews and Trustpilot are representative examples) — contribute aggregated review and feedback data. This data is meaningful when sourced from a platform with strong anti-gaming controls. It is unreliable when not. The protocol does not pretend otherwise.
 
 Review platforms are treated as a specialised partner class with specific requirements as a condition of integration:
 
@@ -255,7 +255,7 @@ The proposition to AI platforms is direct: supporting ATAH addresses the broken 
 
 The trusted partner network is what makes the registry credible and what funds the protocol.
 
-Trusted partners are organisations that hold reliable, maintained data about professionals and meet ATAH's partner standards. State bar associations. NIPR. NAIC. FINRA. The American Bar Association. The Big "I" (IIABA), PIA, and the CPCU Society for property and casualty insurance professionals. PRSA, CIPR, the International Coaching Federation, SHRM, PMI. Google reviews data. Avvo. Healthgrades. Martindale-Hubbell. Hundreds of similar organisations across hundreds of professional categories worldwide.
+Trusted partners are organisations that hold reliable, maintained data about professionals and meet ATAH's partner standards. The types of organisation the protocol is designed to work with include: regulatory and licensing bodies (such as state bar associations, NIPR, NAIC, FINRA, and equivalents in other jurisdictions); professional bodies for credentialled fields (such as the American Bar Association, and bodies covering property and casualty insurance professionals like the Big "I" (IIABA), PIA, and the CPCU Society); professional bodies for established practitioner fields (such as PRSA, CIPR, the International Coaching Federation, SHRM, and PMI); and review platforms (such as Google reviews, Avvo, Healthgrades, and Martindale-Hubbell). Hundreds of similar organisations exist across hundreds of professional categories worldwide. None of the named bodies above are committed partners at v0.8 publication; each is a representative example of the type of organisation the protocol's trusted-partner framework is designed to work with.
 
 The model is consistent across all of them: partners pay ATAH for integration access, with public fee schedules and waivers for regulators and public-interest bodies. Members gain structured machine-readable presence in AI-mediated environments — the answer to the AEO question. The commercial model exists to fund the work of building and maintaining the protocol. It is not the reason the protocol exists.
 
@@ -266,6 +266,8 @@ Three commitments are non-negotiable in this model:
 - Where partners' data conflicts on something material — for example, two different sources reporting different licence statuses — the affected profile is suppressed from matching until the conflict is resolved.
 
 Trust and commercial logic are structurally separate. Payment funds participation. It does not buy ranking.
+
+**On named organisations.** Throughout this explainer, named bodies (state bar associations, NIPR, NAIC, FINRA, the American Bar Association, the Big "I", PIA, the CPCU Society, PRSA, CIPR, the International Coaching Federation, SHRM, PMI, Google reviews, Avvo, Healthgrades, Martindale-Hubbell, and others) appear as illustrative examples of the *types* of organisation the protocol is designed for. They are not committed partners. They appear because they are the most recognisable bodies in their respective categories and jurisdictions, helping readers see who the trusted-partner framework is for. Becoming a partner requires a partner agreement, data integration work, and governance approval — none of which is in place at v0.8 publication.
 
 ## Privacy and data — structural, not policy
 

@@ -741,8 +741,8 @@ Different partners apply different standards to membership or accreditation. A s
 
 Each partner record carries a `vetting_strength` field with three possible values:
 
-- `regulatory` — a regulator with statutory or quasi-statutory authority. Examples: state bar associations, NIPR, FINRA, state medical boards, NAIC.
-- `strong_membership` — a professional body with strict membership standards: chartered or fellow status, CPD requirements, active disciplinary processes. Examples: CIPR, ICF, PMI for senior credentials; CPCU Society; The Big "I" (IIABA) and PIA for independent insurance agents.
+- `regulatory` — a regulator with statutory or quasi-statutory authority. Representative examples include state bar associations, NIPR, FINRA, state medical boards, and NAIC; equivalent regulatory bodies exist across other jurisdictions. Each is illustrative of the partner type, not a committed partner at v0.8 publication.
+- `strong_membership` — a professional body with strict membership standards: chartered or fellow status, CPD requirements, active disciplinary processes. Representative examples include CIPR, ICF, PMI (for senior credentials), the CPCU Society, and the Big "I" (IIABA) and PIA (for independent insurance agents); equivalent bodies exist across other jurisdictions. Each is illustrative.
 - `open_membership` — a body where membership is essentially open to anyone who pays the joining fee. Membership confirms identity but is a weaker signal of professional standing.
 
 The `vetting_strength` is set when the partner is onboarded, by the protocol governance body, and may be revised through governance review. It is surfaced in match response metadata and is used as a weighting input in the matching engine's verification quality scoring (Section 9). It is not amendable by the partner unilaterally.
@@ -817,7 +817,7 @@ Both fees are tiered by declared scope (`narrow_scope`, `multi_scope`, `global_s
 
 ### 5.8 Review Platforms
 
-Review platforms — Google reviews, Avvo, Trustpilot, Healthgrades, Martindale-Hubbell, and similar — are a specialised partner class. The protocol treats review platform data as a distinct signal class with specific requirements.
+Review platforms — representative examples include broad-spectrum review platforms (Google reviews, Trustpilot), legal review platforms (Avvo, Martindale-Hubbell), and healthcare review platforms (Healthgrades) — are a specialised partner class. The protocol treats review platform data as a distinct signal class with specific requirements. Each named platform is illustrative; none is a committed partner at v0.8 publication.
 
 Each approved review platform is classified by `review_platform_class` based on anti-gaming controls and verification rigour:
 
@@ -1369,13 +1369,13 @@ Where paid services generate verification evidence, that evidence is scored unde
 
 **Credentialled professionals — insurance agents (United States):**
 
-NIPR API — automated verification across all 50 US states and territories for licensed insurance producers. NIPR verifies licensing and appointment data where available; category fit (lines of authority, carrier appointments, P&C focus, farm/commercial/personal specialisation) still depends on declared and partner-verified specialisms, product lines, and engagement scope. Category-specific metadata is captured in `profession-categories.json` and via partner data from professional bodies (Big "I", PIA, CPCU Society, NAIC).
+Authoritative US insurance licensing data — NIPR is a representative example of the type of source that can support automated verification across US states and territories for licensed insurance producers, where the relevant partner agreement is in place. Such integrations verify licensing and appointment data where available; category fit (lines of authority, carrier appointments, P&C focus, farm/commercial/personal specialisation) still depends on declared and partner-verified specialisms, product lines, and engagement scope. Category-specific metadata is captured in `profession-categories.json` and via partner data from professional bodies (representative examples include the Big "I", PIA, CPCU Society, and NAIC; equivalent bodies exist across other jurisdictions).
 
 **Credentialled professionals — lawyers (United States):**
 
-State bar databases — MVP scope is priority states only. Where state bar APIs exist, automated verification runs directly. Where only lookup tools exist, a scraping layer is used. Where neither is reliable, manual review within 24 hours.
+State bar databases — operational scope is limited to jurisdictions where partner agreements exist. Where state bar APIs are accessible under partner agreement, automated verification runs directly. Where only lookup tools exist, a scraping layer may be used subject to the relevant terms. Where neither is reliable, manual review within 24 hours applies.
 
-Non-priority states at MVP: self-declared profiles only, clearly labelled as such. No false verification claims are made.
+Where verification routes are not yet in place, profiles are self-declared and clearly labelled as such. No false verification claims are made.
 
 The current operational scope for priority states is published in the protocol's documentation, not embedded in the spec.
 
@@ -1971,7 +1971,7 @@ Protocol specification v0.8 finalised and published. All schemas including conse
 
 ### Phase B — Core Infrastructure (Weeks 2–4)
 
-Postgres schema for all entities. Transient encrypted vault built (per-record DEK, crypto-erasure, TTL, audit logging). Registry service built with both registration routes. Verification job runner — NIPR API integration (all 50 states), state bar scraping for priority states. Rolling daily batch with concurrency limit and exponential backoff. Professional registration flow with magic link/OIDC, basic registry integrity checks. Full delivery-and-deletion protocol from Section 11 with all failure paths. OAuth 2.1 endpoints (authorization server metadata, token endpoint, dynamic client registration). Audit logging service with tamper-evident hash chaining. `Accept-Version` and `deprecation_warning` support.
+Postgres schema for all entities. Transient encrypted vault built (per-record DEK, crypto-erasure, TTL, audit logging). Registry service built with both registration routes. Verification job runner — illustrative integrations such as NIPR-style licensing data (subject to partner agreement) and state bar database integrations (subject to partner agreement, in jurisdictions where state bar partners are in place). Rolling daily batch with concurrency limit and exponential backoff. Professional registration flow with magic link/OIDC, basic registry integrity checks. Full delivery-and-deletion protocol from Section 11 with all failure paths. OAuth 2.1 endpoints (authorization server metadata, token endpoint, dynamic client registration). Audit logging service with tamper-evident hash chaining. `Accept-Version` and `deprecation_warning` support.
 
 ### Phase C — Trusted Partner Engine (Weeks 3–5)
 
@@ -2082,7 +2082,7 @@ The v0.8 MVP is complete when all of the following are true.
 - `Accept-Version` and `Deprecation` working
 - Concern flag mechanism with admin-only visibility, professional notification, right of reply
 - Two registration routes live; partner-route and individual self-registration both functional
-- At least one trusted partner integration live for credentialled professionals (NIPR or state bar API)
+- At least one trusted partner integration live for credentialled professionals (representative examples of the type include licensing data sources such as NIPR or a state bar API, subject to partner agreement)
 - At least one trusted partner integration live for established professionals
 - Partner scoring running and queryable
 - Conflict detection end-to-end including meaningful suppression

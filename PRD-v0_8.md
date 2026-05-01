@@ -69,7 +69,7 @@ ATAH's protocol is profession-agnostic at the architecture level, but category-s
 
 **Established professionals** are recognised practitioners in fields where formal licensing does not exist but professional standing is real, verifiable, and meaningful. Their standing is verified through membership of professional bodies, peer recognition, client reviews, and trusted partner data. Examples: PR professionals, management consultants, marketing specialists, executive coaches, HR professionals, project managers, mediators, certified translators.
 
-The trusted partner model handles both categories through the same infrastructure. A state bar association contributes licence and disciplinary data for lawyers. NIPR contributes licence and appointment data for insurance agents across all 50 states. The CIPR or PRSA contributes membership and fellowship data for PR professionals. A review platform contributes verified client scores. The evidence differs. The protocol is identical.
+The trusted partner model handles both categories through the same infrastructure. A state bar association is a representative example of a regulator contributing licence and disciplinary data for lawyers. An authoritative licensing data source (NIPR is a representative example for US insurance) contributes licence and appointment data for insurance agents where the relevant partner agreement is in place. A communications or PR membership body (CIPR and PRSA are representative examples) contributes membership and fellowship data for PR professionals. A review platform contributes verified client scores. The evidence differs. The protocol is identical.
 
 ### Two registration routes
 
@@ -85,7 +85,7 @@ When a trusted partner joins ATAH for a category, professionals who are members 
 
 ATAH uses a structured, multi-class validator model:
 
-- **Authoritative registry validation** — licensing boards, statutory registries, regulator databases. NIPR, FINRA, state bar databases, state medical boards.
+- **Authoritative registry validation** — licensing boards, statutory registries, regulator databases. Representative examples include NIPR, FINRA, state bar databases, and state medical boards; equivalent bodies exist in other jurisdictions.
 - **Professional-body validation** — membership, fellowship, certification, confirmed by named bodies with active partner status.
 - **Verifiable Credential (VC) validation** — W3C Verifiable Credentials issued by approved partners. Cryptographically verified.
 - **Firm or institutional validation** — employer, panel membership, accredited network, or insurer panel confirmation.
@@ -148,13 +148,13 @@ Supporting ATAH creates a path for professionals to reach AI platforms without p
 
 Organisations that hold reliable, maintained data about professionals and meet ATAH's partner standards. Both data quality mechanism and primary commercial model.
 
-**Regulatory and licence databases.** State bar associations (priority states at launch, expanding as verification pathways are established); NIPR for insurance agent licensing across all 50 states; NAIC for state-level insurance regulator coordination; FINRA for financial advisors; state medical and nursing boards.
+**Regulatory and licence databases.** Representative examples of the type include state bar associations (lawyers), NIPR-style licensing data sources (insurance agents), NAIC-style state-level insurance regulator coordination, FINRA-style financial-advisor registers, and state medical and nursing boards. Equivalent regulatory bodies exist across other jurisdictions and categories. Each is illustrative of the partner type, not a committed partner at v0.8 publication; integration depends on a partner agreement being in place.
 
-**Professional bodies — credentialled fields.** American Bar Association; American Medical Association; American Institute of CPAs (AICPA); American Institute of Architects (AIA); The Big "I" (IIABA) and PIA for property and casualty insurance agents; CPCU Society for chartered property and casualty underwriters.
+**Professional bodies — credentialled fields.** Representative examples include the American Bar Association (lawyers), the American Medical Association (physicians), the American Institute of CPAs (accountants — AICPA), the American Institute of Architects (architects — AIA), and bodies covering property and casualty insurance professionals such as the Big "I" (IIABA), PIA, and the CPCU Society. Equivalent bodies exist across other jurisdictions. Each is illustrative of the partner type, not a committed partner at v0.8 publication.
 
-**Professional bodies — established practitioner fields.** PRSA / CIPR for public relations; American Marketing Association / CIM for marketing; Institute of Management Consultants (IMC); International Coaching Federation (ICF); Society for Human Resource Management (SHRM); Project Management Institute (PMI).
+**Professional bodies — established practitioner fields.** Representative examples include communications and PR membership bodies (PRSA and CIPR), marketing membership bodies (the American Marketing Association and CIM), management consulting bodies (the Institute of Management Consultants — IMC), coaching bodies (the International Coaching Federation — ICF), HR membership bodies (the Society for Human Resource Management — SHRM), and project management bodies (the Project Management Institute — PMI). Equivalent bodies exist across other jurisdictions and adjacent professions. Each is illustrative of the partner type, not a committed partner at v0.8 publication.
 
-**Review platforms.** Google reviews, Avvo, Healthgrades, Martindale-Hubbell, Trustpilot, and similar. Specialised partner class with anti-gaming attestation requirements as a condition of partner status, classified by verification rigour, with review weight capped per category.
+**Review platforms.** Representative examples include broad-spectrum review platforms (Google reviews, Trustpilot), category-specific legal review platforms (Avvo, Martindale-Hubbell), and category-specific healthcare review platforms (Healthgrades). Specialised partner class with anti-gaming attestation requirements as a condition of partner status, classified by verification rigour, with review weight capped per category. Each named platform is illustrative, not a committed partner at v0.8 publication.
 
 **Independent verifiers.** Approved by ATAH governance, audited annually, providing enhanced verification commissioned by professional bodies, employers, or individual professionals.
 
@@ -214,7 +214,7 @@ The atah_id is opaque (ULID-style with a typed prefix). Country, profession, and
 
 ### 8.3 Verification Engine
 
-Automated verification against authoritative sources for credentialled professionals where accessible — including NIPR for insurance agents (all 50 states), state bar databases for lawyers in priority states, and FINRA for financial advisors. NIPR verifies licensing and appointment data where available; category fit (lines of authority, carrier appointments, P&C focus, farm/commercial/personal specialisation) still depends on declared and partner-verified specialisms.
+Automated verification against authoritative sources for credentialled professionals where partner agreements are in place — representative examples include licensing-data integrations (NIPR-style for US insurance agents), state bar database integrations for lawyers (in jurisdictions where state bar partner agreements exist), and FINRA-style integrations for financial advisors (subject to redistribution terms). Where such integrations are live, they verify licensing and appointment data; category fit (lines of authority, carrier appointments, P&C focus, farm/commercial/personal specialisation) still depends on declared and partner-verified specialisms.
 
 For established professionals, verification is via trusted partner data. W3C Verifiable Credentials issued by professional bodies are accepted where supported. Verification frequency: on joining, every ninety days thereafter, and triggered on any match query where last verification was more than thirty days ago.
 
@@ -246,7 +246,7 @@ The commercial model for verifiers:
 
 #### Review platforms
 
-Review platforms — Google reviews, Avvo, Trustpilot, Healthgrades, Martindale-Hubbell, and similar — are a specialised partner class. The protocol treats review platform data as a distinct signal class with specific requirements.
+Review platforms — representative examples include broad-spectrum review platforms (Google reviews, Trustpilot), legal review platforms (Avvo, Martindale-Hubbell), and healthcare review platforms (Healthgrades) — are a specialised partner class. The protocol treats review platform data as a distinct signal class with specific requirements. Each named platform is illustrative; none is a committed partner at v0.8 publication.
 
 Review platform partner status requires the platform to attest, as a condition of integration, to controls covering reviewer identity verification, engagement verification, outlier and pattern detection, removal transparency, and self-review prevention. Annual re-attestation. Audit rights. Suspension criteria. Public classification rationale.
 
@@ -363,9 +363,9 @@ Every introduction requires fresh explicit consent captured as a structured cons
 ### Regulatory considerations by category
 
 - **Lawyers** — attorney-client privilege. Stage 1 contains no personal data. Stage 2 minimum for category-appropriate check (typically conflict check). Full matter content never flows through ATAH.
-- **Property and casualty insurance agents** — licence and appointment verification enforced at matching layer. NIPR provides automated verification across all 50 states. Stage 2 is typically a capacity confirmation or scope alignment. NIPR verifies licensing and appointment data where available; category fit (lines of authority, carrier appointments, farm/commercial/personal focus) still depends on declared and partner-verified specialisms, product lines, and engagement scope.
+- **Property and casualty insurance agents** — licence and appointment verification enforced at matching layer where partner agreements are in place. Authoritative US licensing data sources (NIPR is a representative example) can provide automated verification subject to partner agreement. Stage 2 is typically a capacity confirmation or scope alignment. Such integrations verify licensing and appointment data where available; category fit (lines of authority, carrier appointments, farm/commercial/personal focus) still depends on declared and partner-verified specialisms, product lines, and engagement scope.
 - **Tax planners and accountants** — Stage 2 is typically a scope confirmation. Verification depends on the relevant accounting body (AICPA, equivalents) and any regulatory licensing where applicable.
-- **Financial advisors** — FINRA registration, RIA status, and disclosed disciplinary history in profile where available.
+- **Financial advisors** — registration, RIA status, and disclosed disciplinary history surfaced from authoritative US registers (FINRA-style sources are representative examples), subject to redistribution terms and partner agreements.
 - **Healthcare professionals** — registration open from day one. Not surfaced in matching until HIPAA-compliant variant is implemented and the category compliance annex is complete.
 - **All other categories** — compliance annex specified before each new category opens for matching.
 ## 10. The AI Platform Flywheel
@@ -554,7 +554,7 @@ Success metrics are split into three layers — protocol, reference registry, an
 
 ## 16. Open Questions
 
-- Which professional body should be the first trusted partner for an established practitioner category? PRSA or CIPR would be natural first movers for communications. The Big "I" or PIA would be natural first movers for insurance agents.
+- Which professional body should be the first trusted partner for an established practitioner category? Communications and PR membership bodies (PRSA and CIPR are representative candidates) and insurance-agent professional bodies (the Big "I" and PIA are representative candidates) are natural first-mover types; specific candidate bodies will be approached based on partner readiness and category-fit conversations.
 - How should ordering be disclosed to consuming AI systems beyond the `presentation_disclosure` block? What additional UX guidance should accompany the disclosure?
 - What trust signals are required before a professional can be surfaced in a high-stakes category?
 - Which validator classes are mandatory versus optional by category?
