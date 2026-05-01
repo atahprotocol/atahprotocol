@@ -15,6 +15,87 @@ A detailed file-by-file change log between v0.7 and v0.8 is in
 
 ---
 
+## [v0.8.1] — April 2026
+
+**Status:** Release candidate. First public publication.
+
+Spec-level changes from the pre-publication review-remediation patch round
+that produced v0.8.1 (full repository-wide changes in the top-level
+[CHANGELOG.md](../../CHANGELOG.md)):
+
+### Added
+
+- **Verification confidence signal (§4.12).** Match responses for regulated
+  categories will carry a `verification_confidence` field separate from the
+  verification-quality score components, surfacing single-source vs
+  multi-source verification basis. Field name, value enumeration
+  (`single_source_regulator`, `single_source_membership`,
+  `single_source_self_declared`, `multi_source_corroborated`,
+  `multi_source_with_enhanced_verification`), and intended semantics
+  committed in v0.8.1; schema implementation in
+  `match-response.schema.json` lands in v0.8.2.
+- **`consumer_ref` MUST NOT specification (§11.5).** Negative constraints on
+  `consumer_ref` to close cross-platform correlation risk: bare hashes of
+  email, phone, or government-issued identifier prohibited without
+  per-handoff salting and explicit user-mediated continuity consent. The
+  positive specification of the generation/salting mechanism is deferred to
+  a subsequent patch version.
+- **Roll-up objection branch (§10.4).** Five-step canonical-merge-paused /
+  partner-disputed / conflict-assessment / resolution / professional-rights-
+  during-suppression flow.
+- **`acknowledged_rollup_terms` field on both professional schemas.**
+  Optional boolean top-level field on
+  `professional-identity-credentialled.schema.json` and
+  `professional-identity-established.schema.json` with conditional-required
+  semantics: MUST be true when `registration_route: individual`. Closes a
+  contract gap between OpenAPI registration documentation and the schemas
+  with `additionalProperties: false`.
+
+### Changed
+
+- **§7.3 authorisation matrix scopes aligned to OpenAPI scope names.**
+  All scopes now carry the `atah:` prefix consistent with `securitySchemes`
+  in `openapi.yaml`; `introductions:read_received`,
+  `introductions:respond`, and `admin:*` collapsed into the OpenAPI scopes
+  that actually exist (`atah:introductions:read`,
+  `atah:introductions:write`, `atah:admin`).
+- **§8.1 OAuth scope list.** Removed orphan `atah:consent:revoke` scope;
+  clarified that consent revocation is authorised under
+  `atah:introductions:write` (matching OpenAPI and MCP).
+- **§8.2 `find_professional` input shape.** Corrected to match the actual
+  `query.schema.json` structure (matter sub-object containing category,
+  matter_type, location, urgency — all required); excluded
+  `matching_status` list expanded to `compliance-pending`,
+  `regulatory-suspended`, `admin-suspended`.
+- **§4.10 `data_categories` enum.** Prose list aligned with schema (added
+  `contact_preference`).
+- **§4.1 prefix list.** Removed unused `rp-` prefix; reframed list as
+  non-exhaustive and added example-only prefixes used in records.
+- **§6.4 Type 2 example.** Corrected `proposal_id` prefix from `rp-` to
+  `proposal-` (matching schema and OpenAPI).
+- **§10.4 cross-reference.** Dispute resolution cross-reference corrected
+  from §8.10 (PRD section) to §5.9 (spec dispute resolution section).
+- **OpenAPI Stage 2 endpoint.** Empty 202 response removed; `held_status`
+  block (`held_until`, `reason`) folded into the 200 response, matching
+  MCP `submit_stage2_data.output_schema` semantics.
+
+### Known limitations (deferred to v0.8.2)
+
+- **MCP `initiate_introduction` Type 3 support.** The MCP tool description
+  references Type 3 referrals but the input schema only models Type 1.
+  REST `POST /v1/introductions` handles both Type 1 and Type 3 via the
+  `introduction_type` discriminator and is the v0.8.1 workaround for MCP
+  clients needing Type 3. v0.8.2 will either split the MCP tool or add an
+  `introduction_type` discriminator.
+- **REST `get_consent_requirements` endpoint.** MCP-native platforms have
+  the `get_consent_requirements` tool; REST-only platforms in v0.8.1
+  should source consent text and required `data_categories` from spec
+  §4.10 and `consent-receipt.schema.json` directly. v0.8.2 will add a
+  `GET /v1/consent-requirements` endpoint with the same response shape as
+  the MCP tool.
+
+---
+
 ## [v0.8.0] — April 2026
 
 **Status:** Release candidate. First public publication.

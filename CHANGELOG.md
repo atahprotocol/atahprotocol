@@ -8,6 +8,87 @@ A detailed file-by-file change log between v0.7 and v0.8 is maintained separatel
 
 ---
 
+## [v0.8.1] — April 2026
+
+**Status:** Release candidate. First public publication.
+
+### Summary
+
+v0.8.1 incorporates substantive pre-publication review remediation across legal/regulatory risk, market readiness/coherence, and adoption blockers. The protocol's purpose, actors, and lifecycle are unchanged from v0.8.0; v0.8.1 tightens governance commitments, corrects readiness-overstating language across the package, addresses GDPR posture for professional data, expands the security model with worked threat scenarios and incident response, and adds a small set of platform-facing and professional-facing operational documents.
+
+### Changed
+
+- **Governance transition reworked.** Removed the 90-day interim advisory group deadline and the 12-month transition deadline. Replaced with trigger-based transition (two trusted partner integrations live + one external conforming implementation demonstrated) and periodic public review when there is meaningful progress to share. Aligns with the realistic adoption timelines of cross-industry standards work and with the protocol's actual maintenance posture. Charter bumped to v1.3.
+- **Roadmap phase dates removed.** PRD §14 Roadmap reframed as direction of work rather than delivery schedule. Quarterly dates (Q2 2026, Q3 2026, Q4 2026, 2027, 2027–2028) removed from all phases. Named-partner deliverables (NIPR, FINRA, SRA, FCA, etc.) reframed as illustrative examples. "Independent governance entity established" removed as Phase 3 deliverable — independent governance is now trigger-based per Charter, not phase-based. Phase 1 rewritten to describe only the publication-period activity (publication, repo live, community review, outreach) rather than aspirational reference-registry deliverables.
+- **"Validated" → "verified" in consumer-facing surfaces.** Across README, EXPLAINER, PRD, and CHANGELOG. Preserved "validator stack" as a technical term of art.
+- **"Permanent" → "entrenched" in CHARTER core-commitment framing.** Removes the implication of unamendable permanence; the supermajority amendment process remains in place.
+- **Named regulators and bodies reframed as illustrative examples.** Throughout README, EXPLAINER, PRD, CHANGES-FROM-V0_7-TO-V0_8, and spec. Named bodies (NIPR, FINRA, state bars, PRSA, CIPR, the International Coaching Federation, etc.) appear as representative examples of the *types* of organisation the protocol works with — not as committed partners. New explanatory paragraph added to README and EXPLAINER making this convention explicit.
+- **Notification transport reframed as binding-level.** SMS, email, MCP push, and other transports are now described as conforming-implementation choices rather than protocol mandates. The protocol-level requirement is no-PII through any notification channel.
+- **MCP tool count corrected.** PRD §8.13 corrected from "eight" to "nine" tools.
+- **"Press launch" → "publication announcement"** in PRD §14, aligning with the release-candidate framing.
+- **Visible separation of regulatory sources from review platforms.** README and EXPLAINER trusted-partner passages rewritten to distinguish authoritative regulatory sources and professional membership bodies (the credential-verification authority layer) from review platforms (signal providers, not authority providers, with anti-gaming attestation requirements and per-category review weight caps). "Review-derived signals complement but do not substitute for credential verification" wording added at meaningful surfaces.
+- **AEO equivalency framing softened.** "Without mastering Answer Engine Optimisation" reframed as "as part of their AI-discoverability infrastructure" across README, EXPLAINER, PRD. Clarifying sentence added to README and EXPLAINER: ATAH is not a replacement for a professional's existing marketing or visibility work; there is no guarantee of introduction volume, ranking, or work; the protocol is designed to become a trusted handoff rail as platforms integrate.
+
+### Added
+
+- **Professional Data Protection section (PRD §9).** GDPR posture for professional data: ATAH as data controller, lawful bases by source, professional notice and rights (access, rectification, objection, erasure subject to public-task carve-outs, restriction, portability), partner-route opt-out, partner agreement DPA terms, audit log treatment.
+- **Platform presentation obligations (PRD §11, EXPLAINER mirror).** Platforms must not describe ATAH results as "recommended," "approved," "best," "endorsed," or "vouched for" by ATAH.
+- **Liability allocation freshness paragraph (PRD §11).** Explicit statement that platforms are expected to surface verification freshness; ATAH does not warrant accuracy beyond published freshness windows.
+- **Concern flag lifecycle (PRD §8.11) and Concern flag data handling (GOVERNANCE §7).** Full lifecycle from intake through escalation; lawful basis, retention, professional rights, escalation thresholds.
+- **Consent receipt limitation (EXPLAINER, PRD §8.7).** ATAH verifies receipt integrity, not consent capture; platform retains responsibility for the consent ceremony.
+- **Revocation by stage (EXPLAINER, PRD §8.6).** Clarifies what revocation actually achieves at each stage of the introduction.
+- **Cross-jurisdiction default rule (PRD §8.5).** No cross-jurisdiction matching by default for regulated categories; explicit query parameter and disclosure required.
+- **Vetting strength surfaced in match responses (EXPLAINER, PRD §6.3).** Explicit `vetting_strength` enum (`regulatory`, `strong_membership`, `open_membership`) with public-facing classification names. Six public-facing partner classes added: authoritative regulatory source, professional membership body, open membership body, review signal provider, independent verifier, public registry source.
+- **Worked threat scenarios in SECURITY.md.** Three scenarios — leaked handoff_id, malicious AI platform asserting forged consent receipt, compromised partner submitting poisoned data.
+- **Incident response in SECURITY.md.** Confirmed professional fraud and professional account compromise procedures.
+- **Conformance self-certification disclaimer (CONFORMANCE.md).** Conformance statements are self-declared until v0.9 conformance test suite ships.
+- **Founder COI extended to immediate family (CHARTER §7).**
+- **Founder seat language tightened (CHARTER §7).** Seat is personal, non-transferable, non-inheritable; lapses on founder unavailability.
+- **DPA acknowledgement (CHARTER Part Two, GOVERNANCE §4).** Partner agreements include data-protection terms.
+- **Disciplinary-data treatment subsection (PRD §8.4).** Severity categorisation, spent/expired discipline, withdrawal of complaints, professional right of reply.
+- **Mid-handoff status change handling (PRD §8.6).** Procedure when a professional's matching status changes mid-handoff.
+- **Conflicting credentials hierarchy (PRD §8.4).** Resolution order: regulator > statutory register > mandatory professional body > strong voluntary body > independent verifier > review platform > self-declared.
+- **Capacity assumption (PRD §9).** ATAH assumes the asserting platform has determined consumer capacity.
+- **Roll-up objection branch (spec §10.4).** What happens after a professional objects within the 7-day pre-merge window. Conditional-required `acknowledged_rollup_terms` field added to both professional schemas to close the contract gap with OpenAPI registration documentation.
+- **`consumer_ref` MUST NOT specification (spec §11.5).** Negative constraints on `consumer_ref` to close cross-platform correlation risk.
+- **Acknowledgements rewrite (README).** Leads with human authorship; AI tools framed as drafting/stress-testing/editorial assistants with human-led structural decisions.
+- **COVERAGE.md.** Launch coverage matrix by category × jurisdiction × verification route × matchable-at-launch.
+- **`presentation_disclosure` mention in README.**
+- **"Isn't this just X?" FAQ in EXPLAINER.**
+- **Consent Storage Rationale doc (`docs/consent-storage-rationale.md`).** Design rationale for the consent receipt split between AI platform and ATAH.
+- **Issue templates (`.github/ISSUE_TEMPLATE/`).** spec-change, category-annex, bug, config.
+- **Maintenance posture note (README, GOVERNANCE).** Honest acknowledgement that ATAH is currently maintained by a small team with limited bandwidth. Published SLAs are best-effort targets reflecting that posture.
+- **Verification confidence signal (spec §4.12, PRD §8.5).** Match responses for regulated categories will carry a `verification_confidence` field separate from verification-quality score components, surfacing single-source vs multi-source verification basis. Field name, value enumeration, and semantics committed in v0.8.1; schema implementation lands in v0.8.2.
+- **Consolidated liability allocation subsection (PRD §11).** New "Liability allocation and platform/ATAH responsibilities" subsection consolidating what ATAH commits to, what ATAH does not warrant, what platforms take on, and worked examples of common cases. EXPLAINER mirror paragraph and README "What ATAH is *not*" bullet added.
+- **Adoption Blockers in-scope items.** Six new operational documents: `docs/platform-adoption/handoff-trigger-guidance.md` (P2), `docs/platform-adoption/ux-disclosure-copy.md` (P7), `docs/platform-adoption/commercial-neutrality-memo.md` (P8), `docs/professional/visibility-controls.md` (P22), `docs/professional/visibility-report.md` (P29), `docs/professional/firm-admin.md` (P31). Plus inline patches: integration cost honesty in README (P12), public partner taxonomy paragraph in PRD §6.3 (P14), Stage 1 appetite-check controls in PRD §6.1 (P25), field-level visibility classes in PRD §8.2 (P27), regulatory-vs-review separation wording sweep (P15), AEO equivalency wording sweep (P32). P10 is satisfied by COVERAGE.md.
+- **Schema/OpenAPI delta corrections.** Prose-only corrections aligning spec text with schemas, OpenAPI, and MCP tools file: §4.1 prefix list (removed unused `rp-`, reframed as non-exhaustive), §4.10 `data_categories` (added `contact_preference` to prose list to match schema), §6.4 Type 2 example (`rp-` → `proposal-`), §7.3 authorisation matrix (scope names aligned to OpenAPI's actual `securitySchemes`), §8.1 OAuth scopes (removed orphan `atah:consent:revoke`), §8.2 `find_professional` input shape (matches `query.schema.json` matter sub-object), §10.4 dispute-resolution cross-reference (§8.10 → §5.9). OpenAPI Stage 2 endpoint: empty 202 removed, `held_status` folded into 200 response matching MCP semantics.
+- **ROADMAP v0.8.2 candidates expanded.** Six candidates tracked: `verification_confidence` schema implementation, MCP `initiate_introduction` Type 3 support, REST `get_consent_requirements` endpoint, `presentation_disclosure` standalone schema refactor, `check_introduction_status` response shape alignment between OpenAPI and MCP, non-handoff-bound consent revocation endpoint, `consumer` actor_type addition to audit-event schema.
+
+### Held
+
+The following items from the three pre-publication reviews are held for post-publication work (some tracked externally in non-published planning artefacts):
+
+- Items needing legal review (Platform Legal Integration Pack, Model partner data-sharing agreement, AI Platform Developer Terms, Published partner indemnity framework, Category-specific ethics memos and referral-fee legal opinions)
+- Items needing partner conversations (Member Communications Pack, Partner approval criteria with worked examples, Lower-tier partner ingestion + onboarding process, Worked compliance annexes for specific categories)
+- Items needing operational decisions not yet made (Individual self-registration fee number, Operational SLA / RTO/RPO, Operational claim authentication procedure)
+- Items requiring schema changes or new code (those listed in the v0.8.2 candidates section above)
+- Operational tasks for the founder (seeding GitHub Discussions before launch; identifying interim advisory group members; press cycle and association outreach)
+
+### Known limitations (deferred to v0.8.2)
+
+- **MCP `initiate_introduction` Type 3 support.** The MCP tool description references Type 3 referrals but the input schema only models Type 1. The REST endpoint (`POST /v1/introductions`) handles both Type 1 and Type 3 via the `introduction_type` discriminator and is the v0.8.1 workaround for MCP clients needing Type 3. Full MCP Type 3 support lands in v0.8.2.
+- **REST `GET /v1/consent-requirements` endpoint.** MCP-native platforms have the `get_consent_requirements` tool. REST-only platforms in v0.8.1 should source consent text and required `data_categories` from spec §4.10 and `consent-receipt.schema.json` directly. A native REST endpoint with the same response shape as the MCP tool lands in v0.8.2.
+
+### Security
+
+Tiered handoff access control, no-PII-in-notifications, consent receipt hash storage, audit log pseudonymisation, and the rest of the v0.8.0 security commitments are unchanged. v0.8.1 adds worked threat scenarios and incident response procedures (SECURITY.md §4 and §8 respectively).
+
+### Privacy
+
+Privacy floor for consumer data (Charter Part One core commitment 5) is unchanged. v0.8.1 adds the Professional Data Protection section addressing professional data — the larger volume surface area — with controller role, lawful basis, professional rights, partner notice, erasure handling, and partner DPA acknowledgement.
+
+---
+
 ## [v0.8.0] — April 2026
 
 **Status:** Release candidate. First public publication.

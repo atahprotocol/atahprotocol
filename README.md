@@ -5,7 +5,7 @@
 An open protocol layer for AI-to-authenticated-human professional handoff. ATAH defines the trust, provenance, consent, and lifecycle contract that conforming registries and AI platforms can implement — exposed through MCP and REST bindings, with the ATAH reference registry as the first operational implementation.
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
-[![Spec Version](https://img.shields.io/badge/spec-v0.8-orange.svg)](spec/v0.8/)
+[![Spec Version](https://img.shields.io/badge/spec-v0.8.1-orange.svg)](spec/v0.8/)
 [![Status: Release Candidate](https://img.shields.io/badge/status-release_candidate-yellow.svg)](#status)
 
 ---
@@ -128,9 +128,9 @@ ATAH is not a replacement for a professional's existing marketing or visibility 
 
 ## Status
 
-**v0.8 — Release candidate.**
+**v0.8.1 — Release candidate.**
 
-The v0.8 specification is intended to be implementable and is ready for technical review and reference implementation. It defines the core data model, introduction lifecycle, provenance model, matching principles, consent stages, and governance commitments. Machine-readable schemas, OpenAPI contracts, and the MCP tool definitions are included for review and will be hardened through reference implementation work.
+The v0.8.1 specification is intended to be implementable and is ready for technical review and reference implementation. It defines the core data model, introduction lifecycle, provenance model, matching principles, consent stages, and governance commitments. Machine-readable schemas, OpenAPI contracts, and the MCP tool definitions are included for review and will be hardened through reference implementation work.
 
 The protocol moves to v1.0 once at least one trusted partner integration is live, the reference implementation has run end-to-end, and at least one external implementation has been built against the spec.
 
@@ -160,7 +160,7 @@ The full commitments are set out in [CHARTER.md](CHARTER.md).
 
 ## Acknowledgements
 
-ATAH v0.8 was conceived, architected, and led by Grahame Cohen. The protocol architecture, governance commitments, commercial-neutrality model, privacy architecture, and strategic framing reflect his decisions throughout the design and review process. AI tools were used as drafting, stress-testing, editorial, and schema-generation assistants — Claude (Anthropic) for specification drafting and stress-testing, ChatGPT (OpenAI) for cross-AI editorial and strategic review, and Claude Code for mechanical production of the JSON Schemas, OpenAPI contract, MCP tool definitions, and supporting markdown. Final structural decisions, trade-offs, and publication responsibility remain human-led.
+ATAH v0.8.1 was conceived, architected, and led by Grahame Cohen. The protocol architecture, governance commitments, commercial-neutrality model, privacy architecture, and strategic framing reflect his decisions throughout the design and review process. AI tools were used as drafting, stress-testing, editorial, and schema-generation assistants — Claude (Anthropic) for specification drafting and stress-testing, ChatGPT (OpenAI) for cross-AI editorial and strategic review, and Claude Code for mechanical production of the JSON Schemas, OpenAPI contract, MCP tool definitions, and supporting markdown. Final structural decisions, trade-offs, and publication responsibility remain human-led.
 
 Architectural Decision Records ([docs/decisions/](docs/decisions/)) document the major design choices and the alternatives considered. Peer review contributions will be acknowledged in the CHANGELOG as they arrive.
 
@@ -172,7 +172,7 @@ You may freely implement, build on, fork, or extend the protocol. No permission 
 
 ## Get involved
 
-This is a v0.8 release candidate. The work that comes next is hardening the spec through community review, talking to professional bodies and AI platforms, and building the first reference integrations.
+This is a v0.8.1 release candidate. The work that comes next is hardening the spec through community review, talking to professional bodies and AI platforms, and building the first reference integrations.
 
 If you build AI products, work in professional standards, run a professional body, or have eyes on related work in the standards space, your input is welcome. The most useful next steps:
 
@@ -185,4 +185,4 @@ If you build AI products, work in professional standards, run a professional bod
 
 ---
 
-*ATAH — Agent to Authenticated Human Protocol · v0.8 · April 2026 · [atahprotocol.org](https://atahprotocol.org)*
+*ATAH — Agent to Authenticated Human Protocol · v0.8.1 · April 2026 · [atahprotocol.org](https://atahprotocol.org)*

@@ -4,7 +4,7 @@
 
 **Technical Specification**
 
-| Version | 0.8 |
+| Version | 0.8.1 |
 | --- | --- |
 | Status | Release Candidate |
 | Date | April 2026 |
@@ -14,6 +14,8 @@
 ---
 
 ## Version History
+
+**v0.8.1** — Pre-publication review-remediation patch round on top of v0.8.0. Substantive changes are in CHANGELOG.md; spec-level additions include the `verification_confidence` signal commitment in §4.12 (schema implementation deferred to v0.8.2), the `consumer_ref` MUST NOT specification in §11.5, the roll-up objection branch in §10.4 with conditional-required `acknowledged_rollup_terms` schema field on both professional schemas, and the Stage 2 202 response folded into 200 with `held_status` indicator in `openapi.yaml`. Cross-document corrections (prefix list, scope names, find_professional input shape, dispute-flow cross-reference) align prose with schemas/OpenAPI/MCP. The protocol's purpose, actors, and lifecycle are unchanged from v0.8.0.
 
 **v0.8** — Release-candidate specification incorporating pre-publication peer review remediation. Adds: structured consent receipts replacing boolean assertions; tiered handoff_id security model with separate handoff_access_token; transient encrypted vault delivery model with notification + authenticated retrieval (no PII through SMS or email); full Type 2 and Type 3 introduction schemas; parallel provenance map for per-field provenance; explicit standards composition (OAuth 2.1, OpenID Connect, W3C Verifiable Credentials, DIDs); three-layer protocol/registry/implementation framing; federation deferral with federation-ready architecture; opaque atah_id format; idempotency requirement on mutating endpoints; authorisation matrix; deletion scope table; non-goals section; glossary; standards-composition section; concern flag protections. Earlier v0.8 changes preserved: Stage 2 reframed as a category-flexible pre-handoff check; partner records declare verification depth and vetting strength; two registration routes (partner and individual) with roll-up logic; profession category metadata; individual self-registration fee model; enhanced verification layer with independent verifier model; review platforms formalised as a specialised partner class with anti-gaming requirements and differential treatment in matching. Verification status enum tightened — profile-level states moved to a dedicated `matching_status` field. Matching engine Step 3 restructured to expose four sub-components with transparent contribution metadata. Protocol renamed from "Agent to Accredited Human Protocol" to "Agent to Authenticated Human Protocol" — acronym ATAH unchanged.
 

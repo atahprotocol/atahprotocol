@@ -4,7 +4,7 @@
 
 **Product Requirements Document**
 
-| Version | 0.8 |
+| Version | 0.8.1 |
 | --- | --- |
 | Status | Release Candidate |
 | Date | April 2026 |
