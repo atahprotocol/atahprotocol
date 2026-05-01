@@ -1057,8 +1057,8 @@ Optional on `POST /v1/query` (queries are read-like but stateful enough to suppo
 
 | Actor | Endpoint | Scope | Object-level constraint |
 |---|---|---|---|
-| AI platform | `POST /v1/query` | `find` | platform/client must be authenticated |
-| AI platform | `POST /v1/introductions` | `introductions:create` | only under authenticated platform/client |
+| AI platform | `POST /v1/query` | `atah:find` | platform/client must be authenticated |
+| AI platform | `POST /v1/introductions` | `atah:introductions:create` | only under authenticated platform/client |
 | AI platform | `GET /v1/introductions/:handoff_id` | `atah:introductions:read` | platform/client matches asserter, OR consumer_ref matches handoff record |
 | AI platform | `POST /v1/introductions/:handoff_id/stage-*` | `atah:introductions:write` | platform/client matches original asserter, with valid handoff_access_token |
 | AI platform | `POST /v1/introductions/:handoff_id/outcome` | `atah:outcomes:write` | platform/client matches original asserter or target professional |
