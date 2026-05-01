@@ -129,6 +129,20 @@ Any professional in any field where expertise and standing can be verified or at
 
 Where their professional body has joined ATAH as a trusted partner, they appear in the registry through their body's data — no individual registration required. Where they are not represented by a partnered body, individual self-registration is available, free during the protocol's initial period after launch and continuing thereafter for a small annual fee with hardship waivers.
 
+**Professional-side controls at Stage 1.** Professionals control how introductions are routed to them through their profile preferences:
+
+- Maximum introductions per week
+- Minimum matter size or complexity threshold
+- Jurisdictions accepted
+- Urgency levels accepted
+- Fee model filters (will not accept introductions outside declared fee structure)
+- Auto-decline rules (categories of matter the professional does not handle)
+- Holiday or unavailable status with return date
+- "Only accept from verified platform users" (if the asserting AI platform supports user verification)
+- "Only accept via firm intake" (if firm-managed routing applies)
+
+Stage 1 appetite checks respect these preferences. Introductions falling outside a professional's declared parameters are not routed to them, reducing introduction noise and protecting professional time. Preferences are visible to AI platforms in match responses (where applicable to matching weighting) but are not exposed publicly.
+
 ### 6.2 AI Platforms
 
 Any AI system that needs to route users to human professionals. The core role of ATAH in AI platform integration is to support the transition from AI-only interaction to human professional engagement when the need for human expertise becomes clear. Their needs:
@@ -158,7 +172,18 @@ Organisations that hold reliable, maintained data about professionals and meet A
 
 **Independent verifiers.** Approved by ATAH governance, audited annually, providing enhanced verification commissioned by professional bodies, employers, or individual professionals.
 
-The commercial model is consistent: partners pay ATAH for integration access (with published fee schedules and waivers for public-interest organisations), they may charge their members for accreditation or data services, members benefit from structured machine-readable presence in AI-mediated environments.
+**Partner taxonomy.** Trusted partners are classified by their role and the vetting strength their data carries. The public-facing classifications are:
+
+- **Authoritative regulatory source** — a regulator with statutory or constitutional authority over the profession (state bar associations, medical boards, FCA, SRA, and equivalents are representative examples). Internally classified as `vetting_strength: regulatory`.
+- **Professional membership body** — a body with chartered/fellow status, CPD requirements, and active disciplinary processes (CIPR, the International Coaching Federation, PMI, and equivalents are representative examples). Internally classified as `vetting_strength: strong_membership`.
+- **Open membership body** — a body where membership is essentially open to anyone meeting baseline eligibility (representative examples vary by category). Internally classified as `vetting_strength: open_membership`.
+- **Review signal provider** — a review platform contributing aggregated review and feedback data, subject to anti-gaming attestations and per-category review weight caps.
+- **Independent verifier** — an approved enhanced-verification provider operating under the public verifier acceptance criteria.
+- **Public registry source** — a partner surfacing public-record data (companies-house-style data, public registries of accredited training providers, etc.).
+
+The classification is set by ATAH governance at partner approval and may only be revised through governance review, never by the partner unilaterally. Match responses surface the classification so AI platforms can present partner-verified status with appropriate context.
+
+The commercial model is consistent across all classifications: partners pay ATAH for integration access (with published fee schedules and waivers for public-interest organisations), they may charge their members for accreditation or data services, members benefit from structured machine-readable presence in AI-mediated environments.
 
 ### 6.4 Professional Associations
 
@@ -211,6 +236,17 @@ Each profile contains the following data categories. Fields returned only where 
 - `_provenance` map — parallel record of verification status, source, and last-updated timestamp for every verifiable field
 
 The atah_id is opaque (ULID-style with a typed prefix). Country, profession, and category are stored as attributes, not encoded in the identifier.
+
+**Field visibility classes.** Each field in the profile data model carries a visibility class controlling where and to whom it is exposed:
+
+- **Public to platform** — included in match responses to AI platforms (subject to category and matching rules).
+- **Visible to user** — surfaced to consumers via the AI platform's UI (the platform decides whether to display).
+- **Internal matching only** — used in matching calculations but not exposed in match responses.
+- **Visible after Stage 2** — released to the professional only after Stage 2 pre-handoff check is initiated.
+- **Visible after Stage 3** — released to the professional only after Stage 3 (the consumer's contact details flow at this stage).
+- **Never displayed (verification metadata only)** — used internally for verification provenance but never surfaced to platforms or users.
+
+This split lets professionals share verification evidence without exposing fields like internal firm references, fee detail, or back-office routing instructions to consumers or AI platforms.
 
 ### 8.3 Verification Engine
 

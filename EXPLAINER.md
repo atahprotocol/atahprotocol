@@ -237,6 +237,8 @@ review, never by the partner unilaterally. Match responses surface the
 classification so AI platforms can present partner-verified status with
 appropriate context.
 
+In public-facing terms, ATAH classifies trusted partners into six types: **authoritative regulatory sources** (regulators with statutory authority — state bar associations, medical boards, and equivalents); **professional membership bodies** (chartered or fellow-status bodies with CPD and disciplinary processes — CIPR, the International Coaching Federation, PMI, and equivalents); **open membership bodies** (where membership is essentially open); **review signal providers** (review platforms contributing aggregated feedback subject to anti-gaming attestations); **independent verifiers** (approved enhanced-verification providers); and **public registry sources** (partners surfacing public-record data such as companies-house-style data or registries of accredited training providers). The first three map onto the three `vetting_strength` values; the others are complementary classes that contribute different kinds of signal.
+
 ## Enhanced verification — going beyond the standard layer
 
 Standard partner verification is enough for most cases. Sometimes professionals, employers, or professional bodies want a deeper, ongoing, independently-audited verification — covering identity, qualifications, professional history, insurance, references, client feedback, compliance obligations, and sanctions screening.
