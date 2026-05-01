@@ -152,7 +152,7 @@ These are recommendations for the reference implementation, not requirements of 
 All ATAH schemas conform to the following conventions:
 
 - **Schema language:** JSON Schema Draft 2020-12.
-- **Identifier format:** opaque ULID-style identifiers with a typed prefix. The reference registry uses the following prefixes: `atah-` (professionals), `tp-` (trusted partners), `iv-` (independent verifiers), `rp-` (review platforms), `cr-` (consent receipts), `hf-` (handoffs), `ev-` (enhanced verifications), `q-` (queries), `att-` (professional attestations), `dispute-` (dispute records), `flag-` (concern flags), `vault-` (transient vault references), `ref-` (Type 3 referrals), and `proposal-` (Type 2 proposals). Regional or future federated registries use distinct prefixes (e.g. `atah-eu-`, `atah-uk-`). Identifiers are case-sensitive and must match the regex `^[a-z]{2,8}-[a-z0-9-]{6,64}$`.
+- **Identifier format:** opaque ULID-style identifiers with a typed prefix. The reference registry uses the following prefixes (non-exhaustive): `atah-` (professionals), `tp-` (trusted partners — including review platforms, identified via their `partner_id`), `iv-` (independent verifiers), `cr-` (consent receipts), `hf-` (handoffs), `ev-` (enhanced verifications), `q-` (queries), `att-` (professional attestations), `dispute-` (dispute records), `flag-` (concern flags), `vault-` (transient vault references), `ref-` (Type 3 referrals), and `proposal-` (Type 2 proposals). Additional prefixes used in records and audit events (such as `evt-`, `req-`, `conflict-`, `rollup-`, `batch-`, `cdim-`, `conf-`) follow the same convention. Regional or future federated registries use distinct prefixes (e.g. `atah-eu-`, `atah-uk-`). Identifiers are case-sensitive and must match the regex `^[a-z]{2,8}-[a-z0-9-]{6,64}$`.
 - **Timestamps:** RFC 3339 in UTC, e.g. `"2026-04-10T14:21:00Z"`. All response time SLAs are measured in elapsed wall-clock hours, not business hours. Availability is expressed with the timezone of operation.
 - **Schema versioning:** every schema-bearing object carries a `schema_version` field. The protocol-level version is carried in `protocol_version`.
 - **Closed enums by default.** Open enums are explicitly marked.
@@ -575,7 +575,7 @@ ATAH stores a hash of the consent receipt and its metadata. The full receipt is 
 
 `scope` — what the consent covers. Defined values: `query_submission`, `stage_1_introduction`, `stage_2_prehandoff_submission`, `stage_3_contact_release`, `type_2_referral_participation`, `type_3_referred_client`, `outcome_reporting`. Each scope has corresponding required `data_categories` defined in the schema.
 
-`data_categories` — list of categories of data covered by the consent. Defined values include `matter_summary`, `jurisdiction`, `contact_details`, `consumer_name`, `other_party_name`, `engagement_timeline`, `budget_range`, `client_summary`. The set is closed and expanded through governance review.
+`data_categories` — list of categories of data covered by the consent. Defined values include `matter_summary`, `jurisdiction`, `contact_details`, `consumer_name`, `other_party_name`, `engagement_timeline`, `budget_range`, `client_summary`, and `contact_preference`. The set is closed and expanded through governance review.
 
 `consent_text_version` — identifier for the canonical consent text the consumer was shown. Versions are published in the protocol documentation. Asserting platforms must show the consumer text matching this version.
 
@@ -929,7 +929,7 @@ Type 2 establishes a referral relationship between two professionals (or their A
 
 ```json
 {
-  "proposal_id": "rp-01HQXRE4V9WXYABCDE3FGHIJK",
+  "proposal_id": "proposal-01HQXRE4V9WXYABCDE3FGHIJK",
   "schema_version": "0.8",
   "protocol_version": "0.8",
   "introduction_type": "type_2_referral_proposal",
@@ -1057,20 +1057,20 @@ Optional on `POST /v1/query` (queries are read-like but stateful enough to suppo
 |---|---|---|---|
 | AI platform | `POST /v1/query` | `find` | platform/client must be authenticated |
 | AI platform | `POST /v1/introductions` | `introductions:create` | only under authenticated platform/client |
-| AI platform | `GET /v1/introductions/:handoff_id` | `introductions:read` | platform/client matches asserter, OR consumer_ref matches handoff record |
-| AI platform | `POST /v1/introductions/:handoff_id/stage-*` | `introductions:write` | platform/client matches original asserter, with valid handoff_access_token |
-| AI platform | `POST /v1/introductions/:handoff_id/outcome` | `outcomes:write` | platform/client matches original asserter or target professional |
-| AI platform | `POST /v1/introductions/:handoff_id/cancel` | `introductions:write` | platform/client matches original asserter |
-| AI platform | `POST /v1/introductions/:handoff_id/revoke-consent` | `introductions:write` | platform/client matches original asserter |
-| Professional | `GET /v1/professionals/me` | `professionals:self_read` | only own profile |
-| Professional | `PUT /v1/professionals/me` | `professionals:self_write` | only own profile, only fields not partner-managed |
-| Professional | `GET /v1/introductions/received` | `introductions:read_received` | only introductions addressed to this professional |
-| Professional | `POST /v1/introductions/:handoff_id/respond` | `introductions:respond` | only introductions addressed to this professional |
-| Partner | `POST /v1/partners/:partner_id/data` | `partner:data.write` | only own `partner_id` |
-| Partner | `POST /v1/partners/:partner_id/retract` | `partner:data.write` | only own `partner_id` |
-| Verifier | `POST /v1/verifiers/:verifier_id/verifications` | `verifier:verification.write` | only own `verifier_id`, only approved categories |
-| Admin | `POST /v1/admin/professionals/:atah_id/suspend` | `admin:professionals.write` | governance/admin role only |
-| Admin | `POST /v1/admin/concern-flags/:flag_id/review` | `admin:flags.review` | governance/admin role only |
+| AI platform | `GET /v1/introductions/:handoff_id` | `atah:introductions:read` | platform/client matches asserter, OR consumer_ref matches handoff record |
+| AI platform | `POST /v1/introductions/:handoff_id/stage-*` | `atah:introductions:write` | platform/client matches original asserter, with valid handoff_access_token |
+| AI platform | `POST /v1/introductions/:handoff_id/outcome` | `atah:outcomes:write` | platform/client matches original asserter or target professional |
+| AI platform | `POST /v1/introductions/:handoff_id/cancel` | `atah:introductions:write` | platform/client matches original asserter |
+| AI platform | `POST /v1/introductions/:handoff_id/revoke-consent` | `atah:introductions:write` | platform/client matches original asserter |
+| Professional | `GET /v1/professionals/me` | `atah:professionals:self_read` | only own profile |
+| Professional | `PUT /v1/professionals/me` | `atah:professionals:self_write` | only own profile, only fields not partner-managed |
+| Professional | `GET /v1/introductions/received` | `atah:introductions:read` | only introductions addressed to this professional |
+| Professional | `POST /v1/introductions/:handoff_id/respond` | `atah:introductions:write` | only introductions addressed to this professional |
+| Partner | `POST /v1/partners/:partner_id/data` | `atah:partner:data.write` | only own `partner_id` |
+| Partner | `POST /v1/partners/:partner_id/retract` | `atah:partner:data.write` | only own `partner_id` |
+| Verifier | `POST /v1/verifiers/:verifier_id/verifications` | `atah:verifier:verification.write` | only own `verifier_id`, only approved categories |
+| Admin | `POST /v1/admin/professionals/:atah_id/suspend` | `atah:admin` | governance/admin role only |
+| Admin | `POST /v1/admin/concern-flags/:flag_id/review` | `atah:admin` | governance/admin role only |
 
 ### 7.4 External API — Consumer and AI Agent Facing
 
@@ -1201,7 +1201,7 @@ The ATAH MCP server conforms to the current MCP authorisation specification at t
 - **Authorization Server Metadata** discoverable via `/.well-known/oauth-authorization-server` or OIDC discovery (`/.well-known/openid-configuration`).
 - **Resource indicators (RFC 8707).** Tokens must declare the ATAH MCP endpoint as the resource. Tokens issued for other resources are rejected.
 - **Audience validation.** ATAH validates the `aud` claim on every token.
-- **Explicit scopes.** ATAH defines scopes including `atah:find`, `atah:introductions:create`, `atah:introductions:read`, `atah:introductions:write`, `atah:outcomes:write`, `atah:consent:revoke`. Tokens must declare the minimum scopes required.
+- **Explicit scopes.** ATAH defines scopes including `atah:find`, `atah:introductions:create`, `atah:introductions:read`, `atah:introductions:write`, and `atah:outcomes:write`. Consent revocation is authorised under `atah:introductions:write`. Tokens must declare the minimum scopes required.
 - **Short-lived access tokens.** Default lifetime 1 hour. Refresh tokens supported with rotation.
 - **Dynamic Client Registration** supported per RFC 7591 for AI platforms wishing to integrate without manual onboarding.
 
@@ -1228,10 +1228,10 @@ These flags are advisory metadata for client-side surfacing, not authorisation e
 
 Find a credentialled or established professional for a matter requiring human expertise. Returns a ranked shortlist with full trusted partner data payload, `presentation_disclosure`, and `protocol_version`.
 
-- Required inputs: `category`, `matter_type`, `location_or_jurisdiction`, `consent_receipt_id`
-- Optional inputs: `professional_tier`, `urgency`, filters, `shortlist_size`
+- Required inputs: `matter` (object containing `category`, `matter_type`, `location`, and `urgency`) and `consent_receipt_id`
+- Optional inputs: `professional_tier`, additional `filters`, `shortlist_size`
 
-Professionals with `matching_status` of `compliance-pending` are excluded from all results regardless of other filters.
+Professionals with `matching_status` of `compliance-pending`, `regulatory-suspended`, or `admin-suspended` are excluded from all results regardless of other filters.
 
 #### Tool: `initiate_introduction`
 
@@ -1455,6 +1455,8 @@ A match meeting one or fewer: not a match.
 
 After roll-up, the professional may dispute the merge through the standard dispute flow if incorrect. Disputed fields are temporarily suppressed.
 
+**Roll-up acknowledgement at registration.** Individual self-registered profiles MUST set `acknowledged_rollup_terms: true` at registration to record that the professional has been informed of the roll-up process, the 7-day pre-merge notification window, and the right to object as described in this section. The field is optional or `false` for partner-route registrations (where the partner has its own member terms covering data contribution). This applies to both credentialled and established professional schemas.
+
 #### Handling roll-up objections
 
 When a professional objects within the 7-day pre-merge notification window for
@@ -1481,7 +1483,7 @@ high-risk regulated-tier categories, the following branch applies:
      roll-up dispute.
 
 4. **Resolution.** Admin reviews the dispute under the dispute resolution
-   process in §8.10. Resolution outcomes:
+   process in §5.9. Resolution outcomes:
    - Partner data confirmed canonical: roll-up completes, partner-managed
      fields become canonical, self-declared fields that do not contradict
      partner-verified fields are retained.

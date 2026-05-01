@@ -262,7 +262,11 @@ paths:
             schema: { $ref: './schemas/stage2-prehandoff.schema.json' }
       responses:
         '200':
-          description: Stage 2 data accepted; vault reference returned.
+          description: |
+            Stage 2 data accepted; vault reference returned. If the professional
+            has a concurrent Stage 2 in flight, the response carries a
+            `held_status` block indicating the submission is held until the
+            prior submission resolves; the response still returns 200.
           content:
             application/json:
               schema:
@@ -273,10 +277,16 @@ paths:
                     type: string
                     pattern: '^vault-[A-Za-z0-9-]{6,64}$'
                   confirmation_id: { type: string }
+                  held_status:
+                    type: object
+                    description: Present when the professional has a concurrent Stage 2 in flight. Submission is held until the prior submission resolves.
+                    properties:
+                      held_until: { type: string, format: date-time }
+                      reason: { type: string, minLength: 1 }
+                    required: [held_until, reason]
+                    additionalProperties: false
                 required: [current_state, vault_reference, confirmation_id]
                 additionalProperties: false
-        '202':
-          description: Held — professional has a concurrent Stage 2 in flight.
         '400': { $ref: '#/components/responses/ValidationError' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
