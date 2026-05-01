@@ -1439,6 +1439,53 @@ A match meeting one or fewer: not a match.
 
 After roll-up, the professional may dispute the merge through the standard dispute flow if incorrect. Disputed fields are temporarily suppressed.
 
+#### Handling roll-up objections
+
+When a professional objects within the 7-day pre-merge notification window for
+high-risk regulated-tier categories, the following branch applies:
+
+1. **Canonical merge is paused.** The partner-managed roll-up does not
+   complete. The professional's existing self-registered record remains
+   live.
+
+2. **Partner-provided fields are held as disputed.** The fields the partner
+   would have made canonical are recorded against the professional's record
+   with verification status `partner-disputed` and are not used in matching
+   weighting until resolved.
+
+3. **Conflict assessment.** Admin assesses whether the partner data and
+   self-declared data conflict on material fields (regulatory standing,
+   licence number, jurisdictional coverage, disciplinary history).
+   - If no material conflict: the self-declared record remains live;
+     partner data is held in `partner-disputed` state pending the
+     professional's response or admin resolution.
+   - If material conflict in a regulated-tier category: the profile is
+     temporarily suppressed from matching pending resolution, with
+     `matching_status: admin-suspended` and a reason code indicating
+     roll-up dispute.
+
+4. **Resolution.** Admin reviews the dispute under the dispute resolution
+   process in §8.10. Resolution outcomes:
+   - Partner data confirmed canonical: roll-up completes, partner-managed
+     fields become canonical, self-declared fields that do not contradict
+     partner-verified fields are retained.
+   - Self-declared data confirmed correct: partner data is recorded as
+     disputed, the partner is notified of the conflict, the professional's
+     record continues with self-declared canonical fields.
+   - Neither resolves cleanly: the profile remains suppressed from matching
+     pending further evidence; the professional and partner are both
+     notified.
+
+5. **Professional rights during suppression.** The professional retains
+   access to their portal, may continue to update self-declared fields
+   (subject to the conflict not widening), and is notified of the dispute
+   resolution outcome within the SLA published in operational documentation.
+
+The professional's right to maintain self-declared fields that do not
+contradict partner-verified fields is preserved through the resolution. The
+roll-up does not extinguish self-declared content; it normalises canonical
+authority for fields where the partner is the authoritative source.
+
 #### Fee model
 
 Individual self-registration is free during the initial period after launch. After the initial period closes, individual self-registration remains available with a small annual fee. Hardship waivers and fee caps published in operational documentation.
@@ -1532,6 +1579,21 @@ The `handoff_access_token` is:
 A `handoff_access_token` is opaque, rotatable, and never logged in URLs (passed only in `Authorization` headers). Possession of a `handoff_access_token` plus a `handoff_id` is required for any write operation.
 
 This model preserves cross-platform user experience for status checks while preventing possession of `handoff_id` alone from granting state-changing power.
+
+#### consumer_ref constraints (v0.8.1)
+
+The `consumer_ref` field used in cross-platform status checks is a continuity handle, not an identity. v0.8.1 specifies what `consumer_ref` MUST NOT be; the positive specification of how `consumer_ref` is generated, salted, and bound to user-mediated continuity consent is deferred to a subsequent patch version.
+
+A v0.8.1-conforming implementation MUST NOT use any of the following as `consumer_ref`:
+
+- A bare hash of the consumer's email address
+- A bare hash of the consumer's phone number
+- A bare hash of any government-issued identifier (national ID, driving licence, passport)
+- Any other stable personal identifier without per-handoff salting and explicit user-mediated continuity consent
+
+The risk these constraints close: if `consumer_ref` were a bare hash of a stable personal identifier, any AI platform holding that identifier could read any handoff that consumer has open with any other AI platform. That is a worse cross-platform correlation handle than the bearer-token problem the tiered handoff access model was designed to solve.
+
+The reference registry implements `consumer_ref` as a per-handoff salted derivation bound to user-mediated continuity consent captured at the original Stage 3 consent receipt. The full mechanism is documented in the reference registry's implementation notes and will be promoted to spec text in a subsequent patch version once the field has been exercised in production.
 
 ### 11.6 Transient Encrypted Vault and Authenticated Retrieval
 

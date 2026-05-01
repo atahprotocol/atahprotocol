@@ -90,14 +90,72 @@ The transition process, once triggered:
 
 Annual review of transition progress is published per the Charter when there is meaningful progress to report. The review reports on progress toward the trigger conditions, the state of partner integrations, and any factors affecting the path to independent governance. Where circumstances change in a way that affects the transition approach, the change is explained publicly.
 
-## 7. Amendment of this document
+## 7. Concern flag data handling
+
+ATAH stores concern flags raised against named professionals as part of the
+ecosystem-integrity mechanism described in spec §5.10. Because concern flag
+data identifies individuals and may carry derogatory content, the following
+data handling rules apply. For the lifecycle (intake through escalation) see
+PRD §8.11.
+
+**Lawful basis (UK GDPR / EU GDPR).** Processing rests on legitimate interests
+in maintaining the integrity of the professional handoff ecosystem and the
+safety of consumers using AI systems that rely on ATAH-conformant registries.
+A balancing test is performed and documented at the point each new flag type
+or escalation pathway is introduced. The balancing test considers the
+professional's reasonable expectations, the proportionality of processing,
+the necessity of identifiable data, and the availability of less intrusive
+alternatives.
+
+**Retention.** Unresolved flags are retained for 12 months from the date of
+submission unless extended by an active investigation. Flags resolved as
+substantiated and forming part of a disclosed pattern are retained for
+3 years. Flags resolved as unsubstantiated or withdrawn are pseudonymised
+within 30 days of resolution and deleted within 90 days. Flags determined to
+be bad-faith (per spec §5.10's bad-faith detection) are deleted or
+pseudonymised at the point of determination.
+
+**Access.** Concern flag content is admin-only. Role-restricted, audit-logged,
+no public exposure. Partners and verifiers do not see flag content.
+
+**Professional rights.**
+- **Notification.** The professional named is notified of any flag against
+  them within 7 days of submission, unless notification would compromise an
+  active safety investigation, in which case notification is deferred until
+  the investigation completes.
+- **Right of reply.** 30 days from notification.
+- **Rectification.** The professional may submit a correction request at any
+  time. Material disputes follow the dispute resolution process in spec
+  §8.10.
+- **Erasure.** Where a flag is determined unsubstantiated or bad-faith, the
+  professional may request immediate deletion rather than awaiting the
+  scheduled pseudonymisation/deletion timeline.
+
+**Escalation.** Flags are escalated to the relevant regulatory or
+professional body only where (i) a documented threshold is met (multiple
+substantiated flags, severity threshold, or pattern indicating systemic
+concern), (ii) the escalation has been reviewed by the governance body or
+its delegated authority, and (iii) the professional has been notified of
+the escalation. ATAH does not adjudicate professional conduct; escalation
+delivers what ATAH knows to the body with authority to act.
+
+**Wording control.** All flag content distinguishes "unverified concern"
+from "finding." ATAH does not surface flag content to anyone outside the
+admin role; if any future surfacing is proposed, it requires a Charter
+amendment under the Part One core commitments process.
+
+Detailed operational procedures (the threshold values, escalation criteria,
+review cadence) are maintained as administrative procedure documents and may
+evolve through governance review without amendment to this section.
+
+## 8. Amendment of this document
 
 This document is operational. Substantive amendments are made through public
 PR and consulted with the interim advisory group (post-transition: with the
 independent governance body). Editorial corrections may be merged without
 consultation but are listed in CHANGELOG.
 
-## 8. Contact
+## 9. Contact
 
 - Governance: `governance@atahprotocol.org`
 - General: `hello@atahprotocol.org`

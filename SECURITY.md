@@ -77,7 +77,114 @@ the following baseline.
 - Step-up authentication and anomaly detection on professional claim attempts
   (the minimum is mandated; the hardening is deferred per spec §15.6)
 
-## 4. Controls (overview)
+## 4. Worked threat scenarios
+
+The full STRIDE-level model per asset is deferred to v0.9. The three
+scenarios below illustrate how the v0.8 controls handle representative
+threats. They are illustrative, not exhaustive.
+
+### 4.1 Leaked handoff_id
+
+**Threat.** A `handoff_id` leaks into a screenshot, support ticket,
+log file, or URL captured by a third party. The third party attempts to
+read or modify the handoff state.
+
+**Attempted exploit.** Third party calls `check_introduction_status`
+with the leaked `handoff_id`, then attempts to call `submit_stage2_data`
+or `cancel_introduction` on the same handoff.
+
+**Detection and mitigation.** The tiered handoff access control model
+(§11.5 of the spec) requires a `handoff_access_token` for all
+state-changing operations. The token is bound to platform/client/scope/
+expiry and is not present in the leaked artefact. Read-like access via
+`check_introduction_status` succeeds only for the original asserter
+platform or for an authenticated AI platform supplying a matching
+`consumer_ref` (which the third party does not have). Audit log records
+the read attempt with pseudonymous identifiers.
+
+**Residual risk.** Read-tier access to the handoff metadata (state,
+category, professional reference) is possible if the third party also
+holds a valid `consumer_ref`. The `consumer_ref` constraints in §11.5
+limit this to actors who have already obtained user-mediated continuity
+consent. Monitoring for anomalous read patterns is operational; formal
+specification deferred to v0.9.
+
+### 4.2 Malicious AI platform asserts forged consent receipt
+
+**Threat.** A compromised or malicious AI platform attempts to submit
+an `initiate_introduction` call with a fabricated consent receipt for a
+consumer who did not actually consent.
+
+**Attempted exploit.** Platform generates a structured consent receipt
+locally, computes its hash, and submits the hash to ATAH at introduction
+creation. Platform retains the locally-fabricated full receipt to
+produce on demand.
+
+**Detection and mitigation.** The receipt hash matches the locally
+fabricated receipt. The exploit is not detectable at introduction time
+purely on the basis of hash verification. However:
+
+- The asserting platform is OAuth 2.1 authenticated with audience
+  validation; the exploit requires platform-side compromise, not
+  external forgery.
+- The consumer can revoke consent at any time via `revoke_consent`,
+  which immediately crypto-erases vault contents and halts the handoff.
+- Post-hoc audit: the consumer (through any AI platform with their
+  authenticated continuity grant) can request the introduction history
+  associated with their `consumer_ref` and identify introductions they
+  did not initiate.
+- Pattern detection on platform-side anomalies (introductions to
+  professionals the consumer has no plausible relationship with;
+  introductions outside the consumer's normal jurisdiction; clustered
+  introductions in short time windows) flags suspicious assertion.
+- A platform shown to have asserted forged consent has its OAuth
+  credentials revoked and is suspended pending investigation.
+
+**Residual risk.** A single forged assertion is detectable only post-hoc
+or by pattern. A platform with sustained access to a consumer's account
+and a coordinated forgery campaign could cause real harm before
+detection. The v0.9 platform-light consent mode mitigates this further
+by moving the consent ceremony to ATAH, reducing the platform-side
+attack surface.
+
+### 4.3 Compromised partner submits poisoned data
+
+**Threat.** A compromised trusted partner (or one whose source data is
+itself compromised) submits poisoned professional data — for example,
+fabricated credentials for individuals who do not exist, or fabricated
+disciplinary records against legitimate professionals.
+
+**Attempted exploit.** Partner submits a batch via the partner data
+push schema (§7.6). The submission is signed and authenticated.
+
+**Detection and mitigation.**
+- Partner submissions are signed; the signature confirms partner
+  identity, not partner data integrity.
+- Conflict detection: where partner-provided data conflicts with
+  another source (another partner, an authoritative registry, the
+  professional's own self-declared record, an enhanced verification
+  record), the affected profile is suppressed from matching pending
+  resolution.
+- Anomaly detection on partner submissions: large batches with
+  unusually high rates of new-record creation, batches affecting a
+  disproportionate number of records in a single jurisdiction, or
+  batches that contradict prior submissions trigger admin review
+  before propagation.
+- Affected professionals are notified and given the dispute resolution
+  process (§8.10).
+- A partner shown to have submitted poisoned data is suspended; their
+  data is rolled back where rollback is technically feasible; the
+  rollback is audit-logged and disclosed publicly.
+
+**Residual risk.** Single poisoned records consistent with the
+partner's normal submission pattern may not be detected at submission
+time. Detection relies on conflict with another source or on a
+professional disputing the data. Sophisticated coordinated poisoning
+across multiple partners is research-grade adversarial work and
+detection is partial; full Sybil/coordinated-attack detection is
+deferred to v0.9.
+
+## 5. Controls (overview)
 
 Full detail is in spec §13. Summary:
 
@@ -103,7 +210,7 @@ Full detail is in spec §13. Summary:
 - **Encryption.** TLS 1.3 in transit. Encryption at rest. 90-day master key
   rotation. HSM-backed signing keys for high-trust operations.
 
-## 5. Partner and verifier authentication
+## 6. Partner and verifier authentication
 
 High-trust writes by partners and verifiers require:
 
@@ -113,7 +220,7 @@ High-trust writes by partners and verifiers require:
 - API keys are accepted only for read-only operations, never for high-trust
   writes
 
-## 6. Audit policy
+## 7. Audit policy
 
 The following events are recorded in the audit log:
 
@@ -129,7 +236,7 @@ Audit log entries are hash-chained and use minimised, pseudonymous identifiers. 
 verifiers) may request entries concerning themselves through the
 `/v1/professionals/me/disputes` and admin paths.
 
-## 7. Incident response
+## 8. Incident response
 
 ATAH maintains an incident-response posture for two specific scenarios that
 have a material consumer impact: confirmed professional fraud and confirmed
@@ -173,20 +280,20 @@ hardening with anomaly detection on attempted changes (rapid succession from
 new IPs, attempts to immediately edit fee or contact fields after a claim)
 is deferred to v0.9 per ROADMAP.
 
-## 8. Vulnerability hall of fame
+## 9. Vulnerability hall of fame
 
 This section will be populated as disclosures are resolved. Reporters who wish
 to be credited will be listed with the disclosure date and a one-line
 description of the issue.
 
-## 9. Bounty programme
+## 10. Bounty programme
 
 ATAH does not currently operate a paid bounty programme. We commit to
 handling responsible disclosures in good faith, crediting reporters where
 they wish, and to publishing a transparent post-disclosure summary for any
 substantive issue. A bounty programme may be considered post-transition.
 
-## 10. Contact
+## 11. Contact
 
 - Security: `security@atahprotocol.org`
 - General: `hello@atahprotocol.org`

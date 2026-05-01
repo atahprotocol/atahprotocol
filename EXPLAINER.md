@@ -94,6 +94,20 @@ ATAH supports three distinct introduction types, all sharing the same underlying
 
 These three types together let ATAH support not only the consumer handoff problem but also the professional referral network that has historically taken professionals years to build manually.
 
+## "Isn't this just X?" — common misreads
+
+Four readings ATAH gets that miss what it actually is:
+
+**Isn't this just LinkedIn for AI?** No. LinkedIn is a consumer-facing professional directory people browse and message through. ATAH has no consumer-facing surface — consumers reach it only through their AI system. ATAH does not host professional profiles for users to browse, does not run a messaging product, and does not weight matching by commercial relationships. The point is provenance-visible handoff, not professional networking.
+
+**Isn't this just Avvo / Healthgrades / Martindale-Hubbell with a different label?** No. Those are review-driven professional directories with their own ranking logic and commercial models. ATAH treats review platforms as one specialised partner class among several, with capped weight per category and an anti-gaming attestation requirement. Review data feeds in alongside regulatory data, professional body data, and enhanced verification — never as the dominant signal, never opaquely blended into a single trust score.
+
+**Isn't this just an MCP server for some bar association data?** No. ATAH is a transport-neutral protocol with MCP and REST as its v0.8 bindings. The protocol defines the trust, provenance, consent receipt, and handoff lifecycle objects independently of how they're transported. The MCP binding is one way to access ATAH; the protocol itself sits a layer above. A bar association connector is one possible trusted partner integration; the protocol's value is the standardisation across categories, jurisdictions, and partner types.
+
+**Isn't this a regulator-blessed directory?** No. ATAH is not a regulator and does not adjudicate professional conduct. Regulators may participate as trusted partners (state bar associations, NIPR-style licensing data sources, FINRA-style registers, medical boards are representative examples of the type), but ATAH surfaces what regulators already know rather than replacing or supplementing their authority. Concerns reported through ATAH are routed to the relevant regulatory body, not investigated by ATAH itself.
+
+The framing that fits is: ATAH is the trust and handoff layer for agentic AI. It composes with MCP, A2A, OAuth 2.1, and W3C Verifiable Credentials. It exposes professional records through provenance-visible match responses. The user's AI makes the call; ATAH supplies the structured evidence.
+
 ## How a consumer introduction works
 
 A consumer is talking to an AI system about something — a contract dispute, a tax liability they don't understand, a corporate communications issue, a structural concern at home. The AI does what it can. At some point, it identifies that the user needs an actual human professional.

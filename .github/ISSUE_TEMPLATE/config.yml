@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security disclosure
+    url: https://github.com/atahprotocol/atahprotocol/blob/main/SECURITY.md
+    about: Do NOT open a public issue for security disclosures. Email security@atahprotocol.org per SECURITY.md.
+  - name: Discussion
+    url: https://github.com/atahprotocol/atahprotocol/discussions
+    about: For broader conversations about scope, governance, or strategy, open a discussion rather than an issue.
+  - name: Governance
+    url: https://github.com/atahprotocol/atahprotocol/blob/main/GOVERNANCE.md
+    about: For Charter compliance objections, see GOVERNANCE.md §5 and email governance@atahprotocol.org.

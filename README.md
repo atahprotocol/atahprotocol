@@ -38,6 +38,7 @@ The protocol supports three introduction types: consumer introductions (AI to pr
 ## What ATAH is *not*
 
 - **Not a recommendation engine.** ATAH returns a provenance-visible shortlist based on declared need, verification evidence, category rules, and availability. The user or calling AI platform remains responsible for selection.
+- **Non-recommendation framing is machine-readable.** Every match response carries a `presentation_disclosure` block that AI platforms are expected to surface to users. The non-recommendation stance is not a policy claim; it is a structural commitment built into every response payload.
 - **Not a regulator, enforcement body, or complaints adjudicator.** Professional conduct concerns are routed to the relevant regulatory or professional body.
 - **Not a payment processor or marketplace.** No transaction or commerce capability.
 - **Not a directory product or AEO replacement.** Professionals are not "promoted" or "ranked for visibility" in any commercial sense.
@@ -116,6 +117,8 @@ ATAH does not duplicate the work of identity, credential, or commerce standards.
 - **[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)** — community conduct standards
 - **[SECURITY.md](SECURITY.md)** — security disclosure and threat model
 - **[CHANGELOG.md](CHANGELOG.md)** — release history
+- **[COVERAGE.md](COVERAGE.md)** — launch coverage matrix by category and jurisdiction
+- **[docs/consent-storage-rationale.md](docs/consent-storage-rationale.md)** — design rationale for the consent receipt split between AI platform and ATAH
 - **[CHANGES-FROM-V0_7-TO-V0_8.md](CHANGES-FROM-V0_7-TO-V0_8.md)** — detailed change log between v0.7 and v0.8
 - **[spec/v0.8/](spec/v0.8/)** — full technical specification, OpenAPI definition, MCP tool schemas, JSON Schema files
 - **[press/](press/)** — launch announcements for media, professional associations, and AI platforms
@@ -154,9 +157,7 @@ The full commitments are set out in [CHARTER.md](CHARTER.md).
 
 ## Acknowledgements
 
-ATAH v0.8 was conceived and led by Grahame Cohen. The protocol architecture, the governance commitments, and the strategic framing all reflect his decisions throughout the design and review process.
-
-Drafting and stress-testing of the specification and supporting documents was done in collaboration with Claude (Anthropic). Cross-AI editorial and strategic review was provided by ChatGPT (OpenAI). The mechanical work of producing the JSON Schemas, OpenAPI contract, MCP tools definitions, and supporting markdown files was carried out by Claude Code, working from a detailed handover document that captured the design decisions made during the spec process.
+ATAH v0.8 was conceived, architected, and led by Grahame Cohen. The protocol architecture, governance commitments, commercial-neutrality model, privacy architecture, and strategic framing reflect his decisions throughout the design and review process. AI tools were used as drafting, stress-testing, editorial, and schema-generation assistants — Claude (Anthropic) for specification drafting and stress-testing, ChatGPT (OpenAI) for cross-AI editorial and strategic review, and Claude Code for mechanical production of the JSON Schemas, OpenAPI contract, MCP tool definitions, and supporting markdown. Final structural decisions, trade-offs, and publication responsibility remain human-led.
 
 Architectural Decision Records ([docs/decisions/](docs/decisions/)) document the major design choices and the alternatives considered. Peer review contributions will be acknowledged in the CHANGELOG as they arrive.
 

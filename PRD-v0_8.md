@@ -345,7 +345,19 @@ This model preserves cross-platform user experience for status checks while prev
 
 ### 8.9 Professional Notification Model
 
-Notifications carry no consumer personal data — only metadata and authenticated retrieval references. Primary (Phase 1): SMS as a notification with a time-limited authenticated link. Parallel: email with same content. Best-effort: MCP notification to professional's AI assistant if connected. Phase 2 primary: MCP push notifications once push notification standards are stable.
+Notifications carry no consumer personal data — only metadata and authenticated retrieval references. This is a Charter Part One commitment.
+
+The choice of notification transport is a binding-level concern, not a protocol-level mandate. The protocol requires that any notification channel preserves the no-PII rule and that retrieval occurs through the category-appropriate authentication tier. Conforming implementations may use SMS, email, push notifications, MCP notifications to a connected AI assistant, WhatsApp, Signal, platform-native notifications, or any other transport that preserves these properties.
+
+The reference registry's Phase 1 default notification transports are SMS and email, with parallel best-effort MCP notification to professionals' connected AI assistants. Phase 2 expands to MCP push notifications as primary once push notification standards stabilise.
+
+Authenticated retrieval is tiered per category sensitivity:
+
+- `tier_1` — notification metadata only (used only for low-sensitivity scope confirmation)
+- `tier_2` — single-use authenticated retrieval token + device-bound session (most categories)
+- `tier_3` — token + step-up authentication (SMS code or email confirmation in addition to original notification — required for healthcare, sensitive legal matters)
+
+No username or password anywhere.
 
 Authenticated retrieval is tiered per category sensitivity:
 
@@ -384,7 +396,7 @@ Both registration routes are subject to integrity checks. For partner-route prof
 
 The core role of ATAH in AI system integration is to support the transition from AI-only interaction to human professional engagement when the need for human expertise becomes clear.
 
-- MCP tool calls — eight core tools: `find_professional`, `initiate_introduction`, `check_introduction_status`, `submit_stage2_data`, `submit_stage3_data`, `cancel_introduction`, `revoke_consent`, `get_consent_requirements`, `report_introduction_outcome`
+- MCP tool calls — nine core tools: `find_professional`, `initiate_introduction`, `check_introduction_status`, `submit_stage2_data`, `submit_stage3_data`, `cancel_introduction`, `revoke_consent`, `get_consent_requirements`, `report_introduction_outcome`
 - REST API — full API for non-MCP clients
 - Webhooks — status updates pushed to consumer AI agents on state changes (Phase 2, once major AI platforms support persistent callback endpoints)
 - Cross-platform status check — authenticated AI platforms with matching consumer reference can read introduction status
