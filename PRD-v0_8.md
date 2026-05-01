@@ -120,7 +120,7 @@ This is a Charter Part One core commitment: no professional category may be surf
 
 Any professional in any field where expertise and standing can be verified or attested. Their needs:
 
-- Being discoverable by AI systems without mastering Answer Engine Optimisation
+- Being discoverable by AI systems as part of their AI-discoverability infrastructure
 - Receiving qualified, well-prepared introductions
 - Building verified referral relationships with complementary professionals
 - Responding through familiar channels
@@ -797,7 +797,7 @@ Success metrics are split into three layers — protocol, reference registry, an
 - What trust signals are required before a professional can be surfaced in a high-stakes category?
 - Which validator classes are mandatory versus optional by category?
 - What disclosures should an AI system make when presenting ATAH results to users beyond the `presentation_disclosure` block?
-- Under what conditions should professional associations, regulators, or review platforms be treated as authoritative for different fields?
+- Under what conditions should professional associations and regulators be treated as authoritative for different fields, and what role should review platforms play as signal providers (review platforms are not authority providers; the question is how their signal weight should vary by category beyond the default ≤0.10 cap for high-stakes regulated categories)?
 - How should the entity be funded beyond trusted partner integration fees, verifier fees, and the initial founder contribution?
 - Composition of the interim advisory group: lawyer, property and casualty insurance professional, AI platform representative, regulator, consumer advocate, established practitioner representative, trusted partner representative? The founder seat structure is set out in the CHARTER.
 - What is the right partner SLA threshold for different partner types? Regulatory databases may update daily. Review platforms near real time. Professional bodies monthly.
@@ -810,7 +810,7 @@ Success metrics are split into three layers — protocol, reference registry, an
 
 ATAH is open infrastructure for a problem that is real and currently unsolved across every professional field — regulated and established alike.
 
-AI platforms are increasingly the interface for everything. They can handle products, transactions, and services. The one thing they cannot reliably do is complete the journey from AI interaction to the right human professional in a structured, trusted, verified way. ATAH addresses that gap. For AI platforms, it turns a broken handoff into a capability. For professionals, it provides a structural way to be discoverable to AI systems without each one solving Answer Engine Optimisation alone. For professional bodies, it is a new membership benefit and a new revenue stream built on data they already hold.
+AI platforms are increasingly the interface for everything. They can handle products, transactions, and services. The one thing they cannot reliably do is complete the journey from AI interaction to the right human professional in a structured, trusted, verified way. ATAH addresses that gap. For AI platforms, it turns a broken handoff into a capability. For professionals, it provides a structural piece of AI-discoverability infrastructure — sitting alongside whatever direct-consumer marketing they continue to do, not replacing it. For professional bodies, it is a new membership benefit and a new revenue stream built on data they already hold.
 
 The trusted partner model is what makes the registry credible and the operational model coherent. Sustainability rests on that network — partner integrations, verifier governance fees, and adjacent operational services — and the network grows every time a new category opens or a new jurisdiction is added.
 

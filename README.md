@@ -96,9 +96,11 @@ ATAH does not duplicate the work of identity, credential, or commerce standards.
 
 **Professional associations.** A practical answer to the question every member is asking: *how do I stay visible and trusted when AI becomes the first call for professional advice?* Associations participate as trusted partners — contributing what they already know about their members, and giving those members structured machine-readable presence in AI-mediated environments. Public partner fee schedules; waivers available for public-interest bodies.
 
-**Credentialled and established professionals.** A way to be discoverable by AI systems without mastering Answer Engine Optimisation. No platform lock-in. Standing verified and kept current. Concern flag protections (admin-only visibility, right of reply).
+**Credentialled and established professionals.** A way to be discoverable by AI systems as part of their AI-discoverability infrastructure. No platform lock-in. Standing verified and kept current. Concern flag protections (admin-only visibility, right of reply).
 
-**Trusted partners** — regulatory databases, professional bodies, review platforms, independent verifiers. A clean way to make verified data useful at the exact point users are deciding whether to trust a professional. Provenance always visible.
+ATAH is not a replacement for a professional's existing marketing or visibility work. It is infrastructure for being represented to AI systems consistently and credibly. Professionals continue to need their own marketing for direct consumer reach; ATAH addresses the specific moment an AI system needs to identify and hand off to a verified human professional. There is no guarantee of introduction volume, ranking, or work; the protocol is designed to become a trusted handoff rail as platforms integrate.
+
+**Trusted partners.** Authoritative regulatory sources (state bar associations, NIPR-style licensing data, FINRA-style registers, medical boards, and equivalents) and professional membership bodies are the credential-verification authority layer — they confirm what professionals are licensed or qualified to do. Review platforms participate as a distinct partner class — signal providers, not authority providers — contributing aggregated review data subject to anti-gaming attestations and per-category review weight caps (≤0.10 within verification quality for high-stakes regulated categories). Independent verifiers add a separate enhanced-verification layer. Provenance is always visible across all partner types, and review-derived signals complement but do not substitute for credential verification.
 
 ## Documentation
 
