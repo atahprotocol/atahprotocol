@@ -45,6 +45,7 @@ The protocol supports three introduction types: consumer introductions (AI to pr
 - **Not a personal data repository.** Consumer personal data passes through ATAH only as transient handoff data, held in a transient encrypted vault, and crypto-erased per protocol.
 - **Not a consumer interface.** Consumers interact with AI systems, which use ATAH on their behalf.
 - **Does not warrant outcomes.** ATAH commits to specific data freshness windows and dispute timelines, but does not warrant the suitability, competence, or behaviour of any individual professional.
+- **Allocation of responsibilities is documented.** AI platforms are the consumer-facing entity and carry consent capture, presentation, and consumer-relationship responsibilities. ATAH commits to provenance visibility, freshness windows, conflict suppression, dispute SLAs, concern flag escalation, and audit integrity. ATAH does not warrant outcomes or real-time accuracy beyond freshness windows. The full allocation is in PRD §11.
 
 ## Three layers
 

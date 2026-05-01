@@ -306,6 +306,8 @@ the specific matter. This default is set per category in
 `profession-categories.json` and may be amended only through governance
 review.
 
+**Verification confidence signal.** Match responses for regulated categories carry a `verification_confidence` signal separate from the verification-quality score, surfacing whether the verification basis is single-source or multi-source. This addresses the brand-risk concern that single-source data — common at protocol launch as the partner network builds — should be visible to AI platforms as such, rather than implied to be corroborated. The signal values and semantics are specified in spec §4.12. The schema field lands in v0.8.2 alongside other schema work; the v0.8.1 commitment is to the field name, enumeration, and semantics so AI platforms can plan for it.
+
 ### 8.6 Bidirectional Protocol and Introduction Lifecycle
 
 ATAH manages the full lifecycle of every introduction as a bidirectional protocol. State changes trigger non-PII notifications to the relevant professional. Consumer AI agents track status by polling `check_introduction_status`. Cross-platform status check supported for authenticated AI platforms with matching consumer reference. Webhook push delivery to consumer AI agents is a Phase 2 capability.
@@ -551,6 +553,48 @@ ATAH presents candidate professionals against query parameters and disclosed ver
 Specifically, platforms must not describe ATAH match results to users as "recommended," "approved," "best," "endorsed," or "vouched for" by ATAH. Platforms must present results as candidate professionals returned against query parameters and disclosed verification signals. Platforms remain responsible for any additional contextual ranking they apply and for the language they use to introduce ATAH-sourced options to their users.
 
 These obligations are reflected in the `presentation_disclosure` block on every match response and are documented in detail in the AI platform developer terms.
+
+### Liability allocation and platform/ATAH responsibilities
+
+This subsection consolidates how responsibilities split between AI platforms and ATAH. The information is drawn together here so a platform legal reviewer can see the allocation in one place; specific operational terms are in the developer terms (held for legal review and post-publication publication).
+
+**ATAH is infrastructure; platforms are the consumer-facing entity.** Consumers reach ATAH only through their AI platform; ATAH never communicates with consumers directly. The platform has the user relationship, the consent capture obligation, the user-facing presentation responsibility, and ultimately the legal relationship with the consumer for what the platform does with ATAH data.
+
+**What ATAH commits to:**
+
+- **Provenance visibility** — every data point in a profile and every claim returned in a match result is tagged with its source and verification status. AI platforms see the basis of trust per field.
+- **Verification confidence signal** — match responses for regulated categories surface single-source vs multi-source verification basis (per §8.5 above).
+- **Freshness windows** — partner data is verified within published category-specific freshness windows; the verification timestamp is returned per field.
+- **Conflict suppression** — where partner sources disagree on a verifiable fact, the affected profile is suppressed from matching pending resolution (per §8.4 conflict resolution hierarchy).
+- **Dispute resolution timelines** — published SLAs for partner-data disputes (per §8.10).
+- **Concern flag escalation** — admin-only intake, professional notification with right of reply, escalation to the relevant regulatory or professional body where the threshold is met (per §8.11 and GOVERNANCE §7).
+- **Audit log integrity** — tamper-evident hash-chained audit log of state changes (per §9 and SECURITY §7).
+- **Platform presentation obligations** — platforms must not describe ATAH results as "recommended," "approved," "best," "endorsed," or "vouched for" by ATAH (per §11 above).
+- **Consent receipt integrity** — ATAH verifies a submitted consent receipt matches the stored hash; ATAH does not independently verify that the user saw or understood the consent text (per §8.7).
+
+**What ATAH does not warrant:**
+
+- The suitability of any individual professional for any specific matter
+- The professional's competence, conduct, or behaviour
+- Real-time accuracy beyond the published freshness windows
+- The outcome of any introduction
+- That a professional whose status changes between freshness windows will be detected before the next refresh (the conflict suppression mechanism mitigates but does not eliminate this)
+
+**What platforms take on:**
+
+- **Consent capture and ceremony** — capturing consent in a form meeting applicable legal standards; producing the structured consent receipt; retaining the full receipt for the receipt's expiry plus a reasonable buffer
+- **User-facing presentation** — presenting ATAH results in line with the platform presentation obligations; surfacing verification freshness, source, and confidence signals to users; not describing results in language ATAH prohibits
+- **Reliance limits** — not presenting ATAH data as current beyond the published freshness windows without independent re-verification
+- **The consumer relationship** — the platform remains the consumer's counterparty; questions about consent, data subject rights, and consumer-facing service quality run to the platform, not to ATAH
+
+**Specific cases:**
+
+- *Stale data leading to consumer harm.* Platforms surface freshness; ATAH commits to the published windows and the conflict suppression mechanism. Beyond those, reliance is on the platform.
+- *Disputed credential.* Conflict suppression mechanism suspends matching pending resolution; the dispute resolution SLA applies. The professional retains right of reply.
+- *Forged consent receipt.* ATAH verifies receipt integrity; consent capture quality sits with the platform under its developer terms (per Legal B7 and §8.7 above).
+- *Professional fraud or misconduct.* Concern flag mechanism routes to the relevant regulatory body. ATAH does not adjudicate. Platforms surface concern-flag-derived information per the platform presentation obligations.
+
+**Operational legal terms.** The Platform Legal Integration Pack — covering the controller/processor matrix, DPA terms, model consent text, data flow diagrams, dispute-resolution operational mechanics, and the AI Platform Developer Terms — is held for legal review and publishes post-v0.8.1. Platforms wishing to integrate before that pack publishes can do so against this allocation; the pack will translate the same allocation into operational legal terms, not introduce new terms.
 
 ### Capture resistance
 

@@ -78,6 +78,8 @@ ATAH is explicitly *not* designed to:
 
 ATAH presents verified *options* against the query — it does not recommend, endorse, or vouch for any specific professional. AI platforms integrating with ATAH are expected to preserve that framing in how they present results to users, and not describe ATAH-sourced professionals as "recommended," "approved," "best," or "endorsed" by ATAH. The `presentation_disclosure` block in every match response captures this requirement in machine-readable form.
 
+**On responsibilities.** ATAH is infrastructure. AI platforms are the consumer-facing entity — they have the user relationship, the consent capture obligation, and the user-facing presentation responsibility. ATAH commits to provenance visibility, freshness windows, conflict suppression, dispute resolution timelines, concern flag escalation, audit integrity, and the verification confidence signal. ATAH does not warrant outcomes, professional competence, or real-time accuracy beyond published freshness windows. The PRD §11 sets out the allocation in detail.
+
 ## A note on terminology — "consumer"
 
 Throughout this explainer and the spec, "consumer" is used as a protocol-neutral term for the person seeking professional services. In real-world contexts the equivalent term is usually "client" (legal, accounting), "patient" (healthcare), or "policyholder" (insurance). ATAH never communicates with the consumer directly — interaction is always mediated by an AI platform — so "consumer" is the term the protocol uses internally.

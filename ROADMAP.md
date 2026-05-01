@@ -32,7 +32,7 @@ Items expected to be small enough to land as patch releases rather than wait for
 - Schema clarifications where wording has been ambiguous in practice
 - Cross-document consistency fixes surfaced after publication
 - Repository directory restructure into `core/`, `bindings/`, `registry-profile/` subdirectories — deferred from v0.8.1 to avoid schema-reference reflow risk pre-publication
-- `verification_confidence` schema implementation (committed in spec §4.12 at v0.8.1; schema lands in v0.8.2)
+- **`verification_confidence` schema implementation.** Add the field to `match-response.schema.json` with the enumeration and semantics specified in spec §4.12. Update matching engine logic to populate the field. Add validation tests for each enumeration value. Update example payloads in `examples/`. (Field name and semantics committed in spec §4.12 at v0.8.1; schema implementation lands in v0.8.2.)
 
 These are best-effort; patch versions land when meaningful work has accumulated rather than on a fixed cadence.
 

@@ -699,6 +699,22 @@ The `presentation_disclosure` block must be present on every match response. AI 
 
 `enhanced_verification_summary` is present only if the professional has at least one active enhanced verification record. `review_signal_summary` is present only if at least one review platform is contributing data above the volume threshold. The full payload remains available via `GET /v1/professionals/:atah_id`.
 
+### Verification confidence signal (v0.8.1, schema commitment for v0.8.2)
+
+Match responses for regulated categories with single-source verification SHOULD carry a `verification_confidence` field separate from the verification-quality score components, surfacing to AI platforms whether the verification basis comes from a single source or is corroborated by multiple sources.
+
+Defined values:
+
+- `single_source_regulator` — verified against one authoritative regulatory source (e.g. one state bar lookup, one regulator register), with no corroborating partner data, no enhanced verification record, and no independent registry cross-reference.
+- `single_source_membership` — verified through one professional membership body, with no corroborating regulatory source, no enhanced verification, and no independent cross-reference.
+- `single_source_self_declared` — registered through individual self-registration with no partner verification (always returned with appropriate provenance labelling per the `_provenance` map).
+- `multi_source_corroborated` — at least two independent sources agree on the verifiable fields (regulatory + membership; regulatory + enhanced verification; membership + independent verifier; or any other combination of independent sources).
+- `multi_source_with_enhanced_verification` — multi-source corroboration that includes an active enhanced verification record from an approved independent verifier.
+
+The signal is independent of the verification-quality score; a profile may have a high verification-quality score from a single high-strength source (regulator) yet remain `single_source_regulator` until corroborated. AI platforms presenting ATAH match results are expected to surface the confidence signal alongside the verification-quality information.
+
+**v0.8.1 commitment.** The field name, value enumeration, and intended semantics are committed in this section. Schema implementation in `match-response.schema.json` and the matching engine logic that populates it land in v0.8.2 alongside the schema work tracked in the v0.8.2 / v0.9 ROADMAP. Until schema implementation lands, AI platforms inferring confidence from the `_provenance` map are not in conflict with this specification.
+
 ## 5. Trusted Partner Model
 
 Trusted partners are organisations that contribute verified, maintained data about professionals to the ATAH registry. They are the core data quality mechanism for both professional tiers and the primary commercial model for the protocol.
