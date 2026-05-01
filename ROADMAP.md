@@ -18,7 +18,7 @@ The v0.8 publication includes:
 
 v0.8.1 is published as the release-candidate version. The release plan handles ongoing iteration openly:
 
-- **v0.8.1.x — patch-level fixes.** Editorial corrections, schema clarifications, minor inconsistencies, and small spec amendments that don't change semantics may be incorporated in patch versions as feedback arrives and time and resources allow. There is no committed cadence; patches land when meaningful work has accumulated.
+- **v0.8.1.x — patch-level fixes.** Editorial corrections, schema clarifications, minor inconsistencies, and small spec amendments that don't change semantics are reviewed for incorporation in subsequent patch versions as community review surfaces issues suitable for patch-level treatment. There is no committed cadence; patches land when meaningful work has accumulated.
 - **v0.9 — substantive next release.** Items listed below. Timing depends on feedback volume, partner integration progress, and the resources available to pick up deferred work.
 - **v1.0 — stable.** When at least one third-party conforming implementation exists, governance has transitioned to an independent structure per the Charter triggers, and the deferred items below are addressed (or deliberately deferred further with stated reasons).
 

@@ -27,7 +27,7 @@ Until transition to independent governance:
   of the first review platform; first commercial partner agreement; first
   category compliance annex; any Charter change.
 
-**Maintenance posture.** ATAH at v0.8.1 publication is maintained by a small team — currently a single founder with significant other commitments. The SLAs published in this document and in SECURITY.md are best-effort targets reflecting that posture. Where response times are missed because of capacity constraints, that is itself information worth surfacing in any review of governance status. The protocol's path to sustained, well-staffed maintenance runs through partner integrations, external implementer engagement, and the eventual transition to independent governance.
+**Maintenance posture.** ATAH at v0.8.1 publication is operating with the resourcing typical of a release-candidate open standard: a small founding team, publishing the protocol openly to attract reviewers, partners, implementers, and advisors. The SLAs published in this document and in SECURITY.md are best-effort targets at release-candidate stage. As partner integrations and external implementations mature, governance and operational capacity grow alongside — which is exactly what the trigger-based transition framework anticipates. The protocol's path to sustained, well-staffed maintenance runs through partner conversations, external implementer engagement, and the eventual transition to independent governance.
 
 ## 3. Decision types
 
@@ -57,6 +57,20 @@ The following are published and kept current:
 - Founder compensation (annual)
 - Related-party transactions involving any ATAH ecosystem entity in which the
   founder, advisors, or governance members hold a material interest
+
+### 4.1 Operational support, service providers, and related-party reimbursement
+
+ATAH and any ATAH-operated reference registry may be supported and operated by service providers performing real operational work. This includes — without limitation — operational, administrative, technical, legal, PR, outreach, funding, partner-introduction, reference-implementation, platform-build, managed-service, hosting, security, data-onboarding, professional-support, compliance-operations, or governance-formation work. Service providers may include independent contractors, technology partners, implementation partners, managed-service providers, employees, contributors, or other supporting organisations.
+
+Permitted commercial arrangements include documented cost reimbursement, fixed-fee service contracts, time-and-materials arrangements, cost-plus arrangements, market-rate managed-service fees, and other documented service-provider fees approved or ratified through the applicable governance process. Payments compensate work performed; they do not purchase ranking, visibility, approval, conformance, access to non-public data, or influence over protocol decisions.
+
+Where a service provider is the founder, a founder-affiliated entity, an advisor-affiliated entity, or any other related party, the arrangement is treated as a related-party transaction. It is recorded in the public related-party register established in §4 above, with: the identity of the related party; the nature of the work or support provided; the basis of payment or reimbursement; the governance review, approval, or ratification process applied; and any recusal by the founder, advisor, or governance participant with a material interest. Reimbursement and payment are limited to reasonable, documented work or costs actually incurred for ATAH-related purposes.
+
+No service-provider arrangement — whether or not the provider is a related party — may be structured as a protocol royalty, paid-placement fee, referral fee, success fee, permanent revenue share, or commercial return linked to registry growth, professional ranking, partner approval, introduction volume, or user-facing visibility. No service-provider arrangement may affect matching, ranking, provenance, conformance status, partner approval, platform access, professional visibility, data access, or any other decision governed by the Charter's neutrality commitments.
+
+Per Part One of the Charter (Operational independence), every operational service-provider arrangement must be terminable on reasonable notice, replaceable, and not exclusive. A founder-affiliated or related-party service provider may be selected during the pre-transition period where doing so is reasonable for incubation, continuity, cost, speed, expertise, or availability — the rationale is documented in the related-party register. Once independent governance is in prospect, material ongoing related-party service arrangements are reviewed and, where appropriate, re-tendered or made terminable on reasonable notice so that independent governance is not locked into a non-replaceable provider.
+
+The existence of a paid service-provider relationship does not confer ownership of the protocol or any right to control its evolution. The ATAH specification remains open and royalty-free to implement, and conforming implementations may be built or operated by other parties subject to the conformance requirements.
 
 ## 5. Charter compliance objections
 

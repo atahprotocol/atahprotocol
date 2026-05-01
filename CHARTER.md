@@ -32,6 +32,8 @@ Commercial charges may exist only at the implementation or operational layer (su
 
 The specification will remain published under an open licence approved by the Open Source Initiative for as long as the protocol exists. Any future change of licence requires the same supermajority core-commitment amendment process.
 
+A fork or derivative work created under the open licence may not represent itself as the official ATAH protocol, the ATAH-operated reference registry, or an ATAH-governed implementation, and may not claim official ATAH conformance recognition, certification, endorsement, governance continuity, or founder participation where none exists. The open licence permits derivative works; it does not extend the official ATAH governance line, the founder advisory seat, or the ATAH project identity to those derivative works. Conforming implementations, by contrast, operate the ATAH protocol as published under the conformance principles set out in this Charter and the specification, and remain part of the ATAH ecosystem.
+
 ### 2. No commercial weighting in matching
 
 The protocol's matching logic carries no commercial weighting at any point. Partner integration fees, professional registration fees, AI platform relationships, enhanced verification fees, review platform integration arrangements, and any other commercial relationship in or around ATAH have no influence on:
@@ -70,7 +72,7 @@ No professional category may be surfaced in matching unless category-specific mi
 
 ### 7. Founder's role and compensation
 
-The founder retains a permanent advisory seat on the governance body of the protocol. This seat:
+The founder retains a continuing advisory seat on the governance body of the protocol. This seat:
 
 - Carries no veto rights over protocol decisions
 - Confers no preferential commercial advantage to any entity the founder is involved in — any such entity participates in the ATAH ecosystem on terms equally available to any other participant
@@ -87,6 +89,18 @@ The founder is subject to the following conflict-of-interest, recusal, and discl
 Reasonable compensation for the founder's time spent on protocol work is permitted, set transparently and reviewed by the governance body once established. The founder does not receive a personal share of partner integration fees, professional registration fees, enhanced verification fees, or any commercial benefit conditional on the registry's growth. Where the founder draws compensation for protocol work, the amount and basis are publicly disclosed.
 
 The founder advisory seat is a personal seat. It is non-transferable and non-inheritable. After transition to independent governance, the seat may be occupied only by the founder. If the founder is unavailable, becomes incapacitated, or withdraws, the seat lapses; the independent governance body may, at its discretion, convert it into a non-voting historical adviser role appointed at its own decision. No founder nominee may hold approval rights over core amendments.
+
+The right to reasonable compensation for protocol work set out in this commitment — applicable to the founder, and equivalently to any future advisor or governance member — is distinct from operational service-provider arrangements governed by Part Two and GOVERNANCE.md §4.1. Governance compensation and operational service-provider compensation are separate categories. The founder advisory seat established by this commitment applies to the official ATAH governance body and any governance-controlled successor; it does not extend to independent forks or derivative protocols that are not governed by ATAH. Where the term "founder-affiliated entity" is used in this Charter and in GOVERNANCE.md, it means any organisation in which the founder holds a material interest, controls, or with which the founder has a substantive ongoing commercial relationship.
+
+### 8. Operational independence
+
+ATAH services may be operated by service providers — contractors, technology partners, implementation partners, managed-service providers, employees, contributors, or other supporting organisations — on commercial or paid terms. No such operational arrangement may confer ownership of the protocol, exclusive control over its evolution, or any right to influence matching, ranking, provenance, conformance, partner approval, platform access, professional visibility, data access, or any other Charter-protected commitment.
+
+Any operational service-provider arrangement must be terminable on reasonable notice, replaceable, and not exclusive. Independent governance must be structurally able to replace any operational service provider. The existence of a paid service-provider relationship does not confer protocol ownership.
+
+This commitment applies equally to all operational service providers, including the founder, founder-affiliated entities, advisor-affiliated entities, contributors, contractors, and any other related party. Where the operator is a related party, the additional disclosure obligations in GOVERNANCE.md §4.1 apply.
+
+This commitment applies to operational service-provider arrangements only. It does not affect the founder's continuing advisory seat as set out in Core commitment 7 above, nor the right to reasonable compensation for protocol work as set out in Core commitment 7 above. Governance roles and compensation for protocol/governance work are separately governed by Core commitment 7.
 
 ---
 
@@ -117,6 +131,14 @@ Before the interim governance body is formed, the founder will convene an interi
 - Any change to the Charter
 
 The interim advisory group's composition, terms, and operating principles will be published in [GOVERNANCE.md](GOVERNANCE.md).
+
+### Operational support and service providers
+
+ATAH may be supported and operated by service providers — independent contractors, technology partners, implementation partners, managed-service providers, employees, contributors, or other supporting organisations. Permitted commercial arrangements include documented cost reimbursement, fixed-fee build work, time-and-materials work, cost-plus support, market-rate managed-service fees, and similar service-provider compensation structures. These payments compensate work performed; they do not buy ranking, visibility, approval, conformance, access to non-public data, or influence over protocol decisions.
+
+Where a service provider is the founder, a founder-affiliated entity, an advisor-affiliated entity, or any other related party, the arrangement is governed by the related-party disclosure rules in GOVERNANCE.md §4.1, and is subject to the operational independence commitment in Part One (Core commitment 8). Operational service-provider arrangements must be terminable on reasonable notice, replaceable, and not exclusive.
+
+No service-provider arrangement may be structured as a protocol royalty, paid-placement fee, referral fee, success fee, permanent revenue share, or commercial return linked to registry growth, professional ranking, partner approval, introduction volume, or user-facing visibility.
 
 ### Trusted partner participation
 
@@ -209,7 +231,7 @@ This Charter takes effect from the date of its first commit to the public reposi
 
 ## Version history
 
-- **v1.3 — April 2026.** Governance transition reworked. Removed the 90-day interim advisory group deadline and the 12-month transition deadline; replaced with trigger-based transition (two trusted partner integrations + one external conforming implementation) and annual public review. Aligns governance commitments with the realistic adoption timelines of cross-industry standards work. No changes to Part One core commitments.
+- **v1.3 — April 2026.** Governance transition reworked: removed the 90-day interim advisory group deadline and the 12-month transition deadline; replaced with trigger-based transition (two trusted partner integrations + one external conforming implementation) and review of transition progress published as warranted. Aligns governance commitments with the realistic adoption timelines of cross-industry standards work. Added Core commitment 8 to Part One (Operational independence): operational service providers permitted on commercial terms; arrangements must be terminable, replaceable, and not exclusive; cannot affect Charter neutrality commitments. Added a clarifying paragraph to Core commitment 1 (Open specification) addressing the boundary between forks/derivative works (permitted under the open licence, but not "official ATAH") and conforming implementations (operating the protocol, part of the ecosystem). Added a clarifying paragraph to Core commitment 7 distinguishing governance compensation from operational service-provider compensation, confirming the founder advisory seat applies to the official ATAH governance line only (not to forks or derivative protocols), and defining "founder-affiliated entity" once for use throughout the Charter and GOVERNANCE.md. Softened the headline reference in Core commitment 7 from "permanent advisory seat" to "continuing advisory seat" (substance unchanged; structural references where permanence is operative remain). Added "Operational support and service providers" subsection to Part Two with cross-reference to Core commitment 8 and to GOVERNANCE.md §4.1. Operational machinery (permitted work types, payment structures, related-party register requirements, replaceability application) lives in the new GOVERNANCE.md §4.1.
 - **v1.2 — April 2026.** Protocol-layer refinement. Updated Open specification (Core commitment 1) to make royalty-free protocol implementation explicit and clarify that commercial charges live at the implementation or operational layer. Updated Open MCP endpoint (Core commitment 4) to distinguish the ATAH-operated reference MCP endpoint from the protocol itself, and to clarify that future third-party conforming implementations may operate their own endpoints subject to conformance principles. Added scope clarification that registry-operations references in the Charter apply to the ATAH-operated reference registry. No changes to substantive commitments.
 - **v1.1 — April 2026.** Added privacy floor and compliance gating floor as core commitments. Added founder conflict-of-interest, recusal, and disclosure rules. Added concrete transition covenant with deadline. Added interim advisory structure. Added partner principles, professional participation principles, and verifier/review platform principles. Strengthened amendment process. Added accessibility commitment. Clarified the Charter's operation as a public governance covenant.
 - **v1.0 — April 2026.** Initial Charter.

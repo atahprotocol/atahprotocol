@@ -62,6 +62,12 @@ in §14 of the specification.
 
 Record portability between conforming registries — including export format, duplicate resolution, and cross-registry provenance trust — is deferred to federation work in v0.9 or v1.0. The v0.8 architecture is federation-ready (atah_id namespaces are reserved, no part of the data model assumes single-registry operation), but the cross-registry trust mechanics are not yet specified.
 
+## Self-declaration during release-candidate stage
+
+Until an official conformance test suite or certification process exists, conformance statements made by implementers are self-declarations by the implementing party. ATAH does not currently issue conformance certifications, conformance badges, or formal endorsements; the v0.9 conformance test suite is the planned mechanism for that future state (see ROADMAP.md).
+
+ATAH may publicly challenge or correct misleading claims of conformance, certification, endorsement, or official status. Implementers making conformance statements should accurately describe what their implementation does, against which version of the specification, and which conformance principles their implementation preserves. Conforming implementations are encouraged to publish a conformance statement at a discoverable location (recommended: `/.well-known/atah-conformance`) detailing protocol version, schema version, bindings supported, conformance classes claimed, categories supported, jurisdictions supported, and contact for conformance enquiries.
+
 ## Where to find more
 
 For the full normative conformance specification, see [spec/v0.8/full-spec.md, Section 14](spec/v0.8/full-spec.md#14-conformance-classes).

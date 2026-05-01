@@ -8,6 +8,8 @@ A plain-language introduction to what ATAH is, why it exists, and how it fits in
 
 ---
 
+**AI is becoming the first call for advice on legal, tax, insurance, and other professional matters. But when human expertise is genuinely needed, the journey usually breaks — leaving the user with a disclaimer and the responsibility to find one themselves. ATAH defines the trust, consent and handoff layer between AI systems and verified human professionals.**
+
 ## The handoff problem
 
 The agent web is moving fast. AI systems can now book flights, buy products, complete transactions, and run multi-step workflows on behalf of users. The protocols that make this possible — MCP, A2A, ACP, AP2 — have arrived rapidly, and adoption continues to grow.
@@ -292,7 +294,7 @@ ATAH is a proposal for what that layer should look like. It does not replace any
 
 ## Who this serves
 
-**AI platforms** get a common ATAH-compatible handoff contract — available through the v0.8 MCP and REST bindings — that returns verified professional options when their users need human expertise. No bespoke integration per professional category or per jurisdiction. No directory deals to negotiate. Free to query (no per-query or licensing fee — querying still requires authentication for protocol integrity). Conforms to current MCP authorisation guidance. The initial reference registry provides the first live endpoint; future conforming implementations may expose the same protocol.
+**AI platforms** get a common ATAH-compatible handoff contract — available through the v0.8 MCP and REST bindings — that returns verified professional options when their users need human expertise. No bespoke integration per professional category or per jurisdiction. No directory deals to negotiate. Free to query (no per-query or licensing fee — querying still requires authentication for protocol integrity). Conforms to current MCP authorisation guidance. The reference registry will provide the first conforming endpoint when operational; future conforming implementations may expose the same protocol.
 
 The proposition to AI platforms is direct: supporting ATAH addresses the broken handoff problem that every AI system currently hits. It turns a limitation into a capability without each platform having to solve it independently.
 
@@ -394,7 +396,7 @@ ATAH is founded by Grahame Cohen. The protocol specification is published under 
 
 The Charter is intended to operate as a public governance covenant. The founder undertakes to administer ATAH consistently with its commitments. An interim advisory group will be convened when suitable members are identified and available to serve. Governance transitions to an independent structure when two trusted partner integrations are live and at least one external conforming implementation has been demonstrated — recognising that the cross-industry organisations the protocol works with have inherently slower decision cycles than the software industry. Transition progress is reported publicly when there is meaningful progress to share.
 
-The founder retains a permanent advisory seat with no veto rights, no preferential commercial advantage, and explicit conflict-of-interest, recusal, and disclosure rules. After transition the seat carries consultation rights but not approval rights for core amendments.
+The founder retains a continuing advisory seat with no veto rights, no preferential commercial advantage, and explicit conflict-of-interest, recusal, and disclosure rules. After transition the seat carries consultation rights but not approval rights for core amendments.
 
 The full governance commitments are set out in [CHARTER.md](CHARTER.md).
 

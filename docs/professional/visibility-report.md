@@ -82,7 +82,7 @@ For implementers building a conforming registry, an equivalent feature is encour
 
 ## Status
 
-**At v0.8.1 publication:** feature concept. The matching engine and per-component contribution metadata are specified and present in match responses. The professional-portal feature itself is reference-registry build work that proceeds as resources allow (per [PRD §14 Phase 2](../../PRD-v0_8.md)).
+**At v0.8.1 publication:** feature concept. The matching engine and per-component contribution metadata are specified and present in match responses. The professional-portal feature itself is reference-registry build work that proceeds alongside partner conversations and implementation work (per [PRD §14 Phase 2](../../PRD-v0_8.md)).
 
 **When the feature ships in the reference registry:** this document will be expanded to cover the actual portal surface, the specific representative-query set per category, and any operational considerations (rate limiting on report generation, retention of historical reports, professional consent for storing the longitudinal series).
 

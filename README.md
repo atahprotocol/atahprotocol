@@ -10,6 +10,8 @@ An open protocol layer for AI-to-authenticated-human professional handoff. ATAH 
 
 ---
 
+**AI is becoming the first call for advice on legal, tax, insurance, and other professional matters. But when human expertise is genuinely needed, the journey usually breaks — leaving the user with a disclaimer and the responsibility to find one themselves. ATAH defines the trust, consent and handoff layer between AI systems and verified human professionals.**
+
 ## The problem
 
 AI systems can now book flights, buy products, complete transactions, and run multi-step workflows on behalf of users. But when an AI identifies that human professional expertise is genuinely needed — a lawyer for a contract, a financial advisor for a regulated decision, a PR consultant for a crisis, a structural engineer for a building concern — the journey breaks. The AI typically stops at a disclaimer and leaves the user with a search box.
@@ -35,6 +37,12 @@ Two routes exist for professionals to be represented in an ATAH-conformant regis
 
 The protocol supports three introduction types: consumer introductions (AI to professional), professional-to-professional referral relationships, and professional-initiated client referrals. All three use the same underlying infrastructure with structured consent receipts at every stage.
 
+### Referral relationships between professionals
+
+The same protocol that supports AI-to-consumer handoff also supports the second and third introduction types: professional-to-professional referral relationships, and professional-initiated client referrals. A professional can use their AI assistant to identify a complementary professional in a different field — a tax planner finding a corporate lawyer, a property and casualty insurance agent finding a financial advisor, a PR specialist finding a crisis communications barrister. ATAH proposes the relationship to both professionals; nothing is established unless both independently agree.
+
+These referral relationships are recorded as structured data on the professional's verified record, persist for as long as the professional is registered, and contribute to inbound referral signal in matching (subject to anti-gaming controls). Today's referral networks are built one introduction at a time, over a career, through serendipity. ATAH lets professionals build verified, structured referral relationships across firms, fields, and professional bodies — turning what has historically been a personal, informal asset into one that is structured, machine-readable and AI-discoverable.
+
 ## What ATAH is *not*
 
 - **Not a recommendation engine.** ATAH returns a provenance-visible shortlist based on declared need, verification evidence, category rules, and availability. The user or calling AI platform remains responsible for selection.
@@ -56,6 +64,14 @@ Clarity about which layer is being discussed matters:
 3. **The initial reference registry.** ATAH operates an initial reference registry and MCP/REST endpoints that demonstrate and operate the protocol. The reference registry is *not* the protocol itself. As federation develops (deferred to v0.9 or v1.0), other conforming registries may exist, provided they preserve the conformance principles.
 
 The initial registry exists because launching a protocol with no operational instance produces no real-world adoption. v0.8 is single-registry by design; the architecture is federation-ready.
+
+## Forks, derivatives, and official ATAH status
+
+The ATAH specification is published under Apache 2.0 and may be implemented, forked, or extended in accordance with that licence. The open licence is intentional — it allows anyone to build on the work and protects the protocol from being captured by any single party.
+
+A fork or derivative work may not represent itself as the official ATAH protocol, the ATAH-operated reference registry, or an ATAH-governed implementation unless it is operating under the applicable ATAH governance process. Use of the ATAH name, logo, conformance badge, official conformance recognition, or official project identity must not imply endorsement, certification, governance continuity, or founder participation where none exists. Forks and derivative protocols should clearly disclose their relationship to ATAH and identify any material changes from the published ATAH specification.
+
+Conforming implementations — third-party registries or endpoints that operate the ATAH protocol as published, meeting the conformance criteria — are different from forks. Conforming implementations remain part of the ATAH ecosystem; their operators are bound by the conformance principles set out in the specification. Forks are independent works unless and until they operate the ATAH protocol as published and meet the applicable conformance criteria.
 
 ## Implementation model
 
@@ -92,11 +108,11 @@ ATAH does not duplicate the work of identity, credential, or commerce standards.
 
 ## Who this is for
 
-**AI platforms.** A common ATAH-compatible handoff contract, available through the v0.8 MCP and REST bindings, that returns verified professional options when your users need human expertise. No bespoke integration per category or jurisdiction. A production integration involves OAuth 2.1 with audience validation, the handoff access token lifecycle, idempotency on mutating endpoints, and the cross-platform status check model — engineering effort comparable to integrating a payments processor rather than a search API. Free to query (no per-query or licensing fee — querying still requires authentication for protocol integrity). Conforms to current MCP authorisation guidance (OAuth 2.1-compatible). The initial reference registry provides the first live endpoint; future conforming implementations may expose the same protocol.
+**AI platforms.** A common ATAH-compatible handoff contract, available through the v0.8 MCP and REST bindings, that returns verified professional options when your users need human expertise. No bespoke integration per category or jurisdiction. A production integration involves OAuth 2.1 with audience validation, the handoff access token lifecycle, idempotency on mutating endpoints, and the cross-platform status check model — engineering effort comparable to integrating a payments processor rather than a search API. Free to query (no per-query or licensing fee — querying still requires authentication for protocol integrity). Conforms to current MCP authorisation guidance (OAuth 2.1-compatible). The reference registry will provide the first conforming endpoint when operational; future conforming implementations may expose the same protocol.
 
 **Professional associations.** A practical answer to the question every member is asking: *how do I stay visible and trusted when AI becomes the first call for professional advice?* Associations participate as trusted partners — contributing what they already know about their members, and giving those members structured machine-readable presence in AI-mediated environments. Public partner fee schedules; waivers available for public-interest bodies.
 
-**Credentialled and established professionals.** A way to be discoverable by AI systems as part of their AI-discoverability infrastructure. No platform lock-in. Standing verified and kept current. Concern flag protections (admin-only visibility, right of reply).
+**Credentialled and established professionals.** A way to be discoverable by AI systems as part of their AI-discoverability infrastructure, and to build verified referral relationships with complementary professionals across firms, fields, and professional bodies. No platform lock-in. Standing verified and kept current. Concern flag protections (admin-only visibility, right of reply).
 
 ATAH is not a replacement for a professional's existing marketing or visibility work. It is infrastructure for being represented to AI systems consistently and credibly. Professionals continue to need their own marketing for direct consumer reach; ATAH addresses the specific moment an AI system needs to identify and hand off to a verified human professional. There is no guarantee of introduction volume, ranking, or work; the protocol is designed to become a trusted handoff rail as platforms integrate.
 
@@ -136,7 +152,7 @@ The protocol moves to v1.0 once at least one trusted partner integration is live
 
 Breaking changes are possible until v1.0. The version negotiation and deprecation policy is defined in the spec.
 
-**Note on maintenance.** ATAH is currently maintained by a small team with limited bandwidth. Published response times for security disclosures, governance objections, and review of contributions are best-effort targets and reflect that posture. The protocol's longer-term sustainability depends on transitioning to independent governance and on partners and implementers contributing to the work. Anyone interested in supporting the project — whether as a partner, implementer, reviewer, or volunteer maintainer — is encouraged to get in touch.
+**Note on maintenance.** ATAH is currently maintained by a small founding team. Published response times for security disclosures, governance objections, and review of contributions are best-effort at release-candidate stage. The project is actively seeking reviewers, partners, implementers, and advisors — anyone interested in supporting the protocol's development is encouraged to get in touch via the channels in this README.
 
 ## Governance
 
