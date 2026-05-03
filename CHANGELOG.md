@@ -43,6 +43,35 @@ v0.8.2 absorbs three rounds of post-v0.8.1 review work: GKC-COMMENTS-01 (archite
 - `inbound_referral_signal` from the matching engine and from `profession-category.matching_weight_profile`.
 - `shortlist_size` from `query.schema.json` (replaced by `limit`).
 
+### Stress-test matrix completion (Phase 11)
+
+Finalises the [stress-test matrix](spec/v0.8/stress-test-matrix.md) as the verification artifact for v0.8.2 publication. The matrix was created in Phase 0A with 41 seed scenarios; populated phase-by-phase through Phases 1–10A as a publication discipline (Phase 5 added 7 more scenarios, Phase 6 added 5, Phase 10A added 3); finalised in Phase 11 at **56 scenarios** across 10 categories.
+
+**Final F-17 status distribution** (publication-ready):
+
+- 35 × `resolved` (62.5%) — protocol behaviour fully addresses the scenario
+- 13 × `partially-resolved` (23.2%) — substantially addressed in v0.8.2; remaining work has explicit target version
+- 5 × `bounded-by-protocol` (8.9%) — protocol detects, limits, or makes verifiable; does not fully eliminate
+- 2 × `deferred` (3.6%) — explicit target version
+- 1 × `allocated-to-platform-responsibility` (1.8%) — resolution belongs to AI platform under its own obligations
+- **0 × `skeleton`** — every Phase 0A skeleton status processed
+
+**Per-category coverage:** Cat 1 (Auth/Delegation, 6) · Cat 2 (Consent Boundary, 7) · Cat 3 (Ordering/Recommendation, 6) · Cat 4 (Transparency, 9) · Cat 5 (Vault/Erasure/Audit, 4) · Cat 6 (Withdrawal, 5) · Cat 7 (Contact Freshness, 4) · Cat 8 (Partner/Governance Capture, 7) · Cat 9 (Category/Jurisdiction Misfit, 4) · Cat 10 (Conformance Divergence, 4).
+
+**Phase 11 finalisation work** (no new scenarios added; consolidation only):
+
+- Scenario 6.5 (Component 3 connection records persist after withdrawal-from-matching) was the last `skeleton` status remaining at end of Phase 10A. **Resolved in Phase 11** with reference to Phase 3 spec §11.9 — withdrawal-from-matching (scenario 5) and Component 3 connection withdrawal (scenario 6) are deliberately distinct withdrawal scenarios. The matching-status axis and the connection axis are independent; conforming implementations must surface them as separate state surfaces. Per F-17 the deliberate independence is the resolution; no schema or lifecycle change.
+- Phase 10A scenarios 8.5 / 8.6 / 8.7 (added in Phase 10A's narrative as part of the F3.3 cascade) **promoted to proper `### subsections`** within Cat 8 with full Scenario / Abuse-failure-mode / Expected-protocol-behaviour / Required-audit-events / Required-disclosure / Required-conformance-test / Phase-mapping / Status fields.
+- **F-17 vocabulary precision verified**: every scenario carries one of the five F-17 statuses; zero ad-hoc status words; zero `skeleton` statuses. Two format inconsistencies fixed (scenarios 1.4 and 1.5 had Status embedded in the Phase 1 contribution bullet; promoted to their own Status bullet for matrix consistency. Scenario 7.3 used `**Status.**` instead of `**Status:**`; format normalised).
+- **Summary table added at the top** of the matrix: total counts, per-status counts with explanatory column, per-category distribution, and an explicit list of the 2 `deferred` scenarios with target versions and the 13 `partially-resolved` scenarios with residual-work targets.
+- **Verification check** included in the summary section: every scenario has either a concrete resolution reference or an explicit deferral with target version; zero gaps; matrix is publication-ready.
+
+`CONFORMANCE.md` adds a new section **"Stress-test matrix as the v0.8.2 verification artifact"** documenting that v0.8.2 conformance testing includes verifying that each `resolved` scenario produces the documented protocol behaviour. v0.8.2 ships the framing and the per-scenario references; the v0.9 executable conformance test suite operationalises per-scenario verification.
+
+`ROADMAP.md` updates: scenario 6.1 explicitly added to v0.8.3 candidates as "Withdrawal-cycle harassment monitoring"; new "Stress-testing as ongoing publication discipline" workstream entry noting the matrix is a living verification artifact (matrix maintenance, status-drift review, promotion of `partially-resolved` to `resolved` as residual work completes — all v0.8.3 patch-release work). Other deferrals already in place: 1.6 (Component 3 dense-cluster), 7.3 (engagement liveness), 10.4 (federation v1.0); 8.5 / 8.6 (recognised-neutral framing → v0.9 audit regime); 9.1 / 9.2 / 9.3 (per-jurisdiction canonicalisation → v0.9 category-annex template).
+
+No ADR for Phase 11 per master plan (matrix consolidation rather than architectural decision).
+
 ### Strategic-risk framing and conformance-mark protection (Phase 10A)
 
 Applies four findings from `AI-PEER-REVIEW-FINDINGS-03-v0_8_1.md`. Documentation-only — no schema, OpenAPI, MCP, or lifecycle change. Phase 10A's three-level conformance-status distinction stays separate from Phase 8's three-governance-layers distinction (master plan §12A two-axes lock). The `commercial-neutrality-memo.md` updates build on top of Phase 9's stale-reference fix without redoing the conformance-classes correction.

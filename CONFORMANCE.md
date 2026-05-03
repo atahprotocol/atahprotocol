@@ -100,6 +100,14 @@ in §14 of the specification.
 
 Record portability between conforming registries — including export format, duplicate resolution, and cross-registry provenance trust — is deferred to federation work in v0.9 or v1.0. The v0.8 architecture is federation-ready (atah_id namespaces are reserved, no part of the data model assumes single-registry operation), but the cross-registry trust mechanics are not yet specified.
 
+## Stress-test matrix as the v0.8.2 verification artifact
+
+The published [stress-test matrix](spec/v0.8/stress-test-matrix.md) is the verification artifact for v0.8.2 publication. The matrix covers 56 scenarios across 10 categories — abuse, mistake, commercial-conflict, and edge-case behaviours that the protocol must address — and assigns each a status from the F-17 vocabulary (`resolved`, `bounded-by-protocol`, `allocated-to-platform-responsibility`, `partially-resolved`, `deferred`). Every scenario carries either a concrete resolution reference (the phase or spec section that closes it) or an explicit deferral with target version. Zero scenarios remain in the Phase 0A `skeleton` state at v0.8.2 publication.
+
+Conformance testing for v0.8.2 includes verifying that each scenario marked `resolved` produces the documented protocol behaviour. The matrix is therefore both a documentation artifact (showing what the protocol addresses honestly, including its limits) and a verification anchor (each `resolved` scenario maps to a checkable behaviour). The v0.9 executable conformance test suite will operationalise the per-scenario verification; v0.8.2 ships the framing and the per-scenario references.
+
+The matrix is publicly readable: press-cycle reviewers, partners, and platforms can compare an implementation's claimed behaviour against the matrix's documented protocol behaviour. Overclaimed `resolved` markers attract criticism; the matrix is therefore conservative — `bounded-by-protocol` and `allocated-to-platform-responsibility` are used where they are more honest than `resolved`. The 13 `partially-resolved` and 2 `deferred` scenarios are explicit about what v0.8.2 does not close, with target versions for the residual work.
+
 ## Self-declaration during release-candidate stage
 
 Until an official conformance test suite or certification process exists, conformance statements made by implementers are self-declarations by the implementing party. ATAH does not currently issue conformance certifications, conformance badges, or formal endorsements; the v0.9 conformance test suite is the planned mechanism for that future state (see ROADMAP.md).

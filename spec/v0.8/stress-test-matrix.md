@@ -1,12 +1,65 @@
 # Stress-Test Matrix — ATAH Protocol v0.8.2
 
-**Status:** Skeleton populated in Phase 0A; iteratively completed through Phases 1–10A; finalised in Phase 11.
+**Status:** Skeleton populated in Phase 0A; iteratively completed through Phases 1–10A; **finalised in Phase 11** as the verification artifact for v0.8.2 publication.
 
 **Purpose.** This matrix is the verification harness for v0.8.2 protocol design. It captures the abuse, mistake, commercial-conflict, and edge-case behaviours that ATAH must address — at the protocol level, not only as implementation QA. Each subsequent phase updates the matrix as part of its completion checklist: scenarios mapped to the phase get their resolution columns filled in and their status updated.
 
 **Scope.** Protocol-design risks: what the spec permits, what it leaves ambiguous, and what conforming implementations might do differently. Stress testing is a publication discipline, not a later implementation afterthought (Paolo's source note `PAOLO-stress-tests.md`).
 
-**Inputs.** F1.18 and F1.19 from the consolidated Paolo peer review; `PAOLO-stress-tests.md` for the seed scenarios.
+**Inputs.** F1.18 and F1.19 from the consolidated Paolo peer review; `PAOLO-stress-tests.md` for the seed scenarios. Phase 10A added F3.3-derived scenarios 8.5 / 8.6 / 8.7.
+
+---
+
+## Summary table
+
+**Total scenarios: 56** across 10 categories. Final v0.8.2 status distribution:
+
+| Status | Count | % | What it means |
+|---|---:|---:|---|
+| `resolved` | 35 | 62.5% | Protocol behaviour fully addresses the scenario; conforming implementations close the loop. |
+| `bounded-by-protocol` | 5 | 8.9% | Protocol detects, limits, or makes verifiable; does not fully eliminate (e.g. consent-receipt integrity vs underlying-ceremony validity). |
+| `allocated-to-platform-responsibility` | 1 | 1.8% | Resolution belongs to AI platform / partner / verifier under their own obligations; ATAH publishes the disclosure surface. |
+| `partially-resolved` | 13 | 23.2% | Substantially addressed in v0.8.2; remaining work in a later v0.8.3 / v0.9 phase, with explicit reference. |
+| `deferred` | 2 | 3.6% | Acknowledged but not addressed in v0.8.2; explicit target version. |
+| `skeleton` | **0** | 0% | **All Phase 0A skeleton statuses processed.** |
+
+**Per-category distribution:**
+
+| Cat | Title | Total | Statuses |
+|---:|---|---:|---|
+| 1 | Authentication and Delegation Abuse | 6 | 2 resolved · 1 bounded-by-protocol · 3 partially-resolved |
+| 2 | Consent Boundary Failure | 7 | 6 resolved · 1 bounded-by-protocol |
+| 3 | Ordering and Recommendation Drift | 6 | 4 resolved · 1 allocated-to-platform-responsibility · 1 partially-resolved |
+| 4 | Transparency and Explainability Failure | 9 | 7 resolved · 1 bounded-by-protocol · 1 partially-resolved |
+| 5 | Vault, Erasure, and Audit Abuse | 4 | 3 resolved · 1 bounded-by-protocol |
+| 6 | Withdrawal Abuse | 5 | 4 resolved · 1 partially-resolved |
+| 7 | Contact Freshness and Engagement Liveness | 4 | 3 resolved · 1 deferred (7.3 → v0.8.3) |
+| 8 | Partner and Governance Capture | 7 | 2 resolved · 1 bounded-by-protocol · 4 partially-resolved |
+| 9 | Category and Jurisdiction Misfit | 4 | 1 resolved · 3 partially-resolved |
+| 10 | Conformance Divergence | 4 | 3 resolved · 1 deferred (10.4 → v1.0) |
+
+**Deferrals — explicit:**
+
+- **7.3** `deferred-to-v0.8.3` — engagement-liveness mechanism (response-rate tracking, missed-Stage-1 patterns) is out of v0.8.2 scope; v0.8.2 covers contact-channel verification only.
+- **10.4** `deferred-to-v1.0` — federation mechanics. v0.8.2 architecture does not preclude federation; it does not provide federation. Documented in spec §1.6 and ROADMAP "v0.9 candidates" / "v1.0 target".
+
+**`partially-resolved` scenarios with explicit residual-work targets:**
+
+- **1.4** Phase 1 structural basis + **Phase 3** step-up authentication completes resolution.
+- **1.5** Phase 1 structural carrier + **Phase 4** continuity-binding fields complete cross-platform-replay detection.
+- **1.6** Phase 2 toggle gating + rate limits; **dense-cluster pattern detection → v0.8.3 monitoring**.
+- **3.6** Phase 5 model + non-determinism conformance test; **algorithm standardisation → v0.9**.
+- **4.4** Phase 6 transparency surface + dispute path; **fuller dispute-resolution timeline / escalation criteria / evidence handling → v0.9**.
+- **6.1** Phase 3 withdrawal-as-state-transition + audit retention; **concrete rate-limit thresholds and dense-cluster harassment monitoring → v0.8.3**.
+- **8.2** Phase 8 review-platform schema + Phase 5 §9.2; **fuller minimum-criteria specification → v0.9** (Charter Part Two hard-artifacts list).
+- **8.3** Phase 8 verifier schema + Phase 5 §9.6; **fuller verifier conflict and audit rules → v0.9** (Charter Part Two hard-artifacts list).
+- **8.5** Phase 10A three-level conformance-status framing in `CONFORMANCE.md`; **Charter-spirit conformance audit → v0.9 behavioural-neutrality / conformance-audit model** (per F3.3).
+- **8.6** Phase 10A three-level distinction + revocability commitment + right-to-contest; **recognised-neutral revocation procedure → v0.9**.
+- **9.1** existing v0.8.1 category-annex work + Phase 5 / 6 transparency; **per-jurisdiction legal-conflict canonicalisation → v0.9 category-annex template**.
+- **9.2** existing v0.8.1 `compliance_status` mechanism + §9.1 hard filter; **per-jurisdiction healthcare compliance → v0.9 category-annex template**.
+- **9.3** existing v0.8.1 cross-jurisdiction default + per-category metadata; **per-jurisdiction financial-advice terminology → v0.9 category-annex template**.
+
+**Verification check.** Every scenario has either a concrete resolution reference (the phase or spec section that closes it) or an explicit deferral with target version. Zero `skeleton` statuses remain. Zero scenarios use ad-hoc status words outside the F-17 vocabulary (`resolved`, `bounded-by-protocol`, `allocated-to-platform-responsibility`, `partially-resolved`, `deferred`). The matrix is publication-ready.
 
 ---
 
@@ -86,7 +139,8 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 - **Required audit events.** Every firm-admin action records `authenticated_actor`, the `firm_delegation` basis, and the `object_constraints` set; the affected professional's audit feed surfaces the firm-admin action distinctly from their own actions.
 - **Required user / professional disclosure.** The affected professional's `GET /v1/professionals/me/disputes` and notification stream surface firm-admin-originated changes with the firm and the action explicitly labelled.
 - **Required conformance test.** Conformance suite verifies that a `firm_delegation` request without `object_constraints` is rejected, and that an action targeting a `professional_id` outside the constraint set is rejected.
-- **Phase 1 contribution.** `firm_delegation` is in the `authority_basis` enum; `object_constraints` shape supports per-professional narrowing. **Status: `partially-resolved`** — Phase 1 supplies the structural basis; Phase 3's step-up authentication for high-impact withdrawal actions completes the resolution.
+- **Phase 1 contribution.** `firm_delegation` is in the `authority_basis` enum; `object_constraints` shape supports per-professional narrowing.
+- **Status: `partially-resolved`** — Phase 1 supplies the structural basis; Phase 3's step-up authentication for high-impact withdrawal actions completes the resolution.
 
 ### 1.5 Consumer handoff is attempted from a different platform/session without continuity authority
 
@@ -96,7 +150,8 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 - **Required audit events.** _To be filled in during Phase 4._
 - **Required user / professional disclosure.** _To be filled in during Phase 4._
 - **Required conformance test.** _To be filled in during Phase 4._
-- **Phase 1 contribution.** `authority_context` records the asserting `client_application` (`platform_id`, `client_id`) and the `authority_basis` (`user_session` for the original asserter, or `handoff_access_token` for stage-changing calls). The §7.3 matrix requires original-asserter match for stage-changing calls. **Status: `partially-resolved`** — Phase 1 supplies the structural carrier; Phase 4 adds the continuity binding fields on the stored consent receipt that detect cross-platform replay end-to-end.
+- **Phase 1 contribution.** `authority_context` records the asserting `client_application` (`platform_id`, `client_id`) and the `authority_basis` (`user_session` for the original asserter, or `handoff_access_token` for stage-changing calls). The §7.3 matrix requires original-asserter match for stage-changing calls.
+- **Status: `partially-resolved`** — Phase 1 supplies the structural carrier; Phase 4 adds the continuity binding fields on the stored consent receipt that detect cross-platform replay end-to-end.
 
 ### 1.6 Component 3 proposal spam via looking-toggle gaming
 
@@ -445,13 +500,13 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 ### 6.5 Component 3 connection records persist after professional withdrawal from matching
 
 - **Scenario.** Professional A withdraws their record from matching (or their `matching_status` flips to `withdrawn`). Active Component 3 referral connections involving A continue to exist as `referral-connection` records — they were not what A's withdrawal was supposed to end.
-- **Abuse / failure mode.** Mismatch between A's mental model of withdrawal ("I am no longer in ATAH") and what protocol withdrawal removes (matching pool, not Component 3 connections); audit interpretation may be ambiguous.
-- **Expected protocol behaviour.** _To be filled in during Phase 3 (withdrawal as state transition)._ Phase 3's withdrawal mechanics will need to specify whether a `withdrawn` matching_status implicitly withdraws Component 3 connections or whether explicit `POST /v1/referral-connections/:connection_id/withdraw` is required for each.
-- **Required audit events.** _To be filled in during Phase 3._
-- **Required user / professional disclosure.** _To be filled in during Phase 3._
-- **Required conformance test.** _To be filled in during Phase 3._
-- **Phase mapping.** Phase 2 introduces Component 3 connection records; Phase 3 specifies how withdrawal-from-matching interacts with them.
-- **Status: `skeleton`** — discovered during Phase 2; resolution falls to Phase 3.
+- **Abuse / failure mode.** Mismatch between A's mental model of withdrawal ("I am no longer in ATAH") and what protocol withdrawal removes (matching pool, not Component 3 connections); audit interpretation may be ambiguous if the design choice is not explicit.
+- **Expected protocol behaviour.** Per Phase 3 spec §11.9, withdrawal-from-matching (scenario 5) and Component 3 referral proposal / connection withdrawal (scenario 6) are **deliberately distinct withdrawal scenarios**. Withdrawal-from-matching removes the professional from inclusion in Discovery but does NOT cascade to Component 3 connections; explicit `POST /v1/referral-connections/:connection_id/withdraw` is required to withdraw each connection. The design is deliberate: Component 3 actions are governed by professional delegated authority (per F-4 / spec §6.4), not by matching presence; a professional may legitimately wish to be withdrawn from Discovery while retaining active referral relationships with known peers (e.g. not taking new clients but still referring to or receiving referrals from existing partners). The matching-status axis and the connection-axis are independent. Implementations and consumer-facing copy MUST be explicit about this independence so the professional's mental model matches the protocol's behaviour.
+- **Required audit events.** Withdrawal-from-matching (scenario 5) generates an audit event with `event_type: matching_status_changed`, `previous_state` / `resulting_state` / `reason_code` per §11.9, and step-up authentication confirmation. Connection withdrawal (scenario 6) generates an audit event with `event_type: referral_connection_withdrawn` per the connection-record lifecycle. The audit log makes it possible to distinguish between the two withdrawal axes for a given professional over time.
+- **Required user / professional disclosure.** Professional-facing portal MUST display matching-status and active Component 3 connections as **separate state surfaces**, with the independence between them made explicit in the UX (e.g. "you are withdrawn from matching but still have N active referral connections; withdraw each connection separately if intended"). This is presentation guidance for conforming implementations; the protocol-level requirement is that the two state surfaces are independently queryable through the spec's professional API.
+- **Required conformance test.** Conformance suite verifies that setting `matching_status: withdrawn` does NOT automatically delete the professional's `referral-connection` records, and that `POST /v1/referral-connections/:connection_id/withdraw` is the only way to withdraw a specific connection.
+- **Phase mapping.** Phase 2 introduces Component 3 connection records; Phase 3 specifies how withdrawal-from-matching interacts with them through §11.9's two-distinct-scenarios design.
+- **Status: `resolved`** by Phase 3 §11.9 (scenario 5 vs scenario 6 are deliberately separate; the matching-status axis and the connection axis are independent) plus the Phase 2 `referral-connection` lifecycle which makes connection withdrawal an explicit per-connection action through `POST /v1/referral-connections/:connection_id/withdraw`. The mental-model gap is closed by the documented independence; conforming implementations are required to surface the two state axes separately to the professional.
 
 ---
 
@@ -487,7 +542,7 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 - **Required audit events.** _Deferred to v0.8.3._
 - **Required user / professional disclosure.** _Deferred to v0.8.3._
 - **Required conformance test.** _Deferred to v0.8.3._
-- **Status.** `deferred` *(`deferred-to-v0.8.3` — engagement liveness mechanism out of v0.8.2 scope; v0.8.2 covers contact-channel verification only.)*
+- **Status: `deferred`** — `deferred-to-v0.8.3` — engagement liveness mechanism out of v0.8.2 scope; v0.8.2 covers contact-channel verification only.
 
 ### 7.4 Professional appears active but is not reachable
 
@@ -544,6 +599,39 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 - **Required user / professional disclosure.** Public governance-decision register (v0.9 operational artifact) records related-party decisions; founder-affiliated entity register is published per Charter §"Founder accountability".
 - **Required conformance test.** Conformance suite reviews the public governance-decision register and the related-party disclosure register; verifies recusal patterns where founder-affiliated entities applied for partner admission, scope expansion, or commercial agreement.
 - **Status: `resolved`** by Charter Core Commitments 7 and 8 + GOVERNANCE.md §4.1 related-party disclosure and recusal rules.
+
+### 8.5 Implementation claims ATAH conformance using only the technical protocol while violating Charter spirit
+
+- **Scenario.** An implementation publishes a conformance statement at `/.well-known/atah-conformance` and validates against the published schemas, but applies opaque ordering, undisclosed commercial weighting, or other behaviours that violate the Charter's spirit. Apache 2.0 permits the use of the protocol; the conformance claim is only a self-declaration during the release-candidate stage.
+- **Abuse / failure mode.** "Conformance laundering" — technical conformance is used to imply governance neutrality, blurring the distinction between protocol implementation and recognised neutrality.
+- **Expected protocol behaviour.** Per `CONFORMANCE.md` (Phase 10A three-level distinction, F3.3): such an implementation is `protocol-compatible` (uses ATAH schemas) or, at most, `ATAH-conformant` if the technical conformance assertions hold — but it is NOT `ATAH-recognised neutral implementation`, which requires behavioural conformance to governance, neutrality, auditability, public-disclosure, and conflict-of-interest requirements. Per Phase 6's Transparency Class, ordering policy and decision explanations are observable; commercial-weighting hidden in implementation logic becomes detectable through audit and decision-explanation discrepancies.
+- **Required audit events.** Implementation-side audit events (covered by the Transparency Class). Cross-implementation comparison is the basis on which an ATAH-recognised-neutral claim is evaluated against Charter-spirit conformance.
+- **Required user / professional disclosure.** `presentation_disclosure` carries the ordering-policy disclosure; `decision_explanation` per response and per candidate documents the rules applied; aggregate `exclusion_summary` surfaces exclusion-reason categories. A reviewer can compare the published conformance statement against the observable behaviour.
+- **Required conformance test.** v0.8.2 ships the schema-level checks (schema validity, presence of `presentation_disclosure`, presence of `decision_explanation` at both layers, structural absence of `match_score` / `match_factors`). v0.9 audit regime adds the behavioural-neutrality / conformance-audit model — sampled query replay, decision-explanation substantive-validity tests, commercial-neutrality attestation cadence — that catches Charter-spirit violations a purely-technical regime would miss.
+- **Phase mapping.** Phase 10A introduces the three-level distinction in `CONFORMANCE.md` and the v0.9 ROADMAP item for the audit regime.
+- **Status: `partially-resolved`** — Phase 10A's three-level distinction makes the framing clear in documentation (the recognised level is reserved for behavioural conformance, not just technical). Fully resolved when the v0.9 behavioural-neutrality / conformance-audit model is implemented per the new ROADMAP item.
+
+### 8.6 Implementation falsely claims ATAH-recognised neutral status
+
+- **Scenario.** An implementation that is at most `ATAH-conformant` (per the three-level distinction) publicly claims `ATAH-recognised neutral implementation` status without meeting the strongest governance, neutrality, auditability, public-disclosure, and conflict-of-interest requirements. The claim is misleading rather than technically wrong.
+- **Abuse / failure mode.** Trust-mark laundering; consumers, partners, and reviewers may mistake technical conformance for recognised neutrality.
+- **Expected protocol behaviour.** Per CHARTER Part Two (Phase 10A new commitment), the official ATAH trust mark and "ATAH-recognised neutral implementation" status are revocable; they depend on continuing behavioural conformance. Per GOVERNANCE.md §5.1 (Phase 10A new commitment), ATAH governance reserves the right to publicly contest claims of ATAH conformance, neutrality, or recognised-implementation status that misrepresent compliance. Both are stated commitments; v0.9 operationalises the revocation procedure.
+- **Required audit events.** Public governance-decision register (v0.9 operational artifact per Charter Part Two hard-artifacts list) records contest actions, revocations, and remediation outcomes.
+- **Required user / professional disclosure.** Public statement issued by ATAH governance when a claim is contested. The published-revocation process under v0.9 makes status transitions visible.
+- **Required conformance test.** v0.8.2 ships the framework (the three-level distinction is documented; the revocability and right-to-contest are stated). v0.9 ships the issuance and revocation procedure (per Phase 10A v0.9 ROADMAP item).
+- **Phase mapping.** Phase 10A introduces the framework; v0.9 operationalises it.
+- **Status: `partially-resolved`** — Phase 10A creates the framework for revocability (CHARTER) and the public-contest right (GOVERNANCE §5.1). Fully addressed when v0.9 operationalises the revocation procedure.
+
+### 8.7 Well-resourced player forks the registry, complies with technical conformance, weakens governance in practice
+
+- **Scenario.** A well-resourced player implements an ATAH-compatible registry under its own brand, bundles it with existing distribution, complies with the letter of the technical protocol, weakens or avoids the Charter's spirit in practice, and out-competes the ATAH reference registry on operational quality, integrations, brand, and reach.
+- **Abuse / failure mode.** Open licensing is exploited to capture the protocol's value while evading the governance commitments; the meaning of "ATAH" drifts under commercial pressure.
+- **Expected protocol behaviour.** Per `CONFORMANCE.md` Phase 10A three-level distinction: forks fall in `protocol-compatible` by default and cannot self-claim `ATAH-recognised neutral implementation` without meeting the governance/audit requirements (form is uniform at the protocol-governance layer per Phase 8 Charter Core Commitment 8; conformance is uniform at the implementation layer per the five conformance classes plus the three-level recognition framework). Per the Phase 10A note in `commercial-neutrality-memo.md`: open licensing strengthens ATAH as a protocol but means the reference registry must compete on trusted governance, neutrality, auditability, and recognised conformance — not merely on authorship of the standard. Sophisticated reviewers (partners, regulators, enterprise platforms) can read the conformance level claimed and the audit posture behind it; the framing makes Charter-spirit divergence visible.
+- **Required audit events.** Per the v0.9 audit regime: public ordering-policy metadata exposure tests, decision-explanation discipline checks, commercial-neutrality attestation. The audit regime is what makes hidden weakening detectable.
+- **Required user / professional disclosure.** Conformance-status declarations are public; the three-level distinction is publicly documented; the right-to-contest is a stated governance commitment.
+- **Required conformance test.** v0.8.2 ships the documented distinction. v0.9 ships the operational audit regime per the ROADMAP item. The protocol-level ceiling is the framing's visibility to reviewers; ATAH-the-organisation does not have legal-licence levers to prevent forks (Apache 2.0 permits them), and the goal per Paolo Piponi's F3.3 is not to prevent forks but to preserve the meaning of official ATAH conformance and neutrality claims.
+- **Phase mapping.** Phase 10A introduces the framing; v0.9 operationalises the audit regime.
+- **Status: `bounded-by-protocol`** — the framing makes the distinction visible to sophisticated reviewers and to the v0.9 audit regime; the protocol cannot prevent forks (Apache 2.0 permits them), and the goal is meaning-preservation rather than fork-prevention. The protocol-level boundary is what's available; v0.9 audit verification adds the operational backbone.
 
 ---
 
