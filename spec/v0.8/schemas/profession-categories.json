@@ -40,7 +40,9 @@
       "max_band_influence": "supplemental_only",
       "may_upgrade_band": false,
       "regulated_category_max_effect": "no_band_upgrade"
-    }
+    },
+    "contact_verification_cadence": "quarterly",
+    "pre_handoff_freshness_window_days": 30
   },
   {
     "category_id": "pr_professional",
@@ -83,7 +85,8 @@
       "max_band_influence": "supplemental_only",
       "may_upgrade_band": true,
       "regulated_category_max_effect": "documented_corroboration_required"
-    }
+    },
+    "contact_verification_cadence": "annual"
   },
   {
     "category_id": "physician",
@@ -126,7 +129,9 @@
       "max_band_influence": "supplemental_only",
       "may_upgrade_band": false,
       "regulated_category_max_effect": "no_band_upgrade"
-    }
+    },
+    "contact_verification_cadence": "quarterly",
+    "pre_handoff_freshness_window_days": 30
   },
   {
     "category_id": "tax_planner",
@@ -169,7 +174,8 @@
       "max_band_influence": "supplemental_only",
       "may_upgrade_band": true,
       "regulated_category_max_effect": "documented_corroboration_required"
-    }
+    },
+    "contact_verification_cadence": "annual"
   },
   {
     "category_id": "accountant",
@@ -212,7 +218,8 @@
       "max_band_influence": "supplemental_only",
       "may_upgrade_band": true,
       "regulated_category_max_effect": "documented_corroboration_required"
-    }
+    },
+    "contact_verification_cadence": "annual"
   },
   {
     "category_id": "financial_advisor",
@@ -255,7 +262,9 @@
       "max_band_influence": "supplemental_only",
       "may_upgrade_band": false,
       "regulated_category_max_effect": "no_band_upgrade"
-    }
+    },
+    "contact_verification_cadence": "quarterly",
+    "pre_handoff_freshness_window_days": 30
   },
   {
     "category_id": "insurance_agent_pc",
@@ -298,7 +307,9 @@
       "max_band_influence": "supplemental_only",
       "may_upgrade_band": false,
       "regulated_category_max_effect": "no_band_upgrade"
-    }
+    },
+    "contact_verification_cadence": "quarterly",
+    "pre_handoff_freshness_window_days": 30
   },
   {
     "category_id": "architect",
@@ -341,7 +352,9 @@
       "max_band_influence": "supplemental_only",
       "may_upgrade_band": false,
       "regulated_category_max_effect": "no_band_upgrade"
-    }
+    },
+    "contact_verification_cadence": "quarterly",
+    "pre_handoff_freshness_window_days": 30
   },
   {
     "category_id": "executive_coach",
@@ -384,7 +397,8 @@
       "max_band_influence": "supplemental_only",
       "may_upgrade_band": true,
       "regulated_category_max_effect": "documented_corroboration_required"
-    }
+    },
+    "contact_verification_cadence": "annual"
   },
   {
     "category_id": "management_consultant",
@@ -427,7 +441,8 @@
       "max_band_influence": "supplemental_only",
       "may_upgrade_band": true,
       "regulated_category_max_effect": "documented_corroboration_required"
-    }
+    },
+    "contact_verification_cadence": "annual"
   },
   {
     "category_id": "project_manager",
@@ -470,7 +485,8 @@
       "max_band_influence": "supplemental_only",
       "may_upgrade_band": true,
       "regulated_category_max_effect": "documented_corroboration_required"
-    }
+    },
+    "contact_verification_cadence": "annual"
   },
   {
     "category_id": "hr_professional",
@@ -513,7 +529,8 @@
       "max_band_influence": "supplemental_only",
       "may_upgrade_band": true,
       "regulated_category_max_effect": "documented_corroboration_required"
-    }
+    },
+    "contact_verification_cadence": "annual"
   },
   {
     "category_id": "marketing_specialist",
@@ -556,7 +573,8 @@
       "max_band_influence": "supplemental_only",
       "may_upgrade_band": true,
       "regulated_category_max_effect": "documented_corroboration_required"
-    }
+    },
+    "contact_verification_cadence": "annual"
   },
   {
     "category_id": "mediator",
@@ -599,7 +617,8 @@
       "max_band_influence": "supplemental_only",
       "may_upgrade_band": true,
       "regulated_category_max_effect": "documented_corroboration_required"
-    }
+    },
+    "contact_verification_cadence": "annual"
   },
   {
     "category_id": "certified_translator",
@@ -642,6 +661,7 @@
       "max_band_influence": "supplemental_only",
       "may_upgrade_band": true,
       "regulated_category_max_effect": "documented_corroboration_required"
-    }
+    },
+    "contact_verification_cadence": "annual"
   }
 ]

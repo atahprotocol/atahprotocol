@@ -1494,6 +1494,161 @@ paths:
         '200':
           description: Reply recorded.
 
+  /v1/professionals/me/notification-channels:
+    get:
+      tags: [Professional]
+      operationId: getMyNotificationChannels
+      summary: Component 12A — list the professional's notification channels with verification status.
+      description: |
+        Returns the professional's `notification_channels` array (per
+        spec §12A). Each item includes `channel_id`, `channel_type`,
+        `destination_reference` (HMAC, not plaintext per §11.8),
+        `delivery_purpose`, `is_primary`, `last_verified`,
+        `verification_status`, and `created_at`. The plaintext
+        destination is held in the partner's or implementation's
+        credential store, not on ATAH.
+      security:
+        - oauth2: [atah:professionals:self_read]
+      parameters:
+        - $ref: '#/components/parameters/AcceptVersion'
+      responses:
+        '200':
+          description: Notification-channel list with verification status.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  description: Channel record per the `NotificationChannel` $defs in `professional-identity-credentialled.schema.json` / `professional-identity-established.schema.json`.
+                  type: object
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /v1/professionals/me/notification-channels/{channel_id}/verify:
+    post:
+      tags: [Professional]
+      operationId: postVerifyNotificationChannel
+      summary: Confirm a verification challenge for a notification channel.
+      description: |
+        The professional confirms a verification challenge previously
+        issued by ATAH per spec §12A.1 (Layer 1 periodic verification)
+        or §12A.3 (Layer 3 pre-handoff freshness check). On successful
+        confirmation, the channel record's `last_verified` is set to
+        the current timestamp and `verification_status` flips to
+        `verified`. An audit event of type
+        `channel_verification_confirmed` is recorded.
+
+        Per §12A.4, verification challenges follow a documented
+        anti-phishing format: distinctive sender domain;
+        content-template enforcement; no embedded redirect URLs;
+        single-use challenge token with short TTL; the confirmation
+        surface displays the professional's `atah_id` and challenge
+        timestamp for the professional to verify before confirming.
+
+        The request body carries the challenge token (as issued in
+        the challenge message); ATAH validates the token, the channel
+        identity, and the principal-delegation context.
+      security:
+        - oauth2: [atah:professionals:self_write]
+      parameters:
+        - name: channel_id
+          in: path
+          required: true
+          schema:
+            type: string
+            minLength: 1
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                challenge_token:
+                  type: string
+                  minLength: 1
+                  description: The single-use challenge token issued in the verification message.
+              required: [challenge_token]
+              additionalProperties: false
+      responses:
+        '200':
+          description: Verification confirmed; channel `verification_status` updated.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  channel_id: { type: string, minLength: 1 }
+                  verification_status: { type: string, const: verified }
+                  last_verified: { type: string, format: date-time }
+                  audit_event_id: { type: string, minLength: 1 }
+                required: [channel_id, verification_status, last_verified, audit_event_id]
+                additionalProperties: false
+        '400':
+          description: Invalid or expired challenge token.
+          content:
+            application/json:
+              schema: { $ref: './schemas/error.schema.json' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /v1/admin/partners/{partner_id}/professionals/verification-status:
+    get:
+      tags: [Admin]
+      operationId: getPartnerProfessionalVerificationStatus
+      summary: Partner organisation view of member verification statuses (governance / partner role).
+      description: |
+        Returns the verification-status summary across the partner's
+        listed professionals (per spec §12A Layer 2 escalation path).
+        Lets a partner organisation see which members need to act on
+        verification challenges before escalation triggers a
+        `matching_status` flip.
+
+        Authority: `governance_admin_role` for cross-partner
+        admin views; partner-credential authority where the partner
+        retrieves their own data.
+      security:
+        - oauth2: [atah:admin]
+      parameters:
+        - name: partner_id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^tp-[A-Za-z0-9-]{6,64}$'
+        - $ref: '#/components/parameters/AcceptVersion'
+      responses:
+        '200':
+          description: Verification-status summary across partner's members.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  partner_id: { type: string, pattern: '^tp-[A-Za-z0-9-]{6,64}$' }
+                  total_members: { type: integer, minimum: 0 }
+                  verification_status_counts:
+                    type: object
+                    additionalProperties: { type: integer, minimum: 0 }
+                  members_pending_action:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        atah_id: { type: string, pattern: '^atah-[A-Za-z0-9-]{6,64}$' }
+                        channel_id: { type: string, minLength: 1 }
+                        verification_status: { type: string }
+                        last_verified: { type: ['string', 'null'], format: date-time }
+                      required: [atah_id, channel_id, verification_status, last_verified]
+                      additionalProperties: false
+                required: [partner_id, total_members, verification_status_counts, members_pending_action]
+                additionalProperties: false
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
   # ============================================================
   # Partner API (stub-level for v0.8.0)
   # ============================================================

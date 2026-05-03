@@ -50,6 +50,7 @@
         "admin-suspended",
         "pending-rollup",
         "pending-integrity-review",
+        "contact_unverified",
         "withdrawn",
         "deceased"
       ]
@@ -140,6 +141,11 @@
       "default": false,
       "description": "Component 3 visibility toggle. When `true`, the professional is in the candidate pool for incoming Component 3 referral-partner Discovery and may receive `referral-proposal` records. When `false` (default), the professional is excluded from `request_intent: 'referral_partner_search'` results and cannot be the `target_professional_id` of a new proposal. Toggleable on and off at any time. Existing v0.8.1 records that omit the field MUST be read as `false`."
     },
+    "notification_channels": {
+      "type": "array",
+      "description": "Per F-15 / spec §12A: the professional's notification channels with verification status. Drives the Layer 1 periodic verification mechanism, the Layer 2 escalation path, and the Layer 3 pre-handoff freshness check for high-stakes categories. Channels are stored on the professional record itself (not in a separate operational schema) so the matching engine's `contact_unverified` check is a single record read. Channel records carry an HMAC of the destination address (per the §11.8 HMAC-not-plain-hash requirement); the plaintext destination is held in the partner's or the implementation's own credential store. Migration note: existing v0.8.1 records have no `notification_channels` array (the array is new in v0.8.2); implementations create the array on first read for any existing record, populate channel records from existing notification configuration data, and set `last_verified: null` and `verification_status: not_yet_verified` for all migrated channels.",
+      "items": { "$ref": "#/$defs/NotificationChannel" }
+    },
     "_provenance": {
       "$ref": "provenance-map.schema.json"
     }
@@ -160,6 +166,59 @@
   ],
   "additionalProperties": false,
   "$defs": {
+    "NotificationChannel": {
+      "type": "object",
+      "description": "Per F-15 / spec §12A: a single notification channel with verification status. The `destination_reference` is an HMAC of the destination address (per §11.8 HMAC-not-plain-hash); ATAH does not need the plaintext address to verify freshness — the partner or implementation's credential store holds it. The `verification_status` lifecycle: `not_yet_verified` → `verification_pending` (challenge issued) → `verified` (challenge confirmed) → `escalation_pending` (Layer 2 escalation triggered) → `unverified` (full grace period elapsed; matching_status flips to `contact_unverified`).",
+      "properties": {
+        "channel_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Opaque identifier for this channel record."
+        },
+        "channel_type": {
+          "type": "string",
+          "enum": ["email", "phone_voice", "phone_sms", "mcp_push", "webhook"]
+        },
+        "destination_reference": {
+          "type": "string",
+          "minLength": 1,
+          "description": "HMAC of the destination address (email, phone number, MCP push endpoint, webhook URL) under the per-context audit HMAC key (per §11.8). Plaintext destination is NOT stored here; it is held by the partner or the implementation's own credential store. ATAH uses the HMAC to verify channel identity over time without learning the plaintext."
+        },
+        "delivery_purpose": {
+          "type": "string",
+          "enum": [
+            "discovery_notification",
+            "handoff_stage_1",
+            "handoff_stage_2",
+            "handoff_stage_3",
+            "handoff_stage_3_alternate",
+            "referral_proposal",
+            "referral_connection",
+            "account_alert",
+            "verification_challenge"
+          ]
+        },
+        "is_primary": {
+          "type": "boolean",
+          "description": "Whether this is the primary channel for the given `delivery_purpose`. At most one channel per delivery_purpose per professional MAY be marked primary; non-primary channels are fallbacks."
+        },
+        "last_verified": {
+          "type": ["string", "null"],
+          "format": "date-time",
+          "description": "Timestamp of the last successful verification challenge. `null` permitted only for newly-added channels not yet through their first verification cycle (`verification_status: not_yet_verified`)."
+        },
+        "verification_status": {
+          "type": "string",
+          "enum": ["verified", "verification_pending", "escalation_pending", "unverified", "not_yet_verified"]
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["channel_id", "channel_type", "destination_reference", "delivery_purpose", "is_primary", "last_verified", "verification_status", "created_at"],
+      "additionalProperties": false
+    },
     "PartnerDataPayload": {
       "type": "object",
       "properties": {
@@ -230,7 +289,29 @@
       "data_conflicts": [],
       "ai_assistant_connected": false,
       "profile_completeness_score": 0.88,
-      "looking_for_referral_partners": false
+      "looking_for_referral_partners": false,
+      "notification_channels": [
+        {
+          "channel_id": "ch-01HQXRQ4D5EFGHIJKLMNOPQRST",
+          "channel_type": "email",
+          "destination_reference": "hmac:d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35",
+          "delivery_purpose": "handoff_stage_1",
+          "is_primary": true,
+          "last_verified": "2026-04-01T11:00:00Z",
+          "verification_status": "verified",
+          "created_at": "2026-02-20T08:30:00Z"
+        },
+        {
+          "channel_id": "ch-01HQXRQ5E6FGHIJKLMNOPQRSTU",
+          "channel_type": "email",
+          "destination_reference": "hmac:4b227777d4dd1fc61c6f884f48641d02b4d121d3fd328cb08b5531fcacdabf8a",
+          "delivery_purpose": "handoff_stage_3",
+          "is_primary": true,
+          "last_verified": null,
+          "verification_status": "verification_pending",
+          "created_at": "2026-04-12T16:45:00Z"
+        }
+      ]
     }
   ]
 }

@@ -77,6 +77,17 @@
       "minimum": 1,
       "maximum": 36,
       "description": "Default expiry for Component 3 referral proposals targeting professionals in this category, in months. Categories without a value use the protocol-level default of 6 months. v0.8.2 ships with 6 as the only populated value across categories."
+    },
+    "contact_verification_cadence": {
+      "type": "string",
+      "enum": ["quarterly", "biannual", "annual", "none"],
+      "description": "Per-category cadence for Layer 1 periodic contact-channel verification (per spec §12A). High-stakes regulated categories (credentialled tier with mandatory body membership) typically use `quarterly`; mid-stakes regulated `biannual`; established practitioners `annual`. Categories without a value use the protocol-level default of `annual`. The cadence drives when ATAH issues verification challenges to the professional's `notification_channels`; missed challenges escalate per §12A Layer 2 and may flip `matching_status` to `contact_unverified`. The field is per-category configurable so launch categories can be tuned individually without a schema change."
+    },
+    "pre_handoff_freshness_window_days": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 365,
+      "description": "Per-category recency window (in days) for Layer 3 pre-handoff freshness check (per spec §12A). Only populated for high-stakes categories where a just-in-time verification before sending the introduction notification is warranted. v0.8.2 ships with 30 as the populated value for high-stakes categories. Absent for categories that do not require Layer 3 (the protocol does not run Layer 3 for those categories)."
     }
   },
   "required": [
@@ -89,7 +100,8 @@
     "default_pre_handoff_check",
     "band_definitions",
     "review_signal_band_cap",
-    "stage2_auth_tier"
+    "stage2_auth_tier",
+    "contact_verification_cadence"
   ],
   "additionalProperties": false,
   "examples": [
@@ -114,7 +126,9 @@
         "regulated_category_max_effect": "no_band_upgrade"
       },
       "stage2_auth_tier": "tier_2",
-      "referral_proposal_expiry_months": 6
+      "referral_proposal_expiry_months": 6,
+      "contact_verification_cadence": "quarterly",
+      "pre_handoff_freshness_window_days": 30
     },
     {
       "category_id": "executive_coach",
@@ -137,7 +151,8 @@
         "regulated_category_max_effect": "documented_corroboration_required"
       },
       "stage2_auth_tier": "tier_1",
-      "referral_proposal_expiry_months": 6
+      "referral_proposal_expiry_months": 6,
+      "contact_verification_cadence": "annual"
     }
   ]
 }

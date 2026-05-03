@@ -43,7 +43,13 @@
         "referral_connection_withdrawn",
         "professional_withdrew_from_matching",
         "delegated_token_revoked",
-        "withdrawal_recorded"
+        "withdrawal_recorded",
+        "channel_verification_challenged",
+        "channel_verification_confirmed",
+        "channel_verification_escalated",
+        "channel_marked_unverified",
+        "matching_status_flipped_to_contact_unverified",
+        "matching_status_restored_from_contact_unverified"
       ]
     },
     "occurred_at": {

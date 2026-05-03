@@ -501,6 +501,7 @@ The system distinguishes clearly between data categories:
 - **Introduction lifecycle data** — state transitions logged with pseudonymous identifiers. No PII.
 - **Consumer personal data** — strictly transient. Held only in the encrypted vault during active handoffs. Crypto-erased on resolution. Never written to the main registry database. Never transmitted through SMS or email.
 - **Audit log** — minimised, pseudonymous identifiers; not directly identifying within ATAH alone but may constitute personal data where linkable. Tamper-evident hash-chained. Retained 7 years on legitimate-interest basis, scoped to fraud detection, dispute resolution, and regulator engagement.
+- **Notification-channel records (per spec §12A).** Per F-15 / Phase 7, professional identity records carry a `notification_channels` array with verification status. Channel `destination_reference` is HMAC of the destination address (per §11.8 HMAC-not-plain-hash); plaintext destination is held by the partner or implementation's credential store. ATAH does not learn the plaintext. Records are retained while the professional is registered; deleted when the professional withdraws.
 - **Anonymised post-introduction data** — non-PII outcome data only. Retained two years then deleted.
 
 ### Notification policy

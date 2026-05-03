@@ -311,6 +311,10 @@ The `compliance_status` field has values: `active` (open for matching), `complia
 
 The `default_pre_handoff_check` field has values: `conflict_check`, `scope_confirmation`, `capacity_confirmation`, `fee_alignment`, or `none`. See Section 6 for what each pre-handoff check type contains.
 
+The `contact_verification_cadence` field (per spec §12A) declares how often ATAH issues periodic Layer 1 verification challenges to channels on professional records in this category. v0.8.2 ships with `quarterly` for credentialled categories with mandatory body membership (high-stakes regulated), `biannual` for other credentialled categories (mid-stakes), and `annual` for established practitioners. Categories without a value use `annual` as the protocol default. The field is per-category configurable so launch categories can be tuned individually without a schema change.
+
+The `pre_handoff_freshness_window_days` field (optional; populated for high-stakes categories only) declares the recency window in days for the §12A Layer 3 pre-handoff freshness check. v0.8.2 ships with 30 for high-stakes categories. Absent for categories that do not require Layer 3.
+
 The `band_definitions` field declares the category's bands used by the §9 matching engine. Each band has a `band_name`, a `band_position` (lower = higher band), and a `threshold_rule` describing the predicate a candidate must satisfy to be in that band. The default bands across launch categories are `verification_confidence`, `category_fit`, `availability_window`, and `contact_freshness`; categories MAY define more or different bands. Per F-13, this field replaces the v0.8.1 `matching_weight_profile` (the weighted-scoring artefact); see §9 and ADR 0012.
 
 The `review_signal_band_cap` field controls the influence of review-derived signals on band assignment for the category, replacing the v0.8.1 `review_signal_weight_cap` (per F-7). High-stakes regulated categories set `may_upgrade_band: false` and `regulated_category_max_effect: no_band_upgrade`, preserving the original safeguard that review platforms do not dominate matching in regulated contexts. Lower-stakes categories MAY permit `may_upgrade_band: true` with documented authoritative-corroboration requirements. See §9.2 for the verbatim normative rule.
@@ -1727,6 +1731,7 @@ The table is organised by the three-concept separation introduced in §11.1: eac
 | Dead-letter queue | None (sanitised) | None | n/a | 30 days |
 | Component 3 referral-proposal records | None (professional ids only) | Audit log records proposal lifecycle events | `state` enum (`pending` is non-terminal; terminal states delete the record) | While pending; deleted on `accepted` (folded into connection), `declined`, `withdrawn`, `lapsed` |
 | Component 3 referral-connection records | None (professional ids only) | Audit log records connection lifecycle events | Implicit (existence indicates `active`); terminal states delete the record | Indefinite while active; deleted on withdrawal by either party |
+| Notification-channel records (per §12A on professional identity schemas) | None — `destination_reference` is HMAC of the destination, not plaintext | `last_verified` timestamps; verification audit events (`channel_verification_challenged` / `_confirmed` / `_escalated`) | `verification_status` per channel; `matching_status: contact_unverified` on the parent professional record after escalation grace period | Retained while the professional is registered; deleted when the professional withdraws |
 
 If a personal data field is detected in a store where it is not allowed, the entry is automatically purged and a critical audit event is logged. The privacy floor is enforced at validation time for the main registry database and the consent receipt store (`consent-receipt-stored.schema.json` is the canonical privacy-floor-enforced shape; a build-time test reads the file and rejects the literal field names that the privacy floor excludes).
 
@@ -2063,6 +2068,80 @@ Partners receive webhook notifications on conflict detection, partner score thre
 
 Verifiers receive webhook notifications on enhanced verification disputes, audit status events, and approval changes.
 
+## 12A. Contact-Detail Freshness
+
+ATAH says "verified candidates"; reviewers and users will reasonably interpret that as "verified including we can actually reach them". The contact-detail freshness mechanism keeps that interpretation true. v0.8.2 implements `GKC-COMMENTS-02` in full as a three-layer mechanism: periodic verification with category-tiered cadence, escalation if verification fails, and a pre-handoff freshness check just before sending the introduction notification for high-stakes categories.
+
+Engagement liveness (whether a professional with verified contact details actually responds to introductions) is a different problem — channel reachability ≠ behavioural responsiveness. v0.8.2 verifies reachability; engagement liveness (response-rate tracking, missed-Stage-1 patterns) is **deferred to v0.8.3**. The gap is honest, not hidden: a professional with verified contact details could still ignore every notification, and v0.8.2 does not close that loop.
+
+### 12A.1 Layer 1 — Periodic channel verification
+
+Every notification channel on the professional record (per `professional-identity-credentialled.schema.json` / `professional-identity-established.schema.json` `notification_channels` array) carries `last_verified` and `verification_status`. ATAH issues periodic verification challenges per the category's `contact_verification_cadence` (per `profession-categories.json`):
+
+- `quarterly` — high-stakes regulated categories (credentialled tier with mandatory body membership).
+- `biannual` — mid-stakes regulated categories.
+- `annual` — established practitioners and the protocol-level default.
+- `none` — categories where periodic verification is not run (rare; not used in launch categories).
+
+Challenge mechanisms by `channel_type`:
+
+- `email` — confirmation link (single-use token with TTL).
+- `phone_voice` — call-back code (operator-assisted or IVR confirmation).
+- `phone_sms` — SMS confirmation code (single-use).
+- `mcp_push` — push challenge requiring acknowledgement from the professional's MCP-connected AI assistant.
+- `webhook` — server-to-server confirmation handshake.
+
+On successful confirmation, ATAH updates the channel record's `last_verified` to the current timestamp and `verification_status` to `verified`. Until the professional confirms, `verification_status` is `verification_pending`.
+
+### 12A.2 Layer 2 — Escalation if verification fails
+
+If the confirmation deadline (default 14 days from challenge) elapses without confirmation, ATAH escalates:
+
+- **Partner-route professionals** — notify the partner organisation through the partner's notification channel (the partner data submission feedback channel, or webhook where configured).
+- **Individual self-registered** — escalate via other registered channels on the professional's record + an in-portal alert + alert via a connected AI assistant if MCP-connected.
+- **Both routes** — alert via the connected AI assistant if MCP-connected.
+
+`verification_status` flips to `escalation_pending`. The grace period before further escalation is 30 days from the original challenge (so 30 - 14 = 16 days after `escalation_pending` is set, in the v0.8.2 default windows).
+
+If escalation also fails within a further grace period of 30 days, `verification_status` flips to `unverified` and `matching_status` flips to `contact_unverified`. The professional stops appearing in Discovery results until re-verified — same pattern as `regulatory-suspended` or `admin-suspended`. The total time from initial challenge to `contact_unverified` flip is approximately 14 + 30 + 30 = 74 days.
+
+The 74-day window is acceptable because Layer 3 (§12A.3) catches stale contact data before any actual handoff for high-stakes categories.
+
+### 12A.3 Layer 3 — Pre-handoff freshness check (high-stakes categories only)
+
+For categories with a populated `pre_handoff_freshness_window_days` (v0.8.2 ships with 30 for high-stakes regulated categories), just before sending an introduction notification, ATAH checks whether the relevant channel's `last_verified` falls within the window. If yes, proceed normally. If no, ATAH:
+
+1. Issues a fresh verification challenge to the channel.
+2. Waits up to the pre-handoff verification timeout (default 24 hours).
+3. On timeout, defers the introduction back to the consumer's AI with status `professional_contact_unverified`. The consumer's AI surfaces the deferral and may choose another candidate or wait.
+
+This catches the scenario where a professional's `last_verified` is recent enough to keep their `matching_status: active` (within the Layer 1+2 windows) but the channel has gone stale since the last periodic verification. For high-stakes introductions (lawyers running conflict checks; healthcare professionals confirming scope), the 30-day pre-handoff window prevents introductions from being sent into a dead inbox.
+
+### 12A.4 Phishing-vector consideration
+
+The verification mechanism itself is a potential phishing surface. An attacker who can inject a challenge-shaped message into a professional's mailbox or SMS history could harvest confirmations.
+
+> **MUST.** Verification challenges MUST follow a documented anti-phishing format: a distinctive sender domain registered to the implementation; content-template enforcement (the message body conforms to a published canonical template); no embedded redirect URLs; the challenge token is single-use with a short TTL; the confirmation surface displays the professional's `atah_id` and the timestamp of the challenge for the professional to verify before confirming.
+
+v0.8.2 specifies the requirement; the standardised format itself (exact template, exact sender-domain constraints) is a v0.8.3 / v0.9 standardisation candidate. Until standardised, different implementations will create different conventions, which weakens user resistance to phishing — flag for v0.8.3 / v0.9.
+
+### 12A.5 Channel addressing — HMAC, not plaintext
+
+Per §11.8 (HMAC-not-plain-hash requirement), notification channel records on the professional identity schemas carry an HMAC of the destination address (`destination_reference` field), not the plaintext destination. The plaintext is held in the partner's or the implementation's own credential store. ATAH does not need the plaintext to verify freshness; it needs to verify that the partner / implementation can still reach the address (the verification challenge is dispatched through the partner's channel or the implementation's notification provider, both of which know the plaintext).
+
+This keeps consumer- and contact-reachable PII off the ATAH professional record while preserving the channel-identity continuity needed for verification-status tracking. Plain hashes of email or phone numbers are guessable; HMACs with a protected per-context audit key are not.
+
+### 12A.6 Migration from v0.8.1
+
+v0.8.1 records had no `notification_channels` array. v0.8.2 implementations migrate as follows:
+
+1. On first read of a v0.8.1 record, create the `notification_channels` array.
+2. Populate channel records from existing notification configuration data wherever it lives in the implementation (partner data, professional portal settings, etc.).
+3. For each migrated channel, set `last_verified: null` and `verification_status: not_yet_verified`.
+4. Run the first verification cycle. Channels successfully confirmed transition `not_yet_verified` → `verification_pending` → `verified`. Channels not confirmed within the deadline transition through the Layer 2 escalation path.
+
+v0.8.1 is unpublished, so no externally-deployed records require migration; the migration path above is documented for partner and reference-registry implementations that have v0.8.1-shaped data internally.
+
 ## 13. Security Model
 
 ### 13.1 Authentication Mechanisms by Actor
@@ -2116,6 +2195,7 @@ A separate `SECURITY.md` provides the full threat model, responsible disclosure 
 - Insider admin abuse
 - Handoff_id leakage (mitigated by tiered access per Section 11.5)
 - Component 3 proposal spam (new in v0.8.2 — mitigated by `looking_for_referral_partners` defaulting to false, per-period rate limits on proposals per proposer, and silent lapse with deletion of unresolved proposals)
+- Verification-challenge phishing (new in v0.8.2 with §12A — mitigated by the §12A.4 anti-phishing format requirement: distinctive sender domain, content-template enforcement, no embedded redirect URLs, single-use challenge tokens with short TTL, confirmation surface displays the professional's `atah_id` and challenge timestamp; the standardised format itself is a v0.8.3 / v0.9 standardisation candidate)
 
 **v0.8.2 closes two threat classes that v0.8.1 had to manage actively.** The removal of the professional-attestation-of-client-consent path (formerly "Type 3 Path 2") closes a class of consent-fraud risk: professionals can no longer assert client consent via attestation to obtain ATAH-mediated client contact-detail delivery. The professional-on-behalf-of-client case is served by Discovery alone (Component 1 with `request_intent: 'on_behalf_of_client'`); the referring professional handles delivery off-platform under their own consent capture. Separately, the removal of the `inbound_referral_signal` matching component (and its reciprocal-cap, time-decay, dense-cluster, and Sybil controls) closes a class of collusion / gaming risk: with no signal to game, the gaming incentive itself is removed.
 
@@ -2355,11 +2435,18 @@ When a professional claims a partner-created record, that claim must be authenti
 - **Transient vault** — the encrypted, time-limited store for consumer personal data passing through introductions
 - **Component 1 / Component 2 / Component 3** — the three architectural components of v0.8.2: Discovery (Component 1, the foundation), Consumer-self handoff (Component 2, available when `request_intent: 'self'`), and Referral connection-making (Component 3, professional-to-professional). Components 2 and 3 are optional layers on top of Component 1; v0.8.1's "Type 1 / Type 2 / Type 3" terminology is retired in v0.8.2 (no historical aliases retained — see CHANGELOG)
 - **Connection record** — an active mutual-connection record between two professionals, produced when a Component 3 referral proposal is accepted. Used by Discovery for de-duplication of `request_intent: 'referral_partner_search'` results only; does NOT feed matching as a competence or trust signal
+- **contact_unverified (matching status)** — terminal state in the §12A Layer 2 escalation path. After full grace period elapses without successful verification, the professional's `matching_status` flips to `contact_unverified` and they stop appearing in Discovery results until re-verified. Same exclusion treatment as `regulatory-suspended` or `admin-suspended`
+- **contact_verification_cadence** — per-category field on `profession-categories.json` declaring how often ATAH issues Layer 1 periodic verification challenges. Values: `quarterly`, `biannual`, `annual`, `none`. Default `annual` (§12A.1)
+- **Engagement liveness** — whether a professional with verified contact details actually responds to introductions (response-rate tracking, missed-Stage-1 patterns). Distinct from channel reachability (§12A); engagement liveness is **deferred to v0.8.3** in v0.8.2's scope. The gap is documented in §12A and is a known v0.8.2 limit
 - **De-duplication exclusion** — the rule that, while a Component 3 connection between two professionals is active, neither party appears in the other's `request_intent: 'referral_partner_search'` Discovery results
 - **flow_variant** — Component 2 sub-mode declared on `handoff-component2.schema.json`. One of `off_protocol`, `contact_share`, `full_lifecycle`. See §6.1
+- **last_verified** — per-channel timestamp on `notification_channels` array entries (per §12A) recording the last successful verification challenge confirmation. `null` permitted only for newly-added channels not yet through their first verification cycle (`verification_status: not_yet_verified`)
 - **looking_for_referral_partners** — boolean toggle on the professional record (default `false`) determining whether the professional is in the candidate pool for Component 3 referral-partner Discovery
+- **notification_channels** — array on the credentialled and established professional identity schemas (per F-15 / §12A) carrying the professional's notification channels with verification status. Drives Layer 1 periodic verification, Layer 2 escalation, and Layer 3 pre-handoff freshness check. Each channel record carries an HMAC of the destination address, not the plaintext, per §11.8
 - **Proposal lapse** — the silent transition of an unresolved Component 3 proposal to `lapsed` and deletion of the record after `expires_at`. No notification fired
+- **pre_handoff_freshness_window_days** — per-category field on `profession-categories.json` (optional, populated for high-stakes categories) declaring the recency window for the §12A Layer 3 pre-handoff freshness check. v0.8.2 ships with 30 for high-stakes categories
 - **request_intent** — required parameter on the Discovery query (one of `self`, `on_behalf_of_client`, `referral_partner_search`) that gates which next-step components are available. See §4.11
+- **verification_status** — per-channel field on `notification_channels` array entries (per §12A). Lifecycle: `not_yet_verified` → `verification_pending` (challenge issued) → `verified` (challenge confirmed) → `escalation_pending` (Layer 2 escalation triggered) → `unverified` (full grace period elapsed; matching_status flips to `contact_unverified`)
 - **VC / Verifiable Credential** — W3C Verifiable Credential. Accepted as a partner data submission format.
 - **Vetting strength** — characterisation of a partner's standards: `regulatory`, `strong_membership`, or `open_membership`. Affects matching weight.
 

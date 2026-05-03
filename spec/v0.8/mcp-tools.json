@@ -120,7 +120,7 @@
     },
     {
       "name": "initiate_introduction",
-      "description": "Component 2 — initiate a consumer-self handoff. Returns a handoff_id and a handoff_access_token that subsequent state-changing calls (submit_stage2_data, submit_stage3_data, cancel_introduction) MUST present. handoff_id alone is not a bearer token (spec §11.5). Available only when the originating Discovery query had request_intent: 'self'; ATAH validates this server-side and returns unauthorized otherwise. The required `flow_variant` selects the Component 2 flow (off_protocol, contact_share, full_lifecycle); see spec §6.1. Returns 409 Conflict if the consumer already has an active introduction to this professional.",
+      "description": "Component 2 — initiate a consumer-self handoff. Returns a handoff_id and a handoff_access_token that subsequent state-changing calls (submit_stage2_data, submit_stage3_data, cancel_introduction) MUST present. handoff_id alone is not a bearer token (spec §11.5). Available only when the originating Discovery query had request_intent: 'self'; ATAH validates this server-side and returns unauthorized otherwise. The required `flow_variant` selects the Component 2 flow (off_protocol, contact_share, full_lifecycle); see spec §6.1. Returns 409 Conflict if the consumer already has an active introduction to this professional. For high-stakes categories (per `pre_handoff_freshness_window_days` on `profession-categories.json`), a Layer 3 pre-handoff freshness check runs before sending the introduction notification; if the relevant channel hasn't been verified within the recency window, ATAH issues a fresh verification challenge and waits up to 24 hours. On timeout, returns the `professional_contact_unverified` deferred-back status so the consumer's AI can choose another candidate or wait. Per spec §12A.3.",
       "input_schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
@@ -211,6 +211,7 @@
         "professional_not_found",
         "category_compliance_pending",
         "conflict_active_introduction_exists",
+        "professional_contact_unverified",
         "validation_error",
         "unauthorized",
         "idempotency_key_required"
@@ -1209,6 +1210,85 @@
         "is_read_only": false,
         "transmits_personal_data": false,
         "requires_explicit_user_approval": false,
+        "state_change_scope": "professional_profile"
+      },
+      "permitted_authority_bases": [
+        "professional_delegated_token",
+        "firm_delegation"
+      ]
+    },
+    {
+      "name": "list_my_notification_channels_with_verification_status",
+      "description": "Component 12A — list the calling professional's notification channels with their verification status (last_verified timestamps, verification_status values). The professional's AI surfaces this so the professional can act on any pending challenges before Layer 2 escalation triggers a matching_status flip to contact_unverified. Returns the array shape from `NotificationChannel` $defs on `professional-identity-credentialled.schema.json` / `professional-identity-established.schema.json`. Per §11.8, `destination_reference` is HMAC of the destination, not plaintext.",
+      "input_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "channels": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "description": "Mirrors the NotificationChannel $defs on the professional identity schemas."
+            }
+          }
+        },
+        "required": ["channels"],
+        "additionalProperties": false
+      },
+      "error_codes": ["unauthorized"],
+      "safety_metadata": {
+        "is_read_only": true,
+        "transmits_personal_data": false,
+        "requires_explicit_user_approval": false,
+        "state_change_scope": "none"
+      },
+      "permitted_authority_bases": [
+        "professional_delegated_token",
+        "firm_delegation"
+      ]
+    },
+    {
+      "name": "confirm_notification_channel_verification",
+      "description": "Component 12A — confirm a verification challenge previously issued for a notification channel (Layer 1 periodic verification or Layer 3 pre-handoff freshness check). On successful confirmation, the channel's `last_verified` is updated to the current timestamp and `verification_status` flips to `verified`. Useful for MCP-push challenges where the professional's AI assistant acknowledges on behalf of the professional, and for any other channel where the AI flow can mediate the confirmation. Per spec §12A.4 anti-phishing controls, the confirmation surface displays the professional's atah_id and the challenge timestamp for verification before the AI confirms; the AI MUST surface this to the professional rather than auto-confirming silently.",
+      "input_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "channel_id": { "type": "string", "minLength": 1 },
+          "challenge_token": { "type": "string", "minLength": 1 }
+        },
+        "required": ["channel_id", "challenge_token"],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "channel_id": { "type": "string", "minLength": 1 },
+          "verification_status": { "type": "string", "const": "verified" },
+          "last_verified": { "type": "string", "format": "date-time" },
+          "audit_event_id": { "type": "string", "minLength": 1 }
+        },
+        "required": ["channel_id", "verification_status", "last_verified", "audit_event_id"],
+        "additionalProperties": false
+      },
+      "error_codes": [
+        "challenge_token_invalid",
+        "challenge_token_expired",
+        "channel_not_found",
+        "validation_error",
+        "unauthorized"
+      ],
+      "safety_metadata": {
+        "is_read_only": false,
+        "transmits_personal_data": false,
+        "requires_explicit_user_approval": true,
         "state_change_scope": "professional_profile"
       },
       "permitted_authority_bases": [

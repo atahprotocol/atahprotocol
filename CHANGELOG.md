@@ -43,6 +43,26 @@ v0.8.2 absorbs three rounds of post-v0.8.1 review work: GKC-COMMENTS-01 (archite
 - `inbound_referral_signal` from the matching engine and from `profession-category.matching_weight_profile`.
 - `shortlist_size` from `query.schema.json` (replaced by `limit`).
 
+### Contact-detail freshness mechanism (Phase 7)
+
+Implements `GKC-COMMENTS-02` in full as a three-layer mechanism. Spec §12A documents the design.
+
+- **Layer 1 — periodic channel verification** with category-tiered cadence: `quarterly` for high-stakes regulated categories (credentialled tier with mandatory body membership); `biannual` for mid-stakes regulated; `annual` for established practitioners; `annual` as the protocol-level default. Cadence stored on `profession-categories.json` `contact_verification_cadence` (per-category configurable).
+- **Layer 2 — escalation if verification fails.** Confirmation deadline 14 days; grace before escalation a further 30 days; grace before `matching_status` flips to `contact_unverified` a further 30 days. Total 74 days from initial challenge. Partner-route professionals are notified through their partner organisation; individuals self-registered are escalated via other registered channels + in-portal alert + connected AI assistant alert.
+- **Layer 3 — pre-handoff freshness check (high-stakes categories only).** Per-category `pre_handoff_freshness_window_days` (30 days for high-stakes in v0.8.2). Before sending the introduction notification, if the relevant channel hasn't been verified within the window, ATAH issues a fresh verification challenge and waits up to 24 hours. On timeout, the introduction is deferred back to the consumer's AI with status `professional_contact_unverified`.
+
+Per F-15, both professional identity schemas (credentialled and established) gain a new top-level `notification_channels` array. Each channel record carries `channel_id`, `channel_type` (enum: `email`, `phone_voice`, `phone_sms`, `mcp_push`, `webhook`), `destination_reference` (HMAC of the destination per §11.8 — NOT plaintext), `delivery_purpose`, `is_primary`, `last_verified` (nullable for not-yet-verified), `verification_status` (lifecycle: `not_yet_verified` → `verification_pending` → `verified` → `escalation_pending` → `unverified`), and `created_at`. Channels are stored on the professional record itself (not in a separate operational schema) per the v3.1.1 locked decision.
+
+`matching_status` enum on both professional identity schemas adds `contact_unverified`. `audit-event.schema.json` `event_type` enum adds `channel_verification_challenged`, `channel_verification_confirmed`, `channel_verification_escalated`, `channel_marked_unverified`, `matching_status_flipped_to_contact_unverified`, `matching_status_restored_from_contact_unverified`.
+
+New OpenAPI endpoints: `GET /v1/professionals/me/notification-channels`, `POST /v1/professionals/me/notification-channels/{channel_id}/verify`, `GET /v1/admin/partners/{partner_id}/professionals/verification-status`. New MCP tools: `list_my_notification_channels_with_verification_status`, `confirm_notification_channel_verification`. `initiate_introduction` documents the new `professional_contact_unverified` deferred-back status and adds the corresponding error code.
+
+Per spec §12A.4, verification challenges follow a documented anti-phishing format (distinctive sender domain, content-template enforcement, no embedded redirect URLs, single-use tokens with short TTL, confirmation surface displays the professional's `atah_id` and challenge timestamp). The standardised format itself is a v0.8.3 / v0.9 standardisation candidate.
+
+**Migration note.** v0.8.1 records have no `notification_channels` array. v0.8.2 implementations migrate on first read: create the array, populate channel records from existing notification configuration data, set `last_verified: null` and `verification_status: not_yet_verified` on migrated channels. The first verification cycle then transitions them through `verification_pending` to `verified`. v0.8.1 is unpublished, so no externally-deployed records require migration; the path is documented for partner and reference-registry implementations with v0.8.1-shaped internal data.
+
+**Engagement liveness deferred to v0.8.3.** v0.8.2 verifies channel reachability. It does not verify that a professional with verified contact details actually responds to introductions. Response-rate tracking, missed-Stage-1 patterns, and engagement-liveness review remain v0.8.3 work — listed in the ROADMAP "v0.8.3 candidates" section.
+
 ### Transparency-as-conformance and decision-explanation (Phase 6)
 
 Per Paolo's F1.8 / F1.9, transparency becomes a top-level conformance requirement. v0.8.2 adds a fifth conformance class (Transparency Class) alongside Core Object, Binding, Registry, and Governance. Spec §11A carries Paolo's MUST verbatim:

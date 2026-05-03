@@ -229,6 +229,20 @@ Professionals can see why they appeared or did not appear in candidate searches 
 
 Privacy, security, and anti-gaming reasons may justify withholding details from a specific explanation. Withholding is permitted only for one of those three reasons and the reason something happened MUST still be explainable at category level. The withholding basis itself is recorded on the explanation; it's not a general escape hatch.
 
+## Contact-detail freshness — verified including we can actually reach them
+
+ATAH says "verified candidates"; users will reasonably interpret that as "verified including we can actually reach them". The contact-detail freshness mechanism keeps that interpretation true through three layers.
+
+**Layer 1 — periodic verification.** Every channel on the professional's record (email, phone, MCP push, webhook) carries a `last_verified` timestamp and `verification_status`. ATAH issues periodic challenges on a per-category cadence — quarterly for high-stakes regulated categories (lawyers, physicians, financial advisors, insurance agents); annual for established practitioners; biannual for mid-stakes regulated. Confirmation flips the status to `verified` and refreshes the timestamp.
+
+**Layer 2 — escalation if verification fails.** Missed challenge windows escalate: partner-route professionals get notified through their partner organisation; individuals self-registered get notifications across other channels and an in-portal alert; both routes get an alert via their connected AI assistant if MCP-connected. After the full grace period (about 74 days from initial challenge in the v0.8.2 defaults), `matching_status` flips to `contact_unverified` and the professional stops appearing in Discovery results until re-verified.
+
+**Layer 3 — pre-handoff freshness check (high-stakes only).** Just before sending an introduction notification for a high-stakes category, ATAH checks whether the relevant channel was verified within the last 30 days. If not, it issues a fresh challenge and waits up to 24 hours. On timeout, the introduction is deferred back to the consumer's AI with status `professional_contact_unverified` — the consumer can choose another candidate or wait. This catches the scenario where a professional's recent verification keeps them in `matching_status: active` but a specific channel has gone stale since.
+
+The verification mechanism itself is a potential phishing target. v0.8.2 specifies anti-phishing controls (distinctive sender domain, content-template enforcement, no embedded redirect URLs, single-use challenge tokens, the confirmation surface displays the professional's `atah_id` and challenge timestamp). The standardised format itself is a v0.8.3 / v0.9 standardisation candidate.
+
+**One honest gap.** The freshness mechanism verifies channels are reachable. It does not verify that a professional with verified contact details actually responds to introductions. A professional could have a perfectly verified email and ignore every notification. Engagement liveness — response-rate tracking, missed-Stage-1 patterns — is a separate problem **deferred to v0.8.3**. v0.8.2 doesn't pretend it has solved this; the gap is documented and listed in the v0.8.3 candidates section of the ROADMAP.
+
 ## Two categories of professional
 
 ATAH serves two distinct categories of professional, through identical infrastructure.

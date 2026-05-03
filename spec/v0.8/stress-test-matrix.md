@@ -463,21 +463,21 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 
 - **Scenario.** A verified, eligible professional's recorded contact channels (email, phone, notification endpoint) point to addresses that are no longer monitored or owned.
 - **Abuse / failure mode.** Notifications go unreceived; consumer expects a live route, professional misses opportunity, ATAH appears to recommend a non-reachable contact.
-- **Expected protocol behaviour.** _To be filled in during Phase 7._
-- **Required audit events.** _To be filled in during Phase 7._
-- **Required user / professional disclosure.** _To be filled in during Phase 7._
-- **Required conformance test.** _To be filled in during Phase 7._
-- **Status.** `skeleton`
+- **Expected protocol behaviour.** Per spec §12A.1 (Layer 1 periodic verification), every channel on the professional record carries `last_verified` and `verification_status`. Verification challenges are issued on a per-category cadence (`quarterly` / `biannual` / `annual` / `none`) per `profession-categories.json` `contact_verification_cadence`. Missed challenges escalate per §12A.2; after the full grace period (~74 days), `matching_status` flips to `contact_unverified` and the professional stops appearing in Discovery results until re-verified.
+- **Required audit events.** `channel_verification_challenged` (challenge issued), `channel_verification_confirmed` (challenge confirmed), `channel_verification_escalated` (Layer 2 escalation triggered), `channel_marked_unverified` (full grace period elapsed), `matching_status_flipped_to_contact_unverified`.
+- **Required user / professional disclosure.** Professional's portal surfaces channel verification status; partner-route professionals receive Layer 2 escalation through their partner organisation; individual self-registered receive escalation across other registered channels and an in-portal alert.
+- **Required conformance test.** Conformance suite simulates a missed verification cycle; verifies the lifecycle `verified` → `verification_pending` → `escalation_pending` → `unverified` and the corresponding `matching_status` transitions; verifies the audit event sequence.
+- **Status: `resolved`** by §12A.1 Layer 1 periodic verification + §12A.2 Layer 2 escalation path.
 
 ### 7.2 Notification goes to an abandoned channel
 
 - **Scenario.** A handoff notification is dispatched to a channel whose underlying account / address has been abandoned by the recipient; delivery succeeds at the transport layer but no human ever sees it.
 - **Abuse / failure mode.** Silent delivery failure; no surfacing of the staleness condition until the consumer's wait time has elapsed.
-- **Expected protocol behaviour.** _To be filled in during Phase 7._
-- **Required audit events.** _To be filled in during Phase 7._
-- **Required user / professional disclosure.** _To be filled in during Phase 7._
-- **Required conformance test.** _To be filled in during Phase 7._
-- **Status.** `skeleton`
+- **Expected protocol behaviour.** Per §12A.1 Layer 1, the periodic verification cadence detects the abandoned channel before the next handoff (channel won't confirm; status flips through `verification_pending` → `escalation_pending` → `unverified`). Per §12A.3 Layer 3, for high-stakes categories a fresh verification challenge runs just before the introduction notification; if the challenge times out within 24 hours, the introduction is deferred back to the consumer's AI with status `professional_contact_unverified` rather than dispatching to the abandoned channel silently.
+- **Required audit events.** `channel_verification_challenged` and the eventual lifecycle events; for Layer 3 timeouts, the audit event records the deferred-back outcome with the principal-delegation context.
+- **Required user / professional disclosure.** Consumer's AI surfaces the deferred-back status to the consumer with a meaningful message; the professional's portal flags the failed verification.
+- **Required conformance test.** Conformance suite issues a challenge to a non-responsive channel and verifies (a) Layer 1 lifecycle transitions occur on schedule; (b) for high-stakes categories with `pre_handoff_freshness_window_days` populated, an introduction attempt within the window for a stale channel triggers the Layer 3 challenge and returns `professional_contact_unverified` on timeout.
+- **Status: `resolved`** by §12A.1 Layer 1 + §12A.3 Layer 3.
 
 ### 7.3 Professional repeatedly misses Stage 1 response commitments
 
@@ -493,11 +493,11 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 
 - **Scenario.** Profile metadata (last activity, recent updates) suggests the professional is active, but the verified contact channels are not currently functioning (mailbox full, number disconnected, integration broken).
 - **Abuse / failure mode.** Profile-level "active" signal diverges from channel-level "reachable" signal; the latter is what the consumer experiences.
-- **Expected protocol behaviour.** _To be filled in during Phase 7._
-- **Required audit events.** _To be filled in during Phase 7._
-- **Required user / professional disclosure.** _To be filled in during Phase 7._
-- **Required conformance test.** _To be filled in during Phase 7._
-- **Status.** `skeleton`
+- **Expected protocol behaviour.** Per §12A.3 Layer 3 pre-handoff freshness check, for high-stakes categories ATAH issues a fresh verification challenge before sending the introduction notification when the relevant channel hasn't been verified within `pre_handoff_freshness_window_days` (30 days in v0.8.2). On timeout (24 hours) the introduction is deferred back to the consumer's AI with `professional_contact_unverified` status. This catches the divergence between profile-level "active" and channel-level "reachable" — the professional may have an active profile and recent activity, but the channel-level check fails just-in-time.
+- **Required audit events.** `channel_verification_challenged` for the Layer 3 challenge; on timeout, the introduction-initiated audit event records the deferred-back outcome with the principal-delegation context.
+- **Required user / professional disclosure.** Consumer's AI surfaces the deferred-back status; the professional's portal shows the failed Layer 3 challenge and prompts re-verification.
+- **Required conformance test.** Conformance suite simulates a high-stakes-category introduction attempt where the channel was last verified outside the `pre_handoff_freshness_window_days` window; verifies Layer 3 challenge is issued; verifies on timeout the introduction returns `professional_contact_unverified`.
+- **Status: `resolved`** by §12A.3 Layer 3 pre-handoff freshness check for high-stakes categories.
 
 ---
 
@@ -747,5 +747,18 @@ New scenarios discovered during Phase 6 work (added to Cat 4 above):
 - **4.9 (low-volume category leakage of inferred query patterns)** → **`resolved`** by F-18 rules-derived approach + structural absence of query-count fields in the visibility-explanation response schema.
 
 **Status distribution after Phase 6:** 14 × `skeleton`, 26 × `resolved` (1.1, 1.3, 2.1, 2.2, 2.4, 2.5, 2.6, 2.7, 3.1, 3.2, 3.3, 3.5, 4.1, 4.2, 4.3, 4.5, 4.6, 4.8, 4.9, 5.1, 5.3, 5.4, 6.2, 6.3, 6.4, 6.5), 4 × `bounded-by-protocol` (1.2, 2.3, 4.7, 5.2), 1 × `allocated-to-platform-responsibility` (3.4), 6 × `partially-resolved` (1.4, 1.5, 1.6, 3.6, 4.4, 6.1), 1 × `deferred` (7.3). Total: **53 scenarios** (48 prior + 5 new in Phase 6).
+
+## Phase 7 update
+
+Contact-detail freshness mechanism (`GKC-COMMENTS-02` in full + F-15 `notification_channels` array) ships in Phase 7. Engagement liveness explicitly deferred to v0.8.3. Status changes:
+
+- **7.1 (licensed professional has stale email or phone)** → **`resolved`** by §12A.1 Layer 1 periodic verification + §12A.2 Layer 2 escalation path (with `matching_status: contact_unverified` flip after full grace period).
+- **7.2 (notification goes to an abandoned channel)** → **`resolved`** by §12A.1 Layer 1 detection + §12A.3 Layer 3 pre-handoff freshness check (high-stakes deferred-back status).
+- **7.3 (professional repeatedly misses Stage 1 response commitments)** → **`deferred`** (`deferred-to-v0.8.3` — engagement liveness, response-rate tracking). Status unchanged from Phase 0A `deferred` setting; v0.8.2 explicitly does not close this gap. ROADMAP "v0.8.3 candidates" section lists it as one of the three named v0.8.3 deferrals (alongside the professional-facing visibility endpoint implementation and Component 3 dense-cluster pattern detection).
+- **7.4 (professional appears active but is not reachable)** → **`resolved`** by §12A.3 Layer 3 pre-handoff freshness check for high-stakes categories.
+
+New scenarios discovered during Phase 7 work: none.
+
+**Status distribution after Phase 7:** 11 × `skeleton`, 29 × `resolved` (1.1, 1.3, 2.1, 2.2, 2.4, 2.5, 2.6, 2.7, 3.1, 3.2, 3.3, 3.5, 4.1, 4.2, 4.3, 4.5, 4.6, 4.8, 4.9, 5.1, 5.3, 5.4, 6.2, 6.3, 6.4, 6.5, 7.1, 7.2, 7.4), 4 × `bounded-by-protocol` (1.2, 2.3, 4.7, 5.2), 1 × `allocated-to-platform-responsibility` (3.4), 6 × `partially-resolved` (1.4, 1.5, 1.6, 3.6, 4.4, 6.1), 1 × `deferred` (7.3). Total: **53 scenarios** (no new scenarios in Phase 7; three scenarios moved from `skeleton` to `resolved`).
 
 Phase 11 finalises the matrix as the verification artifact for v0.8.2 publication.
