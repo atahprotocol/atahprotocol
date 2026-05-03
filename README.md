@@ -184,7 +184,13 @@ The full commitments are set out in [CHARTER.md](CHARTER.md).
 
 ATAH v0.8.1 was conceived, architected, and led by Grahame Cohen. The protocol architecture, governance commitments, commercial-neutrality model, privacy architecture, and strategic framing reflect his decisions throughout the design and review process. AI tools were used as drafting, stress-testing, editorial, and schema-generation assistants — Claude (Anthropic) for specification drafting and stress-testing, ChatGPT (OpenAI) for cross-AI editorial and strategic review, and Claude Code for mechanical production of the JSON Schemas, OpenAPI contract, MCP tool definitions, and supporting markdown. Final structural decisions, trade-offs, and publication responsibility remain human-led.
 
-Architectural Decision Records ([docs/decisions/](docs/decisions/)) document the major design choices and the alternatives considered. Peer review contributions will be acknowledged in the CHANGELOG as they arrive.
+Architectural Decision Records ([docs/decisions/](docs/decisions/)) document the major design choices and the alternatives considered.
+
+v0.8.2 incorporates substantial peer review from Paolo Piponi, whose findings shaped the principal/delegation model, the three-concept separation of payload erasure / audit retention / withdrawal-as-state-transition, three consent types with engagement consent excluded by design, stratified randomisation as the default ordering policy, transparency-as-conformance, and the stress-test matrix discipline.
+
+Thanks also to Matthew Kogan for review and feedback on v0.8.1.
+
+The protocol benefits from their work; remaining errors are mine.
 
 ## Licence
 

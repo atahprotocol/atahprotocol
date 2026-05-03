@@ -143,6 +143,34 @@
       "authority_basis": "system_role",
       "audit_event_id": "evt-01HQXRP9M0NOPQRSTUVWXYZ123",
       "withholding_basis": "personal_data_protection"
+    },
+    {
+      "decision_type": "handoff",
+      "rules_applied": [
+        "consent_receipt_continuity_verified",
+        "matching_status_active",
+        "compliance_status_active",
+        "contact_verified"
+      ],
+      "ordering_policy": {
+        "mode": "not_applicable",
+        "commercial_weighting": false
+      },
+      "authority_basis": "user_session",
+      "audit_event_id": "evt-01HQXRPAN1OPQRSTUVWXYZ1234"
+    },
+    {
+      "decision_type": "data_sharing",
+      "rules_applied": [
+        "consent_receipt_continuity_verified",
+        "step_up_authentication_completed"
+      ],
+      "ordering_policy": {
+        "mode": "not_applicable",
+        "commercial_weighting": false
+      },
+      "authority_basis": "handoff_access_token",
+      "audit_event_id": "evt-01HQXRPBO2OPQRSTUVWXYZ12345"
     }
   ]
 }

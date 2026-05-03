@@ -37,11 +37,45 @@ v0.8.2 absorbs three rounds of post-v0.8.1 review work: GKC-COMMENTS-01 (archite
 - **Stress-test matrix skeleton.** New `spec/v0.8/stress-test-matrix.md` with 10 categories, 41 seed scenarios, F-17 status vocabulary (`skeleton` / `resolved` / `bounded-by-protocol` / `allocated-to-platform-responsibility` / `partially-resolved` / `deferred`), and per-phase update discipline.
 - **Spectral ruleset.** New `.spectral.yaml` extending `spectral:oas` so per-phase OpenAPI lint is a uniform invocation.
 
+### Fixed
+
+- **F1.4 (Spectral example validation defect).** `MatchResponseExample` was missing required `decision_explanation` fields at both response and per-candidate level (Phase 6 made these required but the OpenAPI example was never updated). Phase 9 retro audit caught and fixed; ajv now validates the example. The Spectral resolver tooling-layer issue (cross-schema `$ref` duplicate-`$id`) is honestly deferred to v0.8.3 — see Deferred below.
+- **F1.6 (anonymous response shapes missing `additionalProperties`).** Phase 9 retro audit found 3 inline object schemas in `openapi.yaml` missing explicit `additionalProperties`. Fixed: `/v1/auth/token` form-urlencoded request body (intentional `true` per RFC 6749), `/v1/professionals/me/verify-document` multipart request (`false`), `/v1/professionals/me/notification-channels` GET response items (inline-mirrored shape with `false` plus full property set).
+- **F1.8 (`AuthorityBasis` enum inline-duplicated).** Phase 9 retro audit found the seven-value `authority_basis` enum lived identically in both `principal-delegation.schema.json#/$defs/AuthorityContext.authority_basis` and `decision-explanation.schema.json` `authority_basis`. Extracted to `principal-delegation.schema.json#/$defs/AuthorityBasis` as single source of truth.
+- **F1.9 (identifier regex inconsistency).** §4.1 identifier regex corrected from `^[a-z]{2,8}-[a-z0-9-]{6,64}$` to `^[a-z]{2,8}-[A-Za-z0-9-]{6,64}$` to match every `pattern` declaration on identifier fields across the schema set.
+- **F1.10 (schema reference surface ambiguity).** New §17 paragraph distinguishing OpenAPI-exposed schemas from internal-only data shapes reachable via `$ref` chains. `decision-explanation.schema.json` added to §17 file inventory (was omitted from Phase 6 list).
+- **`acknowledged_rollup_terms` conditional-required.** Both professional-identity schemas add `allOf` `if/then` enforcing `acknowledged_rollup_terms: true` when `registration_route: individual`. Closes the prose-only gap that previously left registration bodies to drift.
+- **`GET /v1/consent-requirements` REST endpoint added.** REST counterpart to the MCP `get_consent_requirements` tool. Closes the MCP-vs-OpenAPI surface gap noted in the Phase 7 schema-delta report.
+- **§20 conformance ground rule expanded.** "Compliance-pending professionals must be excluded" replaced with the full §9.1-step-1 list (eight `matching_status` exclusions verbatim).
+- **§5.6 dispute-flow cross-reference fixed.** "Section 7" → "§5.9 + §7.5/§7.8".
+- **`commercial-neutrality-memo.md` stale references corrected.** Phase 9 retro fix: "four conformance classes" → "five conformance classes" (Phase 6 added Transparency Class but memo was missed). Phase 10 fix: stale `inbound_referral_signal` v0.8.1 architecture reference replaced with v0.8.2 hard-filters-then-stratified-randomisation. Phase 12 cascade fix: PRD §4 "Neutral by design" guiding principle no longer lists `inbound_referral_signal` as a matching factor.
+
+### Deprecated
+
+- **Type 1 / Type 2 / Type 3 introduction-lifecycle terminology.** Retired entirely in v0.8.2 in favour of the three-component model (Component 1 Discovery; Component 2 Consumer-self handoff; Component 3 Referral connection-making). No historical aliases are retained — the rename is comprehensive across spec, schemas, OpenAPI, MCP tools, and documentation. Pre-v0.8.2 implementations must adopt the new terminology to claim conformance.
+- **Weighted-score matching architecture.** The v0.8.1 fields `match_score`, `match_factors`, `presentation_disclosure.ranking_basis`, and `inbound_referral_signal` are retired. v0.8.2's matching engine uses hard filters → transparent bands → within-band randomisation under a documented fairness policy.
+- **`matching_weight_profile` and `review_signal_weight_cap` fields on `profession-category.schema.json`.** Replaced by `band_definitions` and `review_signal_band_cap` respectively.
+
 ### Removed
 
-- The professional-attestation-of-client-consent path. The associated v0.8.1 ROADMAP item proposing `consumer` in `actor_type` is closed as superseded.
+- The professional-attestation-of-client-consent path. The associated v0.8.1 ROADMAP item proposing `consumer` in `actor_type` is closed as superseded by the principal/delegation model (per F-16). Component 3 actions are governed by professional delegated authority recorded via `principal-delegation.schema.json`.
 - `inbound_referral_signal` from the matching engine and from `profession-category.matching_weight_profile`.
-- `shortlist_size` from `query.schema.json` (replaced by `limit`).
+- `shortlist_size` from `query.schema.json` (replaced by required `limit` 1–100).
+- `match_score`, `match_factors`, `presentation_disclosure.ranking_basis` from `match-response.schema.json` (Phase 5; F-14).
+- `handoff-type1.schema.json`, `handoff-type2.schema.json`, `handoff-type3.schema.json` from the schema directory (Phase 2 — handoff-type1 renamed to handoff-component2; handoff-type2 superseded by referral-proposal; handoff-type3 deleted as the path is collapsed into Component 1).
+
+### Deferred
+
+- **Engagement liveness (response-rate tracking).** Stress-test scenario 7.3 — `deferred-to-v0.8.3`. v0.8.2 verifies channels are reachable via the Phase 7 three-layer freshness mechanism; whether a professional with verified contact details actually responds to introductions is response-rate tracking work, separate from channel-validity verification.
+- **F1.4 Spectral resolver tooling-layer issue.** The substantive defect (missing example fields) is resolved at v0.8.2; the Spectral cross-schema-`$ref` resolver quirk on `MatchResponseExample` is a known tooling-layer issue (`oas3-valid-media-example` reports "resolves to more than one schema"). v0.8.3 will refactor the example or move to a Spectral release that handles cross-schema `$ref`s cleanly. `.spectral.yaml` downgrades the rule from `error` to `warn` as the deferral mechanism. Master plan validation criterion (zero `oas3-valid-media-example` errors at Phase 9) is honestly missed-by-deferral, not closure-via-downgrade.
+- **F1.7 OpenAPI operation-description stubs.** 49 internal endpoints (Professional / Partner / Verifier / Admin) carry summary-only stubs. Descriptions are best written with implementation experience to draw on; v0.8.2 already adds substantial new surface. `.spectral.yaml` disables `operation-description` per master plan §11 Phase 9 authorisation. Deferred to v0.8.3.
+- **Component 3 dense-cluster pattern detection.** Stress-test scenario 1.6 — `deferred-to-v0.8.3`. Phase 2 closes the structural side via toggle gating + rate limits + audit recording; harassment-monitoring (dense-cluster pattern detection) is v0.8.3 work.
+- **Withdrawal-cycle harassment monitoring.** Stress-test scenario 6.1 — `deferred-to-v0.8.3`. Phase 3 closes the structural side via withdrawal-as-state-transition + audit retention. Concrete rate-limit thresholds and dense-cluster pattern detection on cancel/withdraw cycles are v0.8.3 work.
+- **Anti-phishing format for verification challenges.** Phase 7 §12A.4 documents the requirement (distinctive sender domain, content-template enforcement, no embedded redirect URLs, single-use tokens with short TTL, confirmation surface displays `atah_id` + challenge timestamp). The standardised format is `deferred-to-v0.8.3 / v0.9`.
+- **Professional-facing transparency endpoint implementation.** Spec §11A.4 fully defines the rules-derived behaviour, required fields, authority controls, audit linkage, and F-18 MUST NOT rule. Implementations MAY declare `x-implementation-deferred-to: v0.8.3` and return 501 in v0.8.2; the obligation itself is part of v0.8.2.
+- **Behavioural-neutrality / conformance-audit operational regime.** Phase 10A introduces the three-level conformance-status distinction (protocol-compatible / ATAH-conformant / ATAH-recognised neutral implementation) per F3.3. v0.8.2 ships the framing; v0.9 operationalises the verification regime — public ordering-policy metadata, decision-explanation discipline tests, commercial-neutrality attestation, auditability of matching/banding behaviour, public partner and verifier scope registry, disclosed conflict-of-interest policies, revocable conformance mark issuance and revocation procedure, right of ATAH governance to publicly contest misleading claims.
+- **Federation mechanics.** Stress-test scenario 10.4 — `deferred-to-v1.0`. v0.8.2 architecture is federation-ready (atah_id namespaces reserved; no part of the data model assumes single-registry operation); cross-registry trust mechanics are v0.9 / v1.0 work.
+- **`presentation_disclosure.verification_tier` field.** Phase 10 F2.8 contemplated a dedicated field for consumer-facing rendering of credentialled-vs-established status. v0.8.2 carries the structural distinction through `professional_tier` plus the Phase 6 Transparency Class; v0.9 reviews whether a dedicated field is needed.
 
 ### Stress-test matrix completion (Phase 11)
 
@@ -312,6 +346,10 @@ Refactored §11 around the three-concept separation of payload erasure, audit re
 New OpenAPI / MCP: `POST /v1/professionals/me/withdraw` (and `withdraw_from_matching` MCP tool) for Component 2 withdrawal scenario 5 (professional withdrawal from matching), with mandatory step-up authentication. `/v1/introductions/{handoff_id}/cancel` and `/revoke-consent` descriptions updated to map to Paolo's withdrawal scenarios 1, 2, and 3.
 
 ADR 0010 records the three-concept separation decision and acknowledges Paolo Piponi's peer review as the source.
+
+### Reviewers
+
+Paolo Piponi (substantive peer review shaping principal/delegation, erasure/audit/withdrawal separation, consent boundaries, ordering, transparency, and stress-test discipline). Matthew Kogan (review and feedback on v0.8.1).
 
 ---
 
