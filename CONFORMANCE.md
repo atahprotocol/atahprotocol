@@ -68,6 +68,8 @@ The documentation distinguishes three levels:
 
 This finding does not weaken Apache 2.0 openness. The goal is not to stop forks. The goal is to protect the meaning of official ATAH conformance and neutrality claims.
 
+**A note on the term "ATAH-conformant".** The phrase "ATAH-conformant" appears in two senses across the documentation. In documents predating v0.8.2 (and in pre-Phase-10A passages where `ATAH-conformant registry` reads as a generic descriptor), it means *"an implementation that conforms to ATAH"* — synonymous with "an ATAH implementation". From v0.8.2 onward, **ATAH-conformant** also names the **middle of the three conformance-status levels above** (between `protocol-compatible` and `ATAH-recognised neutral implementation`). Where context matters, prefer the longer phrasing: "an implementation conforming to ATAH" (generic) versus "the ATAH-conformant level" (the specific Phase 10A level). The naming overlap reflects that the middle-level name was chosen to align with the existing generic descriptor; v0.9 may refine the names per the provisional-naming flag above. The two-axes lock (governance layers vs conformance status) is preserved regardless of the naming refinement.
+
 ## Reference Registry Scope
 
 The initial ATAH reference registry is expected to conform to all five classes. Future implementations may declare narrower conformance — for example, a profile-only implementation that supports core object and binding conformance but does not run the introduction lifecycle.

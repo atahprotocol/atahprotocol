@@ -48,7 +48,7 @@
             "jurisdiction",
             "not_applicable"
           ],
-          "description": "Mirrors the eight Phase 5 ordering modes plus `not_applicable` for non-ordering decision types."
+          "description": "Mirrors the nine Phase 5 ordering modes plus `not_applicable` for non-ordering decision types."
         },
         "commercial_weighting": { "type": "boolean", "const": false }
       },
