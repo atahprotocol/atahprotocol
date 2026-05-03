@@ -43,6 +43,38 @@ v0.8.2 absorbs three rounds of post-v0.8.1 review work: GKC-COMMENTS-01 (archite
 - `inbound_referral_signal` from the matching engine and from `profession-category.matching_weight_profile`.
 - `shortlist_size` from `query.schema.json` (replaced by `limit`).
 
+### Charter and governance updates (Phase 8)
+
+Strengthens Charter Core Commitment 8 with Paolo Piponi's verbatim normative rule on protocol-vs-implementation governance (per F1.6):
+
+> ATAH protocol governance MUST be held by an independent not-for-profit or equivalent public-interest entity. Conforming implementations MAY be operated by commercial, public, professional-body, or not-for-profit entities, provided they satisfy conformance, transparency, neutrality, audit, and conflict-of-interest requirements.
+
+The Charter now expresses a deliberate three-layer governance distinction:
+
+- **Protocol governance body** — independent not-for-profit or equivalent public-interest entity. Form is mandated.
+- **Reference registry operator** — not-for-profit, public-benefit, community-interest company, foundation-owned subsidiary, or commercial under strict constraints (enforceable neutrality, public fee schedules, auditability, data-use limits, structural separation). Form is constrained, not mandated.
+- **Third-party conforming implementations** — commercial, public-sector, professional-body, or not-for-profit. Form is unconstrained; conformance requirements (the five conformance classes — Core Object, Binding, Registry, Governance, Transparency) are uniform.
+
+Mirrored in spec §1.5 (Three layers of conforming implementations + new "Three governance layers" subsection), `CONFORMANCE.md` (new "Three governance layers" section), `GOVERNANCE.md` §1.1 (new), `EXPLAINER.md` (Governance section expanded), and `PRD-v0_8.md` §12 (new "Three governance layers" subsection).
+
+Per Paolo's F1.7, Charter Part Two adds a **hard-artifacts list** — the trust floor lives in concrete published artifacts, not committee discretion. Eleven items enumerated, each cross-referenced to the existing artifact (where applicable) or noted as v0.9 work (where applicable):
+
+- Field-level verification scopes per partner — existing (`verification-scope.schema.json`)
+- Partner class admission criteria — v0.9
+- Review-platform minimum criteria — existing (`review-platform.schema.json`)
+- Verifier conflict and audit rules — partial; v0.9 fuller specification
+- Category annex templates — existing process; v0.9 canonical template
+- Mandatory audit events — existing (`audit-event.schema.json` extended in Phases 1, 3, 4, 6, 7)
+- Professional appeal state machines — partial (`dispute-record.schema.json`); v0.9 fuller specification
+- Public governance-decision register — v0.9 operational
+- Public registry of approved partners with scopes and freshness commitments — partial; v0.9 publication channel
+- Public conformance tests — Phase 6's `CONFORMANCE.md` defines them; v0.9 executable test suite
+- Revocable conformance mark — existing concept; v0.9 revocation mechanism
+
+ROADMAP closes the v0.8.1 "consumer actor_type in audit-event schema" item explicitly as superseded by the v0.8.2 principal/delegation model (per F-16). The closure is explicit so the item doesn't drift back into v0.9 candidates.
+
+No ADR for Phase 8 per master plan (Charter strengthening of existing commitments rather than a new architectural decision).
+
 ### Contact-detail freshness mechanism (Phase 7)
 
 Implements `GKC-COMMENTS-02` in full as a three-layer mechanism. Spec §12A documents the design.

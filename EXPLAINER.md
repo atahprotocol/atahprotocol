@@ -466,6 +466,18 @@ The Charter is intended to operate as a public governance covenant. The founder 
 
 The founder retains a continuing advisory seat with no veto rights, no preferential commercial advantage, and explicit conflict-of-interest, recusal, and disclosure rules. After transition the seat carries consultation rights but not approval rights for core amendments.
 
+### Three governance layers — protocol, registry, third-party implementations
+
+v0.8.2 makes a deliberate distinction between three governance layers, drawing on Paolo Piponi's peer review:
+
+- **Protocol governance** — the entity that owns the specification, conformance marks, partner admission rules, transparency rules, and neutrality audits — must be an independent not-for-profit or equivalent public-interest entity. Form is mandated. This layer's neutrality is what the rest of the ecosystem depends on.
+- **Reference registry operation** — the entity running the canonical ATAH-operated registry — may be a not-for-profit, public-benefit company, community-interest company, foundation-owned subsidiary, or commercial under strict constraints (enforceable neutrality, public fee schedules, auditability, data-use limits, structural separation from the governance body). Form is constrained, not mandated.
+- **Third-party conforming implementations** — registries operated by partners, professional bodies, or other organisations — may be commercial, public-sector, professional-body, or not-for-profit. Form is unconstrained. Conformance is uniform.
+
+This three-layer distinction lets ATAH be commercially viable as a layered ecosystem without compromising the protocol layer's neutrality. The mandate is strict where it has to be (the protocol governance body) and permissive where it doesn't have to be (third-party implementations). Legal form alone doesn't solve neutrality — a not-for-profit can be captured by funders or incumbents; a commercial entity can behave neutrally if constrained, audited, and transparent. The mandate above applies to the protocol governance body specifically.
+
+The hard-artifacts list in the Charter Part Two is the structural answer to "how does the protocol stay neutral when the governance body is human and fallible". The trust floor lives in concrete published artifacts (verification scopes, partner admission criteria, mandatory audit events, the five-class conformance test surface, the revocable conformance mark) — not in committee discretion. Governance decides edge cases and evolution; the protocol defines the trust floor.
+
 The full governance commitments are set out in [CHARTER.md](CHARTER.md).
 
 ## What comes next

@@ -92,7 +92,17 @@ The founder advisory seat is a personal seat. It is non-transferable and non-inh
 
 The right to reasonable compensation for protocol work set out in this commitment — applicable to the founder, and equivalently to any future advisor or governance member — is distinct from operational service-provider arrangements governed by Part Two and GOVERNANCE.md §4.1. Governance compensation and operational service-provider compensation are separate categories. The founder advisory seat established by this commitment applies to the official ATAH governance body and any governance-controlled successor; it does not extend to independent forks or derivative protocols that are not governed by ATAH. Where the term "founder-affiliated entity" is used in this Charter and in GOVERNANCE.md, it means any organisation in which the founder holds a material interest, controls, or with which the founder has a substantive ongoing commercial relationship.
 
-### 8. Operational independence
+### 8. Operational independence and protocol-layer governance
+
+> **MUST.** ATAH protocol governance MUST be held by an independent not-for-profit or equivalent public-interest entity. Conforming implementations MAY be operated by commercial, public, professional-body, or not-for-profit entities, provided they satisfy conformance, transparency, neutrality, audit, and conflict-of-interest requirements.
+
+The Charter draws a deliberate three-layer distinction (per Paolo Piponi's peer review, F1.6):
+
+- **Protocol governance body** — the independent not-for-profit or equivalent public-interest entity. Owns the specification, conformance marks, category annex process, partner / verifier admission rules, transparency rules, and neutrality audits. This layer's governance form is mandated.
+- **Reference registry operator** — may be not-for-profit, public-benefit, community-interest company, foundation-owned subsidiary, or commercial under strict constraints. The critical requirements are enforceable neutrality, public fee schedules, auditability, data-use limits, and structural separation from the protocol governance body.
+- **Third-party conforming implementations** — may be commercial, public-sector, professional-body, or not-for-profit, provided they meet conformance requirements (Core Object, Binding, Registry, Governance, Transparency — see CONFORMANCE.md).
+
+Legal form alone does not solve neutrality. A not-for-profit can be captured by funders or incumbents; a commercial entity can behave neutrally if constrained, audited, and transparent. The mandate above applies to the protocol governance body specifically, not to every implementation.
 
 ATAH services may be operated by service providers — contractors, technology partners, implementation partners, managed-service providers, employees, contributors, or other supporting organisations — on commercial or paid terms. No such operational arrangement may confer ownership of the protocol, exclusive control over its evolution, or any right to influence matching, ranking, provenance, conformance, partner approval, platform access, professional visibility, data access, or any other Charter-protected commitment.
 
@@ -202,6 +212,24 @@ These operational commitments implement the Part One privacy floor. They may be 
   professionals. Operational commitments on professional data protection
   (controller role, lawful basis, professional rights, partner notice,
   erasure and objection) are set out in the PRD §9 and the specification §11.
+
+### Hard artifacts (per Paolo Piponi's peer review, F1.7)
+
+The Charter relies on hard artifacts — concrete published documents and machine-readable schemas — rather than future committee discretion for the trust floor. Governance decides edge cases and evolution; the protocol defines the trust floor through the following artifacts. Each item is either an existing artifact (cross-referenced) or a v0.9 work item (named on the ROADMAP).
+
+- **Field-level verification scopes per partner.** Existing: [`spec/v0.8/schemas/verification-scope.schema.json`](spec/v0.8/schemas/verification-scope.schema.json). Trusted-partner records carry the explicit scopes the partner is authorised to verify; partner data submissions outside the scope are rejected at validation.
+- **Partner class admission criteria.** v0.9 work item — the criteria for admission as a trusted partner, independent verifier, or review platform are documented in GOVERNANCE.md but not yet held as a single machine-readable artifact. v0.9 ROADMAP candidate.
+- **Review-platform minimum criteria.** Existing: [`spec/v0.8/schemas/review-platform.schema.json`](spec/v0.8/schemas/review-platform.schema.json). Review platforms admitted as a partner class declare their anti-gaming controls, moderation policies, and review-platform-class self-classification per the schema.
+- **Verifier conflict and audit rules.** Partial: [`spec/v0.8/schemas/independent-verifier.schema.json`](spec/v0.8/schemas/independent-verifier.schema.json) defines the verifier shape. v0.9 work item — fuller conflict-of-interest and audit-cadence specification.
+- **Category annex templates.** Existing: the category annex process is documented in GOVERNANCE.md and the category metadata schema (`profession-category.schema.json`). v0.9 work item — a published canonical category-annex template.
+- **Mandatory audit events.** Existing: [`spec/v0.8/schemas/audit-event.schema.json`](spec/v0.8/schemas/audit-event.schema.json) (extended in Phases 1, 3, 4, 6, 7). The schema enumerates the mandatory audit event types and required fields per F1.16 / §11.8.
+- **Professional appeal state machines.** Partial: [`spec/v0.8/schemas/dispute-record.schema.json`](spec/v0.8/schemas/dispute-record.schema.json) and [`spec/v0.8/schemas/concern-flag-record.schema.json`](spec/v0.8/schemas/concern-flag-record.schema.json) define the records. v0.9 work item — fuller state-machine specification.
+- **Public governance-decision register.** v0.9 operational work — the register of governance decisions (admissions, denials, scope changes, conformance-mark grants and revocations) as a public publication. Operational rather than schema-defined.
+- **Public registry of approved partners with scopes and data-freshness commitments.** Existing concept; the data is in the partner records ([`trusted-partner.schema.json`](spec/v0.8/schemas/trusted-partner.schema.json)) and is queryable. v0.9 work item — a structured public publication channel.
+- **Public conformance tests.** Phase 6's [`CONFORMANCE.md`](CONFORMANCE.md) defines the five conformance classes and the Transparency Class conformance test. v0.9 work item — the executable conformance test suite.
+- **Revocable conformance mark.** Existing concept (per `CONFORMANCE.md` and the v0.8.1 conformance-statement requirement at `/.well-known/atah-conformance`). v0.9 work item — the revocation mechanism and process.
+
+The hard-artifacts list is the structural answer to "how does the protocol stay neutral when the governance body is human and fallible". By moving the trust floor into concrete published artifacts, governance discretion is bounded — discretion applies to evolution and edge cases, not to the protocol's everyday operation.
 
 ### Code of conduct
 

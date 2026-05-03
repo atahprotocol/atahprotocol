@@ -13,6 +13,18 @@ project, this document specifies *how* decisions are made and recorded.
 
 The Charter is the public governance covenant and founding commitment. This document is operational. Where the two disagree, the Charter prevails. Substantive amendments to either are made through the processes below.
 
+### 1.1 Three governance layers (per Charter Core Commitment 8)
+
+Per Charter Core Commitment 8 (strengthened in v0.8.2 with Paolo Piponi's F1.6 verbatim normative rule), ATAH governance is structured in three deliberate layers:
+
+- **Protocol governance body.** The independent not-for-profit or equivalent public-interest entity. Owns the specification, conformance marks, category annex process, partner / verifier admission rules, transparency rules, and neutrality audits. **Form is mandated.** This layer is what this GOVERNANCE.md document operates today (during the interim period before transition to independent governance per Charter §"Transition to independent governance"); the form is committed to in the Charter.
+- **Reference registry operator.** May be not-for-profit, public-benefit, community-interest company, foundation-owned subsidiary, or commercial under strict constraints. Critical requirements: enforceable neutrality, public fee schedules, auditability, data-use limits, structural separation from the protocol governance body. **Form is constrained, not mandated.** The initial reference registry is operated by ATAH-the-organisation in v0.8.x; future reference registries (e.g. operated by partners or successor organisations) follow the same constraint set.
+- **Third-party conforming implementations.** May be commercial, public-sector, professional-body, or not-for-profit, provided they meet conformance requirements (Core Object / Binding / Registry / Governance / Transparency — see CONFORMANCE.md). **Form is unconstrained.**
+
+The mandate above applies to the protocol governance body specifically. Legal form alone does not solve neutrality — a not-for-profit can be captured by funders or incumbents; a commercial entity can behave neutrally if constrained, audited, and transparent. The Charter Core Commitment 8 wording reflects this: form mandate at the protocol layer; structural constraints at the reference-registry layer; conformance requirements (uniform across implementations of any form) at the third-party layer.
+
+The hard-artifacts list (per Charter Part Two and Paolo's F1.7) is the structural complement to this layered governance: the trust floor lives in concrete published artifacts (verification scopes, partner admission criteria, mandatory audit events, conformance tests, revocable conformance mark, etc.), not in committee discretion. Governance discretion applies to evolution and edge cases; the trust floor stays uniform.
+
 ## 2. Current state — interim governance
 
 Until transition to independent governance:

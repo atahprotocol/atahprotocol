@@ -509,41 +509,41 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 
 - **Scenario.** A trusted partner who pays for, or sponsors, the partnership relationship requests an expansion of their authoritative-data scope beyond what their underlying authority justifies.
 - **Abuse / failure mode.** Verification-scope creep; partner's authority over a narrow domain (e.g. licence data) leveraged into broader implicit endorsement.
-- **Expected protocol behaviour.** _To be filled in during Phase 8._
-- **Required audit events.** _To be filled in during Phase 8._
-- **Required user / professional disclosure.** _To be filled in during Phase 8._
-- **Required conformance test.** _To be filled in during Phase 8._
-- **Status.** `skeleton`
+- **Expected protocol behaviour.** Per Charter Part Two hard-artifacts list (per F1.7): field-level verification scopes per partner are an existing hard artifact (`verification-scope.schema.json`). Partner data submissions outside the declared scope are rejected at validation; scope expansion requires governance review and is logged in the public governance-decision register (v0.9 operational artifact). Per Charter Core Commitment 8, the protocol governance body holds the partner admission and scope rules; per Core Commitment 7 / GOVERNANCE.md §4.1, founder-affiliated or commercially connected admissions trigger related-party disclosure.
+- **Required audit events.** `partner_data_pushed` events outside scope produce validation failures recorded as `security_event` audit entries. `admin_action` events record scope-expansion governance decisions.
+- **Required user / professional disclosure.** Scope-expansion decisions surface through the public governance-decision register; professionals see partner-attributed data with provenance per the `_provenance` map.
+- **Required conformance test.** Conformance suite verifies that partner data submissions outside the partner's declared `verification-scope.schema.json` are rejected; verifies that the partner's declared scopes are publicly accessible.
+- **Status: `resolved`** by hard-artifact (`verification-scope.schema.json`) + Charter Core Commitment 8 protocol-governance independence + GOVERNANCE.md §4.1 related-party disclosure rules.
 
 ### 8.2 Review platform with weak anti-gaming wants admission
 
 - **Scenario.** A review platform with insufficient anti-gaming controls applies for admission as a partner data source.
 - **Abuse / failure mode.** Low-quality review signal entering ATAH band assignment; gameable signals influencing professional appearance.
-- **Expected protocol behaviour.** _To be filled in during Phase 8._
-- **Required audit events.** _To be filled in during Phase 8._
-- **Required user / professional disclosure.** _To be filled in during Phase 8._
-- **Required conformance test.** _To be filled in during Phase 8._
-- **Status.** `skeleton`
+- **Expected protocol behaviour.** Per Charter Part Two hard-artifacts list: review-platform minimum criteria are an existing hard artifact (`review-platform.schema.json` defines the partner-class shape; admission requires declared anti-gaming controls and review-platform-class self-classification). Per Phase 5 §9.2 / F-7: review-derived signals MUST NOT promote candidates into higher bands in regulated categories regardless of their anti-gaming posture; the structural protection applies even if a weak review platform is admitted.
+- **Required audit events.** Review platform admission decisions produce `admin_action` audit events; review-platform-attributed data carries `_provenance` for inspection.
+- **Required user / professional disclosure.** Review-platform-class self-classification is publicly visible; per §9.2, review signals are presentational and supplemental.
+- **Required conformance test.** Conformance suite verifies that review platforms outside the published criteria are rejected; verifies that review-derived signals do not promote candidates into higher bands in regulated categories (the §9.2 / F-7 verbatim MUST rule).
+- **Status: `partially-resolved`** — Phase 8 references existing hard-artifact (`review-platform.schema.json`) + Phase 5 §9.2 structural protection. **The fuller minimum-criteria specification (anti-gaming attestation requirements, audit cadence, revocation triggers) is a v0.9 work item**, named in the Charter Part Two hard-artifacts list and on the ROADMAP.
 
 ### 8.3 Verifier sells enhanced verification as a purchasable badge
 
 - **Scenario.** An independent verifier offers professionals a paid "enhanced verification" badge whose substantive verification rigour is not commensurate with the badge's prominence.
 - **Abuse / failure mode.** Verification becomes a marketing channel; signal devaluation across the ecosystem.
-- **Expected protocol behaviour.** _To be filled in during Phase 8._
-- **Required audit events.** _To be filled in during Phase 8._
-- **Required user / professional disclosure.** _To be filled in during Phase 8._
-- **Required conformance test.** _To be filled in during Phase 8._
-- **Status.** `skeleton`
+- **Expected protocol behaviour.** Per Charter Part Two hard-artifacts list: verifier conflict and audit rules are partial in v0.8.2 (`independent-verifier.schema.json` defines the verifier shape); the fuller specification is v0.9. Per the matching engine §9.6 commercial-neutrality rule: no weight is assigned to which party paid for an enhanced verification; only the structured verification depth, breadth, and freshness influence ranking. Per Charter §"Independent verifier and review platform principles": verifiers commit to neutrality, conflict declaration, and revocable conformance.
+- **Required audit events.** `verifier_data_submitted` events record the verification record's structured depth/breadth/freshness; `verifier_suspended` events record revocation.
+- **Required user / professional disclosure.** Enhanced verification records carry full provenance per the `_provenance` map; the verifier identity, the verification scope, and the verification rigour are visible to consumers and auditors.
+- **Required conformance test.** Conformance suite verifies that paid-for enhanced verifications do not get higher matching weight than equivalently-rigorous unpaid verifications; verifies that verifier conflict-of-interest declarations are publicly accessible.
+- **Status: `partially-resolved`** — Phase 8 references existing hard-artifact (`independent-verifier.schema.json`) + Phase 5 §9.6 commercial-neutrality rule. **The fuller verifier conflict and audit rules (cadence, revocation triggers, conflict-declaration shape) are a v0.9 work item**, named in the Charter Part Two hard-artifacts list and on the ROADMAP.
 
 ### 8.4 Founder-affiliated or commercially connected entity seeks preferential treatment
 
 - **Scenario.** An entity related to ATAH's founders, governance body, or significant commercial counterparties seeks preferential admission, scope, or visibility.
 - **Abuse / failure mode.** Governance capture; perceived neutrality of the protocol layer compromised even if the technical effect is small.
-- **Expected protocol behaviour.** _To be filled in during Phase 8._
-- **Required audit events.** _To be filled in during Phase 8._
-- **Required user / professional disclosure.** _To be filled in during Phase 8._
-- **Required conformance test.** _To be filled in during Phase 8._
-- **Status.** `skeleton`
+- **Expected protocol behaviour.** Per Charter Core Commitment 7 (founder accountability) and Core Commitment 8 (protocol governance is held by an independent not-for-profit or equivalent public-interest entity, with operational service-provider arrangements terminable / replaceable / non-exclusive). Per GOVERNANCE.md §4.1: related-party arrangements (including founder-affiliated entities) carry mandatory disclosure obligations and recusal rules. The strengthened Core Commitment 8 in v0.8.2 makes the form mandate at the protocol governance layer explicit.
+- **Required audit events.** `admin_action` events record related-party admission decisions with the principal-delegation context; recusal is recorded.
+- **Required user / professional disclosure.** Public governance-decision register (v0.9 operational artifact) records related-party decisions; founder-affiliated entity register is published per Charter §"Founder accountability".
+- **Required conformance test.** Conformance suite reviews the public governance-decision register and the related-party disclosure register; verifies recusal patterns where founder-affiliated entities applied for partner admission, scope expansion, or commercial agreement.
+- **Status: `resolved`** by Charter Core Commitments 7 and 8 + GOVERNANCE.md §4.1 related-party disclosure and recusal rules.
 
 ---
 
@@ -555,41 +555,41 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 
 - **Scenario.** Conflict-of-interest rules for legal practitioners differ materially across jurisdictions; a one-size implementation either over-blocks or under-detects conflicts.
 - **Abuse / failure mode.** Jurisdiction mismatch; conflict rules from one country mis-applied in another.
-- **Expected protocol behaviour.** _To be filled in via existing v0.8.1 category annex work referenced from Phase 8._
-- **Required audit events.** _To be filled in via Phase 8._
-- **Required user / professional disclosure.** _To be filled in via Phase 8._
-- **Required conformance test.** _To be filled in via Phase 8._
-- **Status.** `skeleton`
+- **Expected protocol behaviour.** Per existing v0.8.1 category-annex work + Charter Part Two hard-artifacts list (v0.9 canonical category-annex template). Per spec §9.1 hard filters: jurisdiction matching is a step-1 filter (a candidate not licensed in the jurisdiction is excluded). Per `profession-categories.json`: each category declares its own `band_definitions`; jurisdiction-specific behaviour is encoded per category through the annex process.
+- **Required audit events.** Hard-filter exclusions for jurisdiction mismatch produce `decision_explanation` entries with `decision_type: exclusion` and `exclusion_reason_category: jurisdiction_mismatch`.
+- **Required user / professional disclosure.** Aggregate `exclusion_summary` on match responses surfaces jurisdiction-mismatch counts; per-candidate `decision_explanation` documents the rules applied.
+- **Required conformance test.** Conformance suite verifies jurisdiction-mismatch exclusions appear in the aggregate summary; verifies the published category annex documents jurisdiction-specific rules.
+- **Status: `partially-resolved`** — existing v0.8.1 category-annex work + Phase 5 / Phase 6 transparency surface the structural mechanism. Per-category jurisdiction-rule canonicalisation (legal conflict rules, healthcare compliance, etc.) is v0.9 work via the canonical category-annex template named in the Charter Part Two hard-artifacts list.
 
 ### 9.2 Healthcare data requires stronger compliance controls
 
 - **Scenario.** Healthcare-category queries and handoffs carry data subject to compliance regimes (HIPAA, GDPR special categories, equivalent national frameworks) stricter than ATAH's default posture.
 - **Abuse / failure mode.** Default protocol controls insufficient for the category; conformance achieved without compliance.
-- **Expected protocol behaviour.** _To be filled in via Phase 8 (category annex template) referencing existing v0.8.1 work._
-- **Required audit events.** _To be filled in via Phase 8._
-- **Required user / professional disclosure.** _To be filled in via Phase 8._
-- **Required conformance test.** _To be filled in via Phase 8._
-- **Status.** `skeleton`
+- **Expected protocol behaviour.** Per `profession-categories.json` `compliance_status` field (existing v0.8.1): healthcare categories carry `compliance-pending` until category-specific compliance work (HIPAA-compliant handling, equivalent national frameworks) is signed off via the category-annex process. Per §9.1 hard filters, candidates with `matching_status: compliance-pending` are excluded from Discovery. The category-annex template (v0.9 work) will canonicalise per-jurisdiction healthcare-compliance requirements.
+- **Required audit events.** `compliance_status` flips on category metadata produce `admin_action` events.
+- **Required user / professional disclosure.** Categories in `compliance-pending` are publicly visible through the published profession-category metadata.
+- **Required conformance test.** Conformance suite verifies that no candidate in a `compliance-pending` category appears in Discovery results.
+- **Status: `partially-resolved`** — existing v0.8.1 `compliance_status` mechanism + §9.1 hard filter. **Per-jurisdiction healthcare compliance specification is v0.9 work** via the canonical category-annex template.
 
 ### 9.3 Financial-advice terminology differs by country
 
 - **Scenario.** "Financial adviser", "investment professional", "wealth manager" carry different licensure, scope, and consumer-protection meanings across jurisdictions.
 - **Abuse / failure mode.** Cross-jurisdiction term confusion; consumers misled about scope.
-- **Expected protocol behaviour.** _To be filled in via Phase 8 / existing category annex work._
-- **Required audit events.** _To be filled in via Phase 8._
-- **Required user / professional disclosure.** _To be filled in via Phase 8._
-- **Required conformance test.** _To be filled in via Phase 8._
-- **Status.** `skeleton`
+- **Expected protocol behaviour.** Per `profession-categories.json` per-category `category_id` and the per-jurisdiction body-membership-type structure: each category is canonicalised per jurisdiction through the category-annex process. Per spec §1.5 cross-jurisdiction default rule (existing v0.8.1): ATAH does not return cross-jurisdiction matches by default for regulated categories; cross-jurisdiction queries require explicit query parameters and a `presentation_disclosure` note.
+- **Required audit events.** Cross-jurisdiction queries produce `decision_explanation` entries documenting the explicit cross-jurisdiction request.
+- **Required user / professional disclosure.** Cross-jurisdiction `presentation_disclosure` text is surfaced to the consumer.
+- **Required conformance test.** Conformance suite verifies that cross-jurisdiction requests without the explicit parameter are rejected; verifies the disclosure surfaces with cross-jurisdiction matches.
+- **Status: `partially-resolved`** — existing v0.8.1 cross-jurisdiction default + per-category metadata. **Per-jurisdiction financial-advice terminology canonicalisation is v0.9 work** via the canonical category-annex template.
 
 ### 9.4 Established-practitioner categories lack authoritative regulators
 
 - **Scenario.** Categories where no single authoritative regulator exists (some coaching, advisory, or therapeutic professions) require verification approaches different from credentialled categories.
 - **Abuse / failure mode.** Verification model designed for credentialled categories applied weakly or inappropriately to established-practitioner categories.
-- **Expected protocol behaviour.** _To be filled in via Phase 8 / existing category annex work._
-- **Required audit events.** _To be filled in via Phase 8._
-- **Required user / professional disclosure.** _To be filled in via Phase 8._
-- **Required conformance test.** _To be filled in via Phase 8._
-- **Status.** `skeleton`
+- **Expected protocol behaviour.** Per the two-tier model (`professional_tier` enum on professional identity schemas: `credentialled` and `established`): established-tier categories use a different verification shape — partner-verified body membership, CPD compliance, disciplinary record via partner data, optionally enhanced verification through approved independent verifiers. Per Phase 5 `band_definitions`: established categories use different threshold rules from credentialled (the established-tier defaults set `verification_confidence == multi_source_corroborated OR multi_source_with_enhanced_verification` for band position 1, with `single_source_membership OR single_source_self_declared` for band position 2).
+- **Required audit events.** Verification mechanism is recorded per `_provenance` map on each professional record; partner-attributed data carries the partner identifier and `verification_status`.
+- **Required user / professional disclosure.** The professional's tier, registration route, and verification provenance are surfaced through the match response and the `_provenance` map.
+- **Required conformance test.** Conformance suite verifies that established-tier categories use the established-tier band definitions and that partner-attributed data carries full provenance.
+- **Status: `resolved`** by the two-tier model + Phase 5 tier-templated `band_definitions` + provenance map. v0.9 may refine per-category band definitions for established categories, but the structural mechanism is in place in v0.8.2.
 
 ---
 
@@ -601,41 +601,41 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 
 - **Scenario.** A third-party registry implements ATAH-compatible endpoints but omits or weakens transparency artifacts (decision-explanation, presentation-disclosure, visibility report).
 - **Abuse / failure mode.** "ATAH compatible" claim made without the transparency posture that gives the protocol its accountability shape.
-- **Expected protocol behaviour.** _To be filled in during Phase 8 (governance) and Phase 6 (transparency-as-conformance class)._
-- **Required audit events.** _To be filled in during Phase 8 / Phase 6._
-- **Required user / professional disclosure.** _To be filled in during Phase 8 / Phase 6._
-- **Required conformance test.** _To be filled in during Phase 8 / Phase 6._
-- **Status.** `skeleton`
+- **Expected protocol behaviour.** Per Phase 6 §11A.6 Transparency Class (the new fifth conformance class): every relevant response includes a valid response-level `decision_explanation` (Layer 1); every candidate in a Discovery response includes a valid per-candidate `decision_explanation` (Layer 2); every Discovery response with exclusions includes a valid `exclusion_summary` (Layer 3); the professional-facing visibility-explanation behaviour is implementable from the v0.8.2 spec. Per Charter Part Two hard-artifacts list (per F1.7): public conformance tests are part of the trust floor; revocable conformance mark is the enforcement mechanism. Per Charter Core Commitment 8: the protocol governance body holds the conformance marks and may revoke them.
+- **Required audit events.** Conformance test failures produce reportable conformance-mark revocation triggers.
+- **Required user / professional disclosure.** Conformance marks are publicly visible per `/.well-known/atah-conformance`; revocations are recorded in the public governance-decision register (v0.9 operational artifact).
+- **Required conformance test.** Conformance suite verifies all five classes; an implementation missing the Transparency Class fails the test.
+- **Status: `resolved`** by Phase 6's Transparency Class + Charter Part Two hard-artifacts list (revocable conformance mark) + Charter Core Commitment 8 (protocol governance body holds the conformance marks).
 
 ### 10.2 Registry applies commercial ordering while preserving provenance
 
 - **Scenario.** A third-party registry preserves provenance metadata correctly but applies commercial ordering, treating the protocol's stratified-randomisation rule as advisory rather than normative.
 - **Abuse / failure mode.** Conformance gap exploited; ordering framing weakened across implementations.
-- **Expected protocol behaviour.** _To be filled in during Phase 8 / Phase 6._
-- **Required audit events.** _To be filled in during Phase 8 / Phase 6._
-- **Required user / professional disclosure.** _To be filled in during Phase 8 / Phase 6._
-- **Required conformance test.** _To be filled in during Phase 8 / Phase 6._
-- **Status.** `skeleton`
+- **Expected protocol behaviour.** Per Phase 5 §9.1 verbatim MUST NOT: ATAH may determine eligibility and exclusion, but MUST NOT express preference among eligible candidates unless the ordering basis is explicit, non-commercial, and disclosed. Per §9.6 commercial neutrality. Per §9.5 conformance: returned `band_assignment` must be consistent with `band_definitions` and within-band ordering must be observably non-deterministic across repeated queries. An implementation applying commercial ordering fails the structural conformance test.
+- **Required audit events.** Conformance test failures produce reportable conformance-mark revocation triggers.
+- **Required user / professional disclosure.** `presentation_disclosure.ordering_policy.commercial_weighting: false` is `const`-asserted at the schema level; an implementation cannot return a different value through a conformant response.
+- **Required conformance test.** Conformance suite verifies non-determinism within bands across repeated queries; verifies `commercial_weighting: false` is const-asserted on every response.
+- **Status: `resolved`** by Charter + Phase 5 stratified-randomisation rule + Phase 5 §9.5 conformance non-determinism test.
 
 ### 10.3 Implementation changes consent or withdrawal semantics
 
 - **Scenario.** A conforming-by-name implementation alters consent-receipt scope semantics or withdrawal state-transition rules, producing user-visible behaviour that diverges from ATAH's documented semantics.
 - **Abuse / failure mode.** Same protocol surface, different meanings; users and reviewers cannot rely on documented semantics across implementations.
-- **Expected protocol behaviour.** _To be filled in during Phase 8 / Phase 6._
-- **Required audit events.** _To be filled in during Phase 8 / Phase 6._
-- **Required user / professional disclosure.** _To be filled in during Phase 8 / Phase 6._
-- **Required conformance test.** _To be filled in during Phase 8 / Phase 6._
-- **Status.** `skeleton`
+- **Expected protocol behaviour.** Per Phase 4 (consent boundaries) + Phase 3 (withdrawal as state transition): consent receipt scope enum is closed (`consent_type` enum: `query_authorization`, `disclosure_consent`); withdrawal scenarios are six explicitly-documented patterns in §11.9; receipt continuity-binding fields enforce the binding. An implementation altering these semantics fails the Core Object Conformance class. Per Charter Part Two hard-artifacts list: public conformance tests + revocable conformance mark.
+- **Required audit events.** Conformance test failures produce reportable conformance-mark revocation triggers.
+- **Required user / professional disclosure.** Conformance marks publicly visible.
+- **Required conformance test.** Conformance suite verifies the consent-type enum and the six withdrawal scenarios produce the expected outputs; verifies receipt continuity-binding mismatch produces `consent_continuity_mismatch` audit events.
+- **Status: `resolved`** by Phase 3 / Phase 4 schema-enforced semantics + Charter conformance test surface + revocable conformance mark.
 
 ### 10.4 Federation introduces inconsistent identity or audit handling
 
 - **Scenario.** Federated implementations exchange handoffs across instances; identity resolution, audit-event recording, or principal-delegation handling diverges between participating implementations.
 - **Abuse / failure mode.** Cross-instance audit gaps; handoffs that look conforming on each side but produce broken end-to-end accountability.
-- **Expected protocol behaviour.** _To be filled in during Phase 8 / Phase 6._
-- **Required audit events.** _To be filled in during Phase 8 / Phase 6._
-- **Required user / professional disclosure.** _To be filled in during Phase 8 / Phase 6._
-- **Required conformance test.** _To be filled in during Phase 8 / Phase 6._
-- **Status.** `skeleton`
+- **Expected protocol behaviour.** Federation is **deferred to v0.9 / v1.0** per spec §1.6. v0.8.x is single-registry. The architecture is federation-ready (atah_id namespaces are reserved, no part of the data model assumes single-registry operation), but the cross-registry trust mechanics — namespace resolution, handoff routing, audit reconciliation, federated identity — are not yet specified.
+- **Required audit events.** Federation-specific audit semantics are part of the v1.0 work.
+- **Required user / professional disclosure.** Federation is documented as deferred so reviewers don't expect a federation answer in v0.8.2.
+- **Required conformance test.** Federation conformance test is part of the v1.0 conformance test suite.
+- **Status: `deferred`** — `deferred-to-v1.0` (federation mechanics). The v0.8.2 architecture does not preclude federation; it does not provide federation. Documented in spec §1.6 and ROADMAP "v0.9 candidates" (federation mechanics).
 
 ---
 
@@ -760,5 +760,28 @@ Contact-detail freshness mechanism (`GKC-COMMENTS-02` in full + F-15 `notificati
 New scenarios discovered during Phase 7 work: none.
 
 **Status distribution after Phase 7:** 11 × `skeleton`, 29 × `resolved` (1.1, 1.3, 2.1, 2.2, 2.4, 2.5, 2.6, 2.7, 3.1, 3.2, 3.3, 3.5, 4.1, 4.2, 4.3, 4.5, 4.6, 4.8, 4.9, 5.1, 5.3, 5.4, 6.2, 6.3, 6.4, 6.5, 7.1, 7.2, 7.4), 4 × `bounded-by-protocol` (1.2, 2.3, 4.7, 5.2), 1 × `allocated-to-platform-responsibility` (3.4), 6 × `partially-resolved` (1.4, 1.5, 1.6, 3.6, 4.4, 6.1), 1 × `deferred` (7.3). Total: **53 scenarios** (no new scenarios in Phase 7; three scenarios moved from `skeleton` to `resolved`).
+
+## Phase 8 update
+
+Charter and governance updates (Paolo's F1.6 / F1.7) ship in Phase 8. Status changes:
+
+- **8.1 (paying partner seeks broader verification scope)** → **`resolved`** by hard-artifact (`verification-scope.schema.json`) + Charter Core Commitment 8 protocol-governance independence + GOVERNANCE.md §4.1 related-party disclosure.
+- **8.2 (review platform with weak anti-gaming wants admission)** → **`partially-resolved`** by existing `review-platform.schema.json` + Phase 5 §9.2 structural protection. Fuller minimum-criteria specification is v0.9 work via the Charter Part Two hard-artifacts list.
+- **8.3 (verifier sells enhanced verification as a purchasable badge)** → **`partially-resolved`** by existing `independent-verifier.schema.json` + Phase 5 §9.6 commercial-neutrality rule. Fuller verifier conflict and audit rules are v0.9 work.
+- **8.4 (founder-affiliated entity seeks preferential treatment)** → **`resolved`** by Charter Core Commitments 7 and 8 + GOVERNANCE.md §4.1 related-party disclosure and recusal.
+- **9.1 (legal conflict rules vary by jurisdiction)** → **`partially-resolved`** by existing v0.8.1 category-annex work + Phase 5 / Phase 6 transparency surface. Per-jurisdiction canonicalisation is v0.9 work via the canonical category-annex template.
+- **9.2 (healthcare data requires stronger compliance controls)** → **`partially-resolved`** by existing `compliance_status` mechanism + §9.1 hard filter. Per-jurisdiction healthcare compliance specification is v0.9 work.
+- **9.3 (financial-advice terminology differs by country)** → **`partially-resolved`** by existing v0.8.1 cross-jurisdiction default + per-category metadata. Per-jurisdiction terminology canonicalisation is v0.9 work.
+- **9.4 (established-practitioner categories lack authoritative regulators)** → **`resolved`** by the two-tier model + Phase 5 tier-templated `band_definitions` + provenance map.
+- **10.1 (third-party registry omits transparency metadata)** → **`resolved`** by Phase 6 Transparency Class + Charter Part Two hard-artifacts (revocable conformance mark) + Charter Core Commitment 8.
+- **10.2 (registry applies commercial ordering while preserving provenance)** → **`resolved`** by Charter + Phase 5 stratified-randomisation rule + §9.5 conformance non-determinism test.
+- **10.3 (implementation changes consent or withdrawal semantics)** → **`resolved`** by Phase 3 / Phase 4 schema-enforced semantics + Charter conformance test surface + revocable conformance mark.
+- **10.4 (federation introduces inconsistent identity or audit handling)** → **`deferred`** — `deferred-to-v1.0`. Federation mechanics are explicitly v0.9 / v1.0 work per spec §1.6.
+
+New scenarios discovered during Phase 8: none.
+
+**Status distribution after Phase 8:** 0 × `skeleton`, **35 × `resolved`** (1.1, 1.3, 2.1, 2.2, 2.4, 2.5, 2.6, 2.7, 3.1, 3.2, 3.3, 3.5, 4.1, 4.2, 4.3, 4.5, 4.6, 4.8, 4.9, 5.1, 5.3, 5.4, 6.2, 6.3, 6.4, 6.5, 7.1, 7.2, 7.4, 8.1, 8.4, 9.4, 10.1, 10.2, 10.3), 4 × `bounded-by-protocol` (1.2, 2.3, 4.7, 5.2), 1 × `allocated-to-platform-responsibility` (3.4), **11 × `partially-resolved`** (1.4, 1.5, 1.6, 3.6, 4.4, 6.1, 8.2, 8.3, 9.1, 9.2, 9.3), **2 × `deferred`** (7.3 to-v0.8.3, 10.4 to-v1.0). Total: **53 scenarios**.
+
+The skeleton-status count reaches zero at end of Phase 8. Every seed scenario has been addressed at the structural protocol level. Phase 11 will re-verify and finalise the matrix as the v0.8.2 publication artifact.
 
 Phase 11 finalises the matrix as the verification artifact for v0.8.2 publication.

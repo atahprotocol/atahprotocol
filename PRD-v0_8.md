@@ -714,6 +714,18 @@ ATAH is founded by Grahame Cohen. The protocol operates under [CHARTER.md](CHART
 
 The choice of legal structure for the protocol's interim and long-term governance is under active consideration with legal advice. The Charter applies to all versions of the protocol regardless of corporate structure.
 
+### Three governance layers (per Charter Core Commitment 8, strengthened in v0.8.2)
+
+v0.8.2 strengthens Charter Core Commitment 8 with Paolo Piponi's verbatim normative rule, distinguishing three governance layers:
+
+- **Protocol governance body** — the entity that owns the specification, conformance marks, partner / verifier admission rules, transparency rules, and neutrality audits. **MUST be an independent not-for-profit or equivalent public-interest entity.** Form is mandated.
+- **Reference registry operator** — the entity running the canonical ATAH-operated registry. May be not-for-profit, public-benefit, community-interest company, foundation-owned subsidiary, or commercial under strict constraints (enforceable neutrality, public fee schedules, auditability, data-use limits, structural separation from the protocol governance body). Form is constrained, not mandated.
+- **Third-party conforming implementations** — registries operated by partners, professional bodies, or other organisations. May be commercial, public-sector, professional-body, or not-for-profit, provided they meet conformance requirements (the five conformance classes — Core Object, Binding, Registry, Governance, Transparency — see CONFORMANCE.md). Form is unconstrained.
+
+Legal form alone does not solve neutrality. A not-for-profit can be captured by funders or incumbents; a commercial entity can behave neutrally if constrained, audited, and transparent. The form mandate applies to the protocol governance body specifically; the constraints at the reference-registry layer and the conformance requirements at the third-party layer carry the neutrality posture across the rest of the ecosystem.
+
+The hard-artifacts list (Charter Part Two, per Paolo's F1.7) is the structural answer to "how does the protocol stay neutral when the governance body is human and fallible". The trust floor lives in concrete published artifacts (verification scopes, partner admission criteria, mandatory audit events, the conformance test surface, the revocable conformance mark) — not in committee discretion.
+
 ### Governance transition covenant
 
 This is set out in detail in the Charter and summarised here:

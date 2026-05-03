@@ -40,6 +40,18 @@ Per spec §11A and Paolo's F1.8 / F1.9 normative position, transparency is a top
 
 The conformance test for the Transparency Class (formalised in the v0.9 conformance test suite) picks three sample queries — one inclusion-only, one with exclusions, one with explicit `ordering_preference` — and verifies each response includes both layers of `decision_explanation` and (where applicable) `exclusion_summary`, with contents internally consistent with the implementation's published rules.
 
+## Three governance layers
+
+Distinct from the five conformance classes (which describe what an implementation must do), the governance model has three layers that describe who runs each part on what terms (per Charter Core Commitment 8 and Paolo Piponi's F1.6 peer-review finding):
+
+- **Protocol governance body.** ATAH protocol governance MUST be held by an independent not-for-profit or equivalent public-interest entity. Owns the specification, conformance marks, category annex process, partner / verifier admission rules, transparency rules, and neutrality audits. Form is mandated.
+- **Reference registry operator.** May be not-for-profit, public-benefit, community-interest company, foundation-owned subsidiary, or commercial under strict constraints. Critical requirements: enforceable neutrality, public fee schedules, auditability, data-use limits, structural separation from the protocol governance body. Form is constrained, not mandated.
+- **Third-party conforming implementations.** May be commercial, public-sector, professional-body, or not-for-profit, provided they meet conformance requirements (the five classes above). Form is unconstrained.
+
+The protocol governance body holds the conformance marks; conforming implementations earn them through self-declaration during the release-candidate stage and through the conformance test suite (v0.9). Conformance is uniform across implementations of any form; governance form is uniform only at the protocol layer.
+
+Note that the three governance layers above are a different axis from the Phase 10A conformance-status distinction (protocol-compatible / ATAH-conformant / ATAH-recognised neutral implementation — see Phase 10A in the master patch plan and ROADMAP for v0.9 work). Governance layers answer "what kind of actor or layer is this?"; conformance status answers "what level of recognition does this implementation have?"
+
 ## Reference Registry Scope
 
 The initial ATAH reference registry is expected to conform to all five classes. Future implementations may declare narrower conformance — for example, a profile-only implementation that supports core object and binding conformance but does not run the introduction lifecycle.

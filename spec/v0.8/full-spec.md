@@ -51,11 +51,19 @@ ATAH operates across three layers, and clarity about which layer is being discus
 
 1. **The open specification.** The protocol itself, defined in this document and the schema files, published under Apache 2.0. Anyone may implement, fork, or extend it.
 
-2. **Conforming implementations.** Software systems that implement the specification. Conformance requires preserving ATAH's mandatory principles: provenance visibility, no commercial weighting, staged consent, category compliance gating, and data minimisation.
+2. **Conforming implementations.** Software systems that implement the specification. Conformance requires preserving ATAH's mandatory principles: provenance visibility, no commercial weighting, staged consent, category compliance gating, data minimisation, and (per v0.8.2 Phase 6) machine-readable transparency. Five conformance classes — Core Object, Binding, Registry, Governance, Transparency (see CONFORMANCE.md).
 
 3. **The initial reference registry.** ATAH operates an initial reference registry and MCP/REST endpoints that demonstrate and operate the protocol. The reference registry is not the protocol itself. Other registries may exist, provided they preserve the conformance principles.
 
 The initial registry exists because launching a protocol with no operational instance produces no real-world adoption. As federation develops (deferred to v0.9 or v1.0 — see Section 1.6), atah_id namespaces and cross-registry trust mechanics will be specified to support multiple conforming registries.
+
+**Three governance layers (per v0.8.2 / Charter Core Commitment 8 / Paolo Piponi's F1.6).** Distinct from the three layers above (which describe what ATAH is), the governance model has three deliberate layers that describe who runs each part on what terms:
+
+- **Protocol governance body.** ATAH protocol governance MUST be held by an independent not-for-profit or equivalent public-interest entity. Owns the specification, conformance marks, category annex process, partner / verifier admission rules, transparency rules, and neutrality audits. Form is mandated.
+- **Reference registry operator.** May be not-for-profit, public-benefit, community-interest company, foundation-owned subsidiary, or commercial under strict constraints. Critical requirements: enforceable neutrality, public fee schedules, auditability, data-use limits, structural separation from the protocol governance body. Form is constrained, not mandated.
+- **Third-party conforming implementations.** May be commercial, public-sector, professional-body, or not-for-profit, provided they meet conformance requirements (Core Object / Binding / Registry / Governance / Transparency). Form is unconstrained.
+
+Legal form alone does not solve neutrality. A not-for-profit can be captured by funders or incumbents; a commercial entity can behave neutrally if constrained, audited, and transparent. The mandate above applies to the protocol governance body specifically.
 
 ### Protocol core, bindings, and registry profile
 
