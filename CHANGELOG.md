@@ -43,6 +43,20 @@ v0.8.2 absorbs three rounds of post-v0.8.1 review work: GKC-COMMENTS-01 (archite
 - `inbound_referral_signal` from the matching engine and from `profession-category.matching_weight_profile`.
 - `shortlist_size` from `query.schema.json` (replaced by `limit`).
 
+### Three-concept separation (Phase 3)
+
+Refactored §11 around the three-concept separation of payload erasure, audit retention, and withdrawal-as-state-transition. v0.8.2 distinguishes:
+
+- **Payload erasure** (§11.6) — adopts Paolo's verbatim normative wording on crypto-erasure: vault payloads are crypto-erased by destroying the data-encryption key; encrypted ciphertext may remain in storage or backups until ordinary retention expiry, but is treated as unrecoverable once the corresponding key material has been destroyed. Six implementation requirements are normative (unique key per object; keys stored separately from ciphertext; destroyed keys excluded from recoverable backups; no plaintext in logs / queues / analytics / indexes / notification providers; auditable key-destruction events; short retrieval-token TTLs and single-use retrieval tokens).
+- **Audit retention** (§11.8) — adopts Paolo's verbatim normative rule: crypto-erasure applies to vault payload content, not audit metadata; conforming implementations MUST retain tamper-evident audit records sufficient to investigate abuse, disputes, authentication failures, and consent-integrity claims, without retaining consumer personal data in plaintext. The §11.8 erase-fields list and retain-fields list are documented verbatim. References to contact identifiers and device identifiers in audit records MUST use HMACs with protected audit keys; plain hashes of email or phone numbers are guessable and explicitly excluded.
+- **Withdrawal-as-state-transition** (§11.9) — adopts Paolo's verbatim normative rule: withdrawal stops future processing but does not erase audit records, consent receipt metadata, state history, abuse signals, dispute records, or legally required retention records. Six distinct withdrawal scenarios are documented (consumer pre-share / post-Stage-2 / post-Stage-3-retrieval, professional withdrawal from an introduction, professional withdrawal from matching, Component 3 proposal/connection withdrawal). Step-up authentication is mandatory at the point of action for high-impact withdrawals (§11.9 / §13.2A).
+
+`audit-event.schema.json` extended with the F1.16 retain-field list (`handoff_id`, `query_id`, `professional_id`, `proposal_id`, `connection_id`, `pseudonymous_consumer_ref` HMAC-form, `request_intent`, `stage`, `payload_type`, `consent_receipt_id`, `receipt_hash`, `retrieved_at`, `erased_at`, `retrieval_actor`, `auth_tier`, `abuse_flags`, `source_ip_hmac`, `user_agent_hmac`) and the F1.17 withdrawal-context fields (`previous_state`, `resulting_state`, `reason_code`). `event_type` enum extended with Component 3 events, professional withdrawal events, and `key_destroyed`. `subject_type` enum extended with `referral_proposal`, `referral_connection`, `vault_object`, `delegated_token`. `handoff-component2.schema.json` adds `withdrawal_state` summary classification.
+
+New OpenAPI / MCP: `POST /v1/professionals/me/withdraw` (and `withdraw_from_matching` MCP tool) for Component 2 withdrawal scenario 5 (professional withdrawal from matching), with mandatory step-up authentication. `/v1/introductions/{handoff_id}/cancel` and `/revoke-consent` descriptions updated to map to Paolo's withdrawal scenarios 1, 2, and 3.
+
+ADR 0010 records the three-concept separation decision and acknowledges Paolo Piponi's peer review as the source.
+
 ---
 
 ## [v0.8.1] — April 2026

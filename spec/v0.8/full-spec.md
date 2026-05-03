@@ -1615,25 +1615,35 @@ ATAH handles consumer personal data as a transient conduit, not a repository. Co
 
 **Notification channels (SMS and email) carry no consumer personal data.** They carry only non-sensitive notification metadata and authenticated retrieval references.
 
+**Three-concept separation.** ATAH distinguishes three operations on data, each with its own rules and retention semantics:
+
+- **Payload erasure** — removing or crypto-erasing sensitive content. Applies to vault payloads (Stage 2 pre-handoff data, Stage 3 contact details, Component 3 free-text proposal messages where applicable). Mechanism: crypto-erasure as defined in §11.6.
+- **Audit retention** — preserving tamper-evident metadata about what happened. Applies to event identifiers, pseudonymous references, state transitions, authority bases, timestamps, and the integrity references (consent receipt id and hash, request_intent, stage, payload_type, retrieval_actor, auth_tier, abuse_flags). Mechanism: append-only audit log per §11.8 retained for the audit-policy retention period.
+- **Withdrawal** — a state transition stopping future protocol processing. Withdrawal does NOT erase audit records, consent receipt metadata, state history, abuse signals, dispute records, or legally required retention records (§11.9).
+
+The three concepts are deliberately separate because conflating them produces real failure modes: if payload erasure also removes audit metadata, ATAH becomes harder to investigate when abuse, spam, phishing, bad consent assertions, weak authentication, or disputes occur; if withdrawal means deletion of lifecycle history, withdrawal becomes an evidence-deletion abuse primitive. The §11 sections that follow set the rules for each concept distinctly.
+
 ### 11.2 Deletion Scope Table
 
-| Store | Personal data allowed? | Deletion mechanism | Max retention |
-|---|---|---|---|
-| Main registry database | No | Rejected at validation | n/a |
-| Transient encrypted vault | Yes (during active handoff) | Crypto-erasure on retrieval, expiry, cancellation, or revocation | Category-specific; max 72h post-resolution |
-| Consent receipt store | Hash and metadata only — no PII | TTL on receipt expiry + 90 days | Per receipt expiry |
-| Audit log | Pseudonymous identifiers only — no PII | Retention per audit policy | 7 years |
-| Object storage (documents) | No consumer documents stored | n/a | n/a |
-| SMS/email notifications | No PII allowed in payload | Provider-managed | n/a (no PII) |
-| Notification provider logs | No PII (because no PII in payload) | Provider-managed | Provider-managed |
-| Webhook delivery queue | No consumer PII; metadata only | Standard queue retention | 7 days |
-| Analytics / metrics | Anonymised outcome data only | Standard | 2 years |
-| Backups | Encrypted; mirror primary retention | Crypto-erase on key rotation | Mirror primary |
-| Dead-letter queue | Sanitised — no PII | Standard | 30 days |
-| Component 3 referral-proposal records | No PII (professional ids only) | Deletion on accept (folded into connection), decline, withdrawal, or silent lapse | Up to `referral_proposal_expiry_months` (default 6 months) |
-| Component 3 referral-connection records | No PII (professional ids only) | Deletion on withdrawal by either party | Indefinite while active |
+The table is organised by the three-concept separation introduced in §11.1: each row describes what payload data the store may contain, what audit metadata it carries, what withdrawal-state it records, and the retention rule applicable to each.
 
-If a personal data field is detected in a store where it is not allowed, the entry is automatically purged and a critical audit event is logged.
+| Store | Payload data | Audit metadata | Withdrawal state | Retention rule |
+|---|---|---|---|---|
+| Main registry database (professional records) | None (rejected at validation) | None — audit is the audit log | `matching_status` field on the record (`withdrawn`, `regulatory-suspended`, etc.) | Record retained per partner/individual lifecycle; withdrawal-state persists; required audit, dispute, and regulatory metadata retained per §11.8 / §11.9 |
+| Transient encrypted vault | Yes — Stage 2 pre-handoff data, Stage 3 contact details (active handoffs only) | None — payloads are not audit; audit log records vault events (created, retrieved, erased) without payload content | None | Crypto-erased on retrieval, expiry, cancellation, or revocation (§11.6); category-specific TTL; max 72h post-resolution |
+| Consent receipt store (stored form) | Hash only — no PII | `receipt_hash`, `asserted_by_platform_id`, `scope`, `captured_at`, `expires_at` (the integrity metadata) | `revocation_status` (`active` / `revoked` / `expired`) | TTL on receipt expiry + 90 days; revocation-state preserved for audit per §11.8 |
+| Audit log | None (consumer personal data MUST NOT appear in plaintext per §11.8) | Pseudonymous identifiers, integrity references, state transitions — the canonical record | State transitions for every withdrawal scenario per §11.9 | Audit-policy retention (default 7 years); tamper-evident hash chain |
+| Object storage (documents) | None (consumer documents not stored) | None | None | n/a |
+| SMS / email notifications | None — only notification metadata + authenticated retrieval references | Provider-managed delivery records (no ATAH audit role) | n/a | Provider-managed |
+| Notification provider logs | None (no PII in payload) | Provider-managed | n/a | Provider-managed |
+| Webhook delivery queue | None — metadata only | Delivery metadata (provider-managed) | n/a | 7 days |
+| Analytics / metrics | None — anonymised outcome data only | None — anonymised outcome events | n/a | 2 years |
+| Backups | Mirrors primary; ciphertext only (no plaintext payload) | Mirror primary | Mirror primary | Mirror primary; subject to crypto-erasure when keys are destroyed |
+| Dead-letter queue | None (sanitised) | None | n/a | 30 days |
+| Component 3 referral-proposal records | None (professional ids only) | Audit log records proposal lifecycle events | `state` enum (`pending` is non-terminal; terminal states delete the record) | While pending; deleted on `accepted` (folded into connection), `declined`, `withdrawn`, `lapsed` |
+| Component 3 referral-connection records | None (professional ids only) | Audit log records connection lifecycle events | Implicit (existence indicates `active`); terminal states delete the record | Indefinite while active; deleted on withdrawal by either party |
+
+If a personal data field is detected in a store where it is not allowed, the entry is automatically purged and a critical audit event is logged. The privacy floor is enforced at validation time for the main registry database and the consent receipt store (`consent-receipt-stored.schema.json` is the canonical privacy-floor-enforced shape; a build-time test reads the file and rejects the literal field names that the privacy floor excludes).
 
 ### 11.3 Consumer Personal Data Categories and Retention
 
@@ -1723,6 +1733,21 @@ Consumer personal data is stored in the transient encrypted vault. The vault has
 - **Authenticated access.** Records are retrieved via authenticated retrieval with a single-use retrieval token.
 - **Auditable.** Every retrieval is logged with timestamp, retriever identity, and record identifier.
 
+**Crypto-erasure normative wording.** Conforming implementations MUST follow the precise meaning of crypto-erasure:
+
+> Vault payloads are crypto-erased by destroying the data-encryption key. Encrypted ciphertext may remain in storage or backups until ordinary retention expiry, but is treated as unrecoverable once the corresponding key material has been destroyed.
+
+**Crypto-erasure implementation requirements.** Conforming implementations MUST satisfy each of the following:
+
+- Unique key per vault object or per handoff payload.
+- Keys stored separately from ciphertext.
+- Destroyed keys excluded from recoverable backups.
+- No plaintext in logs, queues, analytics, indexes, or notification providers.
+- Auditable key-destruction events.
+- Short retrieval-token TTLs and single-use retrieval tokens.
+
+These requirements are enforced together: an implementation that satisfies five of six is non-conformant for v0.8.2 vault behaviour.
+
 #### Authenticated retrieval flow
 
 1. **Notification dispatch.** When personal data is placed in the vault for a professional, ATAH sends a notification to the professional via SMS or email. The notification carries:
@@ -1753,6 +1778,82 @@ For audit log entries containing pseudonymous identifiers (handoff IDs, consent 
 For data held by asserting platforms (full consent receipts) and by professionals (data they retrieved during a handoff), erasure obligations rest with those parties under their own privacy frameworks.
 
 Detailed DSAR machinery for federation scenarios is deferred to v0.9.
+
+### 11.8 Audit Trail Retention
+
+Crypto-erasure (§11.6) applies to vault payload content, not to audit metadata. The two operations are deliberately separated: payload erasure removes sensitive content from the transient vault; audit retention preserves tamper-evident metadata about what happened.
+
+**Normative rule.** The following MUST hold for every conforming implementation:
+
+> Crypto-erasure applies to vault payload content, not to audit metadata. Conforming implementations MUST retain tamper-evident audit records sufficient to investigate abuse, disputes, authentication failures, and consent-integrity claims, without retaining consumer personal data in plaintext.
+
+**Erase fields (payload — crypto-erased per §11.6).** The following MUST be crypto-erased on the §11.6 schedule (retrieval, expiry, cancellation, or revocation):
+
+- Contact details
+- Stage 2 conflict / scope data
+- Sensitive matter summaries
+- Free text
+- Retrieval tokens
+- Exact notification links
+
+**Retain fields (audit metadata — preserved on the audit-policy schedule).** The following MAY be retained in the audit log for the audit-policy retention period (default 7 years per §13.5):
+
+- Event ID
+- Handoff ID, query ID, professional ID, proposal ID, connection ID (whichever apply)
+- Asserting platform and authenticated client (the principal-delegation context per §4.9A — `authenticated_actor`, `client_application`, `authority_context`)
+- Pseudonymous consumer reference where appropriate (HMAC form per the requirement below)
+- `request_intent` (Phase 2)
+- Stage (Component 2 flow stage, where applicable)
+- Payload type, **not** payload content
+- Consent receipt ID and receipt hash
+- Created / retrieved / erased timestamps
+- Retrieval actor
+- Auth tier
+- Abuse flags (array, optional)
+- Source IP and user-agent values, where lawful and proportionate (HMAC form per the requirement below)
+
+**HMAC requirement (NOT plain hashes).** Where audit records reference contact identifiers (email addresses, phone numbers) or device identifiers (source IP addresses, user-agent strings), the records MUST use HMACs with protected audit keys, or per-context salted hashes. Plain hashes of email or phone numbers are guessable across the population they identify and MUST NOT be used. The HMAC keys are part of a separate key-management lifecycle from application authentication keys; key rotation, key access control, and key-destruction logging are operational concerns documented in the implementation's deployment notes.
+
+**`audit-event.schema.json` constraint.** The schema's description text declares this requirement; instances MUST NOT contain consumer-identifying fields in plaintext. Plain-hashed email and phone fields are explicitly excluded from the schema.
+
+### 11.9 Withdrawal Semantics
+
+Withdrawal is a state transition that stops future protocol processing. It is **not** a history deletion. The §11.8 audit trail retention rules apply unaltered to a withdrawn object's history.
+
+**Normative rule.** The following MUST hold for every conforming implementation:
+
+> Withdrawal stops future processing but does not erase audit records, consent receipt metadata, state history, abuse signals, dispute records, or legally required retention records.
+
+**Six withdrawal scenarios.** ATAH distinguishes the following scenarios; each carries distinct semantics:
+
+1. **Consumer withdrawal before data sharing.** Stop the handoff and do not share further data. No vault payload to erase (Stage 2 / Stage 3 not yet reached); the consent receipt's `revocation_status` flips to `revoked`; the handoff's `current_state` advances to `consumer-cancelled` or `consent-revoked` per the request.
+2. **Consumer withdrawal after Stage 2 viewed.** Stop future processing. Acknowledge the professional has already seen Stage 2 data; ATAH cannot retract that. The vault payload for Stage 2 has typically already been crypto-erased by the post-retrieval rule (§11.6); future stages do not advance.
+3. **Consumer withdrawal after Stage 3 retrieval.** Erase any remaining vault payload immediately and stop ATAH processing. Acknowledge ATAH cannot force deletion from the professional's systems — the professional has retrieved the contact details into their own systems, and any erasure obligation there rests with the professional under their own privacy framework.
+4. **Professional withdrawal from an introduction.** The professional declines or is no longer willing to proceed at any stage. The handoff transitions to a terminal `professional-declined-*` state with the appropriate reason code; the professional's response time and record are unaffected.
+5. **Professional withdrawal from matching.** The professional sets `matching_status: withdrawn` (or equivalent). They are removed from inclusion in Discovery, but their record, required audit trail, dispute records, and regulatory metadata are retained per §11.8 / §11.7. **High-impact action — see step-up authentication requirement below.**
+6. **Component 3 referral proposal / connection withdrawal.** The proposing professional withdraws a pending proposal (proposal record deleted; audit metadata retained), or either party withdraws an active connection (connection record deleted; audit metadata retained). The de-duplication exclusion is removed; either party may appear in the other's `request_intent: 'referral_partner_search'` Discovery results in future.
+
+**Withdrawal action recording.** Every withdrawal action MUST record the following on the audit event:
+
+- Authenticated actor (per `principal-delegation.schema.json#/$defs/AuthenticatedActor`)
+- Authority basis (per `AuthorityContext.authority_basis`)
+- Timestamp (`occurred_at`)
+- Affected object (subject of the audit event)
+- Previous state (`previous_state`)
+- Resulting state (`resulting_state`)
+- Reason code (`reason_code`)
+
+These fields are part of the `audit-event.schema.json` shape; see the schema for the canonical structure. The reason_code enumeration is documented in the schema and grows over time as new scenarios are observed; v0.8.2 ships with the values needed by the six scenarios above.
+
+**Step-up authentication requirement.** The following withdrawals are **high-impact** and MUST require step-up authentication at the point of action:
+
+- Professional withdrawal from matching (scenario 5).
+- Revocation of a professional delegated-agent token (the professional revoking a token they issued to an AI assistant or firm admin).
+- Professional record deletion (where supported by deployment).
+
+Step-up authentication MUST require re-authentication or an enhanced authentication factor at the point of action; the specific mechanism (re-auth via OAuth flow, second factor via TOTP, out-of-band push approval, or equivalent) is an implementation choice documented in the deployment notes. The protocol MANDATES the requirement; the protocol does NOT standardise the mechanism in v0.8.2 — that is a candidate for v0.9 standardisation.
+
+**No separate withdrawal-record schema.** Every withdrawal generates a structured audit event with the required fields above. A separate `withdrawal-record.schema.json` is not introduced in v0.8.2 because the audit-event schema already carries the F1.17 required fields and a separate record would duplicate the audit information.
 
 ## 12. Notification Service
 
@@ -1805,7 +1906,18 @@ Verifiers receive webhook notifications on enhanced verification disputes, audit
 - All data encrypted at rest.
 - Separate encryption keys for transient vault (per-record DEK wrapped by master key).
 - Master key rotation every 90 days.
-- Crypto-erasure as primary deletion mechanism for transient vault.
+- Crypto-erasure as primary deletion mechanism for transient vault. Implementation requirements per §11.6 are normative.
+- Audit HMAC keys (used for HMACing contact identifiers and device identifiers per §11.8) MUST be managed under a separate key-management lifecycle from application authentication keys; key rotation, key access control, and key-destruction logging are operational concerns documented in deployment notes.
+
+### 13.2A Step-up Authentication for High-impact Withdrawals
+
+The following withdrawals are **high-impact** and MUST require step-up authentication at the point of action (per §11.9):
+
+- Professional withdrawal from matching (scenario 5 in §11.9).
+- Revocation of a professional delegated-agent token.
+- Professional record deletion (where supported by deployment).
+
+Step-up authentication means re-authentication or an enhanced authentication factor at the point of action — re-auth via OAuth flow, second factor via TOTP, out-of-band push approval, or equivalent. The protocol MANDATES the requirement; the specific mechanism is an implementation choice in v0.8.2 and a candidate for standardisation in v0.9.
 
 ### 13.3 Rate Limiting and Abuse Prevention
 

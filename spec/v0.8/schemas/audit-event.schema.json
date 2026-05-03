@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://atahprotocol.org/spec/v0.8/schemas/audit-event.schema.json",
   "title": "ATAH Audit Event",
-  "description": "ATAH Core Protocol object: a single audit log entry returned by audit endpoints. Internal storage representation may differ; this is the over-the-wire shape. Required for any ATAH-conformant implementation (spec/v0.8 Section 13).",
+  "description": "ATAH Core Protocol object: a single audit log entry returned by audit endpoints. Internal storage representation may differ; this is the over-the-wire shape. Required for any ATAH-conformant implementation (spec/v0.8 §13). Per §11.8, audit-event records MUST NOT contain consumer-identifying fields in plaintext; references to contact identifiers (email, phone) and device identifiers (source IP, user-agent) MUST use HMACs with protected audit keys or per-context salted hashes — plain hashes of email or phone numbers are guessable and are explicitly excluded. The schema's `metadata` object is open by design but MUST NOT carry plaintext PII; implementations that route plaintext into `metadata` are non-conformant. Withdrawal events carry the F1.17 fields (`previous_state`, `resulting_state`, `reason_code`) in addition to the principal-delegation actor block.",
   "type": "object",
   "properties": {
     "event_id": {
@@ -23,6 +23,7 @@
         "consent_revoked",
         "data_retrieved",
         "data_erased",
+        "key_destroyed",
         "partner_data_pushed",
         "verifier_data_submitted",
         "admin_action",
@@ -33,7 +34,14 @@
         "meaningful_conflict_detected",
         "partner_suspended",
         "verifier_suspended",
-        "security_event"
+        "security_event",
+        "referral_proposal_created",
+        "referral_proposal_resolved",
+        "referral_connection_created",
+        "referral_connection_withdrawn",
+        "professional_withdrew_from_matching",
+        "delegated_token_revoked",
+        "withdrawal_recorded"
       ]
     },
     "occurred_at": {
@@ -48,7 +56,19 @@
       "properties": {
         "subject_type": {
           "type": "string",
-          "enum": ["handoff", "professional", "partner", "verifier", "consent_receipt", "dispute", "flag"]
+          "enum": [
+            "handoff",
+            "professional",
+            "partner",
+            "verifier",
+            "consent_receipt",
+            "dispute",
+            "flag",
+            "referral_proposal",
+            "referral_connection",
+            "vault_object",
+            "delegated_token"
+          ]
         },
         "subject_id": {
           "type": "string",
@@ -62,9 +82,106 @@
       "type": ["string", "null"],
       "description": "Originating request_id, if any. Null for system-emitted events."
     },
+    "handoff_id": {
+      "type": "string",
+      "pattern": "^hf-[A-Za-z0-9-]{6,64}$",
+      "description": "Handoff this event is associated with, when applicable. Component 2 events typically carry this."
+    },
+    "query_id": {
+      "type": "string",
+      "pattern": "^q-[A-Za-z0-9-]{6,64}$",
+      "description": "Discovery query this event is associated with, when applicable."
+    },
+    "professional_id": {
+      "type": "string",
+      "pattern": "^atah-[A-Za-z0-9-]{6,64}$",
+      "description": "Professional this event is associated with, when applicable."
+    },
+    "proposal_id": {
+      "type": "string",
+      "pattern": "^proposal-[A-Za-z0-9-]{6,64}$",
+      "description": "Component 3 referral-proposal this event is associated with, when applicable."
+    },
+    "connection_id": {
+      "type": "string",
+      "pattern": "^conn-[A-Za-z0-9-]{6,64}$",
+      "description": "Component 3 referral-connection this event is associated with, when applicable."
+    },
+    "pseudonymous_consumer_ref": {
+      "type": "string",
+      "description": "Pseudonymous, HMAC-form consumer reference where appropriate. MUST be an HMAC with a protected audit key or a per-context salted hash; plain hashes of email or phone numbers are guessable and MUST NOT be placed here."
+    },
+    "request_intent": {
+      "type": "string",
+      "enum": ["self", "on_behalf_of_client", "referral_partner_search"],
+      "description": "Discovery `request_intent` declared on the originating query (Phase 2), when the event is downstream of a Discovery query."
+    },
+    "stage": {
+      "type": "string",
+      "description": "Component 2 flow stage this event applies to, when applicable (e.g. `stage-1-pending`, `stage-2-cleared`, `stage-3-released`)."
+    },
+    "payload_type": {
+      "type": "string",
+      "description": "Type label for the payload involved (e.g. `stage_2_prehandoff`, `stage_3_contact`, `referral_proposal_message`). NOT payload content."
+    },
+    "consent_receipt_id": {
+      "type": "string",
+      "pattern": "^cr-[A-Za-z0-9-]{6,64}$",
+      "description": "Consent receipt referenced by this event, when applicable."
+    },
+    "receipt_hash": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "description": "SHA-256 hash of the canonicalised consent receipt. Integrity reference, not payload."
+    },
+    "retrieved_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Vault retrieval timestamp, when applicable."
+    },
+    "erased_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Crypto-erasure timestamp, when applicable."
+    },
+    "retrieval_actor": {
+      "type": "string",
+      "description": "Identifier of the actor who performed the retrieval (typically a `professional` actor); recorded distinct from `authenticated_actor` because retrieval may be performed under a different authority basis from the event-emitting authority."
+    },
+    "auth_tier": {
+      "type": "string",
+      "enum": ["tier_1", "tier_2", "tier_3"],
+      "description": "Authentication tier applied at the point of action (per §11.6 retrieval flow)."
+    },
+    "abuse_flags": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true,
+      "description": "Abuse-flag identifiers raised against this event."
+    },
+    "source_ip_hmac": {
+      "type": "string",
+      "description": "HMAC of the source IP address (where lawful and proportionate). MUST be an HMAC under a protected audit key, not a plain hash."
+    },
+    "user_agent_hmac": {
+      "type": "string",
+      "description": "HMAC of the user-agent string (where lawful and proportionate). MUST be an HMAC under a protected audit key, not a plain hash."
+    },
+    "previous_state": {
+      "type": "string",
+      "description": "State the affected object was in before this event. Required for withdrawal events and other state-transition events."
+    },
+    "resulting_state": {
+      "type": "string",
+      "description": "State the affected object is in after this event. Required for withdrawal events and other state-transition events."
+    },
+    "reason_code": {
+      "type": "string",
+      "description": "Machine-readable reason code for the state transition. v0.8.2 ships with the values needed by the six §11.9 withdrawal scenarios; the enumeration grows over time as new scenarios are observed."
+    },
     "metadata": {
       "type": "object",
-      "description": "Open object for event-type-specific structured detail.",
+      "description": "Open object for event-type-specific structured detail. MUST NOT carry plaintext PII; implementations routing plaintext into `metadata` are non-conformant per §11.8.",
       "additionalProperties": true
     }
   },
@@ -172,13 +289,74 @@
         "authority_basis": "system_role"
       },
       "subject": {
-        "subject_type": "handoff",
-        "subject_id": "hf-01HQXRC2T7UVWZ9ABCDE1FGHIJ"
+        "subject_type": "vault_object",
+        "subject_id": "vault-01HQXRH7Y2ZABCDEF6KLMNOPQRS"
       },
       "request_id": null,
+      "handoff_id": "hf-01HQXRC2T7UVWZ9ABCDE1FGHIJ",
+      "payload_type": "stage_3_contact",
+      "erased_at": "2026-04-10T18:00:00Z",
       "metadata": {
-        "vault_ref": "vault-01HQXRH7Y2ZABCDEF6KLMNOPQRS",
         "erasure_reason": "stage_3_post_retrieval"
+      }
+    },
+    {
+      "event_id": "evt-01HQXRM4G9HIJKLMNOPQRSTUVW",
+      "schema_version": "0.8",
+      "event_type": "professional_withdrew_from_matching",
+      "occurred_at": "2026-04-12T11:30:00Z",
+      "authenticated_actor": {
+        "actor_type": "professional",
+        "actor_id": "atah-01HQXR7K9NBVZ8M3PXFG2YT5WA"
+      },
+      "authority_context": {
+        "represented_principal_type": "professional",
+        "authority_basis": "professional_delegated_token",
+        "permitted_scopes": ["atah:professionals:self_write"],
+        "expires_at": "2026-07-10T00:00:00Z",
+        "object_constraints": [
+          { "constraint_type": "professional_id", "value": "atah-01HQXR7K9NBVZ8M3PXFG2YT5WA" }
+        ]
+      },
+      "subject": {
+        "subject_type": "professional",
+        "subject_id": "atah-01HQXR7K9NBVZ8M3PXFG2YT5WA"
+      },
+      "request_id": "req-01HQXRM4G9HIJKLMNOPQRSTUVW",
+      "professional_id": "atah-01HQXR7K9NBVZ8M3PXFG2YT5WA",
+      "auth_tier": "tier_2",
+      "previous_state": "active",
+      "resulting_state": "withdrawn",
+      "reason_code": "professional_request_withdrawal_from_matching",
+      "metadata": {
+        "step_up_authentication_completed": true,
+        "step_up_method": "out_of_band_push"
+      }
+    },
+    {
+      "event_id": "evt-01HQXRM5H0IJKLMNOPQRSTUVWX",
+      "schema_version": "0.8",
+      "event_type": "key_destroyed",
+      "occurred_at": "2026-04-10T18:00:01Z",
+      "authenticated_actor": {
+        "actor_type": "system",
+        "actor_id": "atah-system-key-mgmt"
+      },
+      "authority_context": {
+        "represented_principal_type": "none",
+        "authority_basis": "system_role"
+      },
+      "subject": {
+        "subject_type": "vault_object",
+        "subject_id": "vault-01HQXRH7Y2ZABCDEF6KLMNOPQRS"
+      },
+      "request_id": null,
+      "handoff_id": "hf-01HQXRC2T7UVWZ9ABCDE1FGHIJ",
+      "payload_type": "stage_3_contact",
+      "metadata": {
+        "key_id": "dek-01HQXRH7Y2ZABCDEF6KLMNOPQRS",
+        "destruction_method": "synchronous_dek_erasure",
+        "linked_event_id": "evt-01HQXRM3F8GHIJKLMNOPQRSTUV"
       }
     }
   ]

@@ -184,6 +184,18 @@ the professional's own systems hold the data and ATAH cannot compel its
 deletion. Revocation in all cases prevents further ATAH-mediated use of the
 introduction.
 
+## Three different operations on data
+
+When data is removed from ATAH, three different things might be happening, and v0.8.2 keeps them deliberately distinct.
+
+**Payload erasure** — removing or crypto-erasing the sensitive content itself. Stage 2 pre-handoff data and Stage 3 contact details flow through the transient encrypted vault and are crypto-erased on retrieval, expiry, cancellation, or revocation. Crypto-erasure means the data-encryption key is destroyed; the encrypted ciphertext may remain in storage or backups until ordinary retention expiry, but it is treated as unrecoverable once the key is gone. ATAH's vault implementation requires unique keys per object, keys stored separately from ciphertext, destroyed keys excluded from recoverable backups, no plaintext in logs or queues or analytics or notification providers, auditable key-destruction events, and short single-use retrieval tokens.
+
+**Audit retention** — preserving tamper-evident metadata about what happened. Audit records carry pseudonymous identifiers, integrity references (consent receipt id and hash, request_intent, stage, payload type), timestamps, the principal-delegation context (who acted, on whose authority), abuse flags, and HMAC-protected references to contact identifiers and devices where lawful. Plain hashes of email or phone numbers are guessable across the population they identify and are explicitly excluded; HMACs with protected audit keys are required. Audit retention applies to metadata, not to payload content; the two operations are deliberately separate so that erasing sensitive content does not erase the evidence of what happened.
+
+**Withdrawal** — a state transition stopping future protocol processing. Withdrawal does NOT erase audit records, consent receipt metadata, state history, abuse signals, dispute records, or legally required retention records. ATAH distinguishes six withdrawal scenarios (consumer before data sharing, consumer after Stage 2, consumer after Stage 3 retrieval, professional withdrawal from an introduction, professional withdrawal from matching, Component 3 proposal or connection withdrawal), each with its own semantics. Two of these — professional withdrawal from matching, and revocation of a professional delegated-agent token — are high-impact and require step-up authentication at the point of action.
+
+The reason for keeping these three concepts separate is concrete: if payload erasure also removed audit metadata, ATAH would become harder to investigate when abuse, spam, phishing, bad consent assertions, weak authentication, or disputes occur; if withdrawal meant deletion of lifecycle history, withdrawal itself would become an evidence-deletion abuse primitive. Separating the three keeps each operation honest about what it does.
+
 ## How the handoff is secured — and why it matters
 
 A subtle but important point: in earlier versions, holding a `handoff_id` was enough to read or change the introduction. That sounds harmless, but `handoff_id`s end up in logs, in screenshots, in support tickets, in URLs. Possession alone shouldn't grant power.

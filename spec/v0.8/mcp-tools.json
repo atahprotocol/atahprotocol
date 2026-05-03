@@ -531,7 +531,7 @@
     },
     {
       "name": "cancel_introduction",
-      "description": "Consumer cancellation of an active introduction. Triggers data deletion in the transient vault and notifies the professional that the introduction has been cancelled. Final state is consumer-cancelled.",
+      "description": "Consumer cancellation of an active Component 2 introduction. Per spec §11.9, this serves withdrawal scenarios 1 and 2: scenario 1 (consumer withdrawal before data sharing) stops the handoff before vault data is shared; scenario 2 (consumer withdrawal after Stage 2 viewed) stops future processing while acknowledging the professional has already seen Stage 2 data. The `withdrawal_state` field on the handoff record is set accordingly. Audit metadata is retained per §11.8; `previous_state`, `resulting_state`, and `reason_code` are recorded on the audit event. Final lifecycle state is `consumer-cancelled`.",
       "input_schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
@@ -611,7 +611,7 @@
     },
     {
       "name": "revoke_consent",
-      "description": "Consumer revocation of a previously-issued consent receipt. Triggers data deletion in the transient vault for any data covered by the revoked receipt and prevents further actions under that receipt. handoff_access_token is required when the receipt is associated with a handoff.",
+      "description": "Consumer revocation of a previously-issued consent receipt. Per spec §11.9 scenario 3 (Consumer withdrawal after Stage 3 retrieval): any remaining vault payload covered by the revoked receipt is crypto-erased immediately; further actions under the receipt are prevented. ATAH cannot force deletion from the professional's systems where the contact details have already been retrieved — that obligation rests with the professional under their own privacy framework. The handoff's `withdrawal_state` becomes `consumer_withdrew_post_stage3_retrieval` (or the appropriate value if the receipt covered an earlier stage). Audit metadata, the consent-receipt integrity record, and state history are retained per §11.8. handoff_access_token is required when the receipt is associated with a handoff.",
       "input_schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
@@ -1208,6 +1208,53 @@
         "is_read_only": false,
         "transmits_personal_data": false,
         "requires_explicit_user_approval": false,
+        "state_change_scope": "professional_profile"
+      },
+      "permitted_authority_bases": [
+        "professional_delegated_token",
+        "firm_delegation"
+      ]
+    },
+    {
+      "name": "withdraw_from_matching",
+      "description": "Professional withdrawal from matching — Component 2 withdrawal scenario 5 per spec §11.9. Sets the professional's matching_status to withdrawn; the professional is removed from inclusion in Discovery, but their record, required audit trail, dispute records, regulatory metadata, and existing Component 3 connections are RETAINED per §11.8. **High-impact action**: this tool MUST require step-up authentication at the point of action — re-auth via OAuth flow, second factor via TOTP, out-of-band push approval, or equivalent. The protocol mandates the requirement; the specific mechanism is implementation choice in v0.8.2. The audit event records previous_state, resulting_state, reason_code, the principal-delegation context, and the auth_tier reflecting the step-up authentication applied.",
+      "input_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "reason_code": {
+            "type": "string",
+            "description": "Reason code for the withdrawal."
+          },
+          "step_up_token": {
+            "type": "string",
+            "description": "Token or proof that step-up authentication was completed at the point of action. The protocol requires that step-up authentication happen; the specific token shape is implementation-specific in v0.8.2."
+          }
+        },
+        "required": ["reason_code", "step_up_token"],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "matching_status": { "type": "string", "const": "withdrawn" },
+          "withdrawn_at": { "type": "string", "format": "date-time" },
+          "audit_event_id": { "type": "string", "minLength": 1 }
+        },
+        "required": ["matching_status", "withdrawn_at", "audit_event_id"],
+        "additionalProperties": false
+      },
+      "error_codes": [
+        "step_up_authentication_required",
+        "step_up_token_invalid",
+        "validation_error",
+        "unauthorized"
+      ],
+      "safety_metadata": {
+        "is_read_only": false,
+        "transmits_personal_data": false,
+        "requires_explicit_user_approval": true,
         "state_change_scope": "professional_profile"
       },
       "permitted_authority_bases": [

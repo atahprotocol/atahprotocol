@@ -462,7 +462,13 @@ The core role of ATAH in AI system integration is to support the transition from
 
 ## 9. Privacy and Data Governance
 
-ATAH handles consumer personal data as a transient conduit, never a repository. The system distinguishes clearly between data categories:
+ATAH handles consumer personal data as a transient conduit, never a repository. v0.8.2 introduces a three-concept separation that governs every operation on data:
+
+- **Payload erasure** — removing or crypto-erasing sensitive content (vault payloads, free text). Crypto-erasure means the data-encryption key is destroyed; encrypted ciphertext may remain in storage or backups until ordinary retention expiry but is treated as unrecoverable. Spec §11.6 documents the implementation requirements (unique key per object, keys stored separately, destroyed keys excluded from recoverable backups, no plaintext in logs / queues / analytics / indexes / notification providers, auditable key-destruction events, short single-use retrieval tokens).
+- **Audit retention** — preserving tamper-evident metadata about what happened. Audit records carry pseudonymous identifiers, integrity references, timestamps, the principal-delegation context, abuse flags, and HMAC-protected references where lawful and proportionate. Plain hashes of email or phone numbers are guessable and explicitly excluded; HMACs with protected audit keys are required. Spec §11.8 sets the canonical erase-fields and retain-fields lists.
+- **Withdrawal** — a state transition stopping future protocol processing. Withdrawal does NOT erase audit records, consent receipt metadata, state history, abuse signals, dispute records, or legally required retention records. Spec §11.9 distinguishes six scenarios; high-impact withdrawals (professional withdrawal from matching, professional delegated-agent token revocation, professional record deletion) require step-up authentication.
+
+The system distinguishes clearly between data categories:
 
 - **Professional identity data** — name, credentials, contact preferences, and profile information. Core registry data, maintained as long as the professional is registered.
 - **Trust and verification metadata** — partner-contributed data points, enhanced verification records, review platform data, verification status records, and validator provenance. Retained and tagged with source at all times.

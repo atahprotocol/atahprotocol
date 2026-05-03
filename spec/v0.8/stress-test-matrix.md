@@ -255,41 +255,41 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 
 - **Scenario.** A handoff payload is erased per protocol's erasure rules; subsequently a complaint, dispute, or regulator request requires reconstruction or evidence of what was sent.
 - **Abuse / failure mode.** Tension between privacy (erasure) and accountability (investigation). Three-concept separation must keep audit-event metadata viable after payload erasure.
-- **Expected protocol behaviour.** _To be filled in during Phase 3._
-- **Required audit events.** _To be filled in during Phase 3._
-- **Required user / professional disclosure.** _To be filled in during Phase 3._
-- **Required conformance test.** _To be filled in during Phase 3._
-- **Status.** `skeleton`
+- **Expected protocol behaviour.** Per §11.8, crypto-erasure applies to vault payload content, not to audit metadata. The audit log retains tamper-evident records sufficient to investigate abuse, disputes, authentication failures, and consent-integrity claims, without retaining consumer personal data in plaintext. The retain-field list (§11.8) covers `event_id`, `handoff_id`, principal-delegation context, `request_intent`, `stage`, `payload_type` (not content), `consent_receipt_id`, `receipt_hash`, timestamps, retrieval actor, auth tier, abuse flags, HMAC-form contact and device references.
+- **Required audit events.** All lifecycle events for the handoff: `introduction_initiated`, `stage_advanced`, `consent_asserted`, `data_retrieved`, `data_erased`, `key_destroyed`, plus any `consent_revoked` or withdrawal events that occurred. Each carries the principal-delegation context per §4.9A.
+- **Required user / professional disclosure.** ATAH admin and the subject of audit (professional, partner, verifier) have access to entries concerning them on request, per §13.5.
+- **Required conformance test.** Conformance suite simulates a handoff lifecycle through completion + payload erasure, then queries the audit log and verifies that the retain-field list is populated for each lifecycle event without any consumer personal data in plaintext.
+- **Status: `resolved`** by §11.8 audit retention rules and the retain-field list on `audit-event.schema.json`.
 
 ### 5.2 Plaintext appears in logs or notification providers
 
 - **Scenario.** Despite vault and crypto-erasure architecture, plaintext (consumer query content, professional contact details, decision rationale) leaks into application logs, notification provider records, or third-party telemetry.
 - **Abuse / failure mode.** Privacy posture undermined at the operational margin; secondary persistence stores defeat the primary erasure design.
-- **Expected protocol behaviour.** _To be filled in during Phase 3._
-- **Required audit events.** _To be filled in during Phase 3._
-- **Required user / professional disclosure.** _To be filled in during Phase 3._
-- **Required conformance test.** _To be filled in during Phase 3._
-- **Status.** `skeleton`
+- **Expected protocol behaviour.** Per §11.6 implementation requirements, conforming implementations MUST satisfy: no plaintext in logs, queues, analytics, indexes, or notification providers; keys stored separately from ciphertext; destroyed keys excluded from recoverable backups. Per §11.8, audit-event records MUST NOT contain consumer-identifying fields in plaintext; references to contact identifiers (email, phone) MUST use HMACs with protected audit keys, not plain hashes. Per §11.2 deletion table, the personal-data-allowed column is "None" for SMS/email notifications, notification provider logs, webhook delivery queue, analytics/metrics, and dead-letter queue.
+- **Required audit events.** If plaintext is detected in a store where it is not allowed, the entry is automatically purged and a critical audit event is logged (per §11.2).
+- **Required user / professional disclosure.** Critical-severity alerting per §13.5; security event recorded.
+- **Required conformance test.** Conformance suite includes a "no plaintext" test against logs, queues, analytics indices, and notification provider snapshots after a complete handoff lifecycle. Plain-hashed email or phone in the audit log MUST cause a test failure.
+- **Status: `bounded-by-protocol`** — the protocol's normative requirements close the failure mode at the spec level. ATAH cannot fully prevent operational deployments from leaking plaintext into infrastructure outside its direct control (e.g. a misconfigured notification provider that logs full message bodies); the protocol's role is to specify the requirement and reject non-conformance via the conformance test suite. Operational-side enforcement is a registry-implementation responsibility.
 
 ### 5.3 Key deletion is not auditable
 
 - **Scenario.** Crypto-erasure relies on key destruction; deletion of the key itself is performed but produces no auditable event, so erasure cannot be verified after the fact.
 - **Abuse / failure mode.** Erasure is a claim, not a verifiable fact; conformance and dispute resolution cannot rely on it.
-- **Expected protocol behaviour.** _To be filled in during Phase 3._
-- **Required audit events.** _To be filled in during Phase 3._
-- **Required user / professional disclosure.** _To be filled in during Phase 3._
-- **Required conformance test.** _To be filled in during Phase 3._
-- **Status.** `skeleton`
+- **Expected protocol behaviour.** Per §11.6, "auditable key-destruction events" is one of the six normative implementation requirements. The `audit-event.schema.json` `event_type` enum includes `key_destroyed`; key-destruction events carry the destroyed key identifier, the linked vault-payload event id, and the destruction method.
+- **Required audit events.** `key_destroyed` event for each DEK destruction; linked to the corresponding `data_erased` event by the `linked_event_id` field in `metadata`.
+- **Required user / professional disclosure.** ATAH admin and the subject of audit have access on request per §13.5.
+- **Required conformance test.** Conformance suite verifies that every `data_erased` event has a matching `key_destroyed` event with a synchronous-or-near-synchronous timestamp and a populated `linked_event_id`.
+- **Status: `resolved`** by §11.6 implementation requirement (auditable key-destruction events) and the `key_destroyed` `event_type` on the audit-event schema.
 
 ### 5.4 Retrieval token is reused or leaked
 
 - **Scenario.** A retrieval token issued for single-use access to a payload is reused, replayed by an attacker, or leaks into a system where it is consumed by an unintended party.
 - **Abuse / failure mode.** Retrieval becomes effectively multi-use; downstream parties access content without distinct authority.
-- **Expected protocol behaviour.** _To be filled in during Phase 3._
-- **Required audit events.** _To be filled in during Phase 3._
-- **Required user / professional disclosure.** _To be filled in during Phase 3._
-- **Required conformance test.** _To be filled in during Phase 3._
-- **Status.** `skeleton`
+- **Expected protocol behaviour.** Per §11.6 implementation requirements, retrieval tokens are short-TTL and single-use. The `audit-event.schema.json` records `retrieved_at`, `retrieval_actor`, and `auth_tier` for every retrieval; reuse is detected at the vault layer (single-use enforcement) and at the audit layer (anomaly: same token id appearing twice).
+- **Required audit events.** `data_retrieved` event with `retrieval_actor`, `auth_tier`, and the principal-delegation context; on reuse attempt, a `security_event` with the failure reason.
+- **Required user / professional disclosure.** Retrieval failure surfaces to the asserter platform and to the affected professional through the existing notification channels.
+- **Required conformance test.** Conformance suite verifies that a second retrieval using the same token returns an authentication failure and produces a `security_event` audit record.
+- **Status: `resolved`** by §11.6 single-use retrieval-token requirement and the `data_retrieved` / `security_event` audit-event recording.
 
 ---
 
@@ -301,41 +301,41 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 
 - **Scenario.** An attacker or harasser initiates handoffs to a target professional and withdraws each one before completion, exploiting the withdrawal mechanism for harassment, denial-of-service, or reputational signal noise.
 - **Abuse / failure mode.** Withdrawal as harassment vector; rate-limit gaps and lack of immutable metadata enable repeat abuse.
-- **Expected protocol behaviour.** _To be filled in during Phase 3._
-- **Required audit events.** _To be filled in during Phase 3._
-- **Required user / professional disclosure.** _To be filled in during Phase 3._
-- **Required conformance test.** _To be filled in during Phase 3._
-- **Status.** `skeleton`
+- **Expected protocol behaviour.** Per §11.9, withdrawal is a state transition and does NOT erase audit records. Every initiate-then-withdraw cycle generates a structured audit event with the principal-delegation context, `previous_state`, `resulting_state`, and `reason_code`. Pattern detection (repeat withdrawals from the same `authenticated_actor`) is therefore visible in the audit stream. Per §13.3, rate limits on per-period proposal/initiation actions apply (concrete numbers populated by registry implementations; spec mandates the requirement).
+- **Required audit events.** `introduction_initiated` and `withdrawal_recorded` (or the equivalent state-transition event_type) for each cycle, all carrying the same `authenticated_actor.actor_id` and `client_application` for pattern detection.
+- **Required user / professional disclosure.** The target professional MAY surface withdrawal patterns through their professional portal; harassment-monitoring is a v0.8.3 deferred mechanism (per scenario 1.6 deferral).
+- **Required conformance test.** Conformance suite verifies that withdrawal generates an audit event with the F1.17 fields and that rate-limit enforcement returns `429` after threshold.
+- **Status: `partially-resolved`** — Phase 3 closes the structural side via withdrawal-as-state-transition + audit retention. Concrete rate-limit thresholds and harassment-monitoring (dense-cluster pattern detection) are `deferred-to-v0.8.3`.
 
 ### 6.2 Professional withdraws profile after concern flags
 
 - **Scenario.** A professional withdraws their ATAH profile (or a critical part of it) immediately after concern flags are raised, attempting to evade ongoing scrutiny.
 - **Abuse / failure mode.** Withdrawal as evidence escape; without immutable audit metadata of the flags and the withdrawal, future re-registration could erase prior signals.
-- **Expected protocol behaviour.** _To be filled in during Phase 3._
-- **Required audit events.** _To be filled in during Phase 3._
-- **Required user / professional disclosure.** _To be filled in during Phase 3._
-- **Required conformance test.** _To be filled in during Phase 3._
-- **Status.** `skeleton`
+- **Expected protocol behaviour.** Per §11.9 normative rule: withdrawal stops future processing but does NOT erase audit records, consent receipt metadata, state history, abuse signals, dispute records, or legally required retention records. Per §11.9 scenario 5: professional withdrawal from matching retains the record's required audit trail, dispute records, regulatory metadata, and existing concern flags. Per §13.2A: the withdrawal is high-impact and requires step-up authentication at the point of action. On future re-registration, the audit and concern-flag history is still present and discoverable through the dispute / admin surfaces.
+- **Required audit events.** `professional_withdrew_from_matching` with previous_state, resulting_state (`withdrawn`), reason_code, principal-delegation context, and `auth_tier` reflecting step-up. Existing `concern_flag_raised` events are unaffected.
+- **Required user / professional disclosure.** ATAH admin retains visibility on the audit trail; the professional themselves can view their own concern-flag history through the existing professional portal endpoints.
+- **Required conformance test.** Conformance suite simulates concern-flag-then-withdrawal-then-re-registration; verifies that prior concern-flag history is still discoverable post-re-registration.
+- **Status: `resolved`** by §11.9 withdrawal scenarios 5 (audit and dispute records preserved) + §13.2A step-up authentication requirement.
 
 ### 6.3 Consumer withdraws after data retrieval and expects data to be unseen
 
 - **Scenario.** Consumer withdraws after the professional has already retrieved the handoff payload and expects this to render the data "unseen" or unusable.
 - **Abuse / failure mode.** Mismatch between the consumer's mental model of withdrawal and what protocol withdrawal can actually achieve once data has been delivered to a third party's own systems.
-- **Expected protocol behaviour.** _To be filled in during Phase 3._
-- **Required audit events.** _To be filled in during Phase 3._
-- **Required user / professional disclosure.** _To be filled in during Phase 3._
-- **Required conformance test.** _To be filled in during Phase 3._
-- **Status.** `skeleton`
+- **Expected protocol behaviour.** Per §11.9 scenario 3: erase any remaining vault payload immediately and stop ATAH processing; **acknowledge that ATAH cannot force deletion from the professional's systems** — that obligation rests with the professional under their own privacy framework. The handoff's `withdrawal_state` becomes `consumer_withdrew_post_stage3_retrieval`. The audit event records the transition; the consent receipt's `revocation_status` flips to `revoked`.
+- **Required audit events.** `consent_revoked` and `data_erased` for any remaining vault payload; `withdrawal_recorded` with previous_state, resulting_state, reason_code.
+- **Required user / professional disclosure.** Consumer-facing AI platforms MUST surface, at the consent-capture stage, that ATAH cannot retract data already delivered to professionals. The professional receives a notification that consent has been revoked; their own data-handling obligations apply under their privacy framework.
+- **Required conformance test.** Conformance suite simulates Stage 3 retrieval followed by consumer revocation; verifies vault crypto-erasure of any remaining payload and the audit-event sequence.
+- **Status: `resolved`** by §11.9 scenario 3 (with the explicit acknowledgement that ATAH cannot force deletion from the professional's systems — the protocol is honest about its limits).
 
 ### 6.4 Delegated agent withdraws a professional from matching after account compromise
 
 - **Scenario.** A delegated agent token, compromised by an attacker, is used to withdraw the principal professional from matching (or modify their profile to render them ineligible).
 - **Abuse / failure mode.** Compromise of one credential class causes business damage to the principal; recovery semantics unclear.
-- **Expected protocol behaviour.** _To be filled in during Phase 3._
-- **Required audit events.** _To be filled in during Phase 3._
-- **Required user / professional disclosure.** _To be filled in during Phase 3._
-- **Required conformance test.** _To be filled in during Phase 3._
-- **Status.** `skeleton`
+- **Expected protocol behaviour.** Per §13.2A: professional withdrawal from matching is a high-impact action requiring step-up authentication at the point of action. A compromised delegated-agent token alone is therefore insufficient — the step-up authentication factor (re-auth via OAuth, second factor via TOTP, out-of-band push, or equivalent) must also be presented. Per §11.9: revocation of a professional delegated-agent token is itself a high-impact action requiring step-up; the principal can recover by revoking the compromised token and reissuing.
+- **Required audit events.** Failed step-up authentication produces a `security_event`; successful withdrawal produces `professional_withdrew_from_matching` with `auth_tier` recording the step-up method.
+- **Required user / professional disclosure.** Failed step-up attempts on a professional's account MAY surface to the principal through their professional portal; out-of-band notification (email or SMS to the partner-known channel) is a registry-implementation pattern.
+- **Required conformance test.** Conformance suite verifies that an attempt to call `withdraw_from_matching` (or POST `/v1/professionals/me/withdraw`) without a valid `step_up_token` returns `403` with the appropriate error code.
+- **Status: `resolved`** by §13.2A step-up authentication requirement on high-impact withdrawals.
 
 ### 6.5 Component 3 connection records persist after professional withdrawal from matching
 
@@ -569,5 +569,25 @@ New scenarios discovered during Phase 2:
 - **6.5 — Component 3 connection records persist after professional withdrawal from matching.** Status `skeleton` — discovered in Phase 2 but resolution falls to Phase 3's withdrawal-as-state-transition work.
 
 **Status distribution after Phase 2:** 35 × `skeleton`, 2 × `resolved` (1.1, 1.3), 5 × `partially-resolved` (1.2, 1.4, 1.5, 1.6, 3.2), 1 × `deferred` (7.3). New total: 43 scenarios (41 seed + 2 discovered in Phase 2).
+
+## Phase 3 update
+
+Three-concept separation of payload erasure / audit retention / withdrawal-as-state-transition (Paolo's F1.14–F1.17) ships in Phase 3. Status changes:
+
+- **Category 5 (Vault, Erasure, and Audit Abuse):**
+  - 5.1 (payload erased but abuse investigation needed) → **`resolved`** by §11.8 audit retention rules and the retain-field list on `audit-event.schema.json`.
+  - 5.2 (plaintext appears in logs or notification providers) → **`bounded-by-protocol`** — the protocol's normative requirements (§11.6 implementation requirements + §11.8 HMAC requirement) close the failure mode at the spec level; ATAH cannot fully prevent operational deployments from leaking plaintext into infrastructure outside its direct control. Operational-side enforcement is a registry-implementation responsibility.
+  - 5.3 (key deletion not auditable) → **`resolved`** by §11.6 normative requirement (auditable key-destruction events) and the `key_destroyed` `event_type` on the audit-event schema.
+  - 5.4 (retrieval token reused or leaked) → **`resolved`** by §11.6 single-use retrieval-token requirement and the `data_retrieved` / `security_event` audit recording.
+- **Category 6 (Withdrawal Abuse):**
+  - 6.1 (malicious actor initiates and withdraws repeated handoffs) → **`partially-resolved`**. Phase 3 closes the structural side via withdrawal-as-state-transition + audit retention. Concrete rate-limit thresholds and harassment-monitoring (dense-cluster pattern detection) `deferred-to-v0.8.3`.
+  - 6.2 (professional withdraws profile after concern flags) → **`resolved`** by §11.9 scenario 5 (audit and dispute records preserved) + §13.2A step-up authentication requirement.
+  - 6.3 (consumer withdraws after data retrieval and expects data to be unseen) → **`resolved`** by §11.9 scenario 3, with the explicit acknowledgement that ATAH cannot force deletion from the professional's systems — the protocol is honest about its limits.
+  - 6.4 (delegated agent withdraws after account compromise) → **`resolved`** by §13.2A step-up authentication requirement on high-impact withdrawals.
+  - 6.5 (Component 3 connection records persist after professional withdrawal from matching, discovered in Phase 2) → **`resolved`** by §11.9 scenario 5's explicit framing: withdrawal-from-matching does NOT imply withdrawal-from-Component-3-connections; either can be performed independently. The interaction is documented and intentional.
+
+New scenarios discovered during Phase 3: none.
+
+**Status distribution after Phase 3:** 26 × `skeleton`, 9 × `resolved` (1.1, 1.3, 5.1, 5.3, 5.4, 6.2, 6.3, 6.4, 6.5), 1 × `bounded-by-protocol` (5.2), 6 × `partially-resolved` (1.2, 1.4, 1.5, 1.6, 3.2, 6.1), 1 × `deferred` (7.3). Total: 43 scenarios.
 
 Phase 11 finalises the matrix as the verification artifact for v0.8.2 publication.

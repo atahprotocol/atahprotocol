@@ -102,7 +102,19 @@
     "created_at": { "type": "string", "format": "date-time" },
     "last_updated": { "type": "string", "format": "date-time" },
     "cancelled_at": { "type": "string", "format": "date-time" },
-    "consent_revoked_at": { "type": "string", "format": "date-time" }
+    "consent_revoked_at": { "type": "string", "format": "date-time" },
+    "withdrawal_state": {
+      "type": "string",
+      "enum": [
+        "not_withdrawn",
+        "consumer_withdrew_pre_share",
+        "consumer_withdrew_post_stage2",
+        "consumer_withdrew_post_stage3_retrieval",
+        "professional_declined_introduction"
+      ],
+      "default": "not_withdrawn",
+      "description": "Coarse withdrawal-scenario classification per §11.9. Default `not_withdrawn` for active handoffs. The granular state-transition history (with previous_state, resulting_state, reason_code, and actor authority basis per F1.17) lives in the audit log; this field is a summary classification for quick lookup. Independent of `current_state` (which carries the lifecycle state machine); a handoff in `current_state: consumer-cancelled` typically has `withdrawal_state: consumer_withdrew_pre_share` (or post-stage2/post-stage3 depending on when cancellation occurred)."
+    }
   },
   "required": [
     "handoff_id",
@@ -169,7 +181,8 @@
       ],
       "pre_handoff_check_type": "conflict_check",
       "created_at": "2026-04-10T14:21:00Z",
-      "last_updated": "2026-04-10T15:02:34Z"
+      "last_updated": "2026-04-10T15:02:34Z",
+      "withdrawal_state": "not_withdrawn"
     }
   ]
 }

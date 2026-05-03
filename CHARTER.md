@@ -192,6 +192,7 @@ These operational commitments implement the Part One privacy floor. They may be 
 - Consumer personal data is held only in transient encrypted stores, retrieved through authenticated access, and deleted or crypto-erased per category retention rules
 - Every introduction requires fresh explicit consent, captured as a structured consent receipt
 - ATAH never re-uses personal data from a previous introduction
+- ATAH operates the three-concept separation (payload erasure / audit retention / withdrawal-as-state-transition) — payload content is crypto-erased per the spec; tamper-evident audit metadata is retained without consumer personal data in plaintext; withdrawal stops future protocol processing without erasing audit history. Detailed semantics live in spec §11.
 - Detailed data governance is set out in the specification
 - Professional data is also personal data where it relates to identifiable
   professionals. Operational commitments on professional data protection

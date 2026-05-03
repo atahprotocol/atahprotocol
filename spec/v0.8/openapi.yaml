@@ -424,8 +424,24 @@ paths:
     post:
       tags: [External]
       operationId: postIntroductionCancel
-      summary: Consumer cancellation of an introduction.
-      description: Triggers data deletion in the transient vault.
+      summary: Consumer cancellation — Component 2 withdrawal scenarios 1 / 2.
+      description: |
+        Consumer-side cancellation of a Component 2 handoff. Per spec §11.9:
+
+        - **Scenario 1 — Consumer withdrawal before data sharing.** Stops
+          the handoff before any vault data has been shared. The handoff's
+          `withdrawal_state` becomes `consumer_withdrew_pre_share`;
+          `current_state` advances to `consumer-cancelled`.
+        - **Scenario 2 — Consumer withdrawal after Stage 2 viewed.** Stops
+          future processing; ATAH cannot retract Stage 2 data the
+          professional has already retrieved (vault payload typically
+          already crypto-erased per §11.6). `withdrawal_state` becomes
+          `consumer_withdrew_post_stage2`.
+
+        The audit event for the cancellation records `previous_state`,
+        `resulting_state`, `reason_code`, and the principal-delegation
+        context per §11.9. Vault payload (where present) is crypto-erased
+        synchronously.
       security:
         - oauth2: [atah:introductions:write]
       parameters:
@@ -466,7 +482,21 @@ paths:
     post:
       tags: [External]
       operationId: postIntroductionRevokeConsent
-      summary: Consumer revocation of consent.
+      summary: Consumer revocation of consent — Component 2 withdrawal scenario 3.
+      description: |
+        Consumer-side revocation of a consent receipt referenced by the
+        handoff. Per spec §11.9 scenario 3 — Consumer withdrawal after
+        Stage 3 retrieval — any remaining vault payload is crypto-erased
+        immediately and ATAH processing stops. ATAH cannot force deletion
+        from the professional's systems; that obligation rests with the
+        professional under their own privacy framework.
+
+        The handoff's `withdrawal_state` becomes
+        `consumer_withdrew_post_stage3_retrieval`. The audit event records
+        `previous_state`, `resulting_state`, `reason_code`, the consent
+        receipt's `revocation_status` flip, and the principal-delegation
+        context per §11.9. Audit metadata, consent-receipt integrity
+        metadata, and state history are retained per §11.8.
       security:
         - oauth2: [atah:introductions:write]
       parameters:
@@ -908,6 +938,85 @@ paths:
       responses:
         '200':
           description: Connection established.
+
+  /v1/professionals/me/withdraw:
+    post:
+      tags: [Professional]
+      operationId: postProfessionalWithdraw
+      summary: Professional withdrawal from matching — Component 2 withdrawal scenario 5.
+      description: |
+        The professional sets `matching_status: withdrawn` (or equivalent)
+        and is removed from inclusion in Discovery. Per spec §11.9
+        scenario 5: this is a **high-impact** action and MUST require
+        step-up authentication at the point of action — re-authentication
+        or enhanced authentication factor (re-auth via OAuth flow, second
+        factor via TOTP, out-of-band push approval, or equivalent). The
+        protocol mandates the requirement; the specific mechanism is an
+        implementation choice in v0.8.2.
+
+        The professional's record, required audit trail, dispute records,
+        regulatory metadata, and existing Component 3 referral connections
+        are **retained** per §11.8 / §11.9. Connection records are not
+        automatically withdrawn — withdrawal-from-matching does not imply
+        withdrawal-from-Component-3-connections; either can be performed
+        independently.
+
+        The audit event records `previous_state`, `resulting_state`
+        (`withdrawn`), `reason_code`, the principal-delegation context,
+        and an `auth_tier` value reflecting the step-up authentication
+        applied.
+      security:
+        - oauth2: [atah:professionals:self_write]
+      parameters:
+        - $ref: '#/components/parameters/AcceptVersion'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason_code:
+                  type: string
+                  description: |
+                    Reason code for the withdrawal. v0.8.2 ships with the
+                    canonical values; the enumeration grows over time.
+                step_up_token:
+                  type: string
+                  description: |
+                    Token or proof that the step-up authentication was
+                    completed at the point of action. The protocol requires
+                    that step-up authentication happen; the specific token
+                    shape is implementation-specific in v0.8.2.
+              required: [reason_code, step_up_token]
+              additionalProperties: false
+      responses:
+        '200':
+          description: Withdrawal recorded; matching_status set to withdrawn.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  matching_status:
+                    type: string
+                    const: withdrawn
+                  withdrawn_at:
+                    type: string
+                    format: date-time
+                  audit_event_id:
+                    type: string
+                    minLength: 1
+                required: [matching_status, withdrawn_at, audit_event_id]
+                additionalProperties: false
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403':
+          description: Step-up authentication not satisfied or `step_up_token` invalid.
+          content:
+            application/json:
+              schema: { $ref: './schemas/error.schema.json' }
+        '404': { $ref: '#/components/responses/NotFound' }
 
   /v1/introductions/received:
     get:
