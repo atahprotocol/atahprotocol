@@ -537,6 +537,113 @@ paths:
                 required: [consent_receipt_id, revocation_status, confirmation_id]
                 additionalProperties: false
 
+  /v1/consent-receipts:
+    post:
+      tags: [External]
+      operationId: postConsentReceipt
+      summary: Submit a consent receipt — Phase 4 (Option B) submission endpoint.
+      description: |
+        The asserting AI platform submits a captured consent receipt. ATAH
+        validates the receipt, computes a SHA-256 hash, computes the F-3
+        continuity-binding metadata (`client_id`, `pseudonymous_consumer_ref`
+        HMAC, `data_categories_hash` for `disclosure_consent`), stores the
+        hash and metadata, and returns a `consent_receipt_id`. Subsequent
+        consenting endpoints reference the receipt by `consent_receipt_id`
+        only — the full receipt body is never re-submitted.
+
+        The receipt's `asserted_by.client_application.platform_id` MUST
+        match the authenticated platform; mismatch returns 403.
+
+        Per spec §4.10: the `consent_type` enum is restricted to
+        `query_authorization` and `disclosure_consent`. Engagement consent
+        is excluded by design and is not a valid value. ATAH consent
+        receipts MUST NOT be represented as professional engagement
+        consent.
+
+        Per F-4 (codified in §6.4 and §7.3): Component 3 referral-
+        connection actions are governed by professional delegated
+        authority and MUST NOT use consent receipts; this endpoint accepts
+        only `consent_type: query_authorization` and `consent_type:
+        disclosure_consent`.
+
+        Idempotency: required. Replay with the same Idempotency-Key
+        returns the original `consent_receipt_id`.
+      security:
+        - oauth2: [atah:introductions:create, atah:introductions:write]
+      parameters:
+        - $ref: '#/components/parameters/AcceptVersion'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: './schemas/consent-receipt.schema.json' }
+      responses:
+        '201':
+          description: Consent receipt submitted; `consent_receipt_id` issued.
+          content:
+            application/json:
+              schema: { $ref: './schemas/consent-receipt-stored.schema.json' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403':
+          description: Asserting platform mismatch or unsupported `consent_type`.
+          content:
+            application/json:
+              schema: { $ref: './schemas/error.schema.json' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+
+  /v1/consent-receipts/{consent_receipt_id}/revoke:
+    post:
+      tags: [External]
+      operationId: postConsentReceiptRevoke
+      summary: Revoke a previously-submitted consent receipt (non-handoff-bound).
+      description: |
+        Symmetric counterpart to `POST /v1/consent-receipts`. Flips the
+        receipt's `revocation_status` to `revoked` for receipts that are
+        not bound to a handoff (`query_authorization` scope; or
+        pre-handoff `disclosure_consent` receipts not yet consumed).
+        Receipts already bound to a handoff use the handoff-scoped
+        revocation endpoint (`POST
+        /v1/introductions/{handoff_id}/revoke-consent`) so vault payload
+        crypto-erasure is performed in the same call.
+
+        Idempotent: revoking an already-revoked receipt returns 200 with
+        `revocation_status: revoked` unchanged. Audit metadata for the
+        original assertion and the revocation are retained per §11.8.
+      security:
+        - oauth2: [atah:introductions:write]
+      parameters:
+        - name: consent_receipt_id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^cr-[A-Za-z0-9-]{6,64}$'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '200':
+          description: Receipt revoked.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  consent_receipt_id:
+                    type: string
+                    pattern: '^cr-[A-Za-z0-9-]{6,64}$'
+                  revocation_status:
+                    type: string
+                    enum: [active, revoked, expired]
+                  revoked_at:
+                    type: string
+                    format: date-time
+                  confirmation_id: { type: string }
+                required: [consent_receipt_id, revocation_status, confirmation_id]
+                additionalProperties: false
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
   /v1/referral-proposals:
     post:
       tags: [Professional]

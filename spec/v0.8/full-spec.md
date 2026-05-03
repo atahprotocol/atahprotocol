@@ -76,6 +76,10 @@ The initial ATAH reference registry implements all three surfaces. A future conf
 - A trust framework with explicit provenance for every data point
 - A neutrality commitment with structural guards against commercial capture
 
+### Three consent types — engagement consent excluded by design
+
+ATAH supports two consent types: **query authorisation** (a user permitting their AI to request candidate professionals) and **disclosure consent** (a user permitting specific data to be shared with a specific professional for a specific introduction stage). A third consent concept exists in the world — **engagement consent** — which is the consent that creates a professional-client relationship: any professional-client agreement, fee agreement, treatment consent, regulated advice consent, conflict waiver, scope-of-work acceptance, or instruction to act. Engagement consent is **outside ATAH by design**. ATAH consent receipts MUST NOT be used as engagement consent. Conforming implementations MUST disclose that any professional-client relationship arises only through the professional's own onboarding, engagement, regulatory, or contractual process. The receipt-hash limitation matters for the same reason: ATAH verifies integrity of the submitted consent receipt; the asserting AI platform remains responsible for obtaining valid user consent to disclose data.
+
 ### What ATAH is not (non-goals)
 
 - **ATAH is not a recommendation engine.** It returns provenance-visible shortlists based on declared need, verification evidence, category rules, and availability. The user or calling AI platform remains responsible for selection.
@@ -607,13 +611,44 @@ The principal/delegation model is foundational. The §7.3 authorisation matrix e
 
 Every consent action in ATAH — consent to a Discovery query, to Stage 2 pre-handoff data submission, to Stage 3 contact release in the `full_lifecycle` Component 2 variant, to Stage 3 contact release in the `contact_share` Component 2 variant, to outcome reporting — is captured as a structured consent receipt rather than a boolean flag. A boolean consent flag is not sufficient for ATAH conformance. Component 3 actions (referral-connection making) are governed by professional delegated authority recorded in the principal/delegation context, not by consumer consent receipts.
 
-ATAH stores a hash of the consent receipt and its metadata. The full receipt is stored by the asserting platform (typically the AI platform that captured the consent). At dispute time, the platform produces the receipt and ATAH verifies the hash matches what was stored at consent time, confirming the receipt has not been altered.
+#### Three consent types
+
+ATAH supports two consent types and explicitly excludes a third:
+
+- **`query_authorization`** — the user permits their AI to request candidate professionals. No PII flows; the receipt scope is `query_submission`. This is the Component 1 (Discovery) consent type.
+- **`disclosure_consent`** — the user permits specific data to be shared with a specific professional for a specific introduction stage. PII may flow through the transient encrypted vault per §11.6. This is the Component 2 consent type, covering scopes `stage_1_introduction`, `stage_2_prehandoff_submission`, `stage_3_contact_release`, and `outcome_reporting`.
+- **`engagement_consent`** — the consent that creates a professional-client relationship: any professional-client agreement, fee agreement, treatment consent, regulated advice consent, conflict waiver, scope-of-work acceptance, or instruction to act. **Engagement consent is outside ATAH by design.** The `consent_type` enum on `consent-receipt.schema.json` excludes engagement consent; there is no enum value for it. Engagement consent is the professional's responsibility, captured through the professional's own onboarding, engagement, regulatory, or contractual process.
+
+> **MUST NOT.** ATAH consent receipts MUST NOT be represented as professional engagement consent. Conforming implementations MUST disclose that any professional-client relationship arises only through the professional's own onboarding, engagement, regulatory, or contractual process.
+
+#### Issuer and verification scope
+
+Consent receipts are issued by the asserting AI platform. The platform captures consumer consent through its own consent ceremony, constructs the structured receipt (matching `consent-receipt.schema.json`), and submits it to ATAH via `POST /v1/consent-receipts`. ATAH computes a SHA-256 hash of the canonicalised receipt, stores the hash plus the continuity-binding metadata (see below), and returns a `consent_receipt_id`. The asserting platform retains the full receipt for dispute resolution. Subsequent consenting endpoints reference the consent by `consent_receipt_id`, not by re-submitting the full receipt.
+
+> **Verification scope.** ATAH verifies integrity of the submitted consent receipt. The asserting AI platform remains responsible for obtaining valid user consent to disclose data.
+
+ATAH never stores the consumer-identifying fields (`consumer_ref` plaintext, `data_categories` plaintext, free-text consent content). The stored form (per `consent-receipt-stored.schema.json`) carries only the hash and the continuity-binding metadata.
+
+#### Continuity binding (per F-3)
+
+When a consent receipt is consumed (referenced as `consent_receipt_id` on a consenting endpoint), ATAH MUST verify that the consumption context matches the captured context:
+
+- The same `client_id` initiated the consumption (matched against the stored `client_id`).
+- For consumer-tied scopes, the same `pseudonymous_consumer_ref` is in the consuming session (matched against the stored HMAC). The reference is an HMAC of the platform-side `consumer_ref` under a per-context salted HMAC key per the F1.16 / §11.8 HMAC-not-plain-hash requirement.
+- The requested action falls within the captured `scope` and (for `disclosure_consent`) the requested data categories match the stored `data_categories_hash`.
+
+Mismatch produces a consent-mismatch error and a `consent_continuity_mismatch` audit event. The continuity-binding fields are non-identifying — `client_id` is a platform-side opaque identifier, the consumer reference is HMAC-protected, and the data-categories hash is over the canonicalised category list. The build-time privacy-floor test verifies these fields are HMAC-shaped or hash-shaped, not plaintext.
+
+The continuity binding closes two abuse vectors that v0.8.1 left ambiguous: (1) Platform X submits a receipt for user A then attempts to consume it for an action concerning user B (cross-user confusion); (2) Receipt replay across sessions (the same receipt consumed multiple times for unrelated actions). Both produce continuity-binding mismatches and are rejected at consumption time.
+
+ATAH stores a hash of the consent receipt and its continuity-binding metadata. The full receipt is stored by the asserting platform. At dispute time, the platform produces the receipt and ATAH verifies the hash matches what was stored at consent time, confirming the receipt has not been altered after the fact.
 
 ```json
 {
   "consent_receipt_id": "cr-01HQXRB1S6TUVZ8A9BCD0EFGHI",
   "schema_version": "0.8",
   "asserted": true,
+  "consent_type": "disclosure_consent",
   "asserted_by": {
     "authenticated_actor": {
       "actor_type": "ai_platform",
@@ -644,13 +679,15 @@ ATAH stores a hash of the consent receipt and its metadata. The full receipt is 
 
 **Field definitions:**
 
-`consent_receipt_id` — opaque identifier issued by ATAH at consent capture.
+`consent_receipt_id` — opaque identifier issued by ATAH at receipt submission. Returned from `POST /v1/consent-receipts`.
 
-`asserted_by` — the party that captured and asserted the consent. Records `authenticated_actor` and (where the asserter is an AI platform) `client_application`, using the shapes defined in §4.9A and `principal-delegation.schema.json`. For Component 2 (consumer-self handoff) consent receipts the asserter's `authenticated_actor.actor_type` is `ai_platform`. Component 3 (referral connection-making) actions are NOT recorded via consumer consent receipts — see §6.2 — and therefore do not produce `asserted_by` records of this shape. ATAH verifies receipt integrity (the receipt has not been altered after the fact); the asserting platform remains responsible for the validity of the underlying consent ceremony.
+`consent_type` — one of `query_authorization` or `disclosure_consent` (the two ATAH-supported types). Engagement consent is excluded by design and is not a valid value.
 
-`consumer_ref` — opaque platform-side reference to the consumer. Not a personally identifiable identifier. ATAH does not learn the identity of the consumer from this field.
+`asserted_by` — the party that captured and asserted the consent. Records `authenticated_actor` and (where the asserter is an AI platform) `client_application`, using the shapes defined in §4.9A and `principal-delegation.schema.json`. For Component 2 (consumer-self handoff) consent receipts the asserter's `authenticated_actor.actor_type` is `ai_platform`. Component 3 (referral connection-making) actions are NOT recorded via consumer consent receipts — see §6.4 and the F-4 normative rule below — and therefore do not produce `asserted_by` records of this shape. ATAH verifies receipt integrity (the receipt has not been altered after the fact); the asserting platform remains responsible for the validity of the underlying consent ceremony.
 
-`scope` — what the consent covers. Defined values: `query_submission`, `stage_1_introduction`, `stage_2_prehandoff_submission`, `stage_3_contact_release`, `type_2_referral_participation`, `type_3_referred_client`, `outcome_reporting`. Each scope has corresponding required `data_categories` defined in the schema.
+`consumer_ref` — opaque platform-side reference to the consumer. Not a personally identifiable identifier. ATAH does not learn the identity of the consumer from this field. The stored form retains only an HMAC of this value (`pseudonymous_consumer_ref`) for continuity binding.
+
+`scope` — what the consent covers. Defined values: `query_submission`, `stage_1_introduction`, `stage_2_prehandoff_submission`, `stage_3_contact_release`, `outcome_reporting`. The v0.8.1 `type_2_referral_participation` and `type_3_referred_client` values are removed in v0.8.2 per F-4; Component 3 actions are governed by professional delegated authority. Each scope has corresponding required `data_categories` defined in the schema.
 
 `data_categories` — list of categories of data covered by the consent. Defined values include `matter_summary`, `jurisdiction`, `contact_details`, `consumer_name`, `other_party_name`, `engagement_timeline`, `budget_range`, `client_summary`, and `contact_preference`. The set is closed and expanded through governance review.
 
@@ -662,25 +699,41 @@ ATAH stores a hash of the consent receipt and its metadata. The full receipt is 
 
 `revocation_status` — current revocation state. Values: `active`, `revoked`, `expired`. ATAH must check this status before any data action covered by the receipt.
 
-When ATAH stores the receipt hash, the stored record is:
+When ATAH stores the receipt hash and continuity-binding metadata, the stored record is:
 
 ```json
 {
   "consent_receipt_id": "cr-01HQXRB1S6TUVZ8A9BCD0EFGHI",
   "receipt_hash": "sha256:9f8a2c1b4d6e7a3c5b8d9f0e1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b",
   "asserted_by_platform_id": "platform_openai_example",
+  "client_id": "client_123",
+  "consent_type": "disclosure_consent",
   "scope": "stage_2_prehandoff_submission",
   "professional_id": "atah-01HQXR7K9NBVZ8M3PXFG2YT5WA",
   "handoff_id": "hf-01HQXRC2T7UVWZ9ABCDE1FGHIJ",
+  "pseudonymous_consumer_ref": "hmac:b7f4a8c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9",
+  "data_categories_hash": "sha256:1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b",
   "captured_at": "2026-04-10T14:21:00Z",
   "expires_at": "2026-04-10T18:21:00Z",
   "revocation_status": "active"
 }
 ```
 
-ATAH never stores the `consumer_ref`, `data_categories`, or any consent text. The asserting platform retains the full receipt for its records.
+ATAH never stores the `consumer_ref` plaintext, `data_categories` plaintext, or any consent text. The asserting platform retains the full receipt for its records. The stored form retains only the receipt hash, the canonical reference metadata, and the continuity-binding fields (`client_id`, `pseudonymous_consumer_ref` HMAC, `data_categories_hash` for `disclosure_consent`).
 
-The stored form is defined as a separate schema (`consent-receipt-stored.schema.json`) from the full receipt (`consent-receipt.schema.json`). Defining them as distinct schemas makes the privacy boundary structurally enforceable: build-time tests verify the stored-form schema does not declare any of the personal-data fields above.
+The stored form is defined as a separate schema (`consent-receipt-stored.schema.json`) from the full receipt (`consent-receipt.schema.json`). Defining them as distinct schemas makes the privacy boundary structurally enforceable: build-time tests verify the stored-form schema does not declare any of the personal-data fields above, and additionally verify the continuity-binding fields are HMAC-shaped or hash-shaped, not plaintext.
+
+#### Submission and consumption lifecycle
+
+Receipts follow a submit-then-consume pattern. The asserting platform calls `POST /v1/consent-receipts` with the full receipt body; ATAH validates, computes the hash, computes the continuity-binding metadata, and returns the `consent_receipt_id`. Subsequent consenting endpoints (Discovery, Component 2 introduction creation, stage submissions, outcome reporting) reference the consent by `consent_receipt_id` only — the full receipt body is never re-submitted on the consenting endpoint.
+
+The `POST /v1/consent-receipts` endpoint requires `Idempotency-Key`; replay with the same key returns the original `consent_receipt_id`. The endpoint authenticates as the asserting platform; the receipt's `asserted_by.client_application.platform_id` MUST match the authenticated platform.
+
+Revocation is symmetric: `POST /v1/consent-receipts/{consent_receipt_id}/revoke` flips the receipt's `revocation_status` to `revoked`. The revocation is idempotent and the consuming endpoints check `revocation_status` on consumption.
+
+#### Race-condition note
+
+The submit-then-consume pattern introduces a small race surface: a platform submits a receipt; the consumer revokes; the platform attempts to consume the now-revoked receipt. ATAH's `revocation_status` check on consumption rejects this case (the consumption returns a consent-revoked error and an audit event records the rejected attempt). The check is required at every consumption point.
 
 ### 4.11 Query Schema — Component 1 (Discovery)
 
@@ -1035,7 +1088,13 @@ Rules for the candidate set returned by Discovery:
 
 ### 6.4 Component 3 — Referral connection-making
 
-Component 3 is AI-mediated mutual matching for professionals seeking new referral partners. It is standalone — not connected to Components 1 or 2 in a lifecycle sense, though it uses Discovery (with `request_intent: 'referral_partner_search'`) as its candidate-identification step. **Per F-4 and F1.2, Component 3 actions are governed by professional delegated authority, not consumer consent receipts. Implementations MUST NOT accept `consent_receipt_id` on Component 3 endpoints or tools.**
+Component 3 is AI-mediated mutual matching for professionals seeking new referral partners. It is standalone — not connected to Components 1 or 2 in a lifecycle sense, though it uses Discovery (with `request_intent: 'referral_partner_search'`) as its candidate-identification step.
+
+**Authority model (per F-4).** Component 3 actions are professional-to-professional. Proposing, accepting, declining, or withdrawing a referral connection is a professional act, performed under professional delegated authority recorded via the principal/delegation model (§4.9A).
+
+> **MUST.** Component 3 professional referral-connection actions MUST be authorised through authenticated professional delegation. They MUST NOT use consumer disclosure-consent receipts and MUST NOT imply consumer involvement.
+
+The §7.3 authorisation matrix documents Component 3 endpoints under `actor_type: professional` with `authority_basis: professional_delegated_token` (or `firm_delegation`); the §4.10 consent-receipt scope enum excludes `type_2_referral_participation` and `type_3_referred_client` for the same reason. Implementations MUST NOT accept `consent_receipt_id` on Component 3 endpoints or tools.
 
 The professional-on-behalf-of-client case that v0.8.1 modelled as "Type 3" is **not** part of Component 3. It is served by Discovery alone (Component 1 with `request_intent: 'on_behalf_of_client'`); the referring professional handles the introduction off-platform using their own channels and the consent they captured directly with the client. ATAH does not deliver client contact details based on professional attestation, ever.
 
@@ -1130,7 +1189,9 @@ The matrix is grouped by `authenticated_actor.actor_type`. Implementations MUST 
 | Endpoint(s) | `represented_principal_type` | `authority_basis` | OAuth scope | Object-level constraint |
 |---|---|---|---|---|
 | `POST /v1/query` | `consumer` | `user_session` | `atah:find` | `client_application` required; rate-limit posture per §13.3 |
-| `POST /v1/introductions` | `consumer` | `user_session` | `atah:introductions:create` | `consent_receipt_id` binding required; receipt scope MUST cover the action |
+| `POST /v1/consent-receipts` | `consumer` | `user_session` | `atah:introductions:create` / `atah:introductions:write` | asserting platform's `client_application.platform_id` MUST match `asserted_by.client_application.platform_id`; `Idempotency-Key` required |
+| `POST /v1/consent-receipts/:consent_receipt_id/revoke` | `consumer` | `user_session` | `atah:introductions:write` | only the original asserter platform may revoke (matched against the stored `asserted_by_platform_id`); idempotent |
+| `POST /v1/introductions` | `consumer` | `user_session` | `atah:introductions:create` | `consent_receipt_id` binding required; receipt scope MUST cover the action; receipt MUST be `revocation_status: active` at consumption; continuity binding (per F-3) verified — `client_id`, `pseudonymous_consumer_ref`, and (for `disclosure_consent`) `data_categories_hash` MUST match |
 | `GET /v1/introductions/:handoff_id` | `consumer` | `handoff_access_token` or `user_session` (with original-asserter match) | `atah:introductions:read` | `handoff_id` constraint; asserter match per §11.5 tiered access |
 | `POST /v1/introductions/:handoff_id/stage-2`, `/stage-3`, `/cancel`, `/revoke-consent` | `consumer` | `handoff_access_token` | `atah:introductions:write` | `handoff_id` constraint; original-asserter match required |
 | `POST /v1/introductions/:handoff_id/outcome` (asserter side) | `consumer` | `handoff_access_token` | `atah:outcomes:write` | `handoff_id` constraint; original-asserter match required |
@@ -1631,7 +1692,7 @@ The table is organised by the three-concept separation introduced in §11.1: eac
 |---|---|---|---|---|
 | Main registry database (professional records) | None (rejected at validation) | None — audit is the audit log | `matching_status` field on the record (`withdrawn`, `regulatory-suspended`, etc.) | Record retained per partner/individual lifecycle; withdrawal-state persists; required audit, dispute, and regulatory metadata retained per §11.8 / §11.9 |
 | Transient encrypted vault | Yes — Stage 2 pre-handoff data, Stage 3 contact details (active handoffs only) | None — payloads are not audit; audit log records vault events (created, retrieved, erased) without payload content | None | Crypto-erased on retrieval, expiry, cancellation, or revocation (§11.6); category-specific TTL; max 72h post-resolution |
-| Consent receipt store (stored form) | Hash only — no PII | `receipt_hash`, `asserted_by_platform_id`, `scope`, `captured_at`, `expires_at` (the integrity metadata) | `revocation_status` (`active` / `revoked` / `expired`) | TTL on receipt expiry + 90 days; revocation-state preserved for audit per §11.8 |
+| Consent receipt store (stored form) | Hash only — no PII | `receipt_hash`, `asserted_by_platform_id`, `client_id`, `consent_type`, `scope`, `captured_at`, `expires_at` (the integrity metadata) plus the F-3 continuity binding (`pseudonymous_consumer_ref` HMAC, `data_categories_hash`) — all non-identifying | `revocation_status` (`active` / `revoked` / `expired`) | TTL on receipt expiry + 90 days; continuity-binding fields retained per receipt expiry + 90 days; revocation-state preserved for audit per §11.8 |
 | Audit log | None (consumer personal data MUST NOT appear in plaintext per §11.8) | Pseudonymous identifiers, integrity references, state transitions — the canonical record | State transitions for every withdrawal scenario per §11.9 | Audit-policy retention (default 7 years); tamper-evident hash chain |
 | Object storage (documents) | None (consumer documents not stored) | None | None | n/a |
 | SMS / email notifications | None — only notification metadata + authenticated retrieval references | Provider-managed delivery records (no ATAH audit role) | n/a | Provider-managed |

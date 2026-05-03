@@ -19,8 +19,10 @@
       "enum": [
         "introduction_initiated",
         "stage_advanced",
+        "consent_receipt_submitted",
         "consent_asserted",
         "consent_revoked",
+        "consent_continuity_mismatch",
         "data_retrieved",
         "data_erased",
         "key_destroyed",

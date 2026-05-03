@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://atahprotocol.org/spec/v0.8/schemas/consent-receipt.schema.json",
   "title": "ATAH Consent Receipt (full)",
-  "description": "ATAH Core Protocol object: the full structured consent receipt retained by the asserting platform (spec/v0.8 Section 4.10). Replaces a boolean `consumer_consent` flag. ATAH stores only the hash and metadata — see consent-receipt-stored.schema.json for the form ATAH retains. Required for any ATAH-conformant implementation.",
+  "description": "ATAH Core Protocol object: the full structured consent receipt issued by the asserting platform (spec/v0.8 §4.10). Replaces a boolean `consumer_consent` flag. ATAH supports two consent types — `query_authorization` and `disclosure_consent` — and explicitly excludes a third concept, `engagement_consent`, which covers any professional-client agreement, fee agreement, treatment consent, regulated advice consent, conflict waiver, scope-of-work acceptance, or instruction to act. Engagement consent is outside ATAH by design and MUST NOT be issued through this schema. ATAH consent receipts MUST NOT be represented as professional engagement consent. ATAH stores only the hash and continuity-binding metadata — see consent-receipt-stored.schema.json for the form ATAH retains. Component 3 referral-connection actions are governed by professional delegated authority (per F-4) and do not use this schema. Required for any ATAH-conformant implementation.",
   "type": "object",
   "properties": {
     "consent_receipt_id": {
@@ -17,6 +17,11 @@
     "asserted": {
       "type": "boolean",
       "description": "Whether the consent was given. A receipt with `asserted: false` records a refusal."
+    },
+    "consent_type": {
+      "type": "string",
+      "enum": ["query_authorization", "disclosure_consent"],
+      "description": "Which of the two ATAH-supported consent types this receipt expresses. `query_authorization`: the user permits their AI to request candidate professionals. `disclosure_consent`: the user permits specific data to be shared with a specific professional for a specific introduction stage. The third concept `engagement_consent` is outside ATAH by design and is not a valid value here."
     },
     "asserted_by": {
       "type": "object",
@@ -52,10 +57,9 @@
         "stage_1_introduction",
         "stage_2_prehandoff_submission",
         "stage_3_contact_release",
-        "type_2_referral_participation",
-        "type_3_referred_client",
         "outcome_reporting"
-      ]
+      ],
+      "description": "The protocol action the consent covers. `query_submission` pairs with `consent_type: query_authorization`; the remaining values pair with `consent_type: disclosure_consent`. Per F-4, the v0.8.1 `type_2_referral_participation` and `type_3_referred_client` values are removed in v0.8.2: Component 3 referral-connection actions are governed by professional delegated authority (not consumer consent receipts), and the professional-on-behalf-of-client referral case is served by Discovery alone with `request_intent: 'on_behalf_of_client'`."
     },
     "professional_id": {
       "type": "string",
@@ -112,6 +116,7 @@
     "consent_receipt_id",
     "schema_version",
     "asserted",
+    "consent_type",
     "asserted_by",
     "consumer_ref",
     "scope",
@@ -128,6 +133,7 @@
       "consent_receipt_id": "cr-01HQXRB1S6TUVZ8A9BCD0EFGHI",
       "schema_version": "0.8",
       "asserted": true,
+      "consent_type": "disclosure_consent",
       "asserted_by": {
         "authenticated_actor": {
           "actor_type": "ai_platform",

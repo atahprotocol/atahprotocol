@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://atahprotocol.org/spec/v0.8/schemas/consent-receipt-stored.schema.json",
   "title": "ATAH Consent Receipt (stored form)",
-  "description": "ATAH Core Protocol object: the stored form of a consent receipt. Distinct from consent-receipt.schema.json. Contains only hash and reference metadata. The full receipt remains with the asserting platform; ATAH does not store consumer-identifying fields or free-text consent in this schema. Privacy-floor enforcement: a Stage 8 build-time test reads this file and rejects the literal field names that the privacy floor (Charter Part One) excludes. Required for any ATAH-conformant implementation.",
+  "description": "ATAH Core Protocol object: the stored form of a consent receipt. Distinct from consent-receipt.schema.json. Contains the receipt hash, the canonical reference metadata, and a non-identifying continuity binding sufficient to validate later consumption against the original consent. The continuity binding (`client_id`, `pseudonymous_consumer_ref` HMAC, and where applicable `data_categories_hash`) prevents receipt replay (Platform X submits a receipt for user A then attempts to consume it for action concerning user B) and cross-user confusion. The full receipt remains with the asserting platform; ATAH does not store consumer-identifying fields or free-text consent in this schema. Privacy-floor enforcement: a Stage 8 build-time test reads this file and rejects the literal field names that the privacy floor (Charter Part One) excludes; the build-time test additionally verifies the continuity-binding fields are HMAC-shaped or hash-shaped, not plaintext. Required for any ATAH-conformant implementation.",
   "type": "object",
   "properties": {
     "consent_receipt_id": {
@@ -18,6 +18,16 @@
       "type": "string",
       "minLength": 1
     },
+    "client_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Continuity binding: the asserting platform's client identifier captured at receipt issuance. Mirrored from the source receipt's `asserted_by.client_application.client_id`. On consumption, ATAH verifies the consuming session's `client_id` matches this value; mismatch is a continuity-binding violation per §4.10."
+    },
+    "consent_type": {
+      "type": "string",
+      "enum": ["query_authorization", "disclosure_consent"],
+      "description": "Mirrors the consent_type on the full receipt. Engagement consent is excluded by design and not a valid value."
+    },
     "scope": {
       "type": "string",
       "enum": [
@@ -25,10 +35,18 @@
         "stage_1_introduction",
         "stage_2_prehandoff_submission",
         "stage_3_contact_release",
-        "type_2_referral_participation",
-        "type_3_referred_client",
         "outcome_reporting"
-      ]
+      ],
+      "description": "Per F-4, the v0.8.1 `type_2_referral_participation` and `type_3_referred_client` scope values are removed in v0.8.2. Component 3 actions are governed by professional delegated authority, not consumer consent receipts."
+    },
+    "pseudonymous_consumer_ref": {
+      "type": "string",
+      "description": "Continuity binding: HMAC of the asserting platform's `consumer_ref`, computed under a per-context salted HMAC key (per the F1.16 / §11.8 HMAC-not-plain-hash requirement). Required for consumer-tied scopes (`stage_*` and `outcome_reporting`); MAY be absent for `query_submission`. On consumption, ATAH verifies the consuming session's pseudonymous reference matches this value; mismatch is a continuity-binding violation per §4.10."
+    },
+    "data_categories_hash": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "description": "Continuity binding: SHA-256 hash of the canonicalised `data_categories` array from the source receipt. Required when `consent_type` is `disclosure_consent`; MAY be absent for `query_authorization` (which does not carry data_categories). On consumption, ATAH verifies the requested data categories match this hash; mismatch is a continuity-binding violation per §4.10."
     },
     "captured_at": {
       "type": "string",
@@ -57,6 +75,8 @@
     "consent_receipt_id",
     "receipt_hash",
     "asserted_by_platform_id",
+    "client_id",
+    "consent_type",
     "scope",
     "captured_at",
     "expires_at",
@@ -68,9 +88,13 @@
       "consent_receipt_id": "cr-01HQXRB1S6TUVZ8A9BCD0EFGHI",
       "receipt_hash": "sha256:9f8a2c1b4d6e7a3c5b8d9f0e1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b",
       "asserted_by_platform_id": "platform_openai_example",
+      "client_id": "client_123",
+      "consent_type": "disclosure_consent",
       "scope": "stage_2_prehandoff_submission",
       "professional_id": "atah-01HQXR7K9NBVZ8M3PXFG2YT5WA",
       "handoff_id": "hf-01HQXRC2T7UVWZ9ABCDE1FGHIJ",
+      "pseudonymous_consumer_ref": "hmac:b7f4a8c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9",
+      "data_categories_hash": "sha256:1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b",
       "captured_at": "2026-04-10T14:21:00Z",
       "expires_at": "2026-04-10T18:21:00Z",
       "revocation_status": "active"

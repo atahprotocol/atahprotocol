@@ -60,11 +60,13 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 
 - **Scenario.** An AI platform presents a consent receipt at a Stage 2 / Stage 3 boundary for a consumer who did not perform the required consent ceremony.
 - **Abuse / failure mode.** Fabricated or recycled consent; downstream professionals receive data on a false consent basis.
-- **Expected protocol behaviour.** _To be filled in during Phase 4._
-- **Required audit events.** _To be filled in during Phase 4._
-- **Required user / professional disclosure.** _To be filled in during Phase 4._
-- **Required conformance test.** _To be filled in during Phase 4._
-- **Phase 1 contribution.** `authority_context` records the basis the asserting platform claims; `consent-receipt.schema.json` `asserted_by` now uses the principal-delegation `AuthenticatedActor` + `ClientApplication` $defs so the asserter identity is recorded with the same shape ATAH validates everywhere else. **Status: `partially-resolved`** — Phase 1 records the basis; Phase 4 adds the continuity binding (`client_id`, `pseudonymous_consumer_ref`, `data_categories_hash`) that detects replay and cross-user confusion. Per F-17 the eventual settled status is `bounded-by-protocol`: ATAH verifies receipt integrity (tampering, replay, mismatch) but cannot prove the platform's underlying consent ceremony was valid.
+- **Expected protocol behaviour.** Per spec §4.10, ATAH verifies the receipt's integrity (hash + continuity binding) at submission and at every consumption point. Per F-3, the stored receipt carries `client_id`, `pseudonymous_consumer_ref` (HMAC), and `data_categories_hash` (for `disclosure_consent`); on consumption, the consuming session's `client_id` and pseudonymous reference must match the stored values. Per the Paolo receipt-hash limitation framing (verbatim in spec §4.10): "ATAH verifies integrity of the submitted consent receipt. The asserting AI platform remains responsible for obtaining valid user consent to disclose data."
+- **Required audit events.** `consent_receipt_submitted` records the receipt with the principal-delegation context. `consent_continuity_mismatch` is emitted on any consumption attempt whose binding does not match the stored values. `consent_revoked` flips `revocation_status` per §4.10.
+- **Required user / professional disclosure.** Mismatched-binding consumption attempts surface as `consent_mismatch` errors to the consuming AI platform. Asserting platforms remain responsible for the underlying consent ceremony; ATAH disclaims that responsibility explicitly through the verbatim receipt-hash limitation framing.
+- **Required conformance test.** Conformance suite verifies all six F-3 continuity-binding mismatches (client_id mismatch, pseudonymous_consumer_ref mismatch, scope mismatch, data_categories_hash mismatch, expired receipt, revoked receipt) produce rejections with `consent_continuity_mismatch` audit events.
+- **Phase 1 contribution.** `authority_context` records the basis the asserting platform claims; `consent-receipt.schema.json` `asserted_by` uses the principal-delegation `AuthenticatedActor` + `ClientApplication` $defs so the asserter identity is recorded with the same shape ATAH validates everywhere else.
+- **Phase 4 contribution.** F-3 continuity binding fields (`client_id`, `pseudonymous_consumer_ref`, `data_categories_hash`) added to `consent-receipt-stored.schema.json`. The verbatim receipt-hash limitation framing is in spec §4.10. The submission lifecycle (Option B — `POST /v1/consent-receipts`) makes every consumption traceable to a recorded submission.
+- **Status: `bounded-by-protocol`** (per F-17 settled status). ATAH detects tampering, replay, and continuity mismatch via receipt hash + continuity binding fields. ATAH cannot and does not prove that the platform's underlying consent ceremony was valid (whether the user actually clicked "I consent" in the platform's UI). The protocol bounds the abuse without resolving it. The platform retains the legal responsibility for the underlying consent ceremony.
 
 ### 1.3 Professional delegated-agent token is stolen
 
@@ -117,41 +119,71 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 
 - **Scenario.** A Stage 2 or Stage 3 handoff consent is presented to a downstream professional or surface as if it were ongoing engagement consent (e.g. authorisation to retain, contact further, or open a relationship).
 - **Abuse / failure mode.** Scope creep at the consent boundary; consumer's narrow authorisation expanded into broader permissions.
-- **Expected protocol behaviour.** _To be filled in during Phase 4._
-- **Required audit events.** _To be filled in during Phase 4._
-- **Required user / professional disclosure.** _To be filled in during Phase 4._
-- **Required conformance test.** _To be filled in during Phase 4._
-- **Status.** `skeleton`
+- **Expected protocol behaviour.** Per spec §1.5, §4.10, and Charter Part Two operational commitments, ATAH supports two consent types (`query_authorization`, `disclosure_consent`); engagement consent is excluded by design and the `consent_type` enum has no value for it. The Paolo MUST NOT rule applies verbatim across spec, EXPLAINER, PRD, and Charter: ATAH consent receipts MUST NOT be represented as professional engagement consent; conforming implementations MUST disclose that any professional-client relationship arises only through the professional's own onboarding, engagement, regulatory, or contractual process.
+- **Required audit events.** `consent_receipt_submitted` records the `consent_type` (one of the two supported values). Any attempt to issue an `engagement_consent` receipt fails validation at submission.
+- **Required user / professional disclosure.** AI platforms MUST surface the engagement-consent boundary at point of consent capture; the canonical disclosure language is published in the protocol documentation. EXPLAINER and PRD §9 carry the same framing for downstream readers.
+- **Required conformance test.** Conformance suite verifies that a receipt with `consent_type: engagement_consent` is rejected at `POST /v1/consent-receipts` with a validation error.
+- **Status: `resolved`** by F1.4 normative rule (verbatim adopted across spec / Charter / EXPLAINER / PRD), the `consent_type` enum restriction on `consent-receipt.schema.json`, and the canonical disclosure-language requirement.
 
 ### 2.2 User consents to one professional but data is sent to another
 
 - **Scenario.** Consumer consents at Stage 2 / Stage 3 in respect of a specific candidate; the platform routes data to a different professional (substituted, additional, or the wrong record).
 - **Abuse / failure mode.** Mismatch between consented scope and actual recipient; consent receipt's `data_categories_hash` and / or recipient binding does not match the delivery target.
-- **Expected protocol behaviour.** _To be filled in during Phase 4._
-- **Required audit events.** _To be filled in during Phase 4._
-- **Required user / professional disclosure.** _To be filled in during Phase 4._
-- **Required conformance test.** _To be filled in during Phase 4._
-- **Status.** `skeleton`
+- **Expected protocol behaviour.** Per spec §4.10 (continuity binding, F-3), the stored consent receipt records `professional_id` as part of its captured binding (where the receipt is professional-bound). On consumption, ATAH verifies the consuming session targets the same `professional_id`; mismatch is a continuity-binding violation. For `disclosure_consent`, the requested data categories are also verified against `data_categories_hash`; mismatch is a continuity-binding violation.
+- **Required audit events.** `consent_continuity_mismatch` on the failed consumption attempt, with the principal-delegation context, the receipt id, and the mismatched binding field.
+- **Required user / professional disclosure.** Mismatch surfaces as a `consent_mismatch` error to the consuming AI platform; the consumer's session is not advanced.
+- **Required conformance test.** Conformance suite issues a receipt for professional A then attempts a Stage 2 submission targeting professional B; verifies the submission is rejected with `consent_continuity_mismatch` audit event.
+- **Status: `resolved`** by F-3 continuity binding (`professional_id` binding + `data_categories_hash`).
 
 ### 2.3 Consent text differs from stored receipt metadata
 
 - **Scenario.** What the consumer was shown at the consent ceremony does not match the metadata recorded on the stored consent receipt (different scope, recipients, data categories, or duration).
 - **Abuse / failure mode.** Drift between displayed and recorded consent; later disputes are unresolvable on protocol grounds.
-- **Expected protocol behaviour.** _To be filled in during Phase 4._
-- **Required audit events.** _To be filled in during Phase 4._
-- **Required user / professional disclosure.** _To be filled in during Phase 4._
-- **Required conformance test.** _To be filled in during Phase 4._
-- **Status.** `skeleton`
+- **Expected protocol behaviour.** Per §4.10, the receipt's `consent_text_version` records the canonical consent text the consumer was shown; the published consent-text version is part of the receipt and is hashed alongside the rest of the receipt body. On dispute, the asserting platform produces the receipt and the consent-text version; ATAH verifies the receipt hash matches the stored hash, confirming the receipt itself was not altered after the fact. The receipt-hash limitation framing applies (Paolo verbatim): ATAH verifies receipt integrity, not the validity of the underlying consent ceremony.
+- **Required audit events.** `consent_receipt_submitted` records the `consent_text_version`. Future `consent_continuity_mismatch` events triggered by drift detection are recorded with the divergent fields.
+- **Required user / professional disclosure.** Asserting platforms MUST show the consent text matching the recorded `consent_text_version`. Drift is a platform-side conformance failure surfaced through dispute resolution.
+- **Required conformance test.** Conformance suite verifies that submitting a receipt with `consent_text_version` not matching any published canonical text produces a validation error.
+- **Status: `bounded-by-protocol`** — receipt integrity is verified by hash; ATAH cannot prove what the consumer actually saw on the platform's UI. The platform's consent ceremony remains its own responsibility per the receipt-hash limitation framing.
 
 ### 2.4 Consent is revoked after Stage 2 or Stage 3
 
 - **Scenario.** Consumer revokes consent after data has already been delivered to a downstream professional or surface.
 - **Abuse / failure mode.** Ambiguous semantics for "consent revoked after delivery" — what must downstream parties do, and what does ATAH itself record?
-- **Expected protocol behaviour.** _To be filled in during Phase 4._
-- **Required audit events.** _To be filled in during Phase 4._
-- **Required user / professional disclosure.** _To be filled in during Phase 4._
-- **Required conformance test.** _To be filled in during Phase 4._
-- **Status.** `skeleton`
+- **Expected protocol behaviour.** Per §11.9 (Phase 3 — withdrawal as state transition) and §4.10, the receipt's `revocation_status` flips to `revoked`; on the consuming-side, `POST /v1/introductions/{handoff_id}/revoke-consent` performs vault crypto-erasure for any remaining vault payload and stops ATAH processing. ATAH cannot force deletion from the professional's systems where data has already been retrieved (§11.9 scenario 3 documents this acknowledgement). The `revocation_status: active` check on consumption ensures revoked receipts cannot drive new actions.
+- **Required audit events.** `consent_revoked` on the receipt; `data_erased` for any remaining vault payload; `withdrawal_recorded` if the revocation came in via the §11.9 scenario 3 path.
+- **Required user / professional disclosure.** AI platforms surface the revocation to the consumer; the professional receives a notification that consent has been revoked and that their downstream data-handling obligations under their own privacy framework apply.
+- **Required conformance test.** Conformance suite verifies that any consenting endpoint rejects consumption of a revoked receipt with `consent_receipt_revoked` error.
+- **Status: `resolved`** by §4.10 `revocation_status` checks at every consumption point + Phase 3 §11.9 scenario 3 (consumer-withdrawal-after-Stage-3-retrieval semantics + vault crypto-erasure).
+
+### 2.5 Receipt replay across users (cross-user confusion)
+
+- **Scenario.** Platform X submits a receipt for user A (`pseudonymous_consumer_ref` HMAC-A); subsequently attempts to consume it for an action concerning user B (whose pseudonymous reference HMACs to a different value).
+- **Abuse / failure mode.** Receipt is valid (hash check passes); consumption context does not match captured context.
+- **Expected protocol behaviour.** Per F-3 continuity binding, ATAH verifies the consuming session's `pseudonymous_consumer_ref` matches the stored HMAC at consumption time. Mismatch is a continuity-binding violation.
+- **Required audit events.** `consent_continuity_mismatch` on the failed consumption with the receipt id and the mismatched binding field (`pseudonymous_consumer_ref`).
+- **Required user / professional disclosure.** Failed consumption surfaces as a `consent_mismatch` error to the consuming AI platform.
+- **Required conformance test.** Conformance suite issues a receipt for user A then attempts consumption with a different pseudonymous reference; verifies rejection with the `consent_continuity_mismatch` audit event.
+- **Status: `resolved`** by F-3 continuity binding (`pseudonymous_consumer_ref` HMAC).
+
+### 2.6 Receipt replay across sessions (same user, different action)
+
+- **Scenario.** A receipt issued for one consenting action is consumed for a different action without re-consent.
+- **Abuse / failure mode.** Captured `scope` does not match the consuming endpoint's required scope; or `data_categories_hash` does not match the data being shared at consumption.
+- **Expected protocol behaviour.** Per §4.10 continuity binding, ATAH verifies the consuming endpoint's required scope matches the receipt's captured `scope`, and (for `disclosure_consent`) that the requested data categories match the receipt's `data_categories_hash`. Mismatch is a continuity-binding violation. Additionally, the receipt's `expires_at` is enforced.
+- **Required audit events.** `consent_continuity_mismatch` on the failed consumption with the mismatched binding field (`scope` or `data_categories_hash`).
+- **Required user / professional disclosure.** Failed consumption surfaces as a `consent_mismatch` error.
+- **Required conformance test.** Conformance suite issues a receipt with scope `stage_2_prehandoff_submission` then attempts consumption at `stage_3_contact_release`; verifies rejection. Also: receipt with one set of data categories, attempt to share a different set; verifies rejection.
+- **Status: `resolved`** by F-3 continuity binding (`scope` and `data_categories_hash` checks) + receipt expiry.
+
+### 2.7 Component 3 endpoint accidentally accepts a consumer consent receipt
+
+- **Scenario.** An implementation, by oversight or attempted escalation, accepts a `consent_receipt_id` parameter on a Component 3 endpoint and treats it as authorising a referral connection.
+- **Abuse / failure mode.** Category error: consumer disclosure consent is treated as professional referral-connection authorisation. Could escalate consumer consent into broader professional-side actions.
+- **Expected protocol behaviour.** Per F-4 / spec §6.4 / Charter Part Two operational commitments: Component 3 actions MUST be authorised through authenticated professional delegation; they MUST NOT use consumer disclosure-consent receipts. The `scope` enum on `consent-receipt.schema.json` and `consent-receipt-stored.schema.json` does NOT contain `type_2_referral_participation` or `type_3_referred_client`. Component 3 OpenAPI endpoints and MCP tools have no `consent_receipt_id` parameter.
+- **Required audit events.** Any attempt to register a `consent_receipt_id` against a Component 3 action fails validation; the failed attempt is recorded as a `security_event`.
+- **Required user / professional disclosure.** Failed attempt surfaces to the calling agent; the action does not proceed.
+- **Required conformance test.** Conformance suite attempts to call a Component 3 endpoint with a `consent_receipt_id` parameter; verifies rejection (the parameter is not part of the request schema). Conformance suite also verifies that no consent receipt can be issued with `consent_type: engagement_consent` or with the v0.8.1 `type_2_referral_participation` / `type_3_referred_client` scopes (those values are absent from the enum).
+- **Status: `resolved`** by F-4: `consent_receipt_id` is structurally absent from Component 3 endpoints/tools; the scope enum excludes the v0.8.1 referral values.
 
 ---
 
@@ -589,5 +621,23 @@ Three-concept separation of payload erasure / audit retention / withdrawal-as-st
 New scenarios discovered during Phase 3: none.
 
 **Status distribution after Phase 3:** 26 × `skeleton`, 9 × `resolved` (1.1, 1.3, 5.1, 5.3, 5.4, 6.2, 6.3, 6.4, 6.5), 1 × `bounded-by-protocol` (5.2), 6 × `partially-resolved` (1.2, 1.4, 1.5, 1.6, 3.2, 6.1), 1 × `deferred` (7.3). Total: 43 scenarios.
+
+## Phase 4 update
+
+Consent boundaries (Paolo's F1.3 / F1.4 / F1.5 + F-3 continuity binding + F-4 Component 3 authority) ship in Phase 4. Status changes:
+
+- **F-17 correction to 1.2 (platform submits consent for a user who did not consent)** → settled at **`bounded-by-protocol`** (was `partially-resolved` after Phase 1; the eventual settled status was flagged in Phase 1's notes). Per the receipt-hash limitation framing: ATAH detects tampering, replay, and continuity mismatch via receipt hash + F-3 continuity binding (`client_id`, `pseudonymous_consumer_ref`, `data_categories_hash`); ATAH cannot prove the platform's underlying consent ceremony was valid.
+- **2.1 (handoff consent misrepresented as engagement consent)** → **`resolved`** by F1.4 normative rule (verbatim across spec / Charter / EXPLAINER / PRD), the `consent_type` enum restriction, and the canonical disclosure-language requirement.
+- **2.2 (user consents to one professional but data sent to another)** → **`resolved`** by F-3 continuity binding (`professional_id` binding + `data_categories_hash`).
+- **2.3 (consent text differs from stored receipt metadata)** → **`bounded-by-protocol`** — receipt integrity verified by hash; ATAH cannot prove what the consumer actually saw on the platform's UI per the receipt-hash limitation framing.
+- **2.4 (consent is revoked after Stage 2 or Stage 3)** → **`resolved`** by §4.10 `revocation_status` checks at every consumption point + Phase 3's §11.9 scenario 3 (consumer-withdrawal-after-Stage-3-retrieval semantics).
+
+New scenarios discovered during Phase 4 work and added to Cat 2:
+
+- **2.5 — Receipt replay across users (cross-user confusion).** **`resolved`** by F-3 `pseudonymous_consumer_ref` HMAC binding.
+- **2.6 — Receipt replay across sessions (same user, different action).** **`resolved`** by F-3 `scope` and `data_categories_hash` binding + receipt expiry.
+- **2.7 — Component 3 endpoint accidentally accepts a consumer consent receipt.** **`resolved`** by F-4: `consent_receipt_id` is structurally absent from Component 3 endpoints/tools; the scope enum excludes the v0.8.1 referral values.
+
+**Status distribution after Phase 4:** 22 × `skeleton`, 15 × `resolved` (1.1, 1.3, 2.1, 2.2, 2.4, 2.5, 2.6, 2.7, 5.1, 5.3, 5.4, 6.2, 6.3, 6.4, 6.5), 3 × `bounded-by-protocol` (1.2, 2.3, 5.2), 5 × `partially-resolved` (1.4, 1.5, 1.6, 3.2, 6.1), 1 × `deferred` (7.3). Total: **46 scenarios** (43 prior + 3 new in Phase 4 — 2.5, 2.6, 2.7).
 
 Phase 11 finalises the matrix as the verification artifact for v0.8.2 publication.

@@ -707,8 +707,6 @@
               "stage_1_introduction",
               "stage_2_prehandoff_submission",
               "stage_3_contact_release",
-              "type_2_referral_participation",
-              "type_3_referred_client",
               "outcome_reporting"
             ]
           },
@@ -1260,6 +1258,33 @@
       "permitted_authority_bases": [
         "professional_delegated_token",
         "firm_delegation"
+      ]
+    },
+    {
+      "name": "submit_consent_receipt",
+      "description": "Submit a captured consent receipt to ATAH and receive a consent_receipt_id. The asserting platform constructs the structured receipt (per consent-receipt.schema.json), captures consumer consent through its own consent ceremony, and submits the receipt here. ATAH validates, computes the SHA-256 hash, computes the F-3 continuity-binding metadata (client_id, pseudonymous_consumer_ref HMAC, data_categories_hash for disclosure_consent), stores the hash and metadata, and returns the consent_receipt_id. Subsequent consenting tools (find_professional, initiate_introduction, submit_stage2_data, submit_stage3_data, report_introduction_outcome) take consent_receipt_id by reference. Per spec §4.10: consent_type is restricted to query_authorization and disclosure_consent — engagement_consent is excluded by design. Per F-4: Component 3 actions are NOT consenting actions in the consumer-consent sense and do not use this tool.",
+      "input_schema": {
+        "$ref": "https://atahprotocol.org/spec/v0.8/schemas/consent-receipt.schema.json"
+      },
+      "output_schema": {
+        "$ref": "https://atahprotocol.org/spec/v0.8/schemas/consent-receipt-stored.schema.json"
+      },
+      "error_codes": [
+        "asserting_platform_mismatch",
+        "unsupported_consent_type",
+        "validation_error",
+        "unauthorized",
+        "rate_limited",
+        "idempotency_key_required"
+      ],
+      "safety_metadata": {
+        "is_read_only": false,
+        "transmits_personal_data": false,
+        "requires_explicit_user_approval": true,
+        "state_change_scope": "consent"
+      },
+      "permitted_authority_bases": [
+        "user_session"
       ]
     }
   ]

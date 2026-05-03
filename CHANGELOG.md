@@ -43,6 +43,33 @@ v0.8.2 absorbs three rounds of post-v0.8.1 review work: GKC-COMMENTS-01 (archite
 - `inbound_referral_signal` from the matching engine and from `profession-category.matching_weight_profile`.
 - `shortlist_size` from `query.schema.json` (replaced by `limit`).
 
+### Consent boundaries (Phase 4)
+
+Adopts Paolo's three consent types: `query_authorization`, `disclosure_consent`, and **`engagement_consent` excluded by design**. The `consent_type` enum on `consent-receipt.schema.json` carries only the two ATAH-supported values; engagement consent (any professional-client agreement, fee agreement, treatment consent, regulated advice consent, conflict waiver, scope-of-work acceptance, or instruction to act) is the professional's responsibility and outside ATAH. Spec §4.10 carries Paolo's MUST NOT rule verbatim:
+
+> ATAH consent receipts MUST NOT be represented as professional engagement consent. Conforming implementations MUST disclose that any professional-client relationship arises only through the professional's own onboarding, engagement, regulatory, or contractual process.
+
+The receipt-hash limitation framing is also adopted verbatim:
+
+> ATAH verifies integrity of the submitted consent receipt. The asserting AI platform remains responsible for obtaining valid user consent to disclose data.
+
+The submission lifecycle is now Option B: the asserting platform calls `POST /v1/consent-receipts` with the full receipt body; ATAH validates, computes the SHA-256 hash, computes the F-3 continuity-binding metadata, stores the hash and metadata, and returns the `consent_receipt_id`. Subsequent consenting endpoints reference by id only; the full receipt body is never re-submitted. The new `submit_consent_receipt` MCP tool mirrors the REST endpoint. Symmetric `POST /v1/consent-receipts/{consent_receipt_id}/revoke` covers query-scope and pre-handoff revocations (handoff-bound revocations continue to use `/v1/introductions/{handoff_id}/revoke-consent`).
+
+The F-3 continuity-binding fields are added to `consent-receipt-stored.schema.json`: `client_id` (asserting platform's client identifier), `pseudonymous_consumer_ref` (HMAC of the platform-side consumer reference), `data_categories_hash` (SHA-256 of the canonicalised data-categories list, for `disclosure_consent`). On consumption, ATAH verifies the consuming session's `client_id` and pseudonymous reference match the stored values, and that the requested action falls within the captured scope and data-categories hash. Mismatch produces a consent-mismatch error and a `consent_continuity_mismatch` audit event. The continuity-binding fields are non-identifying; the build-time privacy-floor test verifies they are HMAC-shaped or hash-shaped.
+
+Per F-4, the `scope` enum on `consent-receipt.schema.json` and `consent-receipt-stored.schema.json` removes `type_2_referral_participation` and `type_3_referred_client`. Component 3 referral-connection actions are governed by professional delegated authority (per spec §6.4 and §7.3) and do NOT use consumer consent receipts. Spec §6.4 carries the Paolo-style MUST rule verbatim:
+
+> Component 3 professional referral-connection actions MUST be authorised through authenticated professional delegation. They MUST NOT use consumer disclosure-consent receipts and MUST NOT imply consumer involvement.
+
+`audit-event.schema.json` `event_type` enum gains `consent_continuity_mismatch` for consumption-time verification failures. Charter Part Two operational commitments mirror the engagement-consent and Component 3 normative rules (spec §4.10 and §6.4 are the canonical source).
+
+### Fixed (Phase 4 absorbs from `AI-PEER-REVIEW-FINDINGS-01`)
+
+- **F1.3 (no consent receipt submission path).** Resolved by `POST /v1/consent-receipts` (and the `submit_consent_receipt` MCP tool). Every consenting endpoint now traces back to a recorded submission.
+- **F1.5 (spec/schema contradiction on consent receipt issuer).** Resolved by §4.10: consent receipts are issued by the asserting AI platform; ATAH receives the full receipt at submission, computes and stores the hash plus continuity-binding metadata, and returns the `consent_receipt_id`. Spec text and schema agree.
+
+ADR 0011 records the decision and acknowledges Paolo Piponi's peer review as the source.
+
 ### Three-concept separation (Phase 3)
 
 Refactored §11 around the three-concept separation of payload erasure, audit retention, and withdrawal-as-state-transition. v0.8.2 distinguishes:

@@ -150,27 +150,29 @@ A consumer-mediated discovery call looks like: `ai_platform` is the authenticate
 
 The model lets every audit entry, consent receipt, and protocol decision be traced back not just to "who did this" but to "under what authority". ATAH verifies the integrity of the authority context it is presented with; the asserting platform, professional, partner, or verifier remains responsible for the validity of the underlying credentials and any consent ceremonies they imply.
 
-## Consent — receipts, not tickboxes
+## Consent — three types, one excluded by design
+
+ATAH supports two consent types and explicitly excludes a third:
+
+- **Query authorisation** — the user permits their AI to request candidate professionals. No personal data flows; the receipt covers the Discovery query.
+- **Disclosure consent** — the user permits specific data to be shared with a specific professional for a specific introduction stage. Personal data may flow through the transient encrypted vault per the staged-handoff design.
+- **Engagement consent** — the consent that creates a professional-client relationship: any professional-client agreement, fee agreement, treatment consent, regulated advice consent, conflict waiver, scope-of-work acceptance, or instruction to act. **Engagement consent is outside ATAH by design.** ATAH consent receipts MUST NOT be represented as engagement consent; the schema's enum has no value for it. Engagement consent is the professional's responsibility, captured through their own onboarding, engagement, regulatory, or contractual process.
+
+This three-way distinction matters because the same word "consent" carries very different legal weight across the three concepts. ATAH is not a substitute for a professional's intake process; it is the trust-and-handoff layer that gets the consumer to the professional with verified identity, structured matter context, and provenance-visible verification. What happens after the handoff — fee letters, conflict waivers, treatment plans, instructions to act — is the professional's domain, captured through their own process under their own regulatory framework.
+
+## Consent receipts — what they prove, and what they don't
 
 Earlier versions of ATAH treated consumer consent as a boolean flag — the AI platform asserts "consent: true" and ATAH proceeds. That's not enough for high-trust professional handoff.
 
-In v0.8, every consent action is captured as a **structured consent receipt**. The receipt records: the scope of consent (what stage, what data), the data categories covered, the professional involved, the asserting platform, the consent text the user was shown, the timestamp, the expiry, and whether revocation is supported.
+In v0.8, every consent action is captured as a **structured consent receipt**. The receipt records: the consent type (query authorisation or disclosure consent), the scope (which stage, which data), the data categories covered, the professional involved, the asserting platform, the consent text the user was shown, the timestamp, the expiry, and whether revocation is supported.
 
-ATAH itself stores only a hash of the receipt and its metadata — no personal data. The asserting AI platform stores the full receipt. If a dispute ever arises, the platform produces the receipt and ATAH verifies the hash matches what was stored at consent time. This proves the receipt hasn't been altered after the fact, without ATAH having to hold consumer personal data.
+The asserting AI platform constructs the receipt and submits it to ATAH via `POST /v1/consent-receipts`. ATAH computes a SHA-256 hash, computes a small non-identifying continuity-binding metadata block (the asserting platform's client identifier, an HMAC of the consumer reference, and a hash of the data categories), stores the hash and metadata, and returns a `consent_receipt_id`. Subsequent consenting endpoints reference the receipt by id only — the full receipt body is never re-submitted. The asserting platform retains the full receipt for dispute resolution. ATAH never stores the consumer-identifying fields.
+
+The continuity binding closes two abuse vectors that v0.8.1 left ambiguous: a platform submitting a receipt for one user then attempting to consume it for an action concerning a different user (cross-user confusion); and receipt replay across sessions (the same receipt consumed multiple times for unrelated actions). Both produce continuity-binding mismatches at consumption time and are rejected.
 
 This pattern is borrowed from how transparency logs work for software supply chains and certificate authorities. It is designed to support evidence of consent and align with consent-receipt models such as GDPR Article 7 and ISO/IEC 29184, without making ATAH a personal data store.
 
-What the receipt model proves and what it does not. The receipt-and-hash
-pattern proves that the consent receipt has not been altered between the
-moment the asserting platform captured consent and the moment a dispute
-arises. It does not, on its own, prove that the user actually saw or
-understood the consent text. Responsibility for capturing consent properly
-— the consent ceremony, the wording, evidence that the user actively
-consented — sits with the asserting AI platform under its developer terms.
-ATAH verifies receipt integrity; the platform is responsible for the consent
-itself. The v0.9 platform-light consent mode (see ROADMAP) will offer an
-alternative model where ATAH provides more of the consent ceremony directly,
-for platforms that prefer to invoke a standard ATAH-driven flow.
+What the receipt model proves and what it does not: the receipt-and-hash pattern proves that the consent receipt has not been altered between the moment the asserting platform captured consent and the moment a dispute arises. It does not, on its own, prove that the user actually saw or understood the consent text. Responsibility for capturing consent properly — the consent ceremony, the wording, evidence that the user actively consented — sits with the asserting AI platform under its developer terms. ATAH verifies receipt integrity; the platform is responsible for the consent itself. The v0.9 platform-light consent mode (see ROADMAP) will offer an alternative model where ATAH provides more of the consent ceremony directly, for platforms that prefer to invoke a standard ATAH-driven flow.
 
 Cancelling and revoking consent are first-class operations. The MCP tools `cancel_introduction` and `revoke_consent` are equally available alongside the consent-submission tools. Privacy-first means revoke must be as easy as submit.
 

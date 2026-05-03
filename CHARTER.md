@@ -193,6 +193,8 @@ These operational commitments implement the Part One privacy floor. They may be 
 - Every introduction requires fresh explicit consent, captured as a structured consent receipt
 - ATAH never re-uses personal data from a previous introduction
 - ATAH operates the three-concept separation (payload erasure / audit retention / withdrawal-as-state-transition) — payload content is crypto-erased per the spec; tamper-evident audit metadata is retained without consumer personal data in plaintext; withdrawal stops future protocol processing without erasing audit history. Detailed semantics live in spec §11.
+- ATAH supports two consent types — query authorisation and disclosure consent. A third consent concept exists in the world — engagement consent — which is the consent that creates a professional-client relationship. Engagement consent is outside ATAH by design. ATAH consent receipts MUST NOT be represented as professional engagement consent. Conforming implementations MUST disclose that any professional-client relationship arises only through the professional's own onboarding, engagement, regulatory, or contractual process. Detailed semantics live in spec §4.10.
+- Component 3 (referral connection-making) actions are professional-to-professional and MUST be authorised through authenticated professional delegation. They MUST NOT use consumer disclosure-consent receipts and MUST NOT imply consumer involvement. Detailed semantics live in spec §6.4 and §7.3.
 - Detailed data governance is set out in the specification
 - Professional data is also personal data where it relates to identifiable
   professionals. Operational commitments on professional data protection
