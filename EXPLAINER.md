@@ -24,6 +24,16 @@ That's not a completed journey. It's a dead end at the moment the user most need
 
 ATAH is the protocol layer that fills that gap.
 
+## On the market thesis (per F3.1)
+
+A note on framing, because it matters how this is described.
+
+> ATAH is not primarily about AI giving up. It is about the point at which AI reaches a boundary where verified human authority, accountability, consent, and provenance matter.
+
+As AI becomes more capable, routine handoffs may reduce. But the remaining human-professional handoffs are likely to become more consequential, more regulated, and more dependent on verified provenance. ATAH's strongest thesis is therefore not "more AI means more handoffs," but "more capable AI makes the remaining handoffs more important to structure properly."
+
+There will still be matters where human professional involvement is required because of legal authority, regulated action, fiduciary responsibility, signed instruments, medical treatment, insurance placement, formal proceedings, or professional accountability. ATAH is for those. The volume claim narrows; the value claim sharpens.
+
 ## What ATAH is
 
 ATAH is an open protocol layer that gives AI systems a structured, trusted way to connect users to verified human professionals at the point AI reaches the limit of what it can helpfully provide.
@@ -378,6 +388,8 @@ The framing matters precisely. AI platforms rank everything they surface — sea
 
 ATAH is not a replacement for a professional's existing marketing or visibility work. It is infrastructure for being represented to AI systems consistently and credibly. Professionals continue to need their own marketing for direct consumer reach; ATAH addresses the specific moment an AI system needs to identify and hand off to a verified human professional. There is no guarantee of introduction volume, ranking, or work; the protocol is designed to become a trusted handoff rail as platforms integrate.
 
+**On the discoverability claim — narrower and more credible (per F3.2).** ATAH should not claim to solve discoverability equally for all professionals from day one. It initially works best for professionals whose authority, standing, scope, or membership can be made verifiable and provenance-visible. That is a narrower claim, but a more credible one. It works less well at launch for solo practitioners in jurisdictions without integrated professional data, emerging-market professionals where no partner exists, new-category professionals whose body has not joined, and professionals whose value is real but not yet captured by structured verifiable sources. This is not a flaw in the design — it is the inevitable consequence of building a protocol around verifiable provenance. The verifiable get verified first; the rest follows as partners and verifiers come on. Cross-references the F2.9 data-quality structural advantage point: richer partner data produces stronger verification signals; provenance exposes the trade-off; the discoverability claim narrows in the same direction.
+
 **Trusted partners** sit in distinct classes. Authoritative regulatory sources and professional membership bodies are the credential-verification authority layer — what professionals are licensed or qualified to do, who has revoked or sanctioned them, what membership level they hold. Review platforms are a separate class — signal providers, not authority providers — contributing aggregated client feedback subject to anti-gaming attestations and per-category review weight caps (≤0.10 within verification quality for high-stakes regulated categories). Independent verifiers add a separate enhanced-verification layer. Each partner type gets a clean way to make verified data useful at the exact point users are deciding whether to trust a professional. Provenance is always visible. Review-derived signals complement but do not substitute for credential verification. The commercial model funds the work of maintaining the integration without compromising protocol neutrality.
 
 **Consumers**, finally, get a continuation of journey rather than a dead end. When their AI system identifies that they need a professional, the AI can offer real options with real verification signals, rather than handing them back to a search engine.
@@ -428,6 +440,12 @@ carve-outs for regulator-sourced data), restriction, and portability.
 Professionals appearing through a trusted partner are notified by their
 partner; self-registered professionals are notified at registration.
 Detailed treatment is in the PRD and specification.
+
+**On the scope of the privacy claim — narrower and more precise (per F3.4).** ATAH's privacy architecture is strong at the protocol layer, but the wider transaction is not fully transient. The honest claim is:
+
+> ATAH reduces central honeypot risk by avoiding another persistent store of consumer personal data. It does not control the full downstream data lifecycle inside AI platforms, professional systems, CRMs, or assistants.
+
+Expanded: ATAH eliminates the central registry honeypot and avoids adding another persistent consumer-data store. It does not control the full data lifecycle inside the consumer's AI platform, the professional's systems, or downstream engagement records. Those systems remain governed by their own privacy postures, contracts, regulatory obligations, and retention rules. After the professional retrieves consumer contact details from the transient encrypted vault, what happens next — entry into a CRM, retention in an engagement record, inclusion in email or messaging — is the professional's domain under their own data-protection framework, not ATAH's. ATAH does not promise that consumer data is "transient through the whole transaction"; it promises that ATAH itself avoids becoming another long-term PII store. The privacy value remains strong, the claim is just narrower.
 
 ## Alternatives considered
 

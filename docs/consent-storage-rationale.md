@@ -46,6 +46,33 @@ software supply chain (Sigstore) and certificate authority (RFC 6962)
 systems. Tampering with the platform-side full receipt is detectable by
 hash comparison without ATAH holding the receipt content.
 
+### Scope of the privacy claim (per F3.4)
+
+The hash-and-metadata pattern is what ATAH does to avoid becoming
+another persistent consumer-PII store. What it does not do, and should
+not be read as doing, is control the full downstream data lifecycle.
+The honest framing:
+
+> ATAH reduces central honeypot risk by avoiding another persistent
+> store of consumer personal data. It does not control the full
+> downstream data lifecycle inside AI platforms, professional systems,
+> CRMs, or assistants.
+
+The asserting AI platform retains the full consent receipt for its own
+records (per its developer terms). The professional, after retrieving
+the consumer's data from the transient encrypted vault, may write that
+data into a CRM, an engagement record, or other systems under their
+own data-protection framework. ATAH's structural mechanisms — payload
+erasure of vault contents (spec §11.6), audit retention without
+consumer PII in plaintext (spec §11.8 HMAC-not-plain-hash), and
+withdrawal-as-state-transition (spec §11.9) — are the protocol-layer
+guarantees ATAH provides. They are what ATAH does, and they are what
+the consent-storage split is designed to support; they are not a
+guarantee about systems ATAH cannot reach. Cross-references the Phase 4
+continuity-binding model (F-3) and the Phase 3 three-concept separation
+of erasure / audit retention / withdrawal — those mechanisms are what
+ATAH delivers; the F3.4 framing names what they do not promise.
+
 ## What happens at dispute
 
 If a consumer or regulator disputes whether consent was validly

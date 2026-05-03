@@ -815,4 +815,21 @@ New scenario (low priority, flagged for v0.9 review): "Platform misuses ATAH fra
 
 **Status distribution after Phase 10:** unchanged from Phase 9 — 0 × `skeleton`, 35 × `resolved`, 4 × `bounded-by-protocol`, 1 × `allocated-to-platform-responsibility`, 11 × `partially-resolved`, 2 × `deferred`. Total: 53 scenarios. Phase 10's contribution is documentation reinforcement of existing `resolved` Cat 4 / Cat 8 scenarios, plus the v0.9-flagged platform-misframing scenario.
 
+## Phase 10A update
+
+Strategic-risk and conformance-framing addendum (F3.1 / F3.2 / F3.3 / F3.4 from `AI-PEER-REVIEW-FINDINGS-03-v0_8_1.md`) ships in Phase 10A. Documentation-only — no schema, OpenAPI, MCP, or lifecycle change. The two-axes lock (Phase 8 governance-layer distinction vs Phase 10A conformance-status distinction) is preserved.
+
+Status changes (per Cat / scenario, F-17 vocabulary):
+
+- **F3.4 — Cat 6 (Privacy and Data Boundaries) reinforcement.** New scenario implicit in F3.4: *"Consumer assumes 'transient' protocol means transient transaction"*. **`resolved`** by Phase 10A's tightened framing — EXPLAINER, PRD §9, and `consent-storage-rationale.md` now explicitly state that ATAH reduces central honeypot risk by avoiding another persistent store of consumer personal data, and that it does not control the full downstream data lifecycle inside AI platforms, professional systems, CRMs, or assistants. The privacy claim is narrower than "transient through the whole transaction" but more credible. Cat 6 sub-scenarios remain `resolved` (no degradation; the framing reinforces what the protocol-layer mechanisms already deliver).
+- **Cat 8 (Partner and Governance Capture) — three new F3.3-derived scenarios added:**
+  - *8.5 — "Implementation claims ATAH conformance using only the technical protocol while violating Charter spirit (e.g. opaque ordering, undisclosed commercial weighting)"*. **`partially-resolved`** by Phase 10A's three-level conformance-status distinction in `CONFORMANCE.md` (the framing makes the distinction clear in documentation: protocol-compatible / ATAH-conformant / ATAH-recognised neutral implementation; the recognised level is reserved for behavioural conformance, not just technical). Fully resolved when the v0.9 behavioural-neutrality / conformance-audit model is implemented per the new ROADMAP item.
+  - *8.6 — "Implementation falsely claims ATAH-recognised neutral status"*. **`partially-resolved`** by Phase 10A — the three-level distinction creates the framework for revocability (per CHARTER Part Two new commitment); GOVERNANCE.md §5.1 adds the public-contest right. Fully addressed when v0.9 operationalises the revocation procedure.
+  - *8.7 — "Well-resourced player forks the registry, complies with technical conformance, weakens governance in practice"*. **`bounded-by-protocol`** by Phase 10A — the framing makes the distinction visible to sophisticated reviewers (forks are protocol-compatible by default and cannot self-claim ATAH-recognised neutral status without meeting the governance/audit requirements). Fully addressed at v0.9 with audit verification regime; at v0.8.2 the protocol-level boundary is what's available.
+- **Cat 10 (Conformance Divergence) re-verified.** 10.1 / 10.2 / 10.3 remain `resolved`; the Phase 10A three-level distinction reinforces them by making the conformance-status framework explicit. 10.4 (federation) remains `deferred-to-v1.0`.
+
+New scenarios discovered during Phase 10A: three (8.5, 8.6, 8.7) named above. Each is documentation-mediated mitigation at v0.8.2 with the operational verification regime as v0.9 work — F-17 status `partially-resolved` (8.5, 8.6) and `bounded-by-protocol` (8.7) reflects this honestly.
+
+**Status distribution after Phase 10A:** 0 × `skeleton`, 35 × `resolved`, **5 × `bounded-by-protocol`** (1.2, 2.3, 4.7, 5.2, 8.7), 1 × `allocated-to-platform-responsibility`, **13 × `partially-resolved`** (1.4, 1.5, 1.6, 3.6, 4.4, 6.1, 8.2, 8.3, 8.5, 8.6, 9.1, 9.2, 9.3), 2 × `deferred`. Total: **56 scenarios** (53 prior + 3 new in Phase 10A).
+
 Phase 11 finalises the matrix as the verification artifact for v0.8.2 publication.

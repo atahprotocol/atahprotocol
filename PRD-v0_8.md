@@ -36,6 +36,16 @@ There is also a structural commercial opportunity for professional bodies. Every
 
 ATAH — Agent to Authenticated Human Protocol — addresses these problems with a single open standard.
 
+### Market thesis framing (per F3.1)
+
+The thesis matters and it should be stated precisely.
+
+> ATAH is not primarily about AI giving up. It is about the point at which AI reaches a boundary where verified human authority, accountability, consent, and provenance matter.
+
+As AI becomes more capable, routine handoffs may reduce. But the remaining human-professional handoffs are likely to become more consequential, more regulated, and more dependent on verified provenance. ATAH's strongest thesis is therefore not "more AI means more handoffs," but "more capable AI makes the remaining handoffs more important to structure properly."
+
+This avoids the framing trap that "more AI use means more handoffs because AI will hit more walls" — a thesis vulnerable to the obvious objection that AI systems are getting better and may hit fewer routine walls over time. ATAH's volume claim narrows under that objection; the value claim sharpens. The matters that remain are the ones where legal authority, regulated action, fiduciary responsibility, signed instruments, medical treatment, insurance placement, formal proceedings, or professional accountability are required — not because AI failed but because the boundary is structural.
+
 ## 3. Vision
 
 ATAH aims to become the common trust, provenance, consent, and handoff protocol layer through which AI systems can move from AI-only interaction to verified human professional engagement — across multiple sectors and jurisdictions worldwide — while also supporting verified professional-to-professional referral pathways.
@@ -130,6 +140,8 @@ Any professional in any field where expertise and standing can be verified or at
 - Protection from defamation through bad-faith concern flags (admin-only visibility, right of reply, pattern-based review)
 
 Where their professional body has joined ATAH as a trusted partner, they appear in the registry through their body's data — no individual registration required. Where they are not represented by a partnered body, individual self-registration is available, free during the protocol's initial period after launch and continuing thereafter for a small annual fee with hardship waivers.
+
+**Discoverability claim — narrower and more credible (per F3.2).** ATAH should not claim to solve discoverability equally for all professionals from day one. It initially works best for professionals whose authority, standing, scope, or membership can be made verifiable and provenance-visible. That is a narrower claim, but a more credible one. ATAH initially works best for: lawyers in jurisdictions with usable regulator data; insurance agents with licensing datasets; financial advisers with authoritative registers; professional-body members with structured records; established professionals tied to credible professional bodies or verifier networks. It works less well at launch for: solo practitioners in jurisdictions without integrated professional data; emerging-market professionals where no partner exists; new-category professionals whose professional body has not joined; professionals whose value is real but not yet captured by structured verifiable sources. This is not a flaw in the design — it is the inevitable consequence of building a protocol around verifiable provenance. Cross-references the F2.8 brand-dilution mitigation (the verification-tier distinction protects established practitioners from being flattened) and the F2.9 data-quality structural advantage (richer partner data produces stronger verification signals; provenance exposes the trade-off).
 
 **Professional-side controls at Stage 1.** Professionals control how introductions are routed to them through their profile preferences:
 
@@ -492,6 +504,16 @@ The core role of ATAH in AI system integration is to support the transition from
 - Folder sync — a future phase feature, not available at MVP
 
 ## 9. Privacy and Data Governance
+
+### Scope of the privacy claim — narrower and more precise (per F3.4)
+
+The privacy claim should be stated precisely. ATAH's privacy architecture is strong at the protocol layer — it avoids becoming a long-term consumer-PII store, the vault is transient, sensitive payloads are crypto-erased, consent receipts are stored as hashes plus continuity-binding metadata rather than full consumer-identifying records. But the wider transaction is not fully transient. Consumer data in a real handoff may persist in the consumer's AI platform conversation history, the AI platform's logs, the professional's AI assistant if connected, the professional's CRM, the professional's engagement records, or email/phone/messaging/intake systems used after the ATAH handoff. The honest framing is therefore:
+
+> ATAH reduces central honeypot risk by avoiding another persistent store of consumer personal data. It does not control the full downstream data lifecycle inside AI platforms, professional systems, CRMs, or assistants.
+
+Expanded: ATAH eliminates the central registry honeypot and avoids adding another persistent consumer-data store. It does not control the full data lifecycle inside the consumer's AI platform, the professional's systems, or downstream engagement records. Those systems remain governed by their own privacy postures, contracts, regulatory obligations, and retention rules. The protocol-layer mechanisms documented below — payload erasure, audit retention, withdrawal-as-state-transition, the transient encrypted vault, HMAC-not-plain-hash for contact identifiers — are what ATAH does. What ATAH does NOT do is control downstream systems that receive consumer data after the professional retrieves it from the vault. The privacy value remains strong; the claim is just narrower.
+
+### Three-concept separation
 
 ATAH handles consumer personal data as a transient conduit, never a repository. v0.8.2 introduces a three-concept separation that governs every operation on data:
 

@@ -18,6 +18,8 @@ AI systems can now book flights, buy products, complete transactions, and run mu
 
 That broken handoff is the gap ATAH is designed to fill.
 
+ATAH is not primarily about AI giving up. It is about the point at which AI reaches a boundary where verified human authority, accountability, consent, and provenance matter.
+
 ## What ATAH is
 
 ATAH is an open protocol layer that gives AI systems a structured, trusted way to connect users to credentialled and established human professionals when AI reaches the limit of what it can helpfully provide.

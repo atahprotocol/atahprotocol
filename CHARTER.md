@@ -231,6 +231,10 @@ The Charter relies on hard artifacts — concrete published documents and machin
 
 The hard-artifacts list is the structural answer to "how does the protocol stay neutral when the governance body is human and fallible". By moving the trust floor into concrete published artifacts, governance discretion is bounded — discretion applies to evolution and edge cases, not to the protocol's everyday operation.
 
+### Conformance mark and recognised-implementation status are revocable (per Paolo Piponi's F3.3 peer review)
+
+The official ATAH trust mark and "ATAH-recognised neutral implementation" status (per [`CONFORMANCE.md`](CONFORMANCE.md) — protocol-compatible / ATAH-conformant / ATAH-recognised neutral implementation) are revocable. They depend on continuing behavioural conformance to the published technical and governance requirements — not merely on initial implementation of the protocol or on possession of an Apache 2.0 licence. Implementations that materially fail to maintain transparency, ordering-policy disclosure, decision-explanation discipline, partner-scope discipline, conflict-of-interest rules, or audit posture may have their conformance mark or recognised-implementation status revoked through the governance process documented in [`GOVERNANCE.md`](GOVERNANCE.md). Revocation is reversible: an implementation that returns to compliance through documented remediation may have its status restored. The naming of the three levels is provisional in v0.8.2; the distinction is locked. v0.9 operationalises the verification regime through the behavioural-neutrality / conformance-audit model and the executable conformance test suite.
+
 ### Code of conduct
 
 The protocol community operates under the [Code of Conduct](CODE_OF_CONDUCT.md) published in the repository. The Code of Conduct may evolve through governance review.

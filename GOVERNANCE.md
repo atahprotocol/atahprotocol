@@ -102,6 +102,21 @@ Charter. The process:
 Objections are handled in good faith. Vexatious or bad-faith objections may be
 closed; the closure rationale is recorded publicly.
 
+### 5.1 Public contest of misleading conformance or neutrality claims (per F3.3)
+
+ATAH governance reserves the right to publicly contest claims of ATAH
+conformance, neutrality, or recognised-implementation status that
+misrepresent compliance with the published protocol or with the conformance
+principles documented in [`CONFORMANCE.md`](CONFORMANCE.md). This is not an
+aggressive litigation posture; it is a stated readiness to issue clarifying
+public statements where third parties claim ATAH recognition that they do
+not have. The intent is to preserve the meaning of the official ATAH
+conformance and neutrality claims, not to interfere with permitted
+implementations of the open Apache 2.0 protocol. See [`CONFORMANCE.md`](CONFORMANCE.md)
+for the three-level conformance-status distinction (protocol-compatible /
+ATAH-conformant / ATAH-recognised neutral implementation) that this
+right-to-contest is calibrated against.
+
 ## 6. Transition to independent governance
 
 The Charter sets the transition framework: transition is triggered when two trusted partner integrations are live and at least one external conforming implementation has been demonstrated. Independent governance is appropriate when there is an ecosystem to govern; the trigger conditions reflect that the protocol works with cross-industry organisations whose decision cycles are inherently slower than software-industry timelines.

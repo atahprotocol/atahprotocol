@@ -116,6 +116,21 @@ v0.8 satisfies right-to-erasure through the transient-only design for ATAH-held 
 
 v0.8 ships in English. Multilingual category metadata, multilingual consent text versioning, and multilingual conformance-statement requirements are deferred to v0.9.
 
+### Behavioural-neutrality and conformance-audit model (per Paolo Piponi's F3.3 peer review)
+
+v0.8.2 introduces a three-level conformance-status distinction in [`CONFORMANCE.md`](CONFORMANCE.md): protocol-compatible / ATAH-conformant / ATAH-recognised neutral implementation. The naming is provisional; the distinction is locked. v0.8.2's contribution is the framing. v0.9 operationalises the verification regime through a behavioural-neutrality / conformance-audit model. Items the model should consider:
+
+- Public ordering-policy metadata exposure tests — the response-level `presentation_disclosure.ordering_policy.mode` and `commercial_weighting: false` `const` are checkable today; v0.9 extends this to operational metadata covering ordering decisions across query volume.
+- Decision-explanation object validation across required response shapes — the Phase 6 Transparency Class makes `decision_explanation` required at response and per-candidate level; v0.9 audits whether implementations produce explanations that are structurally valid AND substantively non-trivial (i.e. not stub responses).
+- Commercial-neutrality attestation — annual signed attestation by the implementing organisation that no commercial weighting was applied in matching outcomes during the audit window, with auditable evidence on request.
+- Auditability of matching / banding behaviour — sampled query replay against the documented `band_definitions` and within-band fairness policy to verify observable non-determinism and band-rule consistency.
+- Public partner and verifier scope registry — the `verification-scope.schema.json` data is structured today; v0.9 publishes a public read-only channel showing approved partners, scopes, and freshness commitments.
+- Disclosed conflict-of-interest policies — Charter §7 / GOVERNANCE.md §4.1 require related-party disclosure today; v0.9 publishes the disclosed register on a regular cadence with audit evidence.
+- Revocable conformance mark issuance and revocation procedure — the mark is revocable per CHARTER Part Two; v0.9 specifies the issuance criteria, monitoring cadence, the published-revocation process, and the remediation path back to compliance.
+- Right of ATAH governance to publicly contest misleading claims — added to GOVERNANCE.md §5.1 in v0.8.2 as a stated commitment; v0.9 may formalise the public-statement template and the response window.
+
+The audit regime should not require public release of proprietary scoring code from any conforming implementation. It should require enough observable metadata, audit output, and governance disclosure to make hidden commercial weighting harder to hide behind the protocol brand. The goal is **not** to stop forks of the open Apache 2.0 protocol — those are permitted by the licence and contribute to the protocol's resilience. The goal is to preserve the meaning of official ATAH conformance, neutrality, and recognised-implementation status.
+
 ### `presentation_disclosure.verification_tier` field for consumer-facing rendering
 
 Per Phase 10 / F2.8 brand-dilution mitigation, AI platforms MUST surface the credentialled-vs-established verification-tier distinction to consumers. v0.8.2 carries the structural distinction through the existing `professional_tier` field on professional-identity schemas, the `_provenance` map, and the Phase 6 Transparency Class. Master plan §12 F2.8 third bullet contemplated a dedicated `presentation_disclosure.verification_tier` field with values like `regulator_verified` / `body_verified` / `self_declared` so AI platforms can render the distinction prominently without inferring it from the underlying schema. Decision deferred to v0.9 — review whether the existing structural distinction (Transparency Class plus `professional_tier`) is operationally sufficient for consistent consumer-facing rendering across AI-platform UX, or whether a dedicated `presentation_disclosure.verification_tier` field is needed to harden the rendering obligation.
