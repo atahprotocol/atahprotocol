@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://atahprotocol.org/spec/v0.8/schemas/query.schema.json",
-  "title": "ATAH Query — Type 1 Consumer Introduction",
-  "description": "ATAH Registry Operation Profile object: query body for POST /v1/query and `find_professional` MCP tool input (spec/v0.8 Section 4.11). Required for implementations claiming Registry Conformance.",
+  "title": "ATAH Query — Component 1 (Discovery)",
+  "description": "ATAH Registry Operation Profile object: Discovery query body for POST /v1/query and the `find_professional` MCP tool input (spec/v0.8 Section 4.11). Component 1 is the foundation of the protocol; Components 2 and 3 are gated by `request_intent`. Required for implementations claiming Registry Conformance.",
   "type": "object",
   "properties": {
     "query_id": {
@@ -13,7 +13,18 @@
     "protocol_version": { "type": "string", "const": "0.8" },
     "query_type": {
       "type": "string",
-      "enum": ["consumer_introduction"]
+      "enum": ["discovery"]
+    },
+    "request_intent": {
+      "type": "string",
+      "enum": ["self", "on_behalf_of_client", "referral_partner_search"],
+      "description": "Gates which next-step components are available. `self`: requesting AI is acting for someone seeking a professional for themselves; Component 2 (Consumer-self handoff) is available next. `on_behalf_of_client`: requesting AI is a professional's AI assistant identifying candidates for a client referral; Component 2 is NOT available — the professional handles the introduction off-platform. `referral_partner_search`: requesting AI is a professional's AI assistant searching for referral partners; Component 3 is available next."
+    },
+    "limit": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 100,
+      "description": "Maximum number of candidates to return. Required. The upper bound of 100 reflects the protocol's posture that Discovery returns a working candidate set, not an exhaustive directory; AI agents requesting larger sets should narrow `matter` filters or paginate via category-aware refinement rather than expanding `limit`."
     },
     "requesting_agent": {
       "$ref": "principal-delegation.schema.json"
@@ -55,11 +66,6 @@
         "insured_only": { "type": "boolean" }
       },
       "additionalProperties": false
-    },
-    "shortlist_size": {
-      "type": "integer",
-      "minimum": 1,
-      "maximum": 5
     }
   },
   "required": [
@@ -67,10 +73,11 @@
     "schema_version",
     "protocol_version",
     "query_type",
+    "request_intent",
+    "limit",
     "requesting_agent",
     "consent_receipt_id",
-    "matter",
-    "shortlist_size"
+    "matter"
   ],
   "additionalProperties": false,
   "examples": [
@@ -78,7 +85,9 @@
       "query_id": "q-01HQXRD3U8VWXAB0CDEF2GHIJK",
       "schema_version": "0.8",
       "protocol_version": "0.8",
-      "query_type": "consumer_introduction",
+      "query_type": "discovery",
+      "request_intent": "self",
+      "limit": 3,
       "requesting_agent": {
         "authenticated_actor": {
           "actor_type": "ai_platform",
@@ -108,8 +117,7 @@
         "enhanced_verification_required": false,
         "max_response_time_hours": 4,
         "virtual": true
-      },
-      "shortlist_size": 3
+      }
     }
   ]
 }

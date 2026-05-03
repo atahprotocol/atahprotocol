@@ -8,14 +8,14 @@
     "compliance_status": "active",
     "default_pre_handoff_check": "conflict_check",
     "matching_weight_profile": {
-      "relevance": 0.30,
-      "verification_quality": 0.40,
+      "relevance": 0.35,
+      "verification_quality": 0.45,
       "availability_response": 0.15,
-      "profile_completeness": 0.05,
-      "inbound_referral_signal": 0.10
+      "profile_completeness": 0.05
     },
-    "review_signal_weight_cap": 0.10,
-    "stage2_auth_tier": "tier_2"
+    "review_signal_weight_cap": 0.1,
+    "stage2_auth_tier": "tier_2",
+    "referral_proposal_expiry_months": 6
   },
   {
     "category_id": "pr_professional",
@@ -26,14 +26,14 @@
     "compliance_status": "active",
     "default_pre_handoff_check": "scope_confirmation",
     "matching_weight_profile": {
-      "relevance": 0.30,
-      "verification_quality": 0.25,
-      "availability_response": 0.20,
-      "profile_completeness": 0.10,
-      "inbound_referral_signal": 0.15
+      "relevance": 0.4,
+      "verification_quality": 0.3,
+      "availability_response": 0.2,
+      "profile_completeness": 0.1
     },
-    "review_signal_weight_cap": 0.20,
-    "stage2_auth_tier": "tier_1"
+    "review_signal_weight_cap": 0.2,
+    "stage2_auth_tier": "tier_1",
+    "referral_proposal_expiry_months": 6
   },
   {
     "category_id": "physician",
@@ -44,14 +44,14 @@
     "compliance_status": "compliance-pending",
     "default_pre_handoff_check": "capacity_confirmation",
     "matching_weight_profile": {
-      "relevance": 0.30,
-      "verification_quality": 0.40,
+      "relevance": 0.35,
+      "verification_quality": 0.45,
       "availability_response": 0.15,
-      "profile_completeness": 0.05,
-      "inbound_referral_signal": 0.10
+      "profile_completeness": 0.05
     },
-    "review_signal_weight_cap": 0.10,
-    "stage2_auth_tier": "tier_3"
+    "review_signal_weight_cap": 0.1,
+    "stage2_auth_tier": "tier_3",
+    "referral_proposal_expiry_months": 6
   },
   {
     "category_id": "tax_planner",
@@ -62,14 +62,14 @@
     "compliance_status": "active",
     "default_pre_handoff_check": "scope_confirmation",
     "matching_weight_profile": {
-      "relevance": 0.30,
-      "verification_quality": 0.25,
-      "availability_response": 0.20,
-      "profile_completeness": 0.10,
-      "inbound_referral_signal": 0.15
+      "relevance": 0.4,
+      "verification_quality": 0.3,
+      "availability_response": 0.2,
+      "profile_completeness": 0.1
     },
-    "review_signal_weight_cap": 0.20,
-    "stage2_auth_tier": "tier_2"
+    "review_signal_weight_cap": 0.2,
+    "stage2_auth_tier": "tier_2",
+    "referral_proposal_expiry_months": 6
   },
   {
     "category_id": "accountant",
@@ -80,14 +80,14 @@
     "compliance_status": "active",
     "default_pre_handoff_check": "scope_confirmation",
     "matching_weight_profile": {
-      "relevance": 0.30,
-      "verification_quality": 0.25,
-      "availability_response": 0.20,
-      "profile_completeness": 0.10,
-      "inbound_referral_signal": 0.15
+      "relevance": 0.4,
+      "verification_quality": 0.3,
+      "availability_response": 0.2,
+      "profile_completeness": 0.1
     },
-    "review_signal_weight_cap": 0.20,
-    "stage2_auth_tier": "tier_2"
+    "review_signal_weight_cap": 0.2,
+    "stage2_auth_tier": "tier_2",
+    "referral_proposal_expiry_months": 6
   },
   {
     "category_id": "financial_advisor",
@@ -98,14 +98,14 @@
     "compliance_status": "active",
     "default_pre_handoff_check": "scope_confirmation",
     "matching_weight_profile": {
-      "relevance": 0.30,
-      "verification_quality": 0.40,
+      "relevance": 0.35,
+      "verification_quality": 0.45,
       "availability_response": 0.15,
-      "profile_completeness": 0.05,
-      "inbound_referral_signal": 0.10
+      "profile_completeness": 0.05
     },
-    "review_signal_weight_cap": 0.10,
-    "stage2_auth_tier": "tier_2"
+    "review_signal_weight_cap": 0.1,
+    "stage2_auth_tier": "tier_2",
+    "referral_proposal_expiry_months": 6
   },
   {
     "category_id": "insurance_agent_pc",
@@ -116,14 +116,14 @@
     "compliance_status": "active",
     "default_pre_handoff_check": "scope_confirmation",
     "matching_weight_profile": {
-      "relevance": 0.30,
-      "verification_quality": 0.40,
+      "relevance": 0.35,
+      "verification_quality": 0.45,
       "availability_response": 0.15,
-      "profile_completeness": 0.05,
-      "inbound_referral_signal": 0.10
+      "profile_completeness": 0.05
     },
-    "review_signal_weight_cap": 0.10,
-    "stage2_auth_tier": "tier_2"
+    "review_signal_weight_cap": 0.1,
+    "stage2_auth_tier": "tier_2",
+    "referral_proposal_expiry_months": 6
   },
   {
     "category_id": "architect",
@@ -134,14 +134,14 @@
     "compliance_status": "active",
     "default_pre_handoff_check": "scope_confirmation",
     "matching_weight_profile": {
-      "relevance": 0.30,
-      "verification_quality": 0.40,
+      "relevance": 0.35,
+      "verification_quality": 0.45,
       "availability_response": 0.15,
-      "profile_completeness": 0.05,
-      "inbound_referral_signal": 0.10
+      "profile_completeness": 0.05
     },
-    "review_signal_weight_cap": 0.10,
-    "stage2_auth_tier": "tier_2"
+    "review_signal_weight_cap": 0.1,
+    "stage2_auth_tier": "tier_2",
+    "referral_proposal_expiry_months": 6
   },
   {
     "category_id": "executive_coach",
@@ -152,14 +152,14 @@
     "compliance_status": "active",
     "default_pre_handoff_check": "scope_confirmation",
     "matching_weight_profile": {
-      "relevance": 0.30,
-      "verification_quality": 0.25,
-      "availability_response": 0.20,
-      "profile_completeness": 0.10,
-      "inbound_referral_signal": 0.15
+      "relevance": 0.4,
+      "verification_quality": 0.3,
+      "availability_response": 0.2,
+      "profile_completeness": 0.1
     },
-    "review_signal_weight_cap": 0.20,
-    "stage2_auth_tier": "tier_1"
+    "review_signal_weight_cap": 0.2,
+    "stage2_auth_tier": "tier_1",
+    "referral_proposal_expiry_months": 6
   },
   {
     "category_id": "management_consultant",
@@ -170,14 +170,14 @@
     "compliance_status": "active",
     "default_pre_handoff_check": "scope_confirmation",
     "matching_weight_profile": {
-      "relevance": 0.30,
-      "verification_quality": 0.25,
-      "availability_response": 0.20,
-      "profile_completeness": 0.10,
-      "inbound_referral_signal": 0.15
+      "relevance": 0.4,
+      "verification_quality": 0.3,
+      "availability_response": 0.2,
+      "profile_completeness": 0.1
     },
-    "review_signal_weight_cap": 0.20,
-    "stage2_auth_tier": "tier_1"
+    "review_signal_weight_cap": 0.2,
+    "stage2_auth_tier": "tier_1",
+    "referral_proposal_expiry_months": 6
   },
   {
     "category_id": "project_manager",
@@ -188,14 +188,14 @@
     "compliance_status": "active",
     "default_pre_handoff_check": "scope_confirmation",
     "matching_weight_profile": {
-      "relevance": 0.30,
-      "verification_quality": 0.25,
-      "availability_response": 0.20,
-      "profile_completeness": 0.10,
-      "inbound_referral_signal": 0.15
+      "relevance": 0.4,
+      "verification_quality": 0.3,
+      "availability_response": 0.2,
+      "profile_completeness": 0.1
     },
-    "review_signal_weight_cap": 0.20,
-    "stage2_auth_tier": "tier_1"
+    "review_signal_weight_cap": 0.2,
+    "stage2_auth_tier": "tier_1",
+    "referral_proposal_expiry_months": 6
   },
   {
     "category_id": "hr_professional",
@@ -206,14 +206,14 @@
     "compliance_status": "active",
     "default_pre_handoff_check": "scope_confirmation",
     "matching_weight_profile": {
-      "relevance": 0.30,
-      "verification_quality": 0.25,
-      "availability_response": 0.20,
-      "profile_completeness": 0.10,
-      "inbound_referral_signal": 0.15
+      "relevance": 0.4,
+      "verification_quality": 0.3,
+      "availability_response": 0.2,
+      "profile_completeness": 0.1
     },
-    "review_signal_weight_cap": 0.20,
-    "stage2_auth_tier": "tier_1"
+    "review_signal_weight_cap": 0.2,
+    "stage2_auth_tier": "tier_1",
+    "referral_proposal_expiry_months": 6
   },
   {
     "category_id": "marketing_specialist",
@@ -224,14 +224,14 @@
     "compliance_status": "active",
     "default_pre_handoff_check": "scope_confirmation",
     "matching_weight_profile": {
-      "relevance": 0.30,
-      "verification_quality": 0.25,
-      "availability_response": 0.20,
-      "profile_completeness": 0.10,
-      "inbound_referral_signal": 0.15
+      "relevance": 0.4,
+      "verification_quality": 0.3,
+      "availability_response": 0.2,
+      "profile_completeness": 0.1
     },
-    "review_signal_weight_cap": 0.20,
-    "stage2_auth_tier": "tier_1"
+    "review_signal_weight_cap": 0.2,
+    "stage2_auth_tier": "tier_1",
+    "referral_proposal_expiry_months": 6
   },
   {
     "category_id": "mediator",
@@ -242,14 +242,14 @@
     "compliance_status": "active",
     "default_pre_handoff_check": "scope_confirmation",
     "matching_weight_profile": {
-      "relevance": 0.30,
-      "verification_quality": 0.25,
-      "availability_response": 0.20,
-      "profile_completeness": 0.10,
-      "inbound_referral_signal": 0.15
+      "relevance": 0.4,
+      "verification_quality": 0.3,
+      "availability_response": 0.2,
+      "profile_completeness": 0.1
     },
-    "review_signal_weight_cap": 0.20,
-    "stage2_auth_tier": "tier_2"
+    "review_signal_weight_cap": 0.2,
+    "stage2_auth_tier": "tier_2",
+    "referral_proposal_expiry_months": 6
   },
   {
     "category_id": "certified_translator",
@@ -260,13 +260,13 @@
     "compliance_status": "active",
     "default_pre_handoff_check": "scope_confirmation",
     "matching_weight_profile": {
-      "relevance": 0.30,
-      "verification_quality": 0.25,
-      "availability_response": 0.20,
-      "profile_completeness": 0.10,
-      "inbound_referral_signal": 0.15
+      "relevance": 0.4,
+      "verification_quality": 0.3,
+      "availability_response": 0.2,
+      "profile_completeness": 0.1
     },
-    "review_signal_weight_cap": 0.20,
-    "stage2_auth_tier": "tier_1"
+    "review_signal_weight_cap": 0.2,
+    "stage2_auth_tier": "tier_1",
+    "referral_proposal_expiry_months": 6
   }
 ]

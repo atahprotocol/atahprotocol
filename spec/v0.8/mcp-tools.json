@@ -7,7 +7,7 @@
   "tools": [
     {
       "name": "find_professional",
-      "description": "Find a credentialled or established professional for a matter requiring human expertise. Returns a ranked shortlist with the full trusted partner data payload, presentation_disclosure that AI platforms MUST surface to the user, and protocol_version. Professionals with matching_status of compliance-pending, regulatory-suspended, or admin-suspended are excluded from results regardless of filters. The input conforms to the ATAH query schema; the output conforms to the ATAH match-response schema.",
+      "description": "Component 1 (Discovery) — find a credentialled or established professional for a matter requiring human expertise. Required `request_intent` (`self`, `on_behalf_of_client`, `referral_partner_search`) gates which next-step components are available. Required `limit` (1-100) replaces v0.8.1 `shortlist_size`. Returns a candidate set with the full trusted partner data payload, presentation_disclosure that AI platforms MUST surface to the user, and protocol_version. Professionals with matching_status of compliance-pending, regulatory-suspended, or admin-suspended are excluded from results regardless of filters. For `request_intent: 'referral_partner_search'`, the candidate set excludes professionals the requester is already connected to via an active referral-connection. The input conforms to the ATAH query schema; the output conforms to the ATAH match-response schema.",
       "input_schema": {
         "$ref": "https://atahprotocol.org/spec/v0.8/schemas/query.schema.json"
       },
@@ -39,7 +39,9 @@
             "query_id": "q-01HQXRD3U8VWXAB0CDEF2GHIJK",
             "schema_version": "0.8",
             "protocol_version": "0.8",
-            "query_type": "consumer_introduction",
+            "query_type": "discovery",
+            "request_intent": "self",
+            "limit": 3,
             "requesting_agent": {
               "authenticated_actor": {
                 "actor_type": "ai_platform",
@@ -70,8 +72,7 @@
               "partner_verified_only": true,
               "max_response_time_hours": 4,
               "virtual": true
-            },
-            "shortlist_size": 3
+            }
           },
           "output": {
             "query_id": "q-01HQXRD3U8VWXAB0CDEF2GHIJK",
@@ -84,8 +85,7 @@
                 "relevance",
                 "verification_quality",
                 "availability_response",
-                "profile_completeness",
-                "inbound_referral_signal"
+                "profile_completeness"
               ],
               "commercial_weighting": false,
               "user_facing_disclosure": "ATAH does not recommend or endorse any professional. This is a provenance-visible shortlist based on the matter described and verification evidence available."
@@ -102,7 +102,6 @@
                   "verification_quality": 0.88,
                   "availability_score": 1,
                   "profile_completeness": 0.86,
-                  "inbound_referral_signal": 0.82,
                   "verification_quality_subcomponents": {
                     "credential_verification": 0.92,
                     "enhanced_score": 0,
@@ -118,7 +117,7 @@
     },
     {
       "name": "initiate_introduction",
-      "description": "Initiate a structured introduction. Returns a handoff_id and a handoff_access_token that subsequent state-changing calls (submit_stage2_data, submit_stage3_data, cancel_introduction) MUST present. handoff_id alone is not a bearer token (spec §11.5). For Type 3 referrals, the input includes referral-specific consent. Returns 409 Conflict if the consumer already has an active introduction to this professional.",
+      "description": "Component 2 — initiate a consumer-self handoff. Returns a handoff_id and a handoff_access_token that subsequent state-changing calls (submit_stage2_data, submit_stage3_data, cancel_introduction) MUST present. handoff_id alone is not a bearer token (spec §11.5). Available only when the originating Discovery query had request_intent: 'self'; ATAH validates this server-side and returns unauthorized otherwise. The required `flow_variant` selects the Component 2 flow (off_protocol, contact_share, full_lifecycle); see spec §6.1. Returns 409 Conflict if the consumer already has an active introduction to this professional.",
       "input_schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
@@ -126,6 +125,10 @@
           "atah_id": {
             "type": "string",
             "pattern": "^atah-[A-Za-z0-9-]{6,64}$"
+          },
+          "flow_variant": {
+            "type": "string",
+            "enum": ["off_protocol", "contact_share", "full_lifecycle"]
           },
           "matter_type": {
             "type": "string",
@@ -151,6 +154,7 @@
         },
         "required": [
           "atah_id",
+          "flow_variant",
           "matter_type",
           "location_or_jurisdiction",
           "consent_receipt_id"
@@ -222,6 +226,7 @@
         {
           "input": {
             "atah_id": "atah-01HQXR8M2P3QRV5WTYZAB6CDEF",
+            "flow_variant": "full_lifecycle",
             "matter_type": "crisis_response",
             "location_or_jurisdiction": "GB-LON",
             "consent_receipt_id": "cr-01HQXRB1S6TUVZ8A9BCD0EFGHI",
@@ -880,6 +885,334 @@
             "confirmation_id": "conf-2026-04-10-005"
           }
         }
+      ]
+    },
+    {
+      "name": "propose_referral_connection",
+      "description": "Component 3 — propose a referral connection from the calling professional to a target professional. Per F-4, governed by professional delegated authority; this tool does not accept consent_receipt_id. The target professional must have looking_for_referral_partners: true at the time of the call. Persistent proposal with default six-month expiry; silent lapse with deletion if unresolved by expiry. Multiple proposals may be issued in a single call by listing several target_professional_ids; each produces a separate proposal record.",
+      "input_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "target_professional_ids": {
+            "type": "array",
+            "items": { "type": "string", "pattern": "^atah-[A-Za-z0-9-]{6,64}$" },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "category_scope": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "proposal_message": { "type": "string" }
+        },
+        "required": ["target_professional_ids", "category_scope"],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "proposals": {
+            "type": "array",
+            "items": { "$ref": "https://atahprotocol.org/spec/v0.8/schemas/referral-proposal.schema.json" }
+          }
+        },
+        "required": ["proposals"],
+        "additionalProperties": false
+      },
+      "error_codes": [
+        "target_not_looking",
+        "target_not_found",
+        "validation_error",
+        "unauthorized",
+        "rate_limited"
+      ],
+      "safety_metadata": {
+        "is_read_only": false,
+        "transmits_personal_data": false,
+        "requires_explicit_user_approval": true,
+        "state_change_scope": "referral_proposal"
+      },
+      "permitted_authority_bases": [
+        "professional_delegated_token",
+        "firm_delegation"
+      ],
+      "examples": [
+        {
+          "input": {
+            "target_professional_ids": ["atah-01HQXR8M2P3QRV5WTYZAB6CDEF"],
+            "category_scope": ["lawyer", "tax_planner"],
+            "proposal_message": "Frequent cross-referrals for cross-border M&A; would value a recorded ATAH connection."
+          },
+          "output": {
+            "proposals": [
+              {
+                "proposal_id": "proposal-01HQXRE4V9WXYABCDEF3HIJKLM",
+                "schema_version": "0.8",
+                "protocol_version": "0.8",
+                "proposing_professional_id": "atah-01HQXR7K9NBVZ8M3PXFG2YT5WA",
+                "target_professional_id": "atah-01HQXR8M2P3QRV5WTYZAB6CDEF",
+                "proposing_principal_delegation": {
+                  "authenticated_actor": { "actor_type": "professional", "actor_id": "atah-01HQXR7K9NBVZ8M3PXFG2YT5WA" },
+                  "authority_context": {
+                    "represented_principal_type": "professional",
+                    "authority_basis": "professional_delegated_token",
+                    "permitted_scopes": ["atah:introductions:create"],
+                    "expires_at": "2026-07-10T00:00:00Z",
+                    "object_constraints": [
+                      { "constraint_type": "professional_id", "value": "atah-01HQXR7K9NBVZ8M3PXFG2YT5WA" }
+                    ]
+                  }
+                },
+                "category_scope": ["lawyer", "tax_planner"],
+                "proposal_message": "Frequent cross-referrals for cross-border M&A; would value a recorded ATAH connection.",
+                "state": "pending",
+                "created_at": "2026-04-10T14:21:00Z",
+                "expires_at": "2026-10-10T14:21:00Z",
+                "last_updated": "2026-04-10T14:21:00Z"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "list_inbound_referral_proposals",
+      "description": "Component 3 — list pending referral proposals targeting the calling professional. Per F-4, governed by professional delegated authority.",
+      "input_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "proposals": {
+            "type": "array",
+            "items": { "$ref": "https://atahprotocol.org/spec/v0.8/schemas/referral-proposal.schema.json" }
+          }
+        },
+        "required": ["proposals"],
+        "additionalProperties": false
+      },
+      "error_codes": ["unauthorized"],
+      "safety_metadata": {
+        "is_read_only": true,
+        "transmits_personal_data": false,
+        "requires_explicit_user_approval": false,
+        "state_change_scope": "none"
+      },
+      "permitted_authority_bases": [
+        "professional_delegated_token",
+        "firm_delegation"
+      ]
+    },
+    {
+      "name": "list_outbound_referral_proposals",
+      "description": "Component 3 — list pending referral proposals the calling professional has sent. Per F-4, governed by professional delegated authority.",
+      "input_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "proposals": {
+            "type": "array",
+            "items": { "$ref": "https://atahprotocol.org/spec/v0.8/schemas/referral-proposal.schema.json" }
+          }
+        },
+        "required": ["proposals"],
+        "additionalProperties": false
+      },
+      "error_codes": ["unauthorized"],
+      "safety_metadata": {
+        "is_read_only": true,
+        "transmits_personal_data": false,
+        "requires_explicit_user_approval": false,
+        "state_change_scope": "none"
+      },
+      "permitted_authority_bases": [
+        "professional_delegated_token",
+        "firm_delegation"
+      ]
+    },
+    {
+      "name": "respond_to_referral_proposal",
+      "description": "Component 3 — accept or decline an inbound referral proposal. On accept, ATAH creates a referral-connection record and deletes the proposal; on decline, the proposal record is deleted. Per F-4, governed by professional delegated authority.",
+      "input_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "proposal_id": { "type": "string", "pattern": "^proposal-[A-Za-z0-9-]{6,64}$" },
+          "response": { "type": "string", "enum": ["accept", "decline"] }
+        },
+        "required": ["proposal_id", "response"],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "result": { "type": "string", "enum": ["accepted", "declined"] },
+          "connection": {
+            "$ref": "https://atahprotocol.org/spec/v0.8/schemas/referral-connection.schema.json",
+            "description": "Present only when result is 'accepted'."
+          }
+        },
+        "required": ["result"],
+        "additionalProperties": false
+      },
+      "error_codes": ["proposal_not_found", "validation_error", "unauthorized"],
+      "safety_metadata": {
+        "is_read_only": false,
+        "transmits_personal_data": false,
+        "requires_explicit_user_approval": true,
+        "state_change_scope": "referral_proposal"
+      },
+      "permitted_authority_bases": [
+        "professional_delegated_token",
+        "firm_delegation"
+      ]
+    },
+    {
+      "name": "withdraw_referral_proposal",
+      "description": "Component 3 — the proposing professional withdraws a pending proposal before resolution. The proposal record is deleted; the audit event records the withdrawal. Per F-4, governed by professional delegated authority.",
+      "input_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "proposal_id": { "type": "string", "pattern": "^proposal-[A-Za-z0-9-]{6,64}$" }
+        },
+        "required": ["proposal_id"],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "result": { "type": "string", "const": "withdrawn" }
+        },
+        "required": ["result"],
+        "additionalProperties": false
+      },
+      "error_codes": ["proposal_not_found", "unauthorized"],
+      "safety_metadata": {
+        "is_read_only": false,
+        "transmits_personal_data": false,
+        "requires_explicit_user_approval": true,
+        "state_change_scope": "referral_proposal"
+      },
+      "permitted_authority_bases": [
+        "professional_delegated_token",
+        "firm_delegation"
+      ]
+    },
+    {
+      "name": "list_my_referral_connections",
+      "description": "Component 3 — list active referral connections involving the calling professional. Connection records are kept for de-duplication of `request_intent: 'referral_partner_search'` Discovery only; they are not used as a competence or trust signal anywhere in the protocol. Per F-4, governed by professional delegated authority.",
+      "input_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "connections": {
+            "type": "array",
+            "items": { "$ref": "https://atahprotocol.org/spec/v0.8/schemas/referral-connection.schema.json" }
+          }
+        },
+        "required": ["connections"],
+        "additionalProperties": false
+      },
+      "error_codes": ["unauthorized"],
+      "safety_metadata": {
+        "is_read_only": true,
+        "transmits_personal_data": false,
+        "requires_explicit_user_approval": false,
+        "state_change_scope": "none"
+      },
+      "permitted_authority_bases": [
+        "professional_delegated_token",
+        "firm_delegation"
+      ]
+    },
+    {
+      "name": "withdraw_referral_connection",
+      "description": "Component 3 — either party withdraws from an active referral connection; the connection record is deleted. After withdrawal the de-duplication exclusion no longer applies. Per F-4, governed by professional delegated authority.",
+      "input_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "connection_id": { "type": "string", "pattern": "^conn-[A-Za-z0-9-]{6,64}$" }
+        },
+        "required": ["connection_id"],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "result": { "type": "string", "const": "withdrawn" }
+        },
+        "required": ["result"],
+        "additionalProperties": false
+      },
+      "error_codes": ["connection_not_found", "unauthorized"],
+      "safety_metadata": {
+        "is_read_only": false,
+        "transmits_personal_data": false,
+        "requires_explicit_user_approval": true,
+        "state_change_scope": "referral_connection"
+      },
+      "permitted_authority_bases": [
+        "professional_delegated_token",
+        "firm_delegation"
+      ]
+    },
+    {
+      "name": "set_looking_for_referral_partners",
+      "description": "Component 3 — set the calling professional's `looking_for_referral_partners` toggle. When true, the professional is in the candidate pool for incoming Component 3 referral-partner Discovery and may receive `referral-proposal` records; when false, the professional is excluded from `request_intent: 'referral_partner_search'` results and cannot be the target of new proposals. Toggleable on and off at any time. Per F-4 / F1.2, governed by professional delegated authority. Updates to the same field via `PUT /v1/professionals/me` (or its REST equivalent) are also permitted.",
+      "input_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "looking_for_referral_partners": { "type": "boolean" }
+        },
+        "required": ["looking_for_referral_partners"],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "looking_for_referral_partners": { "type": "boolean" }
+        },
+        "required": ["looking_for_referral_partners"],
+        "additionalProperties": false
+      },
+      "error_codes": ["validation_error", "unauthorized"],
+      "safety_metadata": {
+        "is_read_only": false,
+        "transmits_personal_data": false,
+        "requires_explicit_user_approval": false,
+        "state_change_scope": "professional_profile"
+      },
+      "permitted_authority_bases": [
+        "professional_delegated_token",
+        "firm_delegation"
       ]
     }
   ]

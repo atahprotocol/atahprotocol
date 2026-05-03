@@ -26,8 +26,7 @@
               "relevance",
               "verification_quality",
               "availability_response",
-              "profile_completeness",
-              "inbound_referral_signal"
+              "profile_completeness"
             ]
           },
           "uniqueItems": true,
@@ -76,7 +75,6 @@
             "verification_quality": { "type": "number", "minimum": 0, "maximum": 1 },
             "availability_score": { "type": "number", "minimum": 0, "maximum": 1 },
             "profile_completeness": { "type": "number", "minimum": 0, "maximum": 1 },
-            "inbound_referral_signal": { "type": "number", "minimum": 0, "maximum": 1 },
             "verification_quality_subcomponents": {
               "type": "object",
               "properties": {
@@ -94,7 +92,6 @@
             "verification_quality",
             "availability_score",
             "profile_completeness",
-            "inbound_referral_signal",
             "verification_quality_subcomponents"
           ],
           "additionalProperties": false
@@ -160,7 +157,7 @@
       "deprecation_warning": null,
       "presentation_disclosure": {
         "atah_is_not_recommending": true,
-        "ranking_basis": ["relevance", "verification_quality", "availability_response", "profile_completeness", "inbound_referral_signal"],
+        "ranking_basis": ["relevance", "verification_quality", "availability_response", "profile_completeness"],
         "commercial_weighting": false,
         "user_facing_disclosure": "ATAH does not recommend or endorse any professional. This is a provenance-visible shortlist based on the matter described and verification evidence available."
       },
@@ -197,8 +194,7 @@
               "scope_completeness": 1.0
             },
             "profile_completeness": 0.92,
-            "availability_score": 1.0,
-            "inbound_referral_signal": 0.84
+            "availability_score": 1.0
           }
         }
       ]

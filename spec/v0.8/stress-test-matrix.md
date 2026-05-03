@@ -52,7 +52,9 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 - **Required audit events.** `event_type: security_event` (or the action's normal `event_type` with structured metadata indicating `intent_validation: rejected`), recording the declared `request_intent`, the authority basis presented, and the rejection reason.
 - **Required user / professional disclosure.** None to consumer (an attacker should not learn the validation logic). Audit trail is accessible to the asserting platform on request, per §13.5.
 - **Required conformance test.** Conformance suite includes a request with mismatched `request_intent` / `authority_basis` and asserts `403` plus an audit event matching the metadata schema.
-- **Phase 1 contribution.** `authenticated_actor` + `client_application` + `authority_context` shape established; per-operation authority-basis validation enforced via §7.3 matrix and OpenAPI per-operation `security` blocks. **Status: `partially-resolved`** — Phase 1 closes the structural side (declaration + binding); Phase 2's server-side `request_intent` validation closes the semantic side. Will become `resolved` after Phase 2.
+- **Phase 1 contribution.** `authenticated_actor` + `client_application` + `authority_context` shape established; per-operation authority-basis validation enforced via §7.3 matrix and OpenAPI per-operation `security` blocks.
+- **Phase 2 contribution.** `request_intent` is now a required parameter on `query.schema.json` (`self` / `on_behalf_of_client` / `referral_partner_search`) and is the architectural lever gating Component 2 and Component 3 availability. Component 2 endpoints reject calls whose originating Discovery did not declare `request_intent: 'self'`; Component 3 endpoints reject calls under any authority basis other than `professional_delegated_token` / `firm_delegation`. The principal-delegation context recording the declared intent is persisted on the audit-event for every protocol action, so retroactive review of intent declarations is possible.
+- **Status: `resolved`** by Phase 2 — declaration is required, downstream component access is gated server-side, and the declared intent is recorded in the audit trail.
 
 ### 1.2 Platform submits consent for a user who did not consent
 
@@ -93,6 +95,17 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 - **Required user / professional disclosure.** _To be filled in during Phase 4._
 - **Required conformance test.** _To be filled in during Phase 4._
 - **Phase 1 contribution.** `authority_context` records the asserting `client_application` (`platform_id`, `client_id`) and the `authority_basis` (`user_session` for the original asserter, or `handoff_access_token` for stage-changing calls). The §7.3 matrix requires original-asserter match for stage-changing calls. **Status: `partially-resolved`** — Phase 1 supplies the structural carrier; Phase 4 adds the continuity binding fields on the stored consent receipt that detect cross-platform replay end-to-end.
+
+### 1.6 Component 3 proposal spam via looking-toggle gaming
+
+- **Scenario.** An attacker (or a poorly-bounded automated proposer) issues large volumes of Component 3 proposals targeting professionals who have set `looking_for_referral_partners: true`, harassing the targets or saturating their inbound queues. A variant: an attacker repeatedly toggles `looking_for_referral_partners` on briefly to receive proposals from waiting proposers, then off, gaming the de-duplication exclusion.
+- **Abuse / failure mode.** Proposal-flow abuse not present in v0.8.1; introduced in v0.8.2 by Component 3.
+- **Expected protocol behaviour.** Per-period rate limits on proposals per `proposing_professional_id` (configurable; default category-tier-appropriate). Audit-event records every `referral_proposal_*` action with the principal-delegation context, so abuse patterns are visible. The `looking_for_referral_partners` toggle is default-off; proposals to professionals not currently looking are rejected. Reciprocal/dense-cluster toggle patterns flagged for review (see v0.8.3 deferral below).
+- **Required audit events.** `event_type: referral_proposal_created`, `referral_proposal_resolved`, with the resolution reason recorded; for toggle changes, `event_type: profile_updated` with the field-level diff.
+- **Required user / professional disclosure.** Targets MAY surface declined / silently-lapsed proposal counts in their professional portal. Proposers MAY surface their own outbound proposal status. Implementation-side, not protocol-mandated.
+- **Required conformance test.** Conformance suite verifies that proposals to professionals with `looking_for_referral_partners: false` are rejected, and that the per-period rate limit returns `429` after threshold.
+- **Phase mapping.** Phase 2 (introduces the surface and per-period rate limits); residual harassment-monitoring deferred to v0.8.3.
+- **Status: `partially-resolved`** — Phase 2 closes the structural side (toggle gating, rate limits, audit recording). The dense-cluster / reciprocal-toggle pattern detection is `deferred-to-v0.8.3` for monitoring.
 
 ---
 
@@ -164,7 +177,7 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 - **Required audit events.** _To be filled in during Phase 5._
 - **Required user / professional disclosure.** _To be filled in during Phase 5._
 - **Required conformance test.** _To be filled in during Phase 5._
-- **Status.** `skeleton`
+- **Phase 2 contribution.** The `inbound_referral_signal` matching component is removed from `profession-category.matching_weight_profile` and from `match-response.schema.json` example outputs (`presentation_disclosure.ranking_basis` and `match_factors`). One signal previously available for hidden weighting is gone; Component 3 connection records are kept for de-duplication only and do not feed matching at any weight. The four-component weighted model that remains in v0.8.2 is still a weighted score architecture; Phase 5 supersedes it with stratified randomisation. **Status: `partially-resolved`** — one component eliminated in Phase 2; Phase 5 removes the weighted-score architecture entirely.
 
 ### 3.3 Commercial partner candidates appear disproportionately
 
@@ -323,6 +336,17 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 - **Required user / professional disclosure.** _To be filled in during Phase 3._
 - **Required conformance test.** _To be filled in during Phase 3._
 - **Status.** `skeleton`
+
+### 6.5 Component 3 connection records persist after professional withdrawal from matching
+
+- **Scenario.** Professional A withdraws their record from matching (or their `matching_status` flips to `withdrawn`). Active Component 3 referral connections involving A continue to exist as `referral-connection` records — they were not what A's withdrawal was supposed to end.
+- **Abuse / failure mode.** Mismatch between A's mental model of withdrawal ("I am no longer in ATAH") and what protocol withdrawal removes (matching pool, not Component 3 connections); audit interpretation may be ambiguous.
+- **Expected protocol behaviour.** _To be filled in during Phase 3 (withdrawal as state transition)._ Phase 3's withdrawal mechanics will need to specify whether a `withdrawn` matching_status implicitly withdraws Component 3 connections or whether explicit `POST /v1/referral-connections/:connection_id/withdraw` is required for each.
+- **Required audit events.** _To be filled in during Phase 3._
+- **Required user / professional disclosure.** _To be filled in during Phase 3._
+- **Required conformance test.** _To be filled in during Phase 3._
+- **Phase mapping.** Phase 2 introduces Component 3 connection records; Phase 3 specifies how withdrawal-from-matching interacts with them.
+- **Status: `skeleton`** — discovered during Phase 2; resolution falls to Phase 3.
 
 ---
 
@@ -529,5 +553,21 @@ Category 1 (Authentication and Delegation Abuse) scenarios marked per Phase 1's 
   - 1.5 (cross-platform / cross-session handoff replay) → `partially-resolved` here (Phase 1 records the asserter `client_application` and the §7.3 original-asserter match); fully resolved by Phase 4's continuity-binding fields on the stored consent receipt.
 - **New scenarios discovered during Phase 1:** none.
 - **Status distribution after Phase 1:** 35 × `skeleton`, 1 × `resolved` (1.3), 4 × `partially-resolved` (1.1, 1.2, 1.4, 1.5), 1 × `deferred` (7.3, unchanged).
+
+## Phase 2 update
+
+Architectural simplification (GKC-COMMENTS-01) ships in Phase 2. Status changes:
+
+- **1.1 (`request_intent` falsely declared)** → **`resolved`**. Phase 2 makes `request_intent` a required parameter on the Discovery query, gates Component 2 and Component 3 endpoints on the originating intent, and persists the principal-delegation context recording the declared intent in every audit-event. Mismatched intent is rejected at endpoint level.
+- **3.2 (hidden score influences order despite non-recommendation claims)** → **`partially-resolved`**. Phase 2 removes the `inbound_referral_signal` matching component and example output (one signal previously available for hidden weighting is gone). The four-component weighted model that remains is still weighted-score architecture; Phase 5 supersedes it with stratified randomisation, completing resolution.
+- **3.1, 3.3, 3.4** unchanged — Phase 5 territory.
+- **Cat 2, Cat 4, Cats 5–7, Cat 8, Cat 9, Cat 10** unchanged in Phase 2 — their resolutions live in later phases.
+
+New scenarios discovered during Phase 2:
+
+- **1.6 — Component 3 proposal spam via looking-toggle gaming.** Status `partially-resolved` (Phase 2 closes structural side via toggle gating + rate limits + audit recording; dense-cluster pattern detection `deferred-to-v0.8.3`).
+- **6.5 — Component 3 connection records persist after professional withdrawal from matching.** Status `skeleton` — discovered in Phase 2 but resolution falls to Phase 3's withdrawal-as-state-transition work.
+
+**Status distribution after Phase 2:** 35 × `skeleton`, 2 × `resolved` (1.1, 1.3), 5 × `partially-resolved` (1.2, 1.4, 1.5, 1.6, 3.2), 1 × `deferred` (7.3). New total: 43 scenarios (41 seed + 2 discovered in Phase 2).
 
 Phase 11 finalises the matrix as the verification artifact for v0.8.2 publication.

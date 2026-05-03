@@ -5,7 +5,7 @@
 
 ## Context
 
-v0.8.1 records actor information at a coarse level. The audit-event schema carries a single `actor` object with `actor_type` and `actor_id`; `query.schema.json` and `handoff-type1.schema.json` carry a flat `requesting_agent` with `platform_id` and `client_id`; `consent-receipt.schema.json` carries an `asserted_by` object that conflates authenticated identity with platform identification.
+v0.8.1 records actor information at a coarse level. The audit-event schema carries a single `actor` object with `actor_type` and `actor_id`; `query.schema.json` and `handoff-component2.schema.json` carry a flat `requesting_agent` with `platform_id` and `client_id`; `consent-receipt.schema.json` carries an `asserted_by` object that conflates authenticated identity with platform identification.
 
 This is enough to know roughly who acted, but not enough to express the trust boundaries the protocol depends on:
 
@@ -14,7 +14,7 @@ This is enough to know roughly who acted, but not enough to express the trust bo
 - It does not record **object-level constraints**. A handoff_access_token grants narrow authority over a specific handoff, not blanket authority over all handoffs of the same actor.
 - It does not give downstream parties (audit, dispute, conformance) a uniform shape to reason about. Each schema invented its own actor block.
 
-Paolo's review identified this as the foundational v0.8.2 architectural change (F1.1 in the consolidated peer-review findings). The v2 review added a refinement (F-2): the model must not be mashed into a single combined actor object on `audit-event.schema.json`, because partner / verifier / system events would then be forced to look like AI-platform actions (with required `platform_id` / `client_id` fields they do not have).
+This decision draws on Paolo Piponi's peer review (May 2026). The review identified the principal/delegation model as the foundational v0.8.2 architectural change (F1.1 in the consolidated peer-review findings). The v2 review added a refinement (F-2): the model must not be mashed into a single combined actor object on `audit-event.schema.json`, because partner / verifier / system events would then be forced to look like AI-platform actions (with required `platform_id` / `client_id` fields they do not have).
 
 ## Decision
 
@@ -29,7 +29,7 @@ The top-level shape composes the three: `authenticated_actor` and `authority_con
 Schemas updated to use the shared shape:
 
 - `query.schema.json` — `requesting_agent` now `$ref`s `principal-delegation.schema.json`.
-- `handoff-type1.schema.json` — same.
+- `handoff-component2.schema.json` — same.
 - `consent-receipt.schema.json` — `asserted_by` redefined as a composite of `AuthenticatedActor` + (conditionally) `ClientApplication` from the shared `$defs`. Authority for the consent ceremony lives in the receipt's `scope` field; ATAH verifies receipt integrity, not the validity of the underlying consent ceremony.
 - `audit-event.schema.json` — the v0.8.1 generic `actor` object is replaced by three top-level fields (`authenticated_actor`, `client_application`, `authority_context`) referencing the shared `$defs`. `client_application` is conditionally required for `ai_platform` events.
 
@@ -45,7 +45,7 @@ Spec §4.9A documents the model in prose. Spec §7.3 (authorisation matrix) is r
 
 ## Consequences
 
-- Every schema that previously inlined actor or asserter information references `principal-delegation.schema.json` (`query`, `handoff-type1`, `consent-receipt`, `audit-event`). Phase 1 covers these. Schemas added or refactored in later phases adopt the same model where they record actor information (Phase 2's renamed Component 3 record will add a principal-delegation reference for the initiating professional; Phase 3's withdrawal records will use it for the withdrawing actor; Phase 4's continuity-binding additions live alongside it on the receipt).
+- Every schema that previously inlined actor or asserter information references `principal-delegation.schema.json` (`query`, `handoff-component2`, `consent-receipt`, `audit-event`). Phase 1 covers these. Schemas added or refactored in later phases adopt the same model where they record actor information (Phase 2's renamed Component 3 record will add a principal-delegation reference for the initiating professional; Phase 3's withdrawal records will use it for the withdrawing actor; Phase 4's continuity-binding additions live alongside it on the receipt).
 - `audit-event.schema.json` is a breaking schema change relative to v0.8.1. Since v0.8.1 is not published, no migration is required externally; internal test fixtures using the old `actor` shape must be updated.
 - The §7.3 authorisation matrix is materially larger and is grouped per `authenticated_actor.actor_type`. The structure scales by adding rows; later phases that add operations append rows under the appropriate actor type.
 - OAuth-scope-to-authority-basis mapping is documented in `openapi.yaml`'s `securitySchemes.oauth2.description`. Where a clean mapping does not exist, it is documented explicitly in §13 rather than fudged.
@@ -55,7 +55,7 @@ Spec §4.9A documents the model in prose. Spec §7.3 (authorisation matrix) is r
 ## References
 
 - Spec §4.9A (Principal and Delegation Model), §7.3 (Authorisation Matrix), §13.3 (Rate Limiting and Abuse Prevention).
-- Schemas: [`principal-delegation.schema.json`](../../spec/v0.8/schemas/principal-delegation.schema.json), and the four updated consumers (`query`, `handoff-type1`, `consent-receipt`, `audit-event`).
+- Schemas: [`principal-delegation.schema.json`](../../spec/v0.8/schemas/principal-delegation.schema.json), and the four updated consumers (`query`, `handoff-component2`, `consent-receipt`, `audit-event`).
 - OpenAPI: `spec/v0.8/openapi.yaml` `components.securitySchemes.oauth2.description`.
 - MCP tools: `spec/v0.8/mcp-tools.json` `tools[*].permitted_authority_bases`.
 - Master patch plan v3.1.1, Phase 1 (§3) and findings F-2 (audit actor split), F-16 (no `consumer` in actor_type).

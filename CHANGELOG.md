@@ -8,6 +8,43 @@ A detailed file-by-file change log between v0.7 and v0.8 is maintained separatel
 
 ---
 
+## [v0.8.2] — May 2026 (in progress)
+
+**Status:** Patch round in progress. v0.8.1 is not separately published; v0.8.2 publishes directly to GitHub when the patch round completes review.
+
+### Summary
+
+v0.8.2 absorbs three rounds of post-v0.8.1 review work: GKC-COMMENTS-01 (architectural simplification to a three-component model), Paolo's peer review (formal principal/delegation model, three-concept separation of erasure / audit / withdrawal, stratified-randomisation-based ordering, transparency-as-conformance, contact-detail freshness), and three rounds of AI peer review (technical contract fixes, residual cleanup, strategic-risk positioning). The protocol's purpose, actors, and lifecycle direction are unchanged; v0.8.2 sharpens trust boundaries, retires the v0.8.1 "Type 1 / Type 2 / Type 3" framing in favour of a three-component model, and commits to a stratified ordering posture in place of weighted scoring.
+
+### Changed
+
+- **Three-component architecture (GKC-COMMENTS-01).** Type 1 / Type 2 / Type 3 terminology is retired entirely; v0.8.2 uses Component 1 (Discovery), Component 2 (Consumer-self handoff with three flow variants — `off_protocol`, `contact_share`, `full_lifecycle`), Component 3 (Referral connection-making). No historical aliases retained — the rename is comprehensive across spec, schemas, OpenAPI, MCP tools, and documentation. The professional-on-behalf-of-client case formerly modelled as "Type 3" is served by Discovery alone (Component 1 with `request_intent: 'on_behalf_of_client'`); ATAH does not deliver client contact details based on professional attestation. The associated `professional_attestation_of_client_consent` consent path is removed.
+- **Schema renames and additions.** `handoff-type1.schema.json` → `handoff-component2.schema.json` (with new required `flow_variant` field). `handoff-type2.schema.json` → `referral-proposal.schema.json` (rewritten for the persistent-then-lapsed lifecycle; per F-4, `consent_receipt_id` is NOT carried — Component 3 actions are governed by professional delegated authority recorded via `principal-delegation.schema.json`). `handoff-type3.schema.json` deleted. New: `referral-connection.schema.json` for the de-duplication record. New: `principal-delegation.schema.json` defining the shared `AuthenticatedActor` / `ClientApplication` / `AuthorityContext` shape used wherever actor or asserter information is recorded.
+- **Discovery query.** `query.schema.json` adds required `request_intent` (`self`, `on_behalf_of_client`, `referral_partner_search`) and required `limit` (1–100). `request_intent` gates which next-step components are available. `shortlist_size` is removed; `limit` is the single candidate-set size parameter.
+- **Matching engine simplified.** Inbound referral signal (and its reciprocal-cap, time-decay, dense-cluster, and Sybil controls) removed. Connection records are kept for de-duplication of `request_intent: 'referral_partner_search'` Discovery only; they do NOT feed matching as a competence or trust signal. The four-component weighted model (relevance / verification quality / availability and response time / profile completeness) in v0.8.2 is a transitional state superseded by Phase 5's stratified-randomisation `band_definitions` model.
+- **Looking-toggle for Component 3.** Both professional-identity schemas add `looking_for_referral_partners` (boolean, default `false`); only professionals with the toggle set to `true` are in the candidate pool for inbound Component 3 proposals.
+- **Authorisation matrix refactor.** Spec §7.3 is regrouped per `authenticated_actor.actor_type` with subtables expressing permissions in principal/delegation terms (per F-2). Component 3 endpoint rows require professional delegated authority and MUST NOT accept `consent_receipt_id` (per F-4).
+- **Audit-event schema split.** The v0.8.1 generic `actor` object on `audit-event.schema.json` is replaced by three top-level fields (`authenticated_actor`, `client_application`, `authority_context`) referencing the shared `principal-delegation.schema.json` `$defs`. `client_application` is conditionally required for `ai_platform` events (per F-2). Per F-16, `consumer` is not added to `authenticated_actor.actor_type`; consumer-triggered events are recorded as `actor_type: ai_platform` with `represented_principal_type: consumer`.
+
+### Added
+
+- **Spec §4.9A — Principal and Delegation Model.** Documents the three-object shape and combination rules; cross-referenced from §4.10 and §7.3.
+- **Component 3 endpoints (8 new MCP tools, 4 new OpenAPI paths).** `propose_referral_connection`, `list_inbound_referral_proposals`, `list_outbound_referral_proposals`, `respond_to_referral_proposal`, `withdraw_referral_proposal`, `list_my_referral_connections`, `withdraw_referral_connection`, `set_looking_for_referral_partners`. REST: `POST /v1/referral-proposals` (updated), `GET /v1/referral-proposals/inbound`, `GET /v1/referral-proposals/outbound`, `POST /v1/referral-proposals/{id}/withdraw`, `GET /v1/referral-connections`, `POST /v1/referral-connections/{id}/withdraw`. `/v1/referral-network` is removed in favour of `/v1/referral-connections`.
+- **`referral_proposal_expiry_months` per category.** New field on `profession-category.schema.json` with default 6; v0.8.2 ships with 6 months across all categories.
+- **MCP `permitted_authority_bases` per tool.** Each MCP tool declares the authority bases under which it may be invoked (per F1.2).
+- **OpenAPI authority-basis-to-OAuth-scope mapping.** The `securitySchemes.oauth2.description` documents the mapping from each `authority_basis` value to the OAuth grant flow.
+- **ADR 0009.** Records the principal/delegation model decision and the rejected alternatives (single combined object, per-actor-type schemas, `consumer` as `actor_type`).
+- **Stress-test matrix skeleton.** New `spec/v0.8/stress-test-matrix.md` with 10 categories, 41 seed scenarios, F-17 status vocabulary (`skeleton` / `resolved` / `bounded-by-protocol` / `allocated-to-platform-responsibility` / `partially-resolved` / `deferred`), and per-phase update discipline.
+- **Spectral ruleset.** New `.spectral.yaml` extending `spectral:oas` so per-phase OpenAPI lint is a uniform invocation.
+
+### Removed
+
+- The professional-attestation-of-client-consent path. The associated v0.8.1 ROADMAP item proposing `consumer` in `actor_type` is closed as superseded.
+- `inbound_referral_signal` from the matching engine and from `profession-category.matching_weight_profile`.
+- `shortlist_size` from `query.schema.json` (replaced by `limit`).
+
+---
+
 ## [v0.8.1] — April 2026
 
 **Status:** Release candidate. First public publication.

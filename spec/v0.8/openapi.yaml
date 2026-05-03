@@ -54,12 +54,28 @@ paths:
     post:
       tags: [External]
       operationId: postQuery
-      summary: Find professionals — Type 1 consumer introduction.
+      summary: Discovery — find professionals (Component 1).
       description: |
-        Submit a query for professionals. Returns a ranked shortlist with full
-        trusted partner data payload, `presentation_disclosure`, and
-        `protocol_version`. AI platforms MUST surface `presentation_disclosure`
-        to the end user.
+        Component 1 (Discovery) — submit a query for candidate professionals.
+        Returns a candidate set with full trusted partner data payload,
+        `presentation_disclosure`, and `protocol_version`. AI platforms MUST
+        surface `presentation_disclosure` to the end user.
+
+        The required `request_intent` parameter (`self`,
+        `on_behalf_of_client`, `referral_partner_search`) gates which
+        next-step components are available:
+        - `self` → Component 2 (Consumer-self handoff) is available.
+        - `on_behalf_of_client` → Component 2 is NOT available; the
+          professional handles the introduction off-protocol.
+        - `referral_partner_search` → Component 3 (Referral connection-
+          making) is available; the candidate set excludes professionals
+          the requester is already connected to via an active
+          `referral-connection`.
+
+        The required `limit` parameter (1–100) replaces the v0.8.1
+        `shortlist_size` field. Discovery returns a working candidate set,
+        not an exhaustive directory; AI agents requesting larger sets
+        should narrow `matter` filters.
       security:
         - oauth2: [atah:find]
       parameters:
@@ -131,15 +147,29 @@ paths:
     post:
       tags: [External]
       operationId: postIntroduction
-      summary: Initiate a new introduction (Type 1 or Type 3).
+      summary: Initiate a new Component 2 (consumer-self) handoff.
       description: |
-        Creates a handoff record and returns a `handoff_id` plus a
+        Creates a Component 2 handoff record and returns a `handoff_id` plus a
         `handoff_access_token`. Subsequent state-changing calls MUST present the
         `handoff_access_token`. `handoff_id` alone is NOT a bearer token; the
         tiered handoff-access model is defined in spec §11.5.
 
-        Returns 409 Conflict if the consumer already has an active introduction
-        to this professional.
+        Available only when the originating Discovery query had
+        `request_intent: 'self'`. Implementations MUST validate this
+        precondition server-side using the principal-delegation context
+        recorded against the query and reject calls otherwise.
+
+        The required `flow_variant` parameter selects one of three Component 2
+        flows:
+        - `off_protocol` — records that ATAH was not invoked beyond Discovery.
+        - `contact_share` — single-stage flow: consumer consents, contact
+          details flow through the transient encrypted vault, professional
+          retrieves through authenticated retrieval, vault crypto-erases on
+          retrieval.
+        - `full_lifecycle` — Stage 1 / Stage 2 / Stage 3 lifecycle.
+
+        Returns 409 Conflict if the consumer already has an active
+        introduction to this professional.
       security:
         - oauth2: [atah:introductions:create]
       parameters:
@@ -154,7 +184,10 @@ paths:
               properties:
                 introduction_type:
                   type: string
-                  enum: [type_1_consumer_introduction, type_3_client_referral]
+                  enum: [component_2_consumer_handoff]
+                flow_variant:
+                  type: string
+                  enum: [off_protocol, contact_share, full_lifecycle]
                 atah_id:
                   type: string
                   pattern: '^atah-[A-Za-z0-9-]{6,64}$'
@@ -168,13 +201,7 @@ paths:
                 urgency:
                   type: string
                   enum: [routine, standard, urgent, emergency]
-                # Type 3-only fields
-                referring_professional_id:
-                  type: string
-                  pattern: '^atah-[A-Za-z0-9-]{6,64}$'
-                client_consent_attestation:
-                  type: object
-              required: [introduction_type, atah_id, consent_receipt_id]
+              required: [introduction_type, flow_variant, atah_id, consent_receipt_id]
               additionalProperties: false
       responses:
         '201':
@@ -231,10 +258,10 @@ paths:
             minLength: 1
       responses:
         '200':
-          description: Handoff record (Type 1).
+          description: Handoff record (Component 2).
           content:
             application/json:
-              schema: { $ref: './schemas/handoff-type1.schema.json' }
+              schema: { $ref: './schemas/handoff-component2.schema.json' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
@@ -482,9 +509,17 @@ paths:
 
   /v1/referral-proposals:
     post:
-      tags: [External]
+      tags: [Professional]
       operationId: postReferralProposal
-      summary: Initiate Type 2 referral partner proposal.
+      summary: Component 3 — propose a referral connection.
+      description: |
+        Component 3 (Referral connection-making) — proposing professional A
+        asks ATAH to record a pending proposal targeting professional B.
+        Per F-4, this endpoint is governed by professional delegated
+        authority recorded in the request's principal-delegation context;
+        it does NOT accept `consent_receipt_id`. The target professional
+        must have `looking_for_referral_partners: true` at the time of
+        proposal creation.
       security:
         - oauth2: [atah:introductions:create]
       parameters:
@@ -494,23 +529,76 @@ paths:
         required: true
         content:
           application/json:
-            schema: { $ref: './schemas/handoff-type2.schema.json' }
+            schema: { $ref: './schemas/referral-proposal.schema.json' }
       responses:
         '201':
           description: Proposal created.
           content:
             application/json:
-              schema: { $ref: './schemas/handoff-type2.schema.json' }
+              schema: { $ref: './schemas/referral-proposal.schema.json' }
         '400': { $ref: '#/components/responses/ValidationError' }
         '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404':
+          description: Target professional not found, or `looking_for_referral_partners` is false.
+          content:
+            application/json:
+              schema: { $ref: './schemas/error.schema.json' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+
+  /v1/referral-proposals/inbound:
+    get:
+      tags: [Professional]
+      operationId: getInboundReferralProposals
+      summary: Component 3 — list inbound referral proposals.
+      description: |
+        Returns the pending Component 3 proposals targeting the calling
+        professional. Per F-4, governed by professional delegated authority.
+      security:
+        - oauth2: [atah:professionals:self_read]
+      parameters:
+        - $ref: '#/components/parameters/AcceptVersion'
+      responses:
+        '200':
+          description: Inbound proposals.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: './schemas/referral-proposal.schema.json' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /v1/referral-proposals/outbound:
+    get:
+      tags: [Professional]
+      operationId: getOutboundReferralProposals
+      summary: Component 3 — list outbound referral proposals.
+      description: |
+        Returns the pending Component 3 proposals the calling professional
+        has sent. Per F-4, governed by professional delegated authority.
+      security:
+        - oauth2: [atah:professionals:self_read]
+      parameters:
+        - $ref: '#/components/parameters/AcceptVersion'
+      responses:
+        '200':
+          description: Outbound proposals.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: './schemas/referral-proposal.schema.json' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
 
   /v1/referral-proposals/{proposal_id}:
     get:
-      tags: [External]
+      tags: [Professional]
       operationId: getReferralProposal
-      summary: Get proposal status.
+      summary: Component 3 — get proposal status.
       security:
-        - oauth2: [atah:introductions:read]
+        - oauth2: [atah:professionals:self_read]
       parameters:
         - name: proposal_id
           in: path
@@ -524,7 +612,34 @@ paths:
           description: Proposal record.
           content:
             application/json:
-              schema: { $ref: './schemas/handoff-type2.schema.json' }
+              schema: { $ref: './schemas/referral-proposal.schema.json' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /v1/referral-proposals/{proposal_id}/withdraw:
+    post:
+      tags: [Professional]
+      operationId: postReferralProposalWithdraw
+      summary: Component 3 — withdraw an outbound proposal.
+      description: |
+        The proposing professional withdraws a pending proposal before the
+        target has responded. The proposal record is deleted; the audit
+        event records the withdrawal with `resolved_at`. Per F-4, governed
+        by professional delegated authority.
+      security:
+        - oauth2: [atah:professionals:self_write]
+      parameters:
+        - name: proposal_id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^proposal-[A-Za-z0-9-]{6,64}$'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '200':
+          description: Proposal withdrawn.
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
 
   /v1/webhooks/register:
@@ -733,6 +848,13 @@ paths:
       tags: [Professional]
       operationId: putProfessionalSelf
       summary: Update own profile (self-managed fields only).
+      description: |
+        Update self-managed fields on the professional's record. Self-managed
+        fields include `looking_for_referral_partners` (Component 3 visibility
+        toggle); changes to partner-managed fields (e.g. licence status) are
+        rejected. Per F1.2, requires authenticated professional account or
+        delegated professional-agent token; firm admin actions use
+        `firm_delegation` with appropriate `object_constraints`.
       security:
         - oauth2: [atah:professionals:self_write]
       requestBody:
@@ -741,6 +863,15 @@ paths:
           application/json:
             schema:
               type: object
+              description: |
+                Partial profile update. Self-managed fields only. The
+                `looking_for_referral_partners` toggle (Component 3) is
+                included in this update path; v0.8.2 does not introduce a
+                dedicated PATCH endpoint for the toggle.
+              properties:
+                looking_for_referral_partners:
+                  type: boolean
+                  description: Component 3 visibility toggle. Default false.
               additionalProperties: true
       responses:
         '200':
@@ -815,22 +946,70 @@ paths:
         '200':
           description: Response recorded.
 
-  /v1/referral-network:
+  /v1/referral-connections:
     get:
       tags: [Professional]
-      operationId: getReferralNetwork
-      summary: List the professional's established referral relationships.
+      operationId: getReferralConnections
+      summary: Component 3 — list active referral connections.
+      description: |
+        Returns the active Component 3 referral connections involving the
+        calling professional. Connection records are kept for de-duplication
+        of `request_intent: 'referral_partner_search'` Discovery only; they
+        are not used as a competence or trust signal anywhere in the
+        protocol.
       security:
         - oauth2: [atah:professionals:self_read]
+      parameters:
+        - $ref: '#/components/parameters/AcceptVersion'
       responses:
         '200':
-          description: Referral network.
+          description: Active connections.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: './schemas/referral-connection.schema.json' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /v1/referral-connections/{connection_id}/withdraw:
+    post:
+      tags: [Professional]
+      operationId: postReferralConnectionWithdraw
+      summary: Component 3 — withdraw from a referral connection.
+      description: |
+        Either party withdraws from an active connection; the connection
+        record is deleted. After withdrawal, the de-duplication exclusion
+        no longer applies (either party may appear in the other's
+        `request_intent: 'referral_partner_search'` Discovery results in
+        future). Per F-4, governed by professional delegated authority.
+      security:
+        - oauth2: [atah:professionals:self_write]
+      parameters:
+        - name: connection_id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^conn-[A-Za-z0-9-]{6,64}$'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '200':
+          description: Connection withdrawn.
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
 
   /v1/referral-proposals/{proposal_id}/respond:
     post:
       tags: [Professional]
       operationId: postReferralProposalRespond
-      summary: Respond to a Type 2 referral proposal.
+      summary: Component 3 — accept or decline an inbound proposal.
+      description: |
+        The target professional accepts or declines a pending Component 3
+        proposal. On acceptance, ATAH creates a `referral-connection` record
+        and deletes the proposal record. On decline, the proposal record is
+        deleted. Per F-4, governed by professional delegated authority.
       security:
         - oauth2: [atah:professionals:self_write]
       parameters:
@@ -856,6 +1035,9 @@ paths:
       responses:
         '200':
           description: Response recorded.
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
 
   /v1/professionals/me/disputes:
     get:
@@ -1689,7 +1871,9 @@ components:
         query_id: q-01HQXRD3U8VWXAB0CDEF2GHIJK
         schema_version: '0.8'
         protocol_version: '0.8'
-        query_type: consumer_introduction
+        query_type: discovery
+        request_intent: self
+        limit: 3
         requesting_agent:
           authenticated_actor:
             actor_type: ai_platform
@@ -1714,7 +1898,6 @@ components:
           enhanced_verification_required: false
           max_response_time_hours: 4
           virtual: true
-        shortlist_size: 3
     MatchResponseExample:
       summary: Single result with full presentation_disclosure block.
       value:
@@ -1724,7 +1907,7 @@ components:
         deprecation_warning: null
         presentation_disclosure:
           atah_is_not_recommending: true
-          ranking_basis: [relevance, verification_quality, availability_response, profile_completeness, inbound_referral_signal]
+          ranking_basis: [relevance, verification_quality, availability_response, profile_completeness]
           commercial_weighting: false
           user_facing_disclosure: 'ATAH does not recommend or endorse any professional. This is a provenance-visible shortlist based on the matter described and verification evidence available.'
         result_count: 1
@@ -1738,7 +1921,6 @@ components:
               verification_quality: 0.88
               availability_score: 1.0
               profile_completeness: 0.86
-              inbound_referral_signal: 0.82
               verification_quality_subcomponents:
                 credential_verification: 0.92
                 enhanced_score: 0.0

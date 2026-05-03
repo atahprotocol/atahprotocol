@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://atahprotocol.org/spec/v0.8/schemas/handoff-type1.schema.json",
-  "title": "ATAH Handoff — Type 1 (Consumer Introduction)",
-  "description": "ATAH Core Protocol object: Type 1 consumer introduction handoff record (spec/v0.8 Sections 6 and 11.5). The full Type 1 state machine. Required for any ATAH-conformant implementation.",
+  "$id": "https://atahprotocol.org/spec/v0.8/schemas/handoff-component2.schema.json",
+  "title": "ATAH Handoff — Component 2 (Consumer-self handoff)",
+  "description": "ATAH Core Protocol object: Component 2 consumer-self handoff record (spec/v0.8 Sections 6 and 11.5). Available only when the originating Discovery query had `request_intent: 'self'`. Three flow variants are supported (`off_protocol`, `contact_share`, `full_lifecycle`); the full Stage 1 / Stage 2 / Stage 3 state machine is preserved as the `full_lifecycle` variant. Required for any ATAH-conformant implementation.",
   "type": "object",
   "properties": {
     "handoff_id": {
@@ -13,7 +13,12 @@
     "protocol_version": { "type": "string", "const": "0.8" },
     "introduction_type": {
       "type": "string",
-      "enum": ["type_1_consumer_introduction"]
+      "enum": ["component_2_consumer_handoff"]
+    },
+    "flow_variant": {
+      "type": "string",
+      "enum": ["off_protocol", "contact_share", "full_lifecycle"],
+      "description": "Which Component 2 flow the AI agent is invoking. `off_protocol` records that ATAH was not invoked beyond Discovery (the consumer-facing surface acted on Discovery results without further ATAH mediation). `contact_share` is a single-stage flow: consumer consents, contact details flow through the transient encrypted vault, professional retrieves through authenticated retrieval, vault crypto-erases on retrieval; no Stage 1 appetite check, no Stage 2 pre-handoff check. `full_lifecycle` is the Stage 1 / Stage 2 / Stage 3 lifecycle previously documented as the universal handoff path."
     },
     "requesting_agent": {
       "$ref": "principal-delegation.schema.json"
@@ -104,6 +109,7 @@
     "schema_version",
     "protocol_version",
     "introduction_type",
+    "flow_variant",
     "requesting_agent",
     "consumer_ref",
     "professional_id",
@@ -119,7 +125,8 @@
       "handoff_id": "hf-01HQXRC2T7UVWZ9ABCDE1FGHIJ",
       "schema_version": "0.8",
       "protocol_version": "0.8",
-      "introduction_type": "type_1_consumer_introduction",
+      "introduction_type": "component_2_consumer_handoff",
+      "flow_variant": "full_lifecycle",
       "requesting_agent": {
         "authenticated_actor": {
           "actor_type": "ai_platform",

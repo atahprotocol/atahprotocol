@@ -24,7 +24,19 @@ v0.8.1 is published as the release-candidate version. The release plan handles o
 
 Breaking changes are possible up to v1.0; the version negotiation and deprecation policy in [spec Section 7.1](spec/v0.8/full-spec.md#71-versioning-and-backward-compatibility) governs how those changes are managed.
 
-## v0.8.1.x and v0.8.2 candidates
+## v0.8.2 confirmed
+
+The v0.8.2 patch round is confirmed and absorbs the following work:
+
+- **Architectural simplification (GKC-COMMENTS-01).** Three-component model — Component 1 (Discovery), Component 2 (Consumer-self handoff with three flow variants), Component 3 (Referral connection-making). Type 3 collapses into Discovery with `request_intent: 'on_behalf_of_client'`; the professional handles delivery off-platform. Schemas renamed: `handoff-type1.schema.json` → `handoff-component2.schema.json`; `handoff-type2.schema.json` → `referral-proposal.schema.json` (rewritten for the persistent-then-lapsed lifecycle); `handoff-type3.schema.json` deleted; new `referral-connection.schema.json` for the de-duplication record. `request_intent` and `limit` added to the Discovery query (`limit` replaces `shortlist_size`). Inbound referral signal removed from matching; the four-component weighted model is a transitional state superseded by Phase 5's stratified randomisation.
+- **Foundational principal/delegation model.** New `principal-delegation.schema.json` referenced by `query`, `handoff-component2`, `consent-receipt`, `audit-event`, and the Component 3 `referral-proposal`. Spec §4.9A documents the model; §7.3 expresses permissions in the new terms. ADR 0009 records the decision.
+- **`verification_confidence` schema implementation.** Add the field to `match-response.schema.json` with the enumeration and semantics specified in spec §4.12. Update matching engine logic to populate the field. Add validation tests for each enumeration value. Update example payloads in `examples/`. (Field name and semantics committed in spec §4.12 at v0.8.1; schema implementation lands in v0.8.2.)
+- **REST `GET /v1/consent-requirements` endpoint.** MCP-native platforms have `get_consent_requirements`; REST-only platforms in v0.8.1 should source consent text and required `data_categories` directly from the spec (§4.10 and `consent-receipt.schema.json`). v0.8.2 adds a REST counterpart with the same response shape as the MCP tool's `output_schema`.
+- **Extract `presentation_disclosure` to a standalone schema.** Currently inlined in `match-response.schema.json` (which is acceptable for conformance). v0.8.2 refactor: extract to `presentation-disclosure.schema.json` and reference via `$ref`.
+- **Align `check_introduction_status` response shapes across MCP and REST.** OpenAPI returns the full `handoff-component2.schema.json` payload; MCP returns a five-field subset. Both are PII-free. v0.8.2 either aligns the OpenAPI response to the MCP subset or documents the divergence in spec §11.5.
+- **Non-handoff-bound consent revocation endpoint.** OpenAPI's `postIntroductionRevokeConsent` is path-bound to `/v1/introductions/{handoff_id}/revoke-consent` and so cannot revoke a query-scope consent receipt that has no handoff yet (MCP `revoke_consent` keyed on `consent_receipt_id` works for this case). v0.8.2 adds `POST /v1/consent-receipts/{consent_receipt_id}/revoke` to close the gap, or documents the divergence.
+
+## v0.8.1.x candidates
 
 Items expected to be small enough to land as patch releases rather than wait for v0.9:
 
@@ -32,15 +44,13 @@ Items expected to be small enough to land as patch releases rather than wait for
 - Schema clarifications where wording has been ambiguous in practice
 - Cross-document consistency fixes surfaced after publication
 - Repository directory restructure into `core/`, `bindings/`, `registry-profile/` subdirectories — deferred from v0.8.1 to avoid schema-reference reflow risk pre-publication
-- **`verification_confidence` schema implementation.** Add the field to `match-response.schema.json` with the enumeration and semantics specified in spec §4.12. Update matching engine logic to populate the field. Add validation tests for each enumeration value. Update example payloads in `examples/`. (Field name and semantics committed in spec §4.12 at v0.8.1; schema implementation lands in v0.8.2.)
-- **MCP `initiate_introduction` Type 3 support.** v0.8.1 documents Type 3 referral semantics in the tool description but the input schema only models Type 1. The REST endpoint (`POST /v1/introductions`) handles both Type 1 and Type 3 via the `introduction_type` discriminator and is the v0.8.1 workaround for MCP clients needing Type 3. v0.8.2 will either split the MCP tool into `initiate_introduction_type1` and `initiate_referral_type3` (changing the MCP tool count from nine to ten with a corresponding PRD §8.13 update) or add an `introduction_type` discriminator and the Type 3 fields to the existing tool's input schema.
-- **REST `GET /v1/consent-requirements` endpoint.** MCP-native platforms have `get_consent_requirements`; REST-only platforms in v0.8.1 should source consent text and required `data_categories` directly from the spec (§4.10 and `consent-receipt.schema.json`). v0.8.2 adds a REST counterpart with the same response shape as the MCP tool's `output_schema`.
-- **Extract `presentation_disclosure` to a standalone schema.** Currently inlined in `match-response.schema.json` (which is acceptable for conformance). v0.8.2 candidate refactor: extract to `presentation-disclosure.schema.json` and reference via `$ref`.
-- **Align `check_introduction_status` response shapes across MCP and REST.** OpenAPI returns the full `handoff-type1.schema.json` payload; MCP returns a five-field subset. Both are PII-free. v0.8.2 either aligns the OpenAPI response to the MCP subset or documents the divergence in spec §11.5.
-- **Non-handoff-bound consent revocation endpoint.** OpenAPI's `postIntroductionRevokeConsent` is path-bound to `/v1/introductions/{handoff_id}/revoke-consent` and so cannot revoke a query-scope consent receipt that has no handoff yet (MCP `revoke_consent` keyed on `consent_receipt_id` works for this case). v0.8.2 adds `POST /v1/consent-receipts/{consent_receipt_id}/revoke` to close the gap, or documents the divergence.
-- **`consumer` actor_type in audit-event schema.** `audit-event.schema.json` `actor.actor_type` enum lacks `consumer` even though consumers can trigger audit events (cancel, revoke). v0.8.2 either adds `consumer` to the enum or documents that consumer-triggered events are recorded under `actor_type: ai_platform` (the asserter platform that mediated the consumer action). `handoff-type1.schema.json` `state_history[].actor_type` already includes `consumer`; consistency is the goal.
 
 These are best-effort; patch versions land when meaningful work has accumulated rather than on a fixed cadence.
+
+**Closed as superseded:**
+
+- *MCP `initiate_introduction` Type 3 support* — closed by GKC-COMMENTS-01 / v0.8.2 architectural simplification. Type 3 is collapsed into Discovery (`request_intent: 'on_behalf_of_client'`); ATAH does not deliver client contact details based on professional attestation, ever. The professional-on-behalf-of-client case is served by Discovery alone.
+- *`consumer` actor_type in audit-event schema* — closed by F-16 / Phase 1 of the v0.8.2 patch round. Per the principal/delegation model, consumers do not authenticate directly to ATAH; consumer-triggered events are recorded as `authenticated_actor.actor_type: ai_platform` with `authority_context.represented_principal_type: consumer`. Adding `consumer` to `authenticated_actor.actor_type` would contradict the model. The `state_history[].actor_type` enum on `handoff-component2.schema.json` retains `consumer` because state-history is a different concept (the party whose intent caused a state change, not the authenticated actor); consistency between the two `actor_type` fields is not the goal.
 
 ## v0.9 candidates
 

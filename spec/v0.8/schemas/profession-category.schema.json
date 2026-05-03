@@ -36,32 +36,38 @@
     },
     "matching_weight_profile": {
       "type": "object",
+      "description": "Per-category weights summing to 1.0 across the four matching components. v0.8.2 (Phase 2) removes `inbound_referral_signal` from the profile per GKC-COMMENTS-01: connection records are kept for de-duplication only and do not feed matching. Phase 5 supersedes this whole field with `band_definitions` (stratified randomisation); the four-component model in this phase is a transitional state.",
       "properties": {
         "relevance": { "type": "number", "minimum": 0, "maximum": 1 },
         "verification_quality": { "type": "number", "minimum": 0, "maximum": 1 },
         "availability_response": { "type": "number", "minimum": 0, "maximum": 1 },
-        "profile_completeness": { "type": "number", "minimum": 0, "maximum": 1 },
-        "inbound_referral_signal": { "type": "number", "minimum": 0, "maximum": 1 }
+        "profile_completeness": { "type": "number", "minimum": 0, "maximum": 1 }
       },
       "required": [
         "relevance",
         "verification_quality",
         "availability_response",
-        "profile_completeness",
-        "inbound_referral_signal"
+        "profile_completeness"
       ],
       "additionalProperties": false,
-      "minProperties": 5,
-      "maxProperties": 5
+      "minProperties": 4,
+      "maxProperties": 4
     },
     "review_signal_weight_cap": {
       "type": "number",
       "minimum": 0,
-      "maximum": 1
+      "maximum": 1,
+      "description": "Cap on the contribution of review-derived signals to band assignment. Retained in Phase 2; Phase 5 replaces this with `review_signal_band_cap` along with the broader stratified-randomisation refactor (per F-7)."
     },
     "stage2_auth_tier": {
       "type": "string",
       "enum": ["tier_1", "tier_2", "tier_3"]
+    },
+    "referral_proposal_expiry_months": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 36,
+      "description": "Default expiry for Component 3 referral proposals targeting professionals in this category, in months. Categories without a value use the protocol-level default of 6 months. v0.8.2 ships with 6 as the only populated value across categories."
     }
   },
   "required": [
@@ -87,14 +93,14 @@
       "compliance_status": "active",
       "default_pre_handoff_check": "conflict_check",
       "matching_weight_profile": {
-        "relevance": 0.30,
-        "verification_quality": 0.40,
+        "relevance": 0.35,
+        "verification_quality": 0.45,
         "availability_response": 0.15,
-        "profile_completeness": 0.05,
-        "inbound_referral_signal": 0.10
+        "profile_completeness": 0.05
       },
       "review_signal_weight_cap": 0.10,
-      "stage2_auth_tier": "tier_2"
+      "stage2_auth_tier": "tier_2",
+      "referral_proposal_expiry_months": 6
     }
   ]
 }

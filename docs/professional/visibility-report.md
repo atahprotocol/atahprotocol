@@ -56,7 +56,7 @@ For professionals who haven't read the matching engine specification (most of yo
 
 **Profile completeness.** Whether the profile has the fields populated that the matching engine uses. Improvable directly: add missing fields, complete partial ones, refresh stale ones.
 
-**Inbound referral signal.** Whether other professionals have established Type 2 referral relationships with this professional, weighted by the verification quality of those referrers, time-decayed, and subject to anti-gaming controls (reciprocal cap, dense-cluster discount). Reflects an asset that builds over time as referral relationships are established with other ATAH-listed professionals; the report shows the contribution but does not list the referrers.
+**Component 3 looking-toggle status.** Whether the professional has set `looking_for_referral_partners: true` (default off). The toggle controls visibility in inbound Component 3 referral-partner Discovery; it does **not** feed consumer matching. Component 3 connection records are kept for de-duplication of `request_intent: 'referral_partner_search'` Discovery only and are not used as a competence or trust signal anywhere in the protocol. The v0.8.1 "inbound referral signal" component of the matching engine is removed in v0.8.2.
 
 ## Frequency and access
 

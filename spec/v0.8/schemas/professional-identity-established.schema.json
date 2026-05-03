@@ -135,6 +135,11 @@
     "ai_assistant_connected": { "type": "boolean" },
     "profile_completeness_score": { "type": "number", "minimum": 0, "maximum": 1 },
     "profile_maintained": { "type": "boolean" },
+    "looking_for_referral_partners": {
+      "type": "boolean",
+      "default": false,
+      "description": "Component 3 visibility toggle. When `true`, the professional is in the candidate pool for incoming Component 3 referral-partner Discovery and may receive `referral-proposal` records. When `false` (default), the professional is excluded from `request_intent: 'referral_partner_search'` results and cannot be the `target_professional_id` of a new proposal. Toggleable on and off at any time. Existing v0.8.1 records that omit the field MUST be read as `false`."
+    },
     "_provenance": {
       "$ref": "provenance-map.schema.json"
     }
@@ -224,7 +229,8 @@
       "enhanced_verification": [],
       "data_conflicts": [],
       "ai_assistant_connected": false,
-      "profile_completeness_score": 0.88
+      "profile_completeness_score": 0.88,
+      "looking_for_referral_partners": false
     }
   ]
 }

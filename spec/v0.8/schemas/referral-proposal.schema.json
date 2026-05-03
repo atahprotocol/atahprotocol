@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atahprotocol.org/spec/v0.8/schemas/referral-proposal.schema.json",
+  "title": "ATAH Referral Proposal (Component 3)",
+  "description": "ATAH Core Protocol object: Component 3 referral-connection proposal record (spec/v0.8 §6.2). A proposing professional asks ATAH to record a pending proposal targeting another professional who has set `looking_for_referral_partners: true`. The proposal persists until accepted (folded into a referral-connection record), declined, withdrawn, or silently lapsed. Per F-4, Component 3 actions are governed by professional delegated authority recorded via principal-delegation.schema.json and the audit-event log; this schema does NOT carry `consent_receipt_id`. Required for any ATAH-conformant implementation.",
+  "type": "object",
+  "properties": {
+    "proposal_id": {
+      "type": "string",
+      "pattern": "^proposal-[A-Za-z0-9-]{6,64}$"
+    },
+    "schema_version": { "type": "string", "const": "0.8" },
+    "protocol_version": { "type": "string", "const": "0.8" },
+    "proposing_professional_id": {
+      "type": "string",
+      "pattern": "^atah-[A-Za-z0-9-]{6,64}$"
+    },
+    "target_professional_id": {
+      "type": "string",
+      "pattern": "^atah-[A-Za-z0-9-]{6,64}$"
+    },
+    "proposing_principal_delegation": {
+      "$ref": "principal-delegation.schema.json",
+      "description": "Principal-delegation context under which the proposal was created; per F-4, MUST resolve to `authenticated_actor.actor_type: professional` (or `firm_admin` where applicable) with `authority_basis: professional_delegated_token` (or `firm_delegation`). Consumer consent receipts are not accepted on Component 3 actions."
+    },
+    "category_scope": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1,
+      "uniqueItems": true,
+      "description": "Profession categories the proposed referral relationship covers."
+    },
+    "proposal_message": {
+      "type": "string",
+      "description": "Optional free-text message from the proposing professional to the target professional. Implementations MAY surface this verbatim to the target's AI agent. v0.8.2 imposes no length cap; per-implementation policies apply."
+    },
+    "state": {
+      "type": "string",
+      "enum": ["pending", "accepted", "declined", "withdrawn", "lapsed"],
+      "description": "Proposal state. `pending` is the only non-terminal state. On `accepted` the proposal is folded into a referral-connection record (this schema's record is then deleted). On `declined`, `withdrawn`, or `lapsed` the proposal record is deleted."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Default `created_at + 6 months`. Configurable per-category via `referral_proposal_expiry_months` in `profession-categories.json`. After this timestamp, ATAH silently transitions the proposal to `lapsed` and deletes the record."
+    },
+    "resolved_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Set when the proposal transitions to a terminal state (accepted, declined, withdrawn, lapsed). Present in audit-event metadata even after the proposal record itself is deleted."
+    },
+    "last_updated": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "proposal_id",
+    "schema_version",
+    "protocol_version",
+    "proposing_professional_id",
+    "target_professional_id",
+    "proposing_principal_delegation",
+    "category_scope",
+    "state",
+    "created_at",
+    "expires_at",
+    "last_updated"
+  ],
+  "additionalProperties": false,
+  "examples": [
+    {
+      "proposal_id": "proposal-01HQXRE4V9WXYABCDEF3HIJKLM",
+      "schema_version": "0.8",
+      "protocol_version": "0.8",
+      "proposing_professional_id": "atah-01HQXR7K9NBVZ8M3PXFG2YT5WA",
+      "target_professional_id": "atah-01HQXR8M2P3QRV5WTYZAB6CDEF",
+      "proposing_principal_delegation": {
+        "authenticated_actor": {
+          "actor_type": "professional",
+          "actor_id": "atah-01HQXR7K9NBVZ8M3PXFG2YT5WA"
+        },
+        "authority_context": {
+          "represented_principal_type": "professional",
+          "authority_basis": "professional_delegated_token",
+          "permitted_scopes": ["atah:introductions:create"],
+          "expires_at": "2026-07-10T00:00:00Z",
+          "object_constraints": [
+            { "constraint_type": "professional_id", "value": "atah-01HQXR7K9NBVZ8M3PXFG2YT5WA" }
+          ]
+        }
+      },
+      "category_scope": ["lawyer", "tax_planner"],
+      "proposal_message": "Frequent cross-referrals for cross-border M&A; would value a recorded ATAH connection.",
+      "state": "pending",
+      "created_at": "2026-04-10T14:21:00Z",
+      "expires_at": "2026-10-10T14:21:00Z",
+      "last_updated": "2026-04-10T14:21:00Z"
+    }
+  ]
+}
