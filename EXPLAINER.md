@@ -209,6 +209,16 @@ In v0.8, access is tiered:
 
 The result: random possession of a `handoff_id` cannot expose data or move an introduction forward. The cross-platform user experience is preserved. The bearer-token vulnerability is closed.
 
+## Matching, randomisation, and not being a recommendation engine
+
+ATAH does not rank candidates by preference. The matching engine applies hard filters (category, jurisdiction, matching status, compliance status, contact freshness, availability, category-required verification thresholds), groups the remaining eligible candidates into transparent bands of similar verification confidence and fit, and randomises or rotates within each band under a documented fairness policy. There is no global score; there is no hidden ranking. The structural commitment in v0.8.2 is that ATAH may determine eligibility and exclusion, but does not express preference among eligible candidates unless the user has asked for an explicit ordering.
+
+When a user has an explicit ordering preference — nearest, soonest available, remote available, a specific language, highest verification confidence, a specific qualification, professional type, or jurisdiction — ATAH applies that mode and records the choice on the response. When the user has no preference, the response is ordered by stratified randomisation; the same query repeated produces different orderings within bands, and the randomisation seed is not disclosed (disclosing the seed would create a gaming surface).
+
+Review platform signals — where present — supplement the transparency view but do not move a candidate into a higher band in regulated categories unless corroborated by an authoritative source like a regulator or professional body. This preserves the original v0.8.1 safeguard (review-derived signals can't dominate matching in high-stakes categories) under the band-based model.
+
+AI platforms reordering ATAH's response downstream MUST preserve the disclosure that ATAH applied non-preferential ordering. The protocol's "we are not a recommendation engine" commitment is structural, not just declarative — there is no global score in the schema, the band assignment is exposed for inspection, and the conformance test verifies that within-band ordering is observably non-deterministic across repeated queries.
+
 ## Two categories of professional
 
 ATAH serves two distinct categories of professional, through identical infrastructure.

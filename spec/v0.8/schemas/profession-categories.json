@@ -7,15 +7,40 @@
     "body_membership_type": "mandatory_per_jurisdiction",
     "compliance_status": "active",
     "default_pre_handoff_check": "conflict_check",
-    "matching_weight_profile": {
-      "relevance": 0.35,
-      "verification_quality": 0.45,
-      "availability_response": 0.15,
-      "profile_completeness": 0.05
-    },
-    "review_signal_weight_cap": 0.1,
     "stage2_auth_tier": "tier_2",
-    "referral_proposal_expiry_months": 6
+    "referral_proposal_expiry_months": 6,
+    "band_definitions": [
+      {
+        "band_name": "verification_confidence",
+        "band_position": 1,
+        "threshold_rule": "verification_confidence == multi_source_corroborated OR multi_source_with_enhanced_verification"
+      },
+      {
+        "band_name": "verification_confidence",
+        "band_position": 2,
+        "threshold_rule": "verification_confidence == single_source_regulator OR single_source_membership"
+      },
+      {
+        "band_name": "category_fit",
+        "band_position": 1,
+        "threshold_rule": "category_fit >= 0.7"
+      },
+      {
+        "band_name": "availability_window",
+        "band_position": 1,
+        "threshold_rule": "availability_score >= 0.8 AND response_time_hours <= 24"
+      },
+      {
+        "band_name": "contact_freshness",
+        "band_position": 1,
+        "threshold_rule": "contact_unverified == false"
+      }
+    ],
+    "review_signal_band_cap": {
+      "max_band_influence": "supplemental_only",
+      "may_upgrade_band": false,
+      "regulated_category_max_effect": "no_band_upgrade"
+    }
   },
   {
     "category_id": "pr_professional",
@@ -25,15 +50,40 @@
     "body_membership_type": "optional_with_strong_signal",
     "compliance_status": "active",
     "default_pre_handoff_check": "scope_confirmation",
-    "matching_weight_profile": {
-      "relevance": 0.4,
-      "verification_quality": 0.3,
-      "availability_response": 0.2,
-      "profile_completeness": 0.1
-    },
-    "review_signal_weight_cap": 0.2,
     "stage2_auth_tier": "tier_1",
-    "referral_proposal_expiry_months": 6
+    "referral_proposal_expiry_months": 6,
+    "band_definitions": [
+      {
+        "band_name": "verification_confidence",
+        "band_position": 1,
+        "threshold_rule": "verification_confidence == multi_source_corroborated OR multi_source_with_enhanced_verification"
+      },
+      {
+        "band_name": "verification_confidence",
+        "band_position": 2,
+        "threshold_rule": "verification_confidence == single_source_membership OR single_source_self_declared"
+      },
+      {
+        "band_name": "category_fit",
+        "band_position": 1,
+        "threshold_rule": "category_fit >= 0.6"
+      },
+      {
+        "band_name": "availability_window",
+        "band_position": 1,
+        "threshold_rule": "availability_score >= 0.7"
+      },
+      {
+        "band_name": "contact_freshness",
+        "band_position": 1,
+        "threshold_rule": "contact_unverified == false"
+      }
+    ],
+    "review_signal_band_cap": {
+      "max_band_influence": "supplemental_only",
+      "may_upgrade_band": true,
+      "regulated_category_max_effect": "documented_corroboration_required"
+    }
   },
   {
     "category_id": "physician",
@@ -43,15 +93,40 @@
     "body_membership_type": "mandatory_per_jurisdiction",
     "compliance_status": "compliance-pending",
     "default_pre_handoff_check": "capacity_confirmation",
-    "matching_weight_profile": {
-      "relevance": 0.35,
-      "verification_quality": 0.45,
-      "availability_response": 0.15,
-      "profile_completeness": 0.05
-    },
-    "review_signal_weight_cap": 0.1,
     "stage2_auth_tier": "tier_3",
-    "referral_proposal_expiry_months": 6
+    "referral_proposal_expiry_months": 6,
+    "band_definitions": [
+      {
+        "band_name": "verification_confidence",
+        "band_position": 1,
+        "threshold_rule": "verification_confidence == multi_source_corroborated OR multi_source_with_enhanced_verification"
+      },
+      {
+        "band_name": "verification_confidence",
+        "band_position": 2,
+        "threshold_rule": "verification_confidence == single_source_regulator OR single_source_membership"
+      },
+      {
+        "band_name": "category_fit",
+        "band_position": 1,
+        "threshold_rule": "category_fit >= 0.7"
+      },
+      {
+        "band_name": "availability_window",
+        "band_position": 1,
+        "threshold_rule": "availability_score >= 0.8 AND response_time_hours <= 24"
+      },
+      {
+        "band_name": "contact_freshness",
+        "band_position": 1,
+        "threshold_rule": "contact_unverified == false"
+      }
+    ],
+    "review_signal_band_cap": {
+      "max_band_influence": "supplemental_only",
+      "may_upgrade_band": false,
+      "regulated_category_max_effect": "no_band_upgrade"
+    }
   },
   {
     "category_id": "tax_planner",
@@ -61,15 +136,40 @@
     "body_membership_type": "optional_with_strong_signal",
     "compliance_status": "active",
     "default_pre_handoff_check": "scope_confirmation",
-    "matching_weight_profile": {
-      "relevance": 0.4,
-      "verification_quality": 0.3,
-      "availability_response": 0.2,
-      "profile_completeness": 0.1
-    },
-    "review_signal_weight_cap": 0.2,
     "stage2_auth_tier": "tier_2",
-    "referral_proposal_expiry_months": 6
+    "referral_proposal_expiry_months": 6,
+    "band_definitions": [
+      {
+        "band_name": "verification_confidence",
+        "band_position": 1,
+        "threshold_rule": "verification_confidence == multi_source_corroborated OR multi_source_with_enhanced_verification"
+      },
+      {
+        "band_name": "verification_confidence",
+        "band_position": 2,
+        "threshold_rule": "verification_confidence == single_source_membership OR single_source_self_declared"
+      },
+      {
+        "band_name": "category_fit",
+        "band_position": 1,
+        "threshold_rule": "category_fit >= 0.6"
+      },
+      {
+        "band_name": "availability_window",
+        "band_position": 1,
+        "threshold_rule": "availability_score >= 0.7"
+      },
+      {
+        "band_name": "contact_freshness",
+        "band_position": 1,
+        "threshold_rule": "contact_unverified == false"
+      }
+    ],
+    "review_signal_band_cap": {
+      "max_band_influence": "supplemental_only",
+      "may_upgrade_band": true,
+      "regulated_category_max_effect": "documented_corroboration_required"
+    }
   },
   {
     "category_id": "accountant",
@@ -79,15 +179,40 @@
     "body_membership_type": "optional_with_strong_signal",
     "compliance_status": "active",
     "default_pre_handoff_check": "scope_confirmation",
-    "matching_weight_profile": {
-      "relevance": 0.4,
-      "verification_quality": 0.3,
-      "availability_response": 0.2,
-      "profile_completeness": 0.1
-    },
-    "review_signal_weight_cap": 0.2,
     "stage2_auth_tier": "tier_2",
-    "referral_proposal_expiry_months": 6
+    "referral_proposal_expiry_months": 6,
+    "band_definitions": [
+      {
+        "band_name": "verification_confidence",
+        "band_position": 1,
+        "threshold_rule": "verification_confidence == multi_source_corroborated OR multi_source_with_enhanced_verification"
+      },
+      {
+        "band_name": "verification_confidence",
+        "band_position": 2,
+        "threshold_rule": "verification_confidence == single_source_membership OR single_source_self_declared"
+      },
+      {
+        "band_name": "category_fit",
+        "band_position": 1,
+        "threshold_rule": "category_fit >= 0.6"
+      },
+      {
+        "band_name": "availability_window",
+        "band_position": 1,
+        "threshold_rule": "availability_score >= 0.7"
+      },
+      {
+        "band_name": "contact_freshness",
+        "band_position": 1,
+        "threshold_rule": "contact_unverified == false"
+      }
+    ],
+    "review_signal_band_cap": {
+      "max_band_influence": "supplemental_only",
+      "may_upgrade_band": true,
+      "regulated_category_max_effect": "documented_corroboration_required"
+    }
   },
   {
     "category_id": "financial_advisor",
@@ -97,15 +222,40 @@
     "body_membership_type": "mandatory_per_jurisdiction",
     "compliance_status": "active",
     "default_pre_handoff_check": "scope_confirmation",
-    "matching_weight_profile": {
-      "relevance": 0.35,
-      "verification_quality": 0.45,
-      "availability_response": 0.15,
-      "profile_completeness": 0.05
-    },
-    "review_signal_weight_cap": 0.1,
     "stage2_auth_tier": "tier_2",
-    "referral_proposal_expiry_months": 6
+    "referral_proposal_expiry_months": 6,
+    "band_definitions": [
+      {
+        "band_name": "verification_confidence",
+        "band_position": 1,
+        "threshold_rule": "verification_confidence == multi_source_corroborated OR multi_source_with_enhanced_verification"
+      },
+      {
+        "band_name": "verification_confidence",
+        "band_position": 2,
+        "threshold_rule": "verification_confidence == single_source_regulator OR single_source_membership"
+      },
+      {
+        "band_name": "category_fit",
+        "band_position": 1,
+        "threshold_rule": "category_fit >= 0.7"
+      },
+      {
+        "band_name": "availability_window",
+        "band_position": 1,
+        "threshold_rule": "availability_score >= 0.8 AND response_time_hours <= 24"
+      },
+      {
+        "band_name": "contact_freshness",
+        "band_position": 1,
+        "threshold_rule": "contact_unverified == false"
+      }
+    ],
+    "review_signal_band_cap": {
+      "max_band_influence": "supplemental_only",
+      "may_upgrade_band": false,
+      "regulated_category_max_effect": "no_band_upgrade"
+    }
   },
   {
     "category_id": "insurance_agent_pc",
@@ -115,15 +265,40 @@
     "body_membership_type": "mandatory_per_jurisdiction",
     "compliance_status": "active",
     "default_pre_handoff_check": "scope_confirmation",
-    "matching_weight_profile": {
-      "relevance": 0.35,
-      "verification_quality": 0.45,
-      "availability_response": 0.15,
-      "profile_completeness": 0.05
-    },
-    "review_signal_weight_cap": 0.1,
     "stage2_auth_tier": "tier_2",
-    "referral_proposal_expiry_months": 6
+    "referral_proposal_expiry_months": 6,
+    "band_definitions": [
+      {
+        "band_name": "verification_confidence",
+        "band_position": 1,
+        "threshold_rule": "verification_confidence == multi_source_corroborated OR multi_source_with_enhanced_verification"
+      },
+      {
+        "band_name": "verification_confidence",
+        "band_position": 2,
+        "threshold_rule": "verification_confidence == single_source_regulator OR single_source_membership"
+      },
+      {
+        "band_name": "category_fit",
+        "band_position": 1,
+        "threshold_rule": "category_fit >= 0.7"
+      },
+      {
+        "band_name": "availability_window",
+        "band_position": 1,
+        "threshold_rule": "availability_score >= 0.8 AND response_time_hours <= 24"
+      },
+      {
+        "band_name": "contact_freshness",
+        "band_position": 1,
+        "threshold_rule": "contact_unverified == false"
+      }
+    ],
+    "review_signal_band_cap": {
+      "max_band_influence": "supplemental_only",
+      "may_upgrade_band": false,
+      "regulated_category_max_effect": "no_band_upgrade"
+    }
   },
   {
     "category_id": "architect",
@@ -133,15 +308,40 @@
     "body_membership_type": "mandatory_per_jurisdiction",
     "compliance_status": "active",
     "default_pre_handoff_check": "scope_confirmation",
-    "matching_weight_profile": {
-      "relevance": 0.35,
-      "verification_quality": 0.45,
-      "availability_response": 0.15,
-      "profile_completeness": 0.05
-    },
-    "review_signal_weight_cap": 0.1,
     "stage2_auth_tier": "tier_2",
-    "referral_proposal_expiry_months": 6
+    "referral_proposal_expiry_months": 6,
+    "band_definitions": [
+      {
+        "band_name": "verification_confidence",
+        "band_position": 1,
+        "threshold_rule": "verification_confidence == multi_source_corroborated OR multi_source_with_enhanced_verification"
+      },
+      {
+        "band_name": "verification_confidence",
+        "band_position": 2,
+        "threshold_rule": "verification_confidence == single_source_regulator OR single_source_membership"
+      },
+      {
+        "band_name": "category_fit",
+        "band_position": 1,
+        "threshold_rule": "category_fit >= 0.7"
+      },
+      {
+        "band_name": "availability_window",
+        "band_position": 1,
+        "threshold_rule": "availability_score >= 0.8 AND response_time_hours <= 24"
+      },
+      {
+        "band_name": "contact_freshness",
+        "band_position": 1,
+        "threshold_rule": "contact_unverified == false"
+      }
+    ],
+    "review_signal_band_cap": {
+      "max_band_influence": "supplemental_only",
+      "may_upgrade_band": false,
+      "regulated_category_max_effect": "no_band_upgrade"
+    }
   },
   {
     "category_id": "executive_coach",
@@ -151,15 +351,40 @@
     "body_membership_type": "optional_with_weak_signal",
     "compliance_status": "active",
     "default_pre_handoff_check": "scope_confirmation",
-    "matching_weight_profile": {
-      "relevance": 0.4,
-      "verification_quality": 0.3,
-      "availability_response": 0.2,
-      "profile_completeness": 0.1
-    },
-    "review_signal_weight_cap": 0.2,
     "stage2_auth_tier": "tier_1",
-    "referral_proposal_expiry_months": 6
+    "referral_proposal_expiry_months": 6,
+    "band_definitions": [
+      {
+        "band_name": "verification_confidence",
+        "band_position": 1,
+        "threshold_rule": "verification_confidence == multi_source_corroborated OR multi_source_with_enhanced_verification"
+      },
+      {
+        "band_name": "verification_confidence",
+        "band_position": 2,
+        "threshold_rule": "verification_confidence == single_source_membership OR single_source_self_declared"
+      },
+      {
+        "band_name": "category_fit",
+        "band_position": 1,
+        "threshold_rule": "category_fit >= 0.6"
+      },
+      {
+        "band_name": "availability_window",
+        "band_position": 1,
+        "threshold_rule": "availability_score >= 0.7"
+      },
+      {
+        "band_name": "contact_freshness",
+        "band_position": 1,
+        "threshold_rule": "contact_unverified == false"
+      }
+    ],
+    "review_signal_band_cap": {
+      "max_band_influence": "supplemental_only",
+      "may_upgrade_band": true,
+      "regulated_category_max_effect": "documented_corroboration_required"
+    }
   },
   {
     "category_id": "management_consultant",
@@ -169,15 +394,40 @@
     "body_membership_type": "optional_with_weak_signal",
     "compliance_status": "active",
     "default_pre_handoff_check": "scope_confirmation",
-    "matching_weight_profile": {
-      "relevance": 0.4,
-      "verification_quality": 0.3,
-      "availability_response": 0.2,
-      "profile_completeness": 0.1
-    },
-    "review_signal_weight_cap": 0.2,
     "stage2_auth_tier": "tier_1",
-    "referral_proposal_expiry_months": 6
+    "referral_proposal_expiry_months": 6,
+    "band_definitions": [
+      {
+        "band_name": "verification_confidence",
+        "band_position": 1,
+        "threshold_rule": "verification_confidence == multi_source_corroborated OR multi_source_with_enhanced_verification"
+      },
+      {
+        "band_name": "verification_confidence",
+        "band_position": 2,
+        "threshold_rule": "verification_confidence == single_source_membership OR single_source_self_declared"
+      },
+      {
+        "band_name": "category_fit",
+        "band_position": 1,
+        "threshold_rule": "category_fit >= 0.6"
+      },
+      {
+        "band_name": "availability_window",
+        "band_position": 1,
+        "threshold_rule": "availability_score >= 0.7"
+      },
+      {
+        "band_name": "contact_freshness",
+        "band_position": 1,
+        "threshold_rule": "contact_unverified == false"
+      }
+    ],
+    "review_signal_band_cap": {
+      "max_band_influence": "supplemental_only",
+      "may_upgrade_band": true,
+      "regulated_category_max_effect": "documented_corroboration_required"
+    }
   },
   {
     "category_id": "project_manager",
@@ -187,15 +437,40 @@
     "body_membership_type": "optional_with_weak_signal",
     "compliance_status": "active",
     "default_pre_handoff_check": "scope_confirmation",
-    "matching_weight_profile": {
-      "relevance": 0.4,
-      "verification_quality": 0.3,
-      "availability_response": 0.2,
-      "profile_completeness": 0.1
-    },
-    "review_signal_weight_cap": 0.2,
     "stage2_auth_tier": "tier_1",
-    "referral_proposal_expiry_months": 6
+    "referral_proposal_expiry_months": 6,
+    "band_definitions": [
+      {
+        "band_name": "verification_confidence",
+        "band_position": 1,
+        "threshold_rule": "verification_confidence == multi_source_corroborated OR multi_source_with_enhanced_verification"
+      },
+      {
+        "band_name": "verification_confidence",
+        "band_position": 2,
+        "threshold_rule": "verification_confidence == single_source_membership OR single_source_self_declared"
+      },
+      {
+        "band_name": "category_fit",
+        "band_position": 1,
+        "threshold_rule": "category_fit >= 0.6"
+      },
+      {
+        "band_name": "availability_window",
+        "band_position": 1,
+        "threshold_rule": "availability_score >= 0.7"
+      },
+      {
+        "band_name": "contact_freshness",
+        "band_position": 1,
+        "threshold_rule": "contact_unverified == false"
+      }
+    ],
+    "review_signal_band_cap": {
+      "max_band_influence": "supplemental_only",
+      "may_upgrade_band": true,
+      "regulated_category_max_effect": "documented_corroboration_required"
+    }
   },
   {
     "category_id": "hr_professional",
@@ -205,15 +480,40 @@
     "body_membership_type": "optional_with_weak_signal",
     "compliance_status": "active",
     "default_pre_handoff_check": "scope_confirmation",
-    "matching_weight_profile": {
-      "relevance": 0.4,
-      "verification_quality": 0.3,
-      "availability_response": 0.2,
-      "profile_completeness": 0.1
-    },
-    "review_signal_weight_cap": 0.2,
     "stage2_auth_tier": "tier_1",
-    "referral_proposal_expiry_months": 6
+    "referral_proposal_expiry_months": 6,
+    "band_definitions": [
+      {
+        "band_name": "verification_confidence",
+        "band_position": 1,
+        "threshold_rule": "verification_confidence == multi_source_corroborated OR multi_source_with_enhanced_verification"
+      },
+      {
+        "band_name": "verification_confidence",
+        "band_position": 2,
+        "threshold_rule": "verification_confidence == single_source_membership OR single_source_self_declared"
+      },
+      {
+        "band_name": "category_fit",
+        "band_position": 1,
+        "threshold_rule": "category_fit >= 0.6"
+      },
+      {
+        "band_name": "availability_window",
+        "band_position": 1,
+        "threshold_rule": "availability_score >= 0.7"
+      },
+      {
+        "band_name": "contact_freshness",
+        "band_position": 1,
+        "threshold_rule": "contact_unverified == false"
+      }
+    ],
+    "review_signal_band_cap": {
+      "max_band_influence": "supplemental_only",
+      "may_upgrade_band": true,
+      "regulated_category_max_effect": "documented_corroboration_required"
+    }
   },
   {
     "category_id": "marketing_specialist",
@@ -223,15 +523,40 @@
     "body_membership_type": "optional_with_weak_signal",
     "compliance_status": "active",
     "default_pre_handoff_check": "scope_confirmation",
-    "matching_weight_profile": {
-      "relevance": 0.4,
-      "verification_quality": 0.3,
-      "availability_response": 0.2,
-      "profile_completeness": 0.1
-    },
-    "review_signal_weight_cap": 0.2,
     "stage2_auth_tier": "tier_1",
-    "referral_proposal_expiry_months": 6
+    "referral_proposal_expiry_months": 6,
+    "band_definitions": [
+      {
+        "band_name": "verification_confidence",
+        "band_position": 1,
+        "threshold_rule": "verification_confidence == multi_source_corroborated OR multi_source_with_enhanced_verification"
+      },
+      {
+        "band_name": "verification_confidence",
+        "band_position": 2,
+        "threshold_rule": "verification_confidence == single_source_membership OR single_source_self_declared"
+      },
+      {
+        "band_name": "category_fit",
+        "band_position": 1,
+        "threshold_rule": "category_fit >= 0.6"
+      },
+      {
+        "band_name": "availability_window",
+        "band_position": 1,
+        "threshold_rule": "availability_score >= 0.7"
+      },
+      {
+        "band_name": "contact_freshness",
+        "band_position": 1,
+        "threshold_rule": "contact_unverified == false"
+      }
+    ],
+    "review_signal_band_cap": {
+      "max_band_influence": "supplemental_only",
+      "may_upgrade_band": true,
+      "regulated_category_max_effect": "documented_corroboration_required"
+    }
   },
   {
     "category_id": "mediator",
@@ -241,15 +566,40 @@
     "body_membership_type": "optional_with_strong_signal",
     "compliance_status": "active",
     "default_pre_handoff_check": "scope_confirmation",
-    "matching_weight_profile": {
-      "relevance": 0.4,
-      "verification_quality": 0.3,
-      "availability_response": 0.2,
-      "profile_completeness": 0.1
-    },
-    "review_signal_weight_cap": 0.2,
     "stage2_auth_tier": "tier_2",
-    "referral_proposal_expiry_months": 6
+    "referral_proposal_expiry_months": 6,
+    "band_definitions": [
+      {
+        "band_name": "verification_confidence",
+        "band_position": 1,
+        "threshold_rule": "verification_confidence == multi_source_corroborated OR multi_source_with_enhanced_verification"
+      },
+      {
+        "band_name": "verification_confidence",
+        "band_position": 2,
+        "threshold_rule": "verification_confidence == single_source_membership OR single_source_self_declared"
+      },
+      {
+        "band_name": "category_fit",
+        "band_position": 1,
+        "threshold_rule": "category_fit >= 0.6"
+      },
+      {
+        "band_name": "availability_window",
+        "band_position": 1,
+        "threshold_rule": "availability_score >= 0.7"
+      },
+      {
+        "band_name": "contact_freshness",
+        "band_position": 1,
+        "threshold_rule": "contact_unverified == false"
+      }
+    ],
+    "review_signal_band_cap": {
+      "max_band_influence": "supplemental_only",
+      "may_upgrade_band": true,
+      "regulated_category_max_effect": "documented_corroboration_required"
+    }
   },
   {
     "category_id": "certified_translator",
@@ -259,14 +609,39 @@
     "body_membership_type": "optional_with_strong_signal",
     "compliance_status": "active",
     "default_pre_handoff_check": "scope_confirmation",
-    "matching_weight_profile": {
-      "relevance": 0.4,
-      "verification_quality": 0.3,
-      "availability_response": 0.2,
-      "profile_completeness": 0.1
-    },
-    "review_signal_weight_cap": 0.2,
     "stage2_auth_tier": "tier_1",
-    "referral_proposal_expiry_months": 6
+    "referral_proposal_expiry_months": 6,
+    "band_definitions": [
+      {
+        "band_name": "verification_confidence",
+        "band_position": 1,
+        "threshold_rule": "verification_confidence == multi_source_corroborated OR multi_source_with_enhanced_verification"
+      },
+      {
+        "band_name": "verification_confidence",
+        "band_position": 2,
+        "threshold_rule": "verification_confidence == single_source_membership OR single_source_self_declared"
+      },
+      {
+        "band_name": "category_fit",
+        "band_position": 1,
+        "threshold_rule": "category_fit >= 0.6"
+      },
+      {
+        "band_name": "availability_window",
+        "band_position": 1,
+        "threshold_rule": "availability_score >= 0.7"
+      },
+      {
+        "band_name": "contact_freshness",
+        "band_position": 1,
+        "threshold_rule": "contact_unverified == false"
+      }
+    ],
+    "review_signal_band_cap": {
+      "max_band_influence": "supplemental_only",
+      "may_upgrade_band": true,
+      "regulated_category_max_effect": "documented_corroboration_required"
+    }
   }
 ]

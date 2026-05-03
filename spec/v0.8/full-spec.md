@@ -245,7 +245,7 @@ Distinct from per-field verification status, every profile carries a `matching_s
 
 ### 4.4 Profession Category Metadata
 
-Profession categories are referenced throughout the spec (lawyer, pr_professional, physician, tax_planner, and so on). Each supported category has a metadata record describing its tier, body membership structure, default pre-handoff check type, compliance status, and category-specific matching weight profile.
+Profession categories are referenced throughout the spec (lawyer, pr_professional, physician, tax_planner, and so on). Each supported category has a metadata record describing its tier, body membership structure, default pre-handoff check type, compliance status, and category-specific band definitions and review-signal band cap (per F-7 / F-13).
 
 The full set of supported profession categories is maintained in `profession-categories.json` in the repository. New categories are added through the standard governance pull request process described in [GOVERNANCE.md](../../GOVERNANCE.md). Two representative examples are shown inline:
 
@@ -257,13 +257,18 @@ The full set of supported profession categories is maintained in `profession-cat
   "body_membership_type": "mandatory_per_jurisdiction",
   "compliance_status": "active",
   "default_pre_handoff_check": "conflict_check",
-  "matching_weight_profile": {
-    "relevance": 0.35,
-    "verification_quality": 0.45,
-    "availability_response": 0.15,
-    "profile_completeness": 0.05
+  "band_definitions": [
+    { "band_name": "verification_confidence", "band_position": 1, "threshold_rule": "verification_confidence == multi_source_corroborated OR multi_source_with_enhanced_verification" },
+    { "band_name": "verification_confidence", "band_position": 2, "threshold_rule": "verification_confidence == single_source_regulator OR single_source_membership" },
+    { "band_name": "category_fit", "band_position": 1, "threshold_rule": "category_fit >= 0.7" },
+    { "band_name": "availability_window", "band_position": 1, "threshold_rule": "availability_score >= 0.8 AND response_time_hours <= 24" },
+    { "band_name": "contact_freshness", "band_position": 1, "threshold_rule": "contact_unverified == false" }
+  ],
+  "review_signal_band_cap": {
+    "max_band_influence": "supplemental_only",
+    "may_upgrade_band": false,
+    "regulated_category_max_effect": "no_band_upgrade"
   },
-  "review_signal_weight_cap": 0.10,
   "stage2_auth_tier": "tier_3",
   "referral_proposal_expiry_months": 6
 }
@@ -271,20 +276,25 @@ The full set of supported profession categories is maintained in `profession-cat
 
 ```json
 {
-  "category_id": "pr_professional",
-  "category_name": "Public Relations Professional",
+  "category_id": "executive_coach",
+  "category_name": "Executive Coach",
   "professional_tier": "established",
-  "body_membership_type": "optional_with_strong_signal",
+  "body_membership_type": "optional_with_weak_signal",
   "compliance_status": "active",
   "default_pre_handoff_check": "scope_confirmation",
-  "matching_weight_profile": {
-    "relevance": 0.40,
-    "verification_quality": 0.30,
-    "availability_response": 0.20,
-    "profile_completeness": 0.10
+  "band_definitions": [
+    { "band_name": "verification_confidence", "band_position": 1, "threshold_rule": "verification_confidence == multi_source_corroborated OR multi_source_with_enhanced_verification" },
+    { "band_name": "verification_confidence", "band_position": 2, "threshold_rule": "verification_confidence == single_source_membership OR single_source_self_declared" },
+    { "band_name": "category_fit", "band_position": 1, "threshold_rule": "category_fit >= 0.6" },
+    { "band_name": "availability_window", "band_position": 1, "threshold_rule": "availability_score >= 0.7" },
+    { "band_name": "contact_freshness", "band_position": 1, "threshold_rule": "contact_unverified == false" }
+  ],
+  "review_signal_band_cap": {
+    "max_band_influence": "supplemental_only",
+    "may_upgrade_band": true,
+    "regulated_category_max_effect": "documented_corroboration_required"
   },
-  "review_signal_weight_cap": 0.20,
-  "stage2_auth_tier": "tier_2",
+  "stage2_auth_tier": "tier_1",
   "referral_proposal_expiry_months": 6
 }
 ```
@@ -301,9 +311,9 @@ The `compliance_status` field has values: `active` (open for matching), `complia
 
 The `default_pre_handoff_check` field has values: `conflict_check`, `scope_confirmation`, `capacity_confirmation`, `fee_alignment`, or `none`. See Section 6 for what each pre-handoff check type contains.
 
-The `matching_weight_profile` field defines the category-specific final score weights used in Section 9. Where a category does not specify the field, the protocol defaults apply (Section 9.7). Category-specific weights are governance-approved and may not be set unilaterally.
+The `band_definitions` field declares the category's bands used by the §9 matching engine. Each band has a `band_name`, a `band_position` (lower = higher band), and a `threshold_rule` describing the predicate a candidate must satisfy to be in that band. The default bands across launch categories are `verification_confidence`, `category_fit`, `availability_window`, and `contact_freshness`; categories MAY define more or different bands. Per F-13, this field replaces the v0.8.1 `matching_weight_profile` (the weighted-scoring artefact); see §9 and ADR 0012.
 
-The `review_signal_weight_cap` field defines the maximum contribution of review platform signals within the verification quality score for that category. Regulated and high-stakes categories use lower caps (≤0.10); lower-regulatory categories may use higher caps. Review weighting may not exceed the cap.
+The `review_signal_band_cap` field controls the influence of review-derived signals on band assignment for the category, replacing the v0.8.1 `review_signal_weight_cap` (per F-7). High-stakes regulated categories set `may_upgrade_band: false` and `regulated_category_max_effect: no_band_upgrade`, preserving the original safeguard that review platforms do not dominate matching in regulated contexts. Lower-stakes categories MAY permit `may_upgrade_band: true` with documented authoritative-corroboration requirements. See §9.2 for the verbatim normative rule.
 
 The `stage2_auth_tier` field defines the authentication tier required for Stage 2 data retrieval (Section 11.6). Values: `tier_1` (notification metadata only — used for low-sensitivity scope confirmation), `tier_2` (single-token authenticated retrieval — standard), `tier_3` (step-up authentication required — used for healthcare, sensitive legal matters, or any category where Stage 2 contains highly sensitive data).
 
@@ -788,7 +798,7 @@ The `enhanced_verification_required` filter, when true, returns only professiona
 
 ### 4.12 Match Response Schema
 
-Every match response includes `protocol_version`, a `deprecation_warning` field, and a `presentation_disclosure` object that AI platforms must surface to the user.
+Every match response includes `protocol_version`, a `deprecation_warning` field, and a `presentation_disclosure` object that AI platforms MUST surface to the user. Per F1.10 / F1.11 (Phase 5), v0.8.2 replaces the v0.8.1 weighted-scoring fields (`match_score`, `match_factors`, `presentation_disclosure.ranking_basis`, `inbound_referral_signal`) with eligibility metadata: `filters_passed`, `band_assignment`, and `ordering_policy` per candidate, plus a response-level `presentation_disclosure.ordering_policy` declaring the ordering mode.
 
 ```json
 {
@@ -798,9 +808,16 @@ Every match response includes `protocol_version`, a `deprecation_warning` field,
   "deprecation_warning": null,
   "presentation_disclosure": {
     "atah_is_not_recommending": true,
-    "ranking_basis": ["relevance", "verification_quality", "availability_response", "profile_completeness"],
+    "ordering_policy": {
+      "mode": "stratified_random",
+      "hard_filters_applied": ["category", "jurisdiction", "matching_status", "compliance_status", "contact_verified", "availability"],
+      "strata": ["verification_confidence", "category_fit", "availability_window", "contact_freshness"],
+      "commercial_weighting": false,
+      "atah_expresses_preference": false,
+      "randomization_seed_disclosure": "not_disclosed_to_prevent_gaming"
+    },
     "commercial_weighting": false,
-    "user_facing_disclosure": "ATAH does not recommend or endorse any professional. This is a provenance-visible shortlist based on the matter described and verification evidence available."
+    "user_facing_disclosure": "ATAH does not recommend or endorse any professional. This is a provenance-visible candidate set, ordered by stratified randomisation within transparent bands. AI platforms reordering this list MUST preserve the disclosure that ATAH applied non-preferential ordering."
   },
   "result_count": 1,
   "results": [
@@ -808,7 +825,20 @@ Every match response includes `protocol_version`, a `deprecation_warning` field,
       "atah_id": "atah-01HQXR7K9NBVZ8M3PXFG2YT5WA",
       "professional_tier": "credentialled",
       "registration_route": "individual",
-      "match_score": 0.94,
+      "filters_passed": ["category", "jurisdiction", "matching_status", "compliance_status", "contact_verified", "availability"],
+      "band_assignment": {
+        "bands": [
+          { "band_name": "verification_confidence", "band_position": 1, "threshold_rule": "verification_confidence == multi_source_corroborated OR multi_source_with_enhanced_verification" },
+          { "band_name": "category_fit", "band_position": 1, "threshold_rule": "category_fit >= 0.7" },
+          { "band_name": "availability_window", "band_position": 1, "threshold_rule": "availability_score >= 0.8 AND response_time_hours <= 24" },
+          { "band_name": "contact_freshness", "band_position": 1, "threshold_rule": "contact_unverified == false" }
+        ],
+        "position_in_response": 1
+      },
+      "ordering_policy": {
+        "mode": "stratified_random",
+        "within_band_policy": "uniform_random"
+      },
       "verification_status_summary": {
         "licence_status": "registry-verified",
         "disciplinary_record": "partner-verified",
@@ -825,18 +855,6 @@ Every match response includes `protocol_version`, a `deprecation_warning` field,
         "time_decayed_score": 0.86,
         "highest_review_platform_class": "verified_account"
       },
-      "match_factors": {
-        "relevance": 0.96,
-        "verification_quality": 0.95,
-        "verification_quality_subcomponents": {
-          "credential_verification": 0.97,
-          "enhanced_score": 0.78,
-          "review_signals": 0.86,
-          "scope_completeness": 1.0
-        },
-        "profile_completeness": 0.92,
-        "availability_score": 1.0
-      },
       "trusted_partner_data": ["...full payload..."],
       "_provenance": "...full provenance map for the profile..."
     }
@@ -844,9 +862,13 @@ Every match response includes `protocol_version`, a `deprecation_warning` field,
 }
 ```
 
-The `presentation_disclosure` block must be present on every match response. AI platforms are expected to surface its content to end users at point of selection. This is a conformance requirement.
+The `presentation_disclosure` block MUST be present on every match response and MUST include the `ordering_policy` sub-object. AI platforms reordering the response downstream MUST preserve the `ordering_policy` disclosure verbatim per §9.4. This is a binding-conformance requirement (Section 14).
 
-`enhanced_verification_summary` is present only if the professional has at least one active enhanced verification record. `review_signal_summary` is present only if at least one review platform is contributing data above the volume threshold. The full payload remains available via `GET /v1/professionals/:atah_id`.
+`filters_passed` records which hard filters from §9.1 step 1 the candidate cleared. `band_assignment.bands` lists the bands the candidate is in (with `band_name`, `band_position`, and `threshold_rule` from `profession-categories.json`). `band_assignment.position_in_response` is the candidate's 1-based ordering position. `ordering_policy.mode` mirrors the response-level mode; `within_band_policy` records the within-band fairness policy applied (`uniform_random`, `round_robin_rotation`, or `documented_implementation_policy`).
+
+`enhanced_verification_summary` is present only if the professional has at least one active enhanced verification record. `review_signal_summary` is present only if at least one review platform is contributing data above the volume threshold; per F-7, review signals are presentational and do not promote candidates into higher bands in regulated categories. The full payload remains available via `GET /v1/professionals/:atah_id`.
+
+`decision_explanation` (per Phase 6 — `decision-explanation.schema.json`) is added at both response level and per-candidate level for transparency-as-conformance. Phase 5 leaves the field as an open object placeholder; Phase 6 promotes it to required and constrains the shape.
 
 ### Verification confidence signal (v0.8.1, schema commitment for v0.8.2)
 
@@ -1468,66 +1490,68 @@ On `consumer-reported-concern`: routes to the concern flag mechanism per Section
 
 ## 9. Matching Engine Design
 
-The matching engine runs entirely on the registry's servers. AI agents receive a ranked shortlist with the full trusted partner data payload, the `presentation_disclosure` block, and per-sub-component contribution metadata.
+The matching engine runs entirely on the registry's servers. AI agents receive a candidate set with the full trusted partner data payload, the `presentation_disclosure` block (carrying the ordering policy), per-candidate `band_assignment`, and per-candidate `decision_explanation` (Phase 6).
 
-Professionals with `matching_status` of `compliance-pending`, `regulatory-suspended`, or `admin-suspended` are excluded at Step 1 regardless of any other filter.
+ATAH is structurally not a recommendation engine. v0.8.2 replaces the v0.8.1 weighted-scoring architecture with hard-filters-then-stratified-randomisation. There is no global match score. Eligibility is decided through hard filters; equivalent candidates are grouped into transparent bands; ordering within a band is randomised or rotated under a documented fairness policy; user-requested ordering modes (when explicit) override the default.
 
-### 9.1 Matching Pipeline
+### 9.1 Matching Pipeline (four steps)
 
-**Step 1 — Hard exclusion filters.** Wrong location or jurisdiction, wrong category, not accepting, response time exceeds urgency threshold, profile suppressed due to meaningful data conflict, `matching_status` not `active`.
+**Step 1 — Hard filters.** Apply category, jurisdiction, `matching_status`, `compliance_status`, contact freshness (per Phase 7 — `matching_status: contact_unverified` excludes), availability, and any category-required verification thresholds. Professionals with `matching_status` of `compliance-pending`, `regulatory-suspended`, `admin-suspended`, `withdrawn`, `pending-rollup`, `pending-integrity-review`, or `deceased` are excluded at this step regardless of other filters. Candidates not passing the hard filters are excluded; they do not appear in the response.
 
-**Step 2 — Relevance scoring (0–1).** Exact match on matter type, specialism tags, matter complexity.
+**Step 2 — Band assignment.** Group eligible candidates into transparent bands. Default bands across launch categories: `verification_confidence`, `category_fit`, `availability_window`, `contact_freshness`. Bands are declared per-category in `profession-categories.json` `band_definitions`, each with a `band_name`, `band_position` (lower position = higher band), and `threshold_rule` describing the predicate a candidate must satisfy. Candidates are assigned to bands by evaluating the threshold rules against the candidate's signals. The assignment is exposed through `match-response.schema.json` `band_assignment` for per-candidate transparency, and through `decision-explanation.schema.json` (Phase 6) for explanation.
 
-**Step 3 — Verification quality score (0–1).** Four sub-components combine to produce the final verification quality score.
+**Step 3 — Threshold exclusion.** Exclude candidates below required thresholds where the category requires it. A category MAY define a minimum `band_position` for inclusion; candidates below the threshold are excluded from the response.
 
-**Sub-component A: Credential and standing verification.** For credentialled professionals: licence verification status, PI insurance, disciplinary record. For established professionals: partner-verified membership status, CPD compliance, disciplinary record via partner data. Registry-verified, partner-verified, and vc-verified data treated as equivalent in evidentiary type, but weighted by the contributing partner's `vetting_strength`. Self-declared at lower weight throughout.
+**Step 4 — Randomisation within bands.** Order the response by band (lower `band_position` first) and within each band randomise or rotate using a documented fairness policy. Permitted within-band policies: `uniform_random`, `round_robin_rotation`, or a `documented_implementation_policy` whose rule is published by the implementation. The randomisation seed is NOT disclosed in the response (`randomization_seed_disclosure: not_disclosed_to_prevent_gaming`); seed disclosure would create a gaming surface.
 
-**Sub-component B: Enhanced verification.** Weighted average of `breadth_score`, `depth_score`, `freshness_score` of active enhanced verification records. Zero for professionals without enhanced verification.
+> **MUST NOT.** ATAH may determine eligibility and exclusion, but MUST NOT express preference among eligible candidates unless the ordering basis is explicit, non-commercial, and disclosed. Where no user-requested ordering criterion is supplied, candidate order MUST be randomised or rotated using a documented fairness policy.
 
-**Sub-component C: Review platform signals.** Time-decayed average review score, weighted by `review_platform_class`. Capped per category by `review_signal_weight_cap` in `profession-categories.json`. For high-stakes regulated categories the cap is ≤0.10.
+**No global match_score.** v0.8.1's weighted-score architecture (`match_score`, `match_factors`, `presentation_disclosure.ranking_basis`, `inbound_referral_signal`) is removed in full. A hidden global score plus randomised display would look cosmetic and undermine the claim that ATAH does not rank by preference. v0.8.2 has no global score at any layer; the structural constraint is observable through `match-response.schema.json` (no `match_score` field exists; `band_assignment` is the canonical eligibility metadata).
 
-**Sub-component D: Profile data completeness within verification scope.** Split into:
+### 9.2 Review-signal control (per F-7)
 
-- `declared_scope_completeness` — has the professional populated verification-relevant fields
-- `verified_scope_completeness` — have those fields been verified (registry, partner, or VC)
+Review-derived signals (the time-decayed review-platform aggregate per category) are presentational and supplemental. They appear on `match-response.schema.json` `review_signal_summary` for transparency. They do NOT feed band assignment in regulated categories.
 
-Only `verified_scope_completeness` materially affects this sub-component. Declared completeness contributes minimally.
+> **MUST.** Review-derived signals MAY supplement transparency and confidence metadata, but for high-stakes regulated categories they MUST NOT move a candidate into a higher eligibility or verification band unless corroborated by authoritative credential or regulator-source evidence.
 
-The four sub-components combine into the verification quality score, capped at 1.0:
+The constraint is encoded per category in `profession-categories.json` `review_signal_band_cap`:
 
-```
-verification_quality = min(1.0,
-  credential_verification × w_a +
-  enhanced_score × w_b +
-  review_signals × w_c +
-  scope_completeness × w_d
-)
-```
+- `max_band_influence: supplemental_only` — the v0.8.2 default. Review signals influence transparency and confidence display, not band assignment.
+- `may_upgrade_band: false` — high-stakes regulated categories (credentialled tier with mandatory body membership). A review signal MUST NOT promote a candidate to a higher band.
+- `regulated_category_max_effect: no_band_upgrade` — for regulated categories. `documented_corroboration_required` for established categories permitting `may_upgrade_band: true`.
 
-Default weights: `w_a = 0.50`, `w_b = 0.20`, `w_c = 0.20` (subject to category cap), `w_d = 0.10`. All four weights are configurable per category.
+This replaces the v0.8.1 `review_signal_weight_cap` with the band-compatible control. The original safeguard (review platforms cannot dominate matching in high-stakes regulated categories) is preserved under the new model.
 
-**Step 4 — Availability and response time score (0–1).**
+### 9.3 User-requested ordering
 
-**Step 5 — Profile completeness score (0–1).**
+When a user has an explicit ordering preference, the Discovery query carries an `ordering_preference` parameter. ATAH applies the named mode and records the choice on the response's `presentation_disclosure.ordering_policy.mode`. Permitted modes:
 
-**Step 6 — Final score (transitional v0.8.2 four-component model).**
+- `nearest` — order by geographic distance to the consumer's location.
+- `soonest_available` — order by next available slot.
+- `remote_available` — limit to candidates with `remote_service_available: true` and order by availability within that subset.
+- `specific_language` — limit to candidates with the requested language and order within that subset (parameter: ISO 639-1 code such as `en`).
+- `highest_verification_confidence` — order by `verification_confidence` value (most-corroborated first).
+- `specific_category_qualification` — order by candidates declaring the requested qualification (parameter: qualification identifier).
+- `professional_type` — order by professional type within the category (parameter: type identifier).
+- `jurisdiction` — order by jurisdiction (parameter: jurisdiction identifier such as `US-TX`).
 
-```
-final_score = (
-  relevance               × w_relevance +
-  verification_quality    × w_verification +
-  availability_response   × w_availability +
-  profile_completeness    × w_completeness
-)
-```
+When `ordering_preference` is omitted, the default is `stratified_random` per §9.1 step 4. When supplied, the user-requested mode applies and `presentation_disclosure.ordering_policy.mode` records it. The user-requested mode does NOT override hard filters or threshold exclusion (§9.1 steps 1 and 3); it changes ordering only.
 
-Weights default: credentialled categories 0.35 / 0.45 / 0.15 / 0.05; established categories 0.40 / 0.30 / 0.20 / 0.10. Per-category overrides via `matching_weight_profile` in `profession-categories.json`; weights MUST sum to 1.0. Categories with no override use the default profile.
+### 9.4 Presentation obligation on AI platforms
 
-**Inbound referral signal removed in v0.8.2.** v0.8.1 included a fifth component (`inbound_referral_signal`) with reciprocal-cap, time-decay, dense-cluster, and Sybil controls. The component is removed in v0.8.2 per `GKC-COMMENTS-01` §5.1: connection records (now produced by Component 3 — see §6.4) are kept for de-duplication of referral-partner Discovery only and do NOT feed matching at any weight. Removing the signal removes the gaming incentive entirely; the associated anti-gaming controls become unnecessary.
+ATAH controls only the returned list. The consuming AI platform may reorder based on user context, but MUST preserve the disclosure that ATAH applied a non-preferential ordering policy (or a user-requested explicit policy where the consumer requested one).
 
-**Transitional state.** The four-component weighted sum above is itself a transitional state. v0.8.2 Phase 5 supersedes the weighted-score architecture entirely with stratified randomisation (`band_definitions`); the `matching_weight_profile` field is replaced rather than re-tuned. The two-phase split (Phase 2 simplification, Phase 5 stratification) lets each pass be reviewed separately.
+> **MUST.** AI platforms reordering the ATAH response MUST preserve the `presentation_disclosure.ordering_policy` field verbatim and surface its content to the user. AI platforms MUST NOT present ATAH's response as a recommendation or rank by ATAH's preference; ATAH expresses no preference among eligible candidates by default.
 
-**Commercial neutrality (Section 9.2).** No weight may be assigned to:
+Failure to preserve the disclosure is a binding-conformance failure (Section 14). The `presentation_disclosure.ordering_policy.atah_expresses_preference` field is `false` in every response unless `ordering_preference` was explicitly supplied; AI platforms reading this MUST NOT add their own implication of preference to the user-facing display.
+
+### 9.5 Implementation note — randomisation algorithm
+
+v0.8.2 specifies the model (hard filters → bands → within-band randomisation) and the within-band fairness policy enumeration (`uniform_random`, `round_robin_rotation`, `documented_implementation_policy`). It does NOT mandate a specific randomisation algorithm; that is implementation choice. The conformance test (Phase 6 / Phase 11) verifies that the returned `band_assignment` data is consistent with the documented `band_definitions` and that the within-band ordering is observably non-deterministic across queries (i.e. the same query repeated produces different orderings within bands, modulo the randomisation seed). v0.9 may standardise the algorithm.
+
+### 9.6 Commercial neutrality
+
+No weight may be assigned to:
 
 - any commercial relationship between ATAH and a partner, verifier, review platform, or AI platform
 - trusted partner status itself (only the data contributed by partners influences ranking, and only through verification quality)

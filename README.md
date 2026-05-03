@@ -47,7 +47,7 @@ The professional-on-behalf-of-client referral case (formerly v0.8.1's "Type 3") 
 
 ## What ATAH is *not*
 
-- **Not a recommendation engine.** ATAH returns a provenance-visible shortlist based on declared need, verification evidence, category rules, and availability. The user or calling AI platform remains responsible for selection.
+- **Not a recommendation engine.** ATAH returns a provenance-visible candidate set based on declared need, verification evidence, category rules, and availability. v0.8.2 makes this structural rather than declarative: hard filters → bands → randomisation within bands. There is no global match score in the schema, no hidden ranking, and the conformance test verifies that within-band ordering is observably non-deterministic. When the user has no explicit ordering preference, candidates are ordered by stratified randomisation; when they do (nearest, soonest available, specific language, highest verification confidence, etc.), ATAH applies the named mode and records it on the response. AI platforms reordering downstream MUST preserve the disclosure that ATAH applied non-preferential ordering. The user or calling AI platform remains responsible for selection.
 - **Non-recommendation framing is machine-readable.** Every match response carries a `presentation_disclosure` block that AI platforms are expected to surface to users. The non-recommendation stance is not a policy claim; it is a structural commitment built into every response payload.
 - **Not a regulator, enforcement body, or complaints adjudicator.** Professional conduct concerns are routed to the relevant regulatory or professional body.
 - **Not a payment processor or marketplace.** No transaction or commerce capability.

@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://atahprotocol.org/spec/v0.8/schemas/match-response.schema.json",
   "title": "ATAH Match Response",
-  "description": "ATAH Core Protocol object: response from POST /v1/query and the `find_professional` MCP tool (spec/v0.8 Section 4.12). Includes `presentation_disclosure` that AI platforms MUST surface to the user. Required for any ATAH-conformant implementation.",
+  "description": "ATAH Core Protocol object: response from POST /v1/query and the `find_professional` MCP tool (spec/v0.8 §4.12). Per F1.10 / F1.11, v0.8.2 replaces the v0.8.1 weighted-scoring architecture with hard-filters-then-stratified-randomisation. There is no global match score; eligibility is expressed through `filters_passed` and `band_assignment`; ordering is recorded in `ordering_policy`; per-candidate transparency is provided via `decision_explanation` (Phase 6 makes this required at both response level and per-candidate level — see `decision-explanation.schema.json`). The response-level `presentation_disclosure` carries the ordering-policy disclosure that AI platforms reordering downstream MUST preserve (per §9.Y / F1.13). Required for any ATAH-conformant implementation.",
   "type": "object",
   "properties": {
     "query_id": {
@@ -16,26 +16,14 @@
     },
     "presentation_disclosure": {
       "type": "object",
+      "description": "Response-level disclosure of the ordering policy applied to this match response. AI platforms that reorder the returned list MUST preserve this disclosure to the end user (per §9.Y). The block declares the ordering mode and confirms that no commercial weighting was applied.",
       "properties": {
         "atah_is_not_recommending": { "type": "boolean", "const": true },
-        "ranking_basis": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "enum": [
-              "relevance",
-              "verification_quality",
-              "availability_response",
-              "profile_completeness"
-            ]
-          },
-          "uniqueItems": true,
-          "minItems": 1
-        },
+        "ordering_policy": { "$ref": "#/$defs/OrderingPolicy" },
         "commercial_weighting": { "type": "boolean", "const": false },
         "user_facing_disclosure": { "type": "string", "minLength": 1 }
       },
-      "required": ["atah_is_not_recommending", "ranking_basis", "commercial_weighting", "user_facing_disclosure"],
+      "required": ["atah_is_not_recommending", "ordering_policy", "commercial_weighting", "user_facing_disclosure"],
       "additionalProperties": false
     },
     "result_count": { "type": "integer", "minimum": 0 },
@@ -55,6 +43,78 @@
   ],
   "additionalProperties": false,
   "$defs": {
+    "OrderingPolicy": {
+      "type": "object",
+      "description": "Declaration of the ordering policy applied. Per Paolo's F1.10: ATAH may determine eligibility and exclusion, but MUST NOT express preference among eligible candidates unless the ordering basis is explicit, non-commercial, and disclosed. When no `ordering_preference` is supplied on the Discovery query, `mode` is `stratified_random` and order is randomised or rotated within bands per a documented fairness policy.",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": [
+            "stratified_random",
+            "nearest",
+            "soonest_available",
+            "remote_available",
+            "specific_language",
+            "highest_verification_confidence",
+            "specific_category_qualification",
+            "professional_type",
+            "jurisdiction"
+          ]
+        },
+        "hard_filters_applied": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true,
+          "description": "Identifiers of the hard filters applied per §9 step 1 (e.g. `category`, `jurisdiction`, `matching_status`, `compliance_status`, `contact_verified`, `availability`)."
+        },
+        "strata": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true,
+          "description": "Names of the bands (strata) used for `stratified_random` mode. References `band_name` values from `profession-category.schema.json` `band_definitions`. Absent or empty for explicit user-requested ordering modes."
+        },
+        "commercial_weighting": { "type": "boolean", "const": false },
+        "atah_expresses_preference": { "type": "boolean", "const": false },
+        "randomization_seed_disclosure": {
+          "type": "string",
+          "enum": ["not_disclosed_to_prevent_gaming", "disclosed", "not_applicable"],
+          "description": "Whether the randomisation seed is exposed. The default is `not_disclosed_to_prevent_gaming`. `not_applicable` for explicit user-requested ordering modes."
+        },
+        "ordering_preference_parameter": {
+          "type": "string",
+          "minLength": 1,
+          "description": "When `mode` is one of the user-requested values (e.g. `specific_language`, `specific_category_qualification`), records the accompanying parameter (e.g. `en`, `tax_law:cross_border_M&A`)."
+        }
+      },
+      "required": ["mode", "hard_filters_applied", "commercial_weighting", "atah_expresses_preference"],
+      "additionalProperties": false
+    },
+    "BandAssignment": {
+      "type": "object",
+      "description": "Per-candidate band metadata. References `band_definitions` in the candidate's `profession-category.schema.json`. The `bands` array lists each band the candidate is in, with the band's name, position (lower = higher band), and the threshold rule from the category definition. Where `mode` is an explicit `ordering_preference`, `bands` MAY be empty and `position_in_response` is the deterministic ordering result.",
+      "properties": {
+        "bands": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "band_name": { "type": "string", "minLength": 1 },
+              "band_position": { "type": "integer", "minimum": 1 },
+              "threshold_rule": { "type": "string", "minLength": 1 }
+            },
+            "required": ["band_name", "band_position", "threshold_rule"],
+            "additionalProperties": false
+          }
+        },
+        "position_in_response": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "1-based position of this candidate in the response `results` array. For `stratified_random` mode this reflects the within-band randomisation; for explicit modes this reflects the deterministic ordering."
+        }
+      },
+      "required": ["bands", "position_in_response"],
+      "additionalProperties": false
+    },
     "MatchResult": {
       "type": "object",
       "properties": {
@@ -67,34 +127,44 @@
           "type": "string",
           "enum": ["partner", "individual"]
         },
-        "match_score": { "type": "number", "minimum": 0, "maximum": 1 },
-        "match_factors": {
+        "filters_passed": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true,
+          "description": "Hard filters this candidate passed (per §9 step 1). Mirrors a subset of the response-level `presentation_disclosure.ordering_policy.hard_filters_applied` — the ones the candidate cleared."
+        },
+        "band_assignment": { "$ref": "#/$defs/BandAssignment" },
+        "ordering_policy": {
           "type": "object",
+          "description": "The ordering mode applied to this specific candidate's position. For `stratified_random`, this is the within-band fairness policy applied (uniform random, round-robin rotation, or the documented per-implementation policy). For explicit user-requested modes, this records the deterministic ordering basis. The response-level `presentation_disclosure.ordering_policy` is the canonical disclosure; this per-candidate field is permitted for traceability but MUST NOT diverge from the response-level mode.",
           "properties": {
-            "relevance": { "type": "number", "minimum": 0, "maximum": 1 },
-            "verification_quality": { "type": "number", "minimum": 0, "maximum": 1 },
-            "availability_score": { "type": "number", "minimum": 0, "maximum": 1 },
-            "profile_completeness": { "type": "number", "minimum": 0, "maximum": 1 },
-            "verification_quality_subcomponents": {
-              "type": "object",
-              "properties": {
-                "credential_verification": { "type": "number", "minimum": 0, "maximum": 1 },
-                "enhanced_score": { "type": "number", "minimum": 0, "maximum": 1 },
-                "review_signals": { "type": "number", "minimum": 0, "maximum": 1 },
-                "scope_completeness": { "type": "number", "minimum": 0, "maximum": 1 }
-              },
-              "required": ["credential_verification", "enhanced_score", "review_signals", "scope_completeness"],
-              "additionalProperties": false
+            "mode": {
+              "type": "string",
+              "enum": [
+                "stratified_random",
+                "nearest",
+                "soonest_available",
+                "remote_available",
+                "specific_language",
+                "highest_verification_confidence",
+                "specific_category_qualification",
+                "professional_type",
+                "jurisdiction"
+              ]
+            },
+            "within_band_policy": {
+              "type": "string",
+              "enum": ["uniform_random", "round_robin_rotation", "documented_implementation_policy", "not_applicable"],
+              "description": "The fairness policy applied within the band the candidate is in. `not_applicable` for explicit user-requested modes."
             }
           },
-          "required": [
-            "relevance",
-            "verification_quality",
-            "availability_score",
-            "profile_completeness",
-            "verification_quality_subcomponents"
-          ],
+          "required": ["mode"],
           "additionalProperties": false
+        },
+        "decision_explanation": {
+          "type": "object",
+          "description": "Per-candidate decision explanation. Phase 5 declares this as an open object placeholder; Phase 6 introduces `decision-explanation.schema.json` and replaces this placeholder with `$ref: 'decision-explanation.schema.json'`, makes the field required at both response level (the response-level `presentation_disclosure` carries the response-scope explanation) and per-candidate level, and constrains the shape per F-5 / F-6.",
+          "additionalProperties": true
         },
         "verification_status_summary": {
           "type": "object",
@@ -116,6 +186,7 @@
         },
         "review_signal_summary": {
           "type": "object",
+          "description": "Review-platform signal summary. Per F-7, review-derived signals MAY supplement transparency and confidence metadata, but for high-stakes regulated categories (those whose `profession-category.review_signal_band_cap.may_upgrade_band` is `false`) they MUST NOT move a candidate into a higher eligibility or verification band unless corroborated by authoritative credential or regulator-source evidence. This block is presentational; it does not feed band assignment in those categories.",
           "properties": {
             "platforms_contributing": {
               "type": "array",
@@ -145,7 +216,7 @@
           "$ref": "provenance-map.schema.json"
         }
       },
-      "required": ["atah_id", "professional_tier", "registration_route", "match_score", "match_factors"],
+      "required": ["atah_id", "professional_tier", "registration_route", "filters_passed", "band_assignment"],
       "additionalProperties": false
     }
   },
@@ -157,17 +228,37 @@
       "deprecation_warning": null,
       "presentation_disclosure": {
         "atah_is_not_recommending": true,
-        "ranking_basis": ["relevance", "verification_quality", "availability_response", "profile_completeness"],
+        "ordering_policy": {
+          "mode": "stratified_random",
+          "hard_filters_applied": ["category", "jurisdiction", "matching_status", "compliance_status", "contact_verified", "availability"],
+          "strata": ["verification_confidence", "category_fit", "availability_window", "contact_freshness"],
+          "commercial_weighting": false,
+          "atah_expresses_preference": false,
+          "randomization_seed_disclosure": "not_disclosed_to_prevent_gaming"
+        },
         "commercial_weighting": false,
-        "user_facing_disclosure": "ATAH does not recommend or endorse any professional. This is a provenance-visible shortlist based on the matter described and verification evidence available."
+        "user_facing_disclosure": "ATAH does not recommend or endorse any professional. This is a provenance-visible candidate set, ordered by stratified randomisation within transparent bands. AI platforms reordering this list MUST preserve the disclosure that ATAH applied non-preferential ordering."
       },
-      "result_count": 1,
+      "result_count": 2,
       "results": [
         {
           "atah_id": "atah-01HQXR7K9NBVZ8M3PXFG2YT5WA",
           "professional_tier": "credentialled",
           "registration_route": "individual",
-          "match_score": 0.94,
+          "filters_passed": ["category", "jurisdiction", "matching_status", "compliance_status", "contact_verified", "availability"],
+          "band_assignment": {
+            "bands": [
+              { "band_name": "verification_confidence", "band_position": 1, "threshold_rule": "verification_confidence >= 0.8 AND credentialled_tier" },
+              { "band_name": "category_fit", "band_position": 1, "threshold_rule": "category_fit >= 0.7" },
+              { "band_name": "availability_window", "band_position": 1, "threshold_rule": "availability_score >= 0.8 AND response_time_hours <= 24" },
+              { "band_name": "contact_freshness", "band_position": 1, "threshold_rule": "contact_unverified == false" }
+            ],
+            "position_in_response": 1
+          },
+          "ordering_policy": {
+            "mode": "stratified_random",
+            "within_band_policy": "uniform_random"
+          },
           "verification_status_summary": {
             "licence_status": "registry-verified",
             "disciplinary_record": "partner-verified",
@@ -183,18 +274,25 @@
             "total_review_count": 47,
             "time_decayed_score": 0.86,
             "highest_review_platform_class": "verified_account"
+          }
+        },
+        {
+          "atah_id": "atah-01HQXR8M2P3QRV5WTYZAB6CDEF",
+          "professional_tier": "established",
+          "registration_route": "partner",
+          "filters_passed": ["category", "jurisdiction", "matching_status", "compliance_status", "contact_verified", "availability"],
+          "band_assignment": {
+            "bands": [
+              { "band_name": "verification_confidence", "band_position": 2, "threshold_rule": "verification_confidence >= 0.6 AND established_tier" },
+              { "band_name": "category_fit", "band_position": 1, "threshold_rule": "category_fit >= 0.7" },
+              { "band_name": "availability_window", "band_position": 1, "threshold_rule": "availability_score >= 0.8 AND response_time_hours <= 24" },
+              { "band_name": "contact_freshness", "band_position": 1, "threshold_rule": "contact_unverified == false" }
+            ],
+            "position_in_response": 2
           },
-          "match_factors": {
-            "relevance": 0.96,
-            "verification_quality": 0.95,
-            "verification_quality_subcomponents": {
-              "credential_verification": 0.97,
-              "enhanced_score": 0.78,
-              "review_signals": 0.86,
-              "scope_completeness": 1.0
-            },
-            "profile_completeness": 0.92,
-            "availability_score": 1.0
+          "ordering_policy": {
+            "mode": "stratified_random",
+            "within_band_policy": "uniform_random"
           }
         }
       ]

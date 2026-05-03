@@ -43,6 +43,30 @@ v0.8.2 absorbs three rounds of post-v0.8.1 review work: GKC-COMMENTS-01 (archite
 - `inbound_referral_signal` from the matching engine and from `profession-category.matching_weight_profile`.
 - `shortlist_size` from `query.schema.json` (replaced by `limit`).
 
+### Ordering, randomisation, and no global match_score (Phase 5)
+
+Replaces the v0.8.1 weighted-scoring matching engine with hard-filters-then-stratified-randomisation per Paolo's F1.10 normative position:
+
+> ATAH may determine eligibility and exclusion, but MUST NOT express preference among eligible candidates unless the ordering basis is explicit, non-commercial, and disclosed. Where no user-requested ordering criterion is supplied, candidate order MUST be randomised or rotated using a documented fairness policy.
+
+The four-step model: hard filters → band assignment → threshold exclusion → randomisation within bands. Per-category bands are declared in `profession-categories.json` `band_definitions` (default bands: verification confidence, category fit, availability window, contact freshness). Within-band ordering uses a documented fairness policy (`uniform_random`, `round_robin_rotation`, or a published `documented_implementation_policy`). The randomisation seed is not disclosed (`not_disclosed_to_prevent_gaming`) — disclosing it would create a gaming surface.
+
+`match-response.schema.json` removes in full: `match_score` (global), `match_factors` (per-result object and all sub-properties), `presentation_disclosure.ranking_basis` (array enum), every reference to `inbound_referral_signal`. Replaced with: per-candidate `filters_passed` (array), `band_assignment` (object with bands and `position_in_response`), `ordering_policy` (object with `mode` and `within_band_policy`); response-level `presentation_disclosure.ordering_policy` (the canonical disclosure AI platforms reordering downstream MUST preserve). Examples updated end-to-end. The "no global score" claim is structurally enforced: no `match_score` field exists at any layer of the schema.
+
+`query.schema.json` adds optional `ordering_preference` parameter: when omitted, the default is stratified randomisation; when supplied, ATAH applies the named mode (`nearest`, `soonest_available`, `remote_available`, `specific_language`, `highest_verification_confidence`, `specific_category_qualification`, `professional_type`, `jurisdiction`) and records it on the response.
+
+Per F-7, `profession-category.schema.json` replaces `review_signal_weight_cap` with `review_signal_band_cap`:
+
+> Review-derived signals MAY supplement transparency and confidence metadata, but for high-stakes regulated categories they MUST NOT move a candidate into a higher eligibility or verification band unless corroborated by authoritative credential or regulator-source evidence.
+
+Encoded as `max_band_influence: supplemental_only`, `may_upgrade_band: false`, `regulated_category_max_effect: no_band_upgrade` for high-stakes regulated categories. Lower-stakes categories permit `may_upgrade_band: true` with documented corroboration.
+
+Per F-13, `profession-category.schema.json` is updated atomically with `profession-categories.json`: `matching_weight_profile` and `review_signal_weight_cap` removed from properties and required; `band_definitions` and `review_signal_band_cap` added to properties and required. All 15 launch categories rewritten with the new shape; data file validates against schema.
+
+Spec §9 fully refactored as four-step pipeline with verbatim normative MUST NOT (§9.1) and F-7 MUST (§9.2). New §9.3 documents user-requested ordering modes; new §9.4 documents the AI platform presentation obligation (preserve `presentation_disclosure.ordering_policy` verbatim; no recommendation framing). §9.5 acknowledges the v0.8.2 algorithm-agnostic posture; v0.9 may standardise. EXPLAINER and PRD §8.5 carry plain-language framings. Charter Part Two operational commitments mirror the §9 normative rules.
+
+ADR 0012 records the decision and acknowledges Paolo Piponi's peer review as the source.
+
 ### Consent boundaries (Phase 4)
 
 Adopts Paolo's three consent types: `query_authorization`, `disclosure_consent`, and **`engagement_consent` excluded by design**. The `consent_type` enum on `consent-receipt.schema.json` carries only the two ATAH-supported values; engagement consent (any professional-client agreement, fee agreement, treatment consent, regulated advice consent, conflict waiver, scope-of-work acceptance, or instruction to act) is the professional's responsibility and outside ATAH. Spec §4.10 carries Paolo's MUST NOT rule verbatim:

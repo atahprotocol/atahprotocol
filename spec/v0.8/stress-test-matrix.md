@@ -195,41 +195,63 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 
 - **Scenario.** Implementations return the same candidate ordering for substantially equivalent queries, leading to entrenched advantage for consistently top-listed professionals.
 - **Abuse / failure mode.** Ordering becomes a de facto recommendation; stratified-randomisation requirement bypassed in practice.
-- **Expected protocol behaviour.** _To be filled in during Phase 5._
-- **Required audit events.** _To be filled in during Phase 5._
-- **Required user / professional disclosure.** _To be filled in during Phase 5._
-- **Required conformance test.** _To be filled in during Phase 5._
-- **Status.** `skeleton`
+- **Expected protocol behaviour.** Per spec §9.1 step 4, ordering within bands MUST use a documented fairness policy: `uniform_random`, `round_robin_rotation`, or a published `documented_implementation_policy`. The randomisation seed is not disclosed (`not_disclosed_to_prevent_gaming`). Per §9.5, conformance verifies that the returned `band_assignment` data is consistent with `band_definitions` and that within-band ordering is observably non-deterministic across repeated queries.
+- **Required audit events.** Discovery responses record the `ordering_policy.mode` per the response-level `presentation_disclosure` and the per-candidate `ordering_policy.within_band_policy`; pattern detection of identical orderings across identical queries is a registry-implementation operational concern.
+- **Required user / professional disclosure.** AI platforms reordering downstream MUST preserve the response-level `presentation_disclosure.ordering_policy` per §9.4.
+- **Required conformance test.** Conformance suite issues the same query repeatedly and verifies that within-band candidate ordering is observably different across at least N invocations (N tuned per band size).
+- **Status: `resolved`** by §9.1 stratified-randomisation default + the §9.5 conformance requirement on observable non-determinism.
 
 ### 3.2 Hidden score influences order despite non-recommendation claims
 
 - **Scenario.** Implementation publishes "no global match score" framing while internally computing a score and using it to bias ordering.
 - **Abuse / failure mode.** Recommendation in disguise; the published ordering policy does not reflect the actual ranking basis.
-- **Expected protocol behaviour.** _To be filled in during Phase 5._
-- **Required audit events.** _To be filled in during Phase 5._
-- **Required user / professional disclosure.** _To be filled in during Phase 5._
-- **Required conformance test.** _To be filled in during Phase 5._
-- **Phase 2 contribution.** The `inbound_referral_signal` matching component is removed from `profession-category.matching_weight_profile` and from `match-response.schema.json` example outputs (`presentation_disclosure.ranking_basis` and `match_factors`). One signal previously available for hidden weighting is gone; Component 3 connection records are kept for de-duplication only and do not feed matching at any weight. The four-component weighted model that remains in v0.8.2 is still a weighted score architecture; Phase 5 supersedes it with stratified randomisation. **Status: `partially-resolved`** — one component eliminated in Phase 2; Phase 5 removes the weighted-score architecture entirely.
+- **Expected protocol behaviour.** Per spec §9.1, v0.8.2 removes `match_score`, `match_factors`, `presentation_disclosure.ranking_basis`, and every reference to `inbound_referral_signal` from `match-response.schema.json` in full. The "no global score" claim is structurally observable: no `match_score` field exists at any layer of the schema. Per F1.11, "a hidden global score plus randomised display would look cosmetic and undermine the claim that ATAH is not ranking by preference"; the structural removal closes that vector.
+- **Required audit events.** None specific (the structural absence is the verification surface, not an audit-event surface).
+- **Required user / professional disclosure.** Response-level `presentation_disclosure.ordering_policy` declares the mode (`stratified_random` by default) and `atah_expresses_preference: false`.
+- **Required conformance test.** Conformance suite verifies that no `match_score` or `match_factors` field is present in any match-response example or in implementation responses; that `band_assignment` is populated for every candidate; and (per §9.5) that within-band ordering is observably non-deterministic.
+- **Phase 2 contribution.** Removed `inbound_referral_signal` from `profession-category.matching_weight_profile` and from match-response example outputs.
+- **Phase 5 contribution.** Removed `match_score`, `match_factors`, `presentation_disclosure.ranking_basis` from the schema entirely; replaced with `filters_passed`, `band_assignment`, `ordering_policy`. The transitional four-component weighted model is gone.
+- **Status: `resolved`** by Phase 5's full removal of the weighted-score architecture from the schema.
 
 ### 3.3 Commercial partner candidates appear disproportionately
 
 - **Scenario.** Professionals associated with commercial partners (paying or otherwise) appear in eligible result sets at frequencies inconsistent with their share of the eligible population.
 - **Abuse / failure mode.** Commercial bias entering ordering through a back channel — band assignment, eligibility filters, or stratification weights — without disclosure.
-- **Expected protocol behaviour.** _To be filled in during Phase 5._
-- **Required audit events.** _To be filled in during Phase 5._
-- **Required user / professional disclosure.** _To be filled in during Phase 5._
-- **Required conformance test.** _To be filled in during Phase 5._
-- **Status.** `skeleton`
+- **Expected protocol behaviour.** Per spec §9.6 (Commercial neutrality), no weight is assigned to ATAH-partner commercial relationships, partner status itself, enhanced-verification payment, review-platform identity beyond `review_platform_class`, or registration route (partner vs individual). Per F-7 / §9.2, review-derived signals MAY supplement transparency but MUST NOT promote candidates into higher bands in regulated categories. The response-level `presentation_disclosure.ordering_policy.commercial_weighting: false` is `const`-asserted in the schema (the field is structurally not a free value). Phase 6's transparency-as-conformance work adds per-candidate `decision_explanation` so the basis of band assignment is auditable per response.
+- **Required audit events.** Audit log records every `partner_data_pushed` and `verifier_data_submitted` event with the principal-delegation context; pattern detection of partner-affiliated overrepresentation is an operational concern.
+- **Required user / professional disclosure.** `commercial_weighting: false` is asserted in every match response. AI platforms reordering MUST preserve this.
+- **Required conformance test.** Conformance suite verifies (a) `commercial_weighting: false` is asserted in every response; (b) per Phase 6, `decision_explanation` exposes the band-assignment basis for each candidate so audit can verify no partner-relationship signal entered the assignment.
+- **Status: `resolved`** by §9.6 commercial-neutrality MUST + §9.2 review-signal band cap + Phase 6 per-candidate decision_explanation transparency.
 
 ### 3.4 AI platform presents ATAH result one as "best"
 
 - **Scenario.** ATAH returns a stratified set with a published ordering policy; the AI platform reorders, summarises, or labels the first result as "best" or "top recommendation" downstream.
 - **Abuse / failure mode.** Platform-side presentation undermines ATAH's stratification and equal-treatment posture; users experience a recommendation despite the protocol's stance.
-- **Expected protocol behaviour.** _To be filled in during Phase 5._
-- **Required audit events.** _To be filled in during Phase 5._
-- **Required user / professional disclosure.** _To be filled in during Phase 5._
-- **Required conformance test.** _To be filled in during Phase 5._
-- **Status.** `skeleton` *(expected to settle as `allocated-to-platform-responsibility` per F-17 — ATAH publishes ordering policy in `presentation_disclosure`; downstream presentation is the platform's obligation.)*
+- **Expected protocol behaviour.** Per spec §9.4: "AI platforms reordering the ATAH response MUST preserve the `presentation_disclosure.ordering_policy` field verbatim and surface its content to the user. AI platforms MUST NOT present ATAH's response as a recommendation or rank by ATAH's preference; ATAH expresses no preference among eligible candidates by default." Failure to preserve the disclosure is a binding-conformance failure (Section 14). The structural surface ATAH provides — `presentation_disclosure.ordering_policy` with `atah_expresses_preference: false` — is the platform's obligation to surface verbatim.
+- **Required audit events.** Not directly auditable from ATAH's side (the platform is downstream of ATAH's surface). Platform conformance is verified through binding-conformance review, not audit-stream pattern detection.
+- **Required user / professional disclosure.** AI platforms display `presentation_disclosure.ordering_policy` content to users. Where the platform reorders for user-context reasons, the disclosure that ATAH applied non-preferential ordering MUST survive.
+- **Required conformance test.** Binding-conformance review verifies platform implementations preserve and surface the `presentation_disclosure.ordering_policy` block.
+- **Status: `allocated-to-platform-responsibility`** per F-17. ATAH publishes the ordering-policy disclosure; downstream presentation is the AI platform's obligation. ATAH's role is to provide the structural disclosure surface and the binding-conformance MUST; the platform's role is to honour it. (This was the F-17 worked example for `allocated-to-platform-responsibility`.)
+
+### 3.5 Review signals quietly upgrade a candidate's band in a regulated category
+
+- **Scenario.** A regulated-category implementation lets review-platform signals push a candidate into a higher verification-confidence or category-fit band, despite the absence of corroborating regulator-source evidence.
+- **Abuse / failure mode.** Review-platform signal becomes a back-door promotion mechanism in high-stakes categories; the v0.8.1 `review_signal_weight_cap` original safeguard is bypassed.
+- **Expected protocol behaviour.** Per spec §9.2 (F-7 verbatim): review-derived signals MAY supplement transparency and confidence metadata, but for high-stakes regulated categories MUST NOT move a candidate into a higher eligibility or verification band unless corroborated by authoritative credential or regulator-source evidence. Encoded per category in `profession-categories.json` `review_signal_band_cap`: regulated categories set `may_upgrade_band: false` and `regulated_category_max_effect: no_band_upgrade`.
+- **Required audit events.** Band-assignment changes (where the implementation supports re-binding) record the basis on the audit event; pattern detection of review-driven band promotions in regulated categories is an operational concern.
+- **Required user / professional disclosure.** `review_signal_summary` on `match-response.schema.json` is presentational; the protocol's framing in §9.2 makes clear that for regulated categories the signal is supplemental-only.
+- **Required conformance test.** Conformance suite verifies that for any regulated category (`may_upgrade_band: false`), an attempt to construct a band assignment that promotes a candidate based on review signals alone is rejected; the candidate remains in the band determined by authoritative credential or regulator-source evidence.
+- **Status: `resolved`** by §9.2 verbatim MUST rule + per-category `review_signal_band_cap` configuration.
+
+### 3.6 Implementation chooses a non-uniform random algorithm that systematically favours certain candidates
+
+- **Scenario.** An implementation declares stratified-randomisation conformance but uses a within-band randomisation algorithm that systematically favours certain candidates (biased PRNG, weighted-by-something-else, fixed seed across queries).
+- **Abuse / failure mode.** Within-band ordering is observably non-uniform across queries; the structural "no preference" claim is undermined at the algorithmic level.
+- **Expected protocol behaviour.** Per §9.5, v0.8.2 specifies the model (hard filters → bands → within-band randomisation) and the within-band fairness policy enumeration (`uniform_random`, `round_robin_rotation`, `documented_implementation_policy`). The randomisation seed is `not_disclosed_to_prevent_gaming`. v0.8.2 does NOT mandate a specific algorithm; that is implementation choice. The conformance test verifies returned `band_assignment` is consistent with `band_definitions` and within-band ordering is observably non-deterministic across repeated identical queries.
+- **Required audit events.** None specific (the structural verification surface is the conformance test, not the audit log).
+- **Required user / professional disclosure.** Response-level `presentation_disclosure.ordering_policy.randomization_seed_disclosure` is `not_disclosed_to_prevent_gaming`; per-candidate `ordering_policy.within_band_policy` declares the policy applied.
+- **Required conformance test.** Conformance suite issues the same query repeatedly and verifies within-band candidate ordering is observably different across N invocations. Phase 6 / Phase 11 may add a stronger statistical test; v0.9 may standardise the algorithm.
+- **Status: `partially-resolved`** — Phase 5 establishes the structural model and the conformance non-determinism test; full statistical-distribution conformance and algorithm standardisation are deferred. Concrete next step: Phase 6 / Phase 11 algorithm-conformance test; v0.9 algorithm standardisation.
 
 ---
 
@@ -639,5 +661,21 @@ New scenarios discovered during Phase 4 work and added to Cat 2:
 - **2.7 — Component 3 endpoint accidentally accepts a consumer consent receipt.** **`resolved`** by F-4: `consent_receipt_id` is structurally absent from Component 3 endpoints/tools; the scope enum excludes the v0.8.1 referral values.
 
 **Status distribution after Phase 4:** 22 × `skeleton`, 15 × `resolved` (1.1, 1.3, 2.1, 2.2, 2.4, 2.5, 2.6, 2.7, 5.1, 5.3, 5.4, 6.2, 6.3, 6.4, 6.5), 3 × `bounded-by-protocol` (1.2, 2.3, 5.2), 5 × `partially-resolved` (1.4, 1.5, 1.6, 3.2, 6.1), 1 × `deferred` (7.3). Total: **46 scenarios** (43 prior + 3 new in Phase 4 — 2.5, 2.6, 2.7).
+
+## Phase 5 update
+
+Stratified randomisation, no global match_score, review-signal band cap (Paolo's F1.10 / F1.11 / F1.12 / F1.13 + F-7 + F-13 + F-14) ship in Phase 5. Status changes:
+
+- **3.1 (candidates always returned in same order)** → **`resolved`** by §9.1 stratified-randomisation default + §9.5 conformance requirement on observable non-determinism.
+- **3.2 (hidden score influences order)** → promoted from `partially-resolved` to **`resolved`** by Phase 5's full removal of the weighted-score architecture from `match-response.schema.json` (no `match_score` / `match_factors` / `ranking_basis` field exists at any layer).
+- **3.3 (commercial partner candidates appear disproportionately)** → **`resolved`** by §9.6 commercial-neutrality MUST + §9.2 review-signal band cap + Phase 6 per-candidate `decision_explanation` transparency (Phase 5 sets up the structural surface; Phase 6 makes it required).
+- **3.4 (AI platform presents result one as "best")** → **`allocated-to-platform-responsibility`** per F-17. ATAH publishes the `presentation_disclosure.ordering_policy` disclosure and the §9.4 MUST; downstream presentation is the platform's obligation.
+
+New scenarios discovered during Phase 5 (entries 3.5, 3.6 added in Cat 3 above):
+
+- **3.5 — Review signals quietly upgrade a candidate's band in a regulated category** → **`resolved`** by §9.2 verbatim MUST rule + `review_signal_band_cap.may_upgrade_band: false` for regulated categories.
+- **3.6 — Implementation chooses a non-uniform random algorithm that systematically favours certain candidates** → **`partially-resolved`** by §9.5 (model + non-determinism conformance test); full statistical-distribution conformance lands in Phase 6 / Phase 11; v0.9 may standardise the algorithm.
+
+**Status distribution after Phase 5:** 19 × `skeleton`, 19 × `resolved` (1.1, 1.3, 2.1, 2.2, 2.4, 2.5, 2.6, 2.7, 3.1, 3.2, 3.3, 3.5, 5.1, 5.3, 5.4, 6.2, 6.3, 6.4, 6.5), 3 × `bounded-by-protocol` (1.2, 2.3, 5.2), 1 × `allocated-to-platform-responsibility` (3.4), 5 × `partially-resolved` (1.4, 1.5, 1.6, 3.6, 6.1), 1 × `deferred` (7.3). Total: **48 scenarios** (46 prior + 2 new in Phase 5).
 
 Phase 11 finalises the matrix as the verification artifact for v0.8.2 publication.

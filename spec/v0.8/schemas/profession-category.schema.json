@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://atahprotocol.org/spec/v0.8/schemas/profession-category.schema.json",
   "title": "ATAH Profession Category",
-  "description": "ATAH Registry Operation Profile object: profession category metadata record (spec/v0.8 Section 4.4). The `matching_weight_profile` weights MUST sum to 1.0; this is asserted in the description rather than enforced structurally because JSON Schema cannot express sum invariants. Required for implementations claiming Registry Conformance.",
+  "description": "ATAH Registry Operation Profile object: profession category metadata record (spec/v0.8 §4.4). Per F1.10 / F1.11 (Paolo's stratified-randomisation position), v0.8.2 replaces the v0.8.1 `matching_weight_profile` with `band_definitions`: each category declares its own bands (name, position, threshold rule), and ordering within the band uses a documented fairness policy. Per F-7, the v0.8.1 `review_signal_weight_cap` is replaced with `review_signal_band_cap`, preserving the original safeguard under the band-based model. The matching engine that consumes these fields is documented in §9 of `full-spec.md`. Required for implementations claiming Registry Conformance.",
   "type": "object",
   "properties": {
     "category_id": {
@@ -34,30 +34,39 @@
       "type": "string",
       "enum": ["conflict_check", "scope_confirmation", "capacity_confirmation", "fee_alignment", "none"]
     },
-    "matching_weight_profile": {
-      "type": "object",
-      "description": "Per-category weights summing to 1.0 across the four matching components. v0.8.2 (Phase 2) removes `inbound_referral_signal` from the profile per GKC-COMMENTS-01: connection records are kept for de-duplication only and do not feed matching. Phase 5 supersedes this whole field with `band_definitions` (stratified randomisation); the four-component model in this phase is a transitional state.",
-      "properties": {
-        "relevance": { "type": "number", "minimum": 0, "maximum": 1 },
-        "verification_quality": { "type": "number", "minimum": 0, "maximum": 1 },
-        "availability_response": { "type": "number", "minimum": 0, "maximum": 1 },
-        "profile_completeness": { "type": "number", "minimum": 0, "maximum": 1 }
+    "band_definitions": {
+      "type": "array",
+      "description": "Per-category band specifications used by the §9 matching engine. Each band has a name, a position (lower = higher band; a candidate in band_position 1 appears before a candidate in band_position 2 in the response), and a threshold rule describing the predicate a candidate must satisfy to be in this band. The threshold-rule grammar is implementation-defined for v0.8.2 (a free-text predicate using documented signals); v0.9 may standardise it. The default bands across launch categories are `verification_confidence`, `category_fit`, `availability_window`, and `contact_freshness`; categories MAY define more or different bands as long as the band assignment behaviour is observable through `match-response.schema.json` `band_assignment`.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "band_name": { "type": "string", "minLength": 1 },
+          "band_position": { "type": "integer", "minimum": 1 },
+          "threshold_rule": { "type": "string", "minLength": 1 }
+        },
+        "required": ["band_name", "band_position", "threshold_rule"],
+        "additionalProperties": false
       },
-      "required": [
-        "relevance",
-        "verification_quality",
-        "availability_response",
-        "profile_completeness"
-      ],
-      "additionalProperties": false,
-      "minProperties": 4,
-      "maxProperties": 4
+      "minItems": 1
     },
-    "review_signal_weight_cap": {
-      "type": "number",
-      "minimum": 0,
-      "maximum": 1,
-      "description": "Cap on the contribution of review-derived signals to band assignment. Retained in Phase 2; Phase 5 replaces this with `review_signal_band_cap` along with the broader stratified-randomisation refactor (per F-7)."
+    "review_signal_band_cap": {
+      "type": "object",
+      "description": "Per F-7, this field replaces the v0.8.1 `review_signal_weight_cap`. The cap preserves the original safeguard under the band-based model: review-derived signals MAY supplement transparency and confidence metadata, but for high-stakes regulated categories MUST NOT move a candidate into a higher eligibility or verification band unless corroborated by authoritative credential or regulator-source evidence. High-stakes regulated categories set `may_upgrade_band: false` and `regulated_category_max_effect: no_band_upgrade`. Lower-stakes categories MAY permit `may_upgrade_band: true` with documented authoritative-corroboration requirements.",
+      "properties": {
+        "max_band_influence": {
+          "type": "string",
+          "enum": ["supplemental_only", "not_applicable"]
+        },
+        "may_upgrade_band": {
+          "type": "boolean"
+        },
+        "regulated_category_max_effect": {
+          "type": "string",
+          "enum": ["no_band_upgrade", "documented_corroboration_required", "not_applicable"]
+        }
+      },
+      "required": ["max_band_influence", "may_upgrade_band", "regulated_category_max_effect"],
+      "additionalProperties": false
     },
     "stage2_auth_tier": {
       "type": "string",
@@ -78,8 +87,8 @@
     "body_membership_type",
     "compliance_status",
     "default_pre_handoff_check",
-    "matching_weight_profile",
-    "review_signal_weight_cap",
+    "band_definitions",
+    "review_signal_band_cap",
     "stage2_auth_tier"
   ],
   "additionalProperties": false,
@@ -92,14 +101,42 @@
       "body_membership_type": "mandatory_per_jurisdiction",
       "compliance_status": "active",
       "default_pre_handoff_check": "conflict_check",
-      "matching_weight_profile": {
-        "relevance": 0.35,
-        "verification_quality": 0.45,
-        "availability_response": 0.15,
-        "profile_completeness": 0.05
+      "band_definitions": [
+        { "band_name": "verification_confidence", "band_position": 1, "threshold_rule": "verification_confidence == multi_source_corroborated OR multi_source_with_enhanced_verification" },
+        { "band_name": "verification_confidence", "band_position": 2, "threshold_rule": "verification_confidence == single_source_regulator OR single_source_membership" },
+        { "band_name": "category_fit", "band_position": 1, "threshold_rule": "category_fit >= 0.7" },
+        { "band_name": "availability_window", "band_position": 1, "threshold_rule": "availability_score >= 0.8 AND response_time_hours <= 24" },
+        { "band_name": "contact_freshness", "band_position": 1, "threshold_rule": "contact_unverified == false" }
+      ],
+      "review_signal_band_cap": {
+        "max_band_influence": "supplemental_only",
+        "may_upgrade_band": false,
+        "regulated_category_max_effect": "no_band_upgrade"
       },
-      "review_signal_weight_cap": 0.10,
       "stage2_auth_tier": "tier_2",
+      "referral_proposal_expiry_months": 6
+    },
+    {
+      "category_id": "executive_coach",
+      "schema_version": "0.8",
+      "category_name": "Executive Coach",
+      "professional_tier": "established",
+      "body_membership_type": "optional_with_weak_signal",
+      "compliance_status": "active",
+      "default_pre_handoff_check": "scope_confirmation",
+      "band_definitions": [
+        { "band_name": "verification_confidence", "band_position": 1, "threshold_rule": "verification_confidence == multi_source_corroborated OR multi_source_with_enhanced_verification" },
+        { "band_name": "verification_confidence", "band_position": 2, "threshold_rule": "verification_confidence == single_source_membership OR single_source_self_declared" },
+        { "band_name": "category_fit", "band_position": 1, "threshold_rule": "category_fit >= 0.6" },
+        { "band_name": "availability_window", "band_position": 1, "threshold_rule": "availability_score >= 0.7" },
+        { "band_name": "contact_freshness", "band_position": 1, "threshold_rule": "contact_unverified == false" }
+      ],
+      "review_signal_band_cap": {
+        "max_band_influence": "supplemental_only",
+        "may_upgrade_band": true,
+        "regulated_category_max_effect": "documented_corroboration_required"
+      },
+      "stage2_auth_tier": "tier_1",
       "referral_proposal_expiry_months": 6
     }
   ]
