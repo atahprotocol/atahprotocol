@@ -56,17 +56,8 @@
       "additionalProperties": false
     },
     "authority_basis": {
-      "type": "string",
-      "enum": [
-        "user_session",
-        "professional_delegated_token",
-        "firm_delegation",
-        "partner_credential",
-        "handoff_access_token",
-        "governance_admin_role",
-        "system_role"
-      ],
-      "description": "The principal-delegation `authority_basis` under which the decision was taken (mirrors `principal-delegation.schema.json#/$defs/AuthorityContext.authority_basis`). For consumer-mediated decisions, `user_session`. For professional-side actions, `professional_delegated_token` or `firm_delegation`. For partner / verifier actions, `partner_credential`. For state-changing introduction calls, `handoff_access_token`. For admin actions, `governance_admin_role`. For internal state-machine events, `system_role`."
+      "$ref": "principal-delegation.schema.json#/$defs/AuthorityBasis",
+      "description": "The credential class under which the decision was taken. Single source of truth lives in `principal-delegation.schema.json#/$defs/AuthorityBasis`; this `$ref` removes the inline-duplicate enum that previously lived here (per F1.8 / Phase 9 retro). For consumer-mediated decisions, `user_session`. For professional-side actions, `professional_delegated_token` or `firm_delegation`. For partner / verifier actions, `partner_credential`. For state-changing introduction calls, `handoff_access_token`. For admin actions, `governance_admin_role`. For internal state-machine events, `system_role`."
     },
     "audit_event_id": {
       "type": "string",

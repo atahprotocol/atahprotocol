@@ -129,7 +129,7 @@ The `commercial_weighting: false` field deserves a closer look: it is a JSON Sch
 
 ## Conformance status
 
-ATAH does not currently issue certifications, badges, or formal endorsements of any implementation. At v0.8.1, conformance statements are self-declarations by the implementing party. The published [CONFORMANCE.md](../../CONFORMANCE.md) describes the four conformance classes (Core Object, Binding, Registry, Governance) and the conformance statement requirement.
+ATAH does not currently issue certifications, badges, or formal endorsements of any implementation. At v0.8.2, conformance statements are self-declarations by the implementing party. The published [CONFORMANCE.md](../../CONFORMANCE.md) describes the five conformance classes (Core Object, Binding, Registry, Governance, and the new Transparency Class added in v0.8.2 per Paolo Piponi's F1.8 / F1.9) and the conformance statement requirement. The Transparency Class makes machine-readable explanations a normative obligation: response-level and per-candidate `decision_explanation` on every match response, plus aggregate `exclusion_summary` for excluded candidates and a dedicated governance-only retrieval endpoint for named-exclusion detail.
 
 The v0.9 conformance test suite, when it ships, will provide schema-validating, lifecycle-exercising, behaviour-confirming tests that move conformance from self-declaration toward verifiable testing. Until then, ATAH may publicly contest conformance statements that misrepresent compliance with the protocol or with the conformance principles in the specification.
 

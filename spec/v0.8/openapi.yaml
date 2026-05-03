@@ -686,6 +686,77 @@ paths:
         '501':
           description: Endpoint specification implemented for v0.8.3 — implementations MAY return 501 in v0.8.2.
 
+  /v1/consent-requirements:
+    get:
+      tags: [External]
+      operationId: getConsentRequirements
+      summary: Get consent text and required data categories per (scope, category).
+      description: |
+        REST counterpart to the MCP `get_consent_requirements` tool. AI
+        platforms call this before issuing a consent receipt to retrieve
+        the canonical consent text the consumer must be shown for the
+        requested scope and category, plus the required `data_categories`
+        the receipt must enumerate (per spec §4.10 and §8.2). Read-only;
+        no state change; no idempotency-key required.
+      security:
+        - oauth2: [atah:find]
+      parameters:
+        - name: scope
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - query_submission
+              - stage_1_introduction
+              - stage_2_prehandoff_submission
+              - stage_3_contact_release
+              - outcome_reporting
+        - name: category
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 1
+        - $ref: '#/components/parameters/AcceptVersion'
+      responses:
+        '200':
+          description: Consent requirements for the requested (scope, category) pair.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  required_data_categories:
+                    type: array
+                    items:
+                      type: string
+                      minLength: 1
+                    uniqueItems: true
+                  consent_text_version:
+                    type: string
+                    minLength: 1
+                  consent_text:
+                    type: string
+                    minLength: 1
+                  default_expiry_seconds:
+                    type: integer
+                    minimum: 0
+                required: [required_data_categories, consent_text_version, consent_text, default_expiry_seconds]
+                additionalProperties: false
+              example:
+                required_data_categories: [consumer_name, other_party_name]
+                consent_text_version: stage2-conflict-check-v0.8
+                consent_text: To run a conflict check, your name and any opposing party's name will be sent to the lawyer for the purpose of confirming there is no conflict of interest. The information will not be retained beyond the period needed for that check.
+                default_expiry_seconds: 14400
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404':
+          description: Category not supported.
+          content:
+            application/json:
+              schema: { $ref: './schemas/error.schema.json' }
+
   /v1/consent-receipts:
     post:
       tags: [External]
@@ -1026,6 +1097,7 @@ paths:
                 redirect_uri: { type: string, format: uri }
                 code_verifier: { type: string }
               required: [grant_type]
+              additionalProperties: true  # OAuth 2.1 token endpoint: per RFC 6749 §3.2.1 the server MUST ignore unrecognised request parameters; intentional openness for PKCE / RFC 8693 / future grant-type parameters.
       responses:
         '200':
           description: Access token issued.
@@ -1180,6 +1252,7 @@ paths:
                 document_type: { type: string }
                 file: { type: string, format: binary }
               required: [document_type, file]
+              additionalProperties: false
       responses:
         '202':
           description: Document submitted; review pending.
@@ -1519,8 +1592,19 @@ paths:
               schema:
                 type: array
                 items:
-                  description: Channel record per the `NotificationChannel` $defs in `professional-identity-credentialled.schema.json` / `professional-identity-established.schema.json`.
+                  description: Channel record matching the `NotificationChannel` `$defs` in `professional-identity-credentialled.schema.json` / `professional-identity-established.schema.json`. Inline-mirrored here so the response shape is closed and lint-checkable; the canonical structural definition is the `$defs` in the professional-identity schemas.
                   type: object
+                  properties:
+                    channel_id: { type: string, minLength: 1 }
+                    channel_type: { type: string, enum: [email, phone_voice, phone_sms, mcp_push, webhook] }
+                    destination_reference: { type: string, minLength: 1 }
+                    delivery_purpose: { type: string, enum: [discovery_notification, handoff_stage_1, handoff_stage_2, handoff_stage_3, handoff_stage_3_alternate, referral_proposal, referral_connection, account_alert, verification_challenge] }
+                    is_primary: { type: boolean }
+                    last_verified: { type: ['string', 'null'], format: date-time }
+                    verification_status: { type: string, enum: [verified, verification_pending, escalation_pending, unverified, not_yet_verified] }
+                    created_at: { type: string, format: date-time }
+                  required: [channel_id, channel_type, destination_reference, delivery_purpose, is_primary, last_verified, verification_status, created_at]
+                  additionalProperties: false
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
 
@@ -2437,6 +2521,22 @@ components:
           commercial_weighting: false
           user_facing_disclosure: 'ATAH does not recommend or endorse any professional. This is a provenance-visible candidate set, ordered by stratified randomisation within transparent bands. AI platforms reordering this list MUST preserve the disclosure that ATAH applied non-preferential ordering.'
         result_count: 1
+        decision_explanation:
+          decision_type: ordering
+          rules_applied:
+            - category_match
+            - jurisdiction_match
+            - matching_status_active
+            - compliance_status_active
+            - contact_verified
+            - availability_match
+            - commercial_weighting_excluded
+            - band_assignment_applied
+          ordering_policy:
+            mode: stratified_random
+            commercial_weighting: false
+          authority_basis: user_session
+          audit_event_id: evt-01HQXRP7K8LMNOPQRSTUVWXYZ1
         results:
           - atah_id: atah-01HQXR8M2P3QRV5WTYZAB6CDEF
             professional_tier: established
@@ -2460,6 +2560,23 @@ components:
             ordering_policy:
               mode: stratified_random
               within_band_policy: uniform_random
+            decision_explanation:
+              decision_type: discovery_result
+              rules_applied:
+                - category_match
+                - jurisdiction_match
+                - matching_status_active
+                - compliance_status_active
+                - contact_verified
+                - availability_match
+                - verification_threshold_met
+                - commercial_weighting_excluded
+                - band_assignment_applied
+              ordering_policy:
+                mode: stratified_random
+                commercial_weighting: false
+              authority_basis: user_session
+              audit_event_id: evt-01HQXRP7K8LMNOPQRSTUVWXYZ2
             verification_status_summary:
               licence_status: partner-verified
               disciplinary_record: partner-verified

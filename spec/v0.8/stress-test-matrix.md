@@ -784,4 +784,22 @@ New scenarios discovered during Phase 8: none.
 
 The skeleton-status count reaches zero at end of Phase 8. Every seed scenario has been addressed at the structural protocol level. Phase 11 will re-verify and finalise the matrix as the v0.8.2 publication artifact.
 
+## Phase 9 update
+
+Technical contract fixes (residual from `AI-PEER-REVIEW-FINDINGS-01` plus the Phase 7 schema-delta-report items 4, 5, 8, 10, 11) ship in Phase 9. Status changes: none directly — Phase 9 is technical-contract cleanup rather than scenario-resolving structural work.
+
+Per master plan §11 Phase 9 Stress-test matrix update: "this phase is technical cleanup; few stress-test scenarios map directly. Mostly validates that the matrix continues to hold after cleanup. Confirm no scenario was inadvertently un-resolved by the cleanup work."
+
+Verification performed in Phase 9:
+
+- The matrix's reliance on `acknowledged_rollup_terms: true` for individual self-registration (§10.4 / Cat 8 / Cat 10) is now structurally enforced by the new `allOf` `if/then` clause on both professional-identity schemas — strengthens 8.1 / 10.3 by closing the prose-only gap.
+- The matrix's reliance on the `compliance-pending` / `regulatory-suspended` / `admin-suspended` exclusion at §9.1 step 1 (Cat 1, Cat 7) is now also explicit at the §20 conformance ground-rule level — strengthens 1.5 / 7.1 by removing the prose-vs-conformance asymmetry.
+- The matrix's reliance on the `decision_explanation` two-layer model (Cat 4) continues to hold; the `.spectral.yaml` downgrade of `oas3-valid-media-example` does not weaken schema validation — ajv still validates examples and conformance tests still cover the layer requirements.
+- The matrix's reliance on `requesting_agent` / principal-delegation alignment (Cat 1, Cat 2) is re-verified — every `requesting_agent` field across `query.schema.json` and `handoff-component2.schema.json` references the shared `principal-delegation.schema.json` with no inline divergence.
+- The matrix's reliance on the schema reference surface (Cat 5, Cat 10) is now explicit in §17 with the F1.10 audit paragraph distinguishing OpenAPI-exposed schemas from internal-only data shapes — strengthens 5.1 / 10.1 / 10.3 by removing ambiguity about which schemas are part of the conformance surface.
+
+New scenarios discovered during Phase 9: none.
+
+**Status distribution after Phase 9:** unchanged from Phase 8 — 0 × `skeleton`, 35 × `resolved`, 4 × `bounded-by-protocol`, 1 × `allocated-to-platform-responsibility`, 11 × `partially-resolved`, 2 × `deferred`. Total: 53 scenarios. Phase 9's contribution is structural reinforcement of existing `resolved` and `partially-resolved` statuses rather than transition of any scenario across statuses.
+
 Phase 11 finalises the matrix as the verification artifact for v0.8.2 publication.

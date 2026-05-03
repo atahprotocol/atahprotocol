@@ -5,6 +5,19 @@
   "description": "ATAH Core Protocol object: shared shape for recording who is authenticated, what client application is in use (where applicable), and on whose authority the action is taken. Every protocol action that records actor information uses this schema. Required for any ATAH-conformant implementation (spec/v0.8 Section 4.9A).",
   "type": "object",
   "$defs": {
+    "AuthorityBasis": {
+      "type": "string",
+      "enum": [
+        "user_session",
+        "professional_delegated_token",
+        "firm_delegation",
+        "partner_credential",
+        "handoff_access_token",
+        "governance_admin_role",
+        "system_role"
+      ],
+      "description": "The credential class establishing authority for a protocol action. Single source of truth for the enum; referenced by both `AuthorityContext.authority_basis` and `decision-explanation.schema.json` `authority_basis`. Per F1.8 / Phase 9 retro: extracted to a shared $defs to remove the inline-duplicate enum that previously lived in two schemas."
+    },
     "AuthenticatedActor": {
       "type": "object",
       "description": "The directly authenticated party performing the action. Consumers do not authenticate directly to ATAH; consumer-initiated flows authenticate as `ai_platform` and identify the consumer in `AuthorityContext.represented_principal_type`.",
@@ -49,19 +62,7 @@
           ],
           "description": "Whose authority is being exercised. `none` is used for system events with no delegation."
         },
-        "authority_basis": {
-          "type": "string",
-          "enum": [
-            "user_session",
-            "professional_delegated_token",
-            "firm_delegation",
-            "partner_credential",
-            "handoff_access_token",
-            "governance_admin_role",
-            "system_role"
-          ],
-          "description": "The credential class establishing the authority."
-        },
+        "authority_basis": { "$ref": "#/$defs/AuthorityBasis" },
         "permitted_scopes": {
           "type": "array",
           "items": { "type": "string", "minLength": 1 },

@@ -165,6 +165,18 @@
     "membership"
   ],
   "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": { "registration_route": { "const": "individual" } },
+        "required": ["registration_route"]
+      },
+      "then": {
+        "required": ["acknowledged_rollup_terms"],
+        "properties": { "acknowledged_rollup_terms": { "const": true } }
+      }
+    }
+  ],
   "$defs": {
     "NotificationChannel": {
       "type": "object",

@@ -1,1 +1,28 @@
+# ATAH OpenAPI lint configuration (v0.8.2)
+#
+# Per master plan §11 Phase 9 (F1.4): oas3-valid-media-example downgraded
+# to warning for the MatchResponseExample case. The underlying ajv schema
+# validation passes — the example IS valid against match-response.schema.json
+# (verified by the Phase 9 baseline-validate-schemas script). The Spectral
+# error is a known resolver-duplicate-$id issue caused by
+# match-response.schema.json carrying two distinct $ref references to
+# decision-explanation.schema.json (one response-level, one per-candidate);
+# Spectral indexes the schema under both its relative file path and its
+# absolute $id and reports the second as "more than one schema". The schema
+# validates correctly under ajv; the lint rule misfires. v0.8.3 will refactor
+# the example or move to a Spectral release that handles cross-schema $refs
+# cleanly.
+#
+# Per master plan §11 Phase 9 (F1.7): operation-description warnings
+# disabled until v0.8.3. Forty-nine stub descriptions exist on internal
+# (Professional / Partner / Verifier / Admin) endpoints. Descriptions are
+# best written with implementation experience to draw on; v0.8.2 already
+# adds substantial new surface (visibility-explanations, decision-explanations,
+# consent-receipt-revoke, consent-requirements, referral-proposals).
+# Filling the descriptions speculatively before any platform has run the
+# endpoints would create text that needs rewriting in v0.8.3. Documented
+# in CHANGELOG.
 extends: ["spectral:oas"]
+rules:
+  operation-description: off
+  oas3-valid-media-example: warn

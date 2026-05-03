@@ -166,7 +166,7 @@ These are recommendations for the reference implementation, not requirements of 
 All ATAH schemas conform to the following conventions:
 
 - **Schema language:** JSON Schema Draft 2020-12.
-- **Identifier format:** opaque ULID-style identifiers with a typed prefix. The reference registry uses the following prefixes (non-exhaustive): `atah-` (professionals), `tp-` (trusted partners — including review platforms, identified via their `partner_id`), `iv-` (independent verifiers), `cr-` (consent receipts), `hf-` (handoffs), `ev-` (enhanced verifications), `q-` (queries), `dispute-` (dispute records), `flag-` (concern flags), `vault-` (transient vault references), `proposal-` (Component 3 referral proposals), and `conn-` (Component 3 referral connections). Additional prefixes used in records and audit events (such as `evt-`, `req-`, `conflict-`, `rollup-`, `batch-`, `cdim-`, `conf-`) follow the same convention. Regional or future federated registries use distinct prefixes (e.g. `atah-eu-`, `atah-uk-`). Identifiers are case-sensitive and must match the regex `^[a-z]{2,8}-[a-z0-9-]{6,64}$`.
+- **Identifier format:** opaque ULID-style identifiers with a typed prefix. The reference registry uses the following prefixes (non-exhaustive): `atah-` (professionals), `tp-` (trusted partners — including review platforms, identified via their `partner_id`), `iv-` (independent verifiers), `cr-` (consent receipts), `hf-` (handoffs), `ev-` (enhanced verifications), `q-` (queries), `dispute-` (dispute records), `flag-` (concern flags), `vault-` (transient vault references), `proposal-` (Component 3 referral proposals), and `conn-` (Component 3 referral connections). Additional prefixes used in records and audit events (such as `evt-`, `req-`, `conflict-`, `rollup-`, `batch-`, `cdim-`, `conf-`) follow the same convention. Regional or future federated registries use distinct prefixes (e.g. `atah-eu-`, `atah-uk-`). Identifiers are case-sensitive and must match the regex `^[a-z]{2,8}-[A-Za-z0-9-]{6,64}$` (the typed prefix is lowercase ASCII; the suffix accepts ULID-style mixed-case alphanumerics, matching every `pattern` declaration on identifier fields across the schema set).
 - **Timestamps:** RFC 3339 in UTC, e.g. `"2026-04-10T14:21:00Z"`. All response time SLAs are measured in elapsed wall-clock hours, not business hours. Availability is expressed with the timezone of operation.
 - **Schema versioning:** every schema-bearing object carries a `schema_version` field. The protocol-level version is carried in `protocol_version`.
 - **Closed enums by default.** Open enums are explicitly marked.
@@ -1034,7 +1034,7 @@ Each approved review platform is classified by `review_platform_class` based on 
 
 ### 5.9 Disputes
 
-Professionals may dispute partner data, enhanced verification records, or roll-up merges through the dispute API. Dispute records are created synchronously and assigned to the relevant partner, verifier, or admin queue. The dispute flow is described in Section 7.
+Professionals may dispute partner data, enhanced verification records, or roll-up merges through the dispute API. Dispute records are created synchronously and assigned to the relevant partner, verifier, or admin queue. The dispute flow is described in §5.9; the dispute API endpoints are listed in §7.5 and §7.8.
 
 ### 5.10 Concern Flags
 
@@ -2522,6 +2522,7 @@ atahprotocol/
         concern-flag-record.schema.json
         rollup-match-record.schema.json
         audit-event.schema.json
+        decision-explanation.schema.json
         error.schema.json
   press/
     media-release.md
@@ -2530,6 +2531,8 @@ atahprotocol/
 ```
 
 The reference implementation code does not live in the specification repository.
+
+**Schema reference surface (per F1.10 audit).** Schemas referenced directly from `openapi.yaml` request or response bodies are: `query`, `match-response`, `consent-receipt`, `consent-receipt-stored`, `handoff-component2`, `stage2-prehandoff`, `stage3-contact`, `referral-proposal`, `referral-connection`, `decision-explanation`, `partner-data-push`, `enhanced-verification`, `professional-identity-credentialled`, `professional-identity-established`, `trusted-partner`, `independent-verifier`, `concern-flag-record`, `conflict-record`, `dispute-record`, `rollup-match-record`, `error`. The remaining schemas are **internal-only data shapes** transitively reachable via `$ref` chains rather than via a dedicated REST endpoint: `principal-delegation` (sub-schema referenced by `query`, `handoff-component2`, `consent-receipt`, `audit-event`, `decision-explanation`, `referral-proposal`), `provenance-map` (sub-schema referenced by `match-response` and the two professional-identity schemas), `verification-scope` (sub-schema referenced by `trusted-partner`), `profession-category` (describes `profession-categories.json` and is referenced from `match-response`), `review-platform` (cross-schema enum-source-of-truth referenced from `match-response` `review_signal_summary`), and `audit-event` (canonical event shape recorded by the registry but not surfaced through a public read path; auditors retrieve event-anchored explanations through `GET /v1/decision-explanations/{audit_event_id}` per Phase 6). Implementations conforming to v0.8.2 MUST treat the internal-only schemas as authoritative for their fields wherever a transitive `$ref` carries them, and MUST NOT introduce divergent inline shapes with the same field names.
 
 ## 18. Build Sequence
 
@@ -2612,7 +2615,7 @@ Phase A and Phase B. Schemas, registry, transient vault, OAuth 2.1 endpoints, an
 - No passwords anywhere.
 - All data points must be tagged with provenance via `_provenance` map.
 - Meaningful data conflicts must suppress the professional from matching until resolved.
-- `compliance-pending` professionals must be excluded at the hard exclusion step.
+- Professionals with `matching_status` of `compliance-pending`, `regulatory-suspended`, `admin-suspended`, `withdrawn`, `pending-rollup`, `pending-integrity-review`, `contact_unverified`, or `deceased` MUST be excluded at the hard exclusion step (§9.1 step 1).
 - Simultaneous introduction rules in Section 6.3 are hard constraints.
 - 409 Conflict for duplicate consumer+professional pairs.
 - `Accept-Version` and `deprecation_warning` from day one.
