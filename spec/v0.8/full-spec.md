@@ -533,6 +533,76 @@ The dimension list is extensible. New core dimensions are proposed by verifiers 
 - `depth_score` is a weighted average of the depth values across assessed dimensions (`audited` = 1.0, `evidenced` = 0.75, `confirmed` = 0.5, `not_assessed` = 0)
 - `freshness_score` is calculated from the time elapsed relative to `next_review_due`, with full score until 75% of the way to the review date and degrading linearly to zero at the review date
 
+### 4.9A Principal and Delegation Model
+
+Every protocol action records who is authenticated, what client application is in use (where applicable), and on whose authority the action is taken. The shape is captured by `principal-delegation.schema.json` and is used wherever actor or asserter information appears (`requesting_agent` on `query.schema.json` and `handoff-type1.schema.json`; `asserted_by` on `consent-receipt.schema.json`; the actor/authority block on `audit-event.schema.json`; new actor blocks on schemas added in later phases).
+
+Three separate objects compose the model:
+
+- **`authenticated_actor`** — the directly authenticated party performing the action. `actor_type` is one of `ai_platform`, `professional`, `partner`, `verifier`, `admin`, `system`. `actor_id` is opaque. Consumers do not authenticate directly to ATAH; consumer-initiated flows authenticate as `ai_platform` and identify the consumer in `authority_context.represented_principal_type`.
+- **`client_application`** — the client application performing the request. Required when `authenticated_actor.actor_type` is `ai_platform` (`platform_id` and `client_id`); optional otherwise.
+- **`authority_context`** — the delegation context. `represented_principal_type` is one of `consumer`, `professional`, `firm_admin`, `partner`, `verifier`, `governance_admin`, `none` (the last for system events with no delegation). `authority_basis` is one of `user_session`, `professional_delegated_token`, `firm_delegation`, `partner_credential`, `handoff_access_token`, `governance_admin_role`, `system_role`. Optional fields: `permitted_scopes` (array of action scopes), `expires_at` (RFC 3339, required where the underlying authority is time-bounded), and `object_constraints` (object-level constraints such as "may act only on this handoff" or "may manage this professional profile").
+
+**Combination rules.** `authenticated_actor` and `authority_context` are always required. `client_application` is conditionally required: it is required when `authenticated_actor.actor_type` is `ai_platform` and optional otherwise. `authority_context` may declare `represented_principal_type: none` and `authority_basis: system_role` for system events with no delegation.
+
+```json
+{
+  "authenticated_actor": {
+    "actor_type": "ai_platform",
+    "actor_id": "platform_openai_example"
+  },
+  "client_application": {
+    "platform_id": "platform_openai_example",
+    "client_id": "client_123"
+  },
+  "authority_context": {
+    "represented_principal_type": "consumer",
+    "authority_basis": "user_session",
+    "permitted_scopes": ["atah:find"],
+    "expires_at": "2026-04-10T15:21:00Z"
+  }
+}
+```
+
+**Consumer-mediated flows.** Consumers do not authenticate directly to ATAH. The AI platform is the authenticated actor; the consumer is the represented principal:
+
+```json
+{
+  "authenticated_actor": { "actor_type": "ai_platform", "actor_id": "platform_openai_example" },
+  "client_application": { "platform_id": "platform_openai_example", "client_id": "client_123" },
+  "authority_context": {
+    "represented_principal_type": "consumer",
+    "authority_basis": "user_session",
+    "permitted_scopes": ["atah:find"],
+    "expires_at": "2026-04-10T15:21:00Z"
+  }
+}
+```
+
+**Partner data push.** No client application; the partner is the authenticated actor:
+
+```json
+{
+  "authenticated_actor": { "actor_type": "partner", "actor_id": "partner_solicitors_regulation_authority" },
+  "authority_context": {
+    "represented_principal_type": "partner",
+    "authority_basis": "partner_credential",
+    "permitted_scopes": ["atah:partner:data.write"]
+  }
+}
+```
+
+**System event.** No delegation; `system_role` basis:
+
+```json
+{
+  "authenticated_actor": { "actor_type": "system", "actor_id": "atah-system-vault-erasure" },
+  "authority_context": { "represented_principal_type": "none", "authority_basis": "system_role" }
+}
+```
+
+The principal/delegation model is foundational. The §7.3 authorisation matrix expresses permissions in its terms; OpenAPI security and MCP tool authentication map to its `authority_basis` values; every audit-event records all three objects so accountability is traceable to the authority basis under which an action was taken, not only to the authenticated identity. ATAH verifies the integrity of the `authority_context` it is presented with; the asserting platform, professional, partner, or verifier remains responsible for the underlying credential and consent ceremonies.
+
 ### 4.10 Consent Receipt Object
 
 Every consent action in ATAH — consent to a query, to Stage 2 pre-handoff data submission, to Stage 3 contact release, to Type 2 referral participation, to Type 3 referral as a referred client — is captured as a structured consent receipt rather than a boolean flag. A boolean consent flag is not sufficient for ATAH conformance.
@@ -545,9 +615,14 @@ ATAH stores a hash of the consent receipt and its metadata. The full receipt is 
   "schema_version": "0.8",
   "asserted": true,
   "asserted_by": {
-    "actor_type": "ai_platform",
-    "platform_id": "platform_openai_example",
-    "client_id": "client_123"
+    "authenticated_actor": {
+      "actor_type": "ai_platform",
+      "actor_id": "platform_openai_example"
+    },
+    "client_application": {
+      "platform_id": "platform_openai_example",
+      "client_id": "client_123"
+    }
   },
   "consumer_ref": "opaque-platform-user-ref",
   "scope": "stage_2_prehandoff_submission",
@@ -571,7 +646,7 @@ ATAH stores a hash of the consent receipt and its metadata. The full receipt is 
 
 `consent_receipt_id` — opaque identifier issued by ATAH at consent capture.
 
-`asserted_by` — the actor responsible for capturing and asserting consent. For Type 1 consumer introductions this is the AI platform. For Type 2 referral proposals the asserter is the initiating professional (or their AI assistant acting on their behalf). For Type 3 referrals the asserter is the referring professional, with the underlying client consent represented by a separate nested receipt or attestation.
+`asserted_by` — the party that captured and asserted the consent. Records `authenticated_actor` and (where the asserter is an AI platform) `client_application`, using the shapes defined in §4.9A and `principal-delegation.schema.json`. For Type 1 consumer introductions the asserter's `authenticated_actor.actor_type` is `ai_platform`. For Type 2 referral proposals the asserter is the initiating professional (or their AI assistant acting on their behalf). For Type 3 referrals the asserter is the referring professional, with the underlying client consent represented by a separate nested receipt or attestation. ATAH verifies receipt integrity (the receipt has not been altered after the fact); the asserting platform remains responsible for the validity of the underlying consent ceremony.
 
 `consumer_ref` — opaque platform-side reference to the consumer. Not a personally identifiable identifier. ATAH does not learn the identity of the consumer from this field.
 
@@ -615,7 +690,16 @@ The stored form is defined as a separate schema (`consent-receipt-stored.schema.
   "schema_version": "0.8",
   "protocol_version": "0.8",
   "query_type": "consumer_introduction",
-  "requesting_agent": { "platform_id": "platform_openai_example", "client_id": "client_123" },
+  "requesting_agent": {
+    "authenticated_actor": { "actor_type": "ai_platform", "actor_id": "platform_openai_example" },
+    "client_application": { "platform_id": "platform_openai_example", "client_id": "client_123" },
+    "authority_context": {
+      "represented_principal_type": "consumer",
+      "authority_basis": "user_session",
+      "permitted_scopes": ["atah:find"],
+      "expires_at": "2026-04-10T15:21:00Z"
+    }
+  },
   "consent_receipt_id": "cr-01HQXRB1S6TUVZ8A9BCD0EFGHI",
   "matter": {
     "category": "pr_professional",
@@ -1055,24 +1139,60 @@ Optional on `POST /v1/query` (queries are read-like but stateful enough to suppo
 
 ### 7.3 Authorisation Matrix
 
-| Actor | Endpoint | Scope | Object-level constraint |
-|---|---|---|---|
-| AI platform | `POST /v1/query` | `atah:find` | platform/client must be authenticated |
-| AI platform | `POST /v1/introductions` | `atah:introductions:create` | only under authenticated platform/client |
-| AI platform | `GET /v1/introductions/:handoff_id` | `atah:introductions:read` | platform/client matches asserter, OR consumer_ref matches handoff record |
-| AI platform | `POST /v1/introductions/:handoff_id/stage-*` | `atah:introductions:write` | platform/client matches original asserter, with valid handoff_access_token |
-| AI platform | `POST /v1/introductions/:handoff_id/outcome` | `atah:outcomes:write` | platform/client matches original asserter or target professional |
-| AI platform | `POST /v1/introductions/:handoff_id/cancel` | `atah:introductions:write` | platform/client matches original asserter |
-| AI platform | `POST /v1/introductions/:handoff_id/revoke-consent` | `atah:introductions:write` | platform/client matches original asserter |
-| Professional | `GET /v1/professionals/me` | `atah:professionals:self_read` | only own profile |
-| Professional | `PUT /v1/professionals/me` | `atah:professionals:self_write` | only own profile, only fields not partner-managed |
-| Professional | `GET /v1/introductions/received` | `atah:introductions:read` | only introductions addressed to this professional |
-| Professional | `POST /v1/introductions/:handoff_id/respond` | `atah:introductions:write` | only introductions addressed to this professional |
-| Partner | `POST /v1/partners/:partner_id/data` | `atah:partner:data.write` | only own `partner_id` |
-| Partner | `POST /v1/partners/:partner_id/retract` | `atah:partner:data.write` | only own `partner_id` |
-| Verifier | `POST /v1/verifiers/:verifier_id/verifications` | `atah:verifier:verification.write` | only own `verifier_id`, only approved categories |
-| Admin | `POST /v1/admin/professionals/:atah_id/suspend` | `atah:admin` | governance/admin role only |
-| Admin | `POST /v1/admin/concern-flags/:flag_id/review` | `atah:admin` | governance/admin role only |
+The matrix below expresses permissions in the principal/delegation terms defined in §4.9A: each row names an endpoint (or class of endpoints), the `authenticated_actor.actor_type` permitted to call it, the `authority_context.represented_principal_type` whose authority is being exercised, the `authority_context.authority_basis` (the credential class), the OAuth scope (as declared on `securitySchemes` in `openapi.yaml`), and any object-level constraints from `authority_context.object_constraints`.
+
+The matrix is grouped by `authenticated_actor.actor_type`. Implementations MUST permit a call only when every column matches the request's principal/delegation context; an authenticated_actor whose `actor_type` is `ai_platform` and whose underlying authority basis is anything other than the row's stated `authority_basis` MUST be rejected. Per the F-16 decision, `consumer` is not a valid `authenticated_actor.actor_type`; consumer-mediated calls authenticate as `ai_platform` and identify the consumer in `represented_principal_type: consumer`.
+
+#### `authenticated_actor.actor_type: ai_platform`
+
+| Endpoint(s) | `represented_principal_type` | `authority_basis` | OAuth scope | Object-level constraint |
+|---|---|---|---|---|
+| `POST /v1/query` | `consumer` | `user_session` | `atah:find` | `client_application` required; rate-limit posture per §13.3 |
+| `POST /v1/introductions` | `consumer` | `user_session` | `atah:introductions:create` | `consent_receipt_id` binding required; receipt scope MUST cover the action |
+| `GET /v1/introductions/:handoff_id` | `consumer` | `handoff_access_token` or `user_session` (with original-asserter match) | `atah:introductions:read` | `handoff_id` constraint; asserter match per §11.5 tiered access |
+| `POST /v1/introductions/:handoff_id/stage-2`, `/stage-3`, `/cancel`, `/revoke-consent` | `consumer` | `handoff_access_token` | `atah:introductions:write` | `handoff_id` constraint; original-asserter match required |
+| `POST /v1/introductions/:handoff_id/outcome` (asserter side) | `consumer` | `handoff_access_token` | `atah:outcomes:write` | `handoff_id` constraint; original-asserter match required |
+
+#### `authenticated_actor.actor_type: professional`
+
+| Endpoint(s) | `represented_principal_type` | `authority_basis` | OAuth scope | Object-level constraint |
+|---|---|---|---|---|
+| `GET /v1/professionals/me` | `professional` | `professional_delegated_token` (or `firm_delegation` for firm-managed records) | `atah:professionals:self_read` | `professional_id` = own |
+| `PUT /v1/professionals/me`, `POST /v1/professionals/me/verify-document`, `/me/mcp-connect` | `professional` | `professional_delegated_token` (or `firm_delegation`) | `atah:professionals:self_write` | `professional_id` = own; only fields not partner-managed |
+| `GET /v1/professionals/me/disputes`, `POST /v1/professionals/me/disputes`, `GET /v1/professionals/me/enhanced-verifications`, `GET /v1/professionals/me/concern-flags`, `POST /v1/professionals/me/concern-flags/:flag_id/reply` | `professional` | `professional_delegated_token` (or `firm_delegation`) | `atah:professionals:self_read` / `:self_write` per operation | `professional_id` = own; flag/dispute/verification subject = own |
+| `GET /v1/introductions/received`, `POST /v1/introductions/:handoff_id/respond` | `professional` | `professional_delegated_token` | `atah:introductions:read` / `atah:introductions:write` | only introductions addressed to this `professional_id` |
+| `POST /v1/introductions/:handoff_id/outcome` (target side) | `professional` | `professional_delegated_token` | `atah:outcomes:write` | only as target professional of `handoff_id` |
+| `GET /v1/referral-network`, `POST /v1/referral-proposals`, `GET /v1/referral-proposals/:proposal_id`, `POST /v1/referral-proposals/:proposal_id/respond` | `professional` | `professional_delegated_token` | `atah:introductions:create` / `atah:introductions:read` / `atah:introductions:write` | own `initiating_professional_id` or `target_professional_id`; per F-4 / F1.2, professional-to-professional referral connection actions require authenticated professional delegation, not declared intent |
+
+#### `authenticated_actor.actor_type: partner`
+
+| Endpoint(s) | `represented_principal_type` | `authority_basis` | OAuth scope | Object-level constraint |
+|---|---|---|---|---|
+| `GET /v1/partners/:partner_id`, `PUT /v1/partners/:partner_id` | `partner` | `partner_credential` | (read/write per operation; admin scope for some PUT fields) | `partner_id` = own |
+| `POST /v1/partners/:partner_id/data`, `POST /v1/partners/:partner_id/retract` | `partner` | `partner_credential` | `atah:partner:data.write` | `partner_id` = own |
+| `GET /v1/partners/:partner_id/score`, `GET /v1/partners/:partner_id/conflicts` | `partner` | `partner_credential` | (read scopes) | `partner_id` = own |
+
+#### `authenticated_actor.actor_type: verifier`
+
+| Endpoint(s) | `represented_principal_type` | `authority_basis` | OAuth scope | Object-level constraint |
+|---|---|---|---|---|
+| `POST /v1/verifiers/:verifier_id/verifications`, `PUT /v1/verifiers/:verifier_id/verifications/:id`, `POST /v1/verifiers/:verifier_id/revoke/:id` | `verifier` | `partner_credential` | `atah:verifier:verification.write` | `verifier_id` = own; only approved categories |
+| `GET /v1/verifiers/:verifier_id`, `GET /v1/verifiers/:verifier_id/audit-status` | `verifier` | `partner_credential` | (read scopes) | `verifier_id` = own |
+
+#### `authenticated_actor.actor_type: admin`
+
+| Endpoint(s) | `represented_principal_type` | `authority_basis` | OAuth scope | Object-level constraint |
+|---|---|---|---|---|
+| All `/v1/admin/*` endpoints | `governance_admin` | `governance_admin_role` | `atah:admin` | governance/admin role; per-endpoint constraints documented in OpenAPI |
+| `POST /v1/partners/register`, `POST /v1/verifiers/register` | `governance_admin` | `governance_admin_role` | `atah:admin` | partner / verifier approval action |
+
+#### `authenticated_actor.actor_type: system`
+
+| Trigger | `represented_principal_type` | `authority_basis` | OAuth scope | Object-level constraint |
+|---|---|---|---|---|
+| Internal state-machine events (stage timeouts, vault erasure scheduled jobs, key-deletion audit emissions) | `none` | `system_role` | n/a — internal | n/a — system event |
+
+**Cross-references.** The OAuth scopes in the table above are declared in `openapi.yaml` `components.securitySchemes.oauth2`; the authority-basis column maps to the OAuth-scope grant pattern documented in that section. The `authority_basis` enumeration is defined in `principal-delegation.schema.json#/$defs/AuthorityContext`. Per-operation `security` blocks in `openapi.yaml` express the same permissions per endpoint in OAuth terms.
 
 ### 7.4 External API — Consumer and AI Agent Facing
 
@@ -1713,6 +1833,7 @@ Verifiers receive webhook notifications on enhanced verification disputes, audit
 
 - Rate limits on all public endpoints, configurable per registered platform.
 - Stricter limits on `POST /v1/query` to prevent registry scraping.
+- **Discovery rate-limit posture (per F1.2).** Discovery actions (`POST /v1/query` and the equivalent `find_professional` MCP tool) are available to any authenticated platform with no PII required, and therefore carry the strongest rate-limit posture of any operation class. The `request_intent` parameter introduced in Phase 2 (v0.8.2) refines this further: different intents imply different rate-limit profiles. The principle is documented here; concrete per-intent rate-limit numbers are populated in the Phase 2 spec change.
 - Partner data push: per-batch rate limiting; bulk pushes must be batched.
 - Consent assertion abuse monitoring: platforms with anomalous consent assertion patterns are reviewed.
 

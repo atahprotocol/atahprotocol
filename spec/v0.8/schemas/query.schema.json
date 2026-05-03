@@ -16,13 +16,7 @@
       "enum": ["consumer_introduction"]
     },
     "requesting_agent": {
-      "type": "object",
-      "properties": {
-        "platform_id": { "type": "string", "minLength": 1 },
-        "client_id": { "type": "string", "minLength": 1 }
-      },
-      "required": ["platform_id", "client_id"],
-      "additionalProperties": false
+      "$ref": "principal-delegation.schema.json"
     },
     "consent_receipt_id": {
       "type": "string",
@@ -86,8 +80,20 @@
       "protocol_version": "0.8",
       "query_type": "consumer_introduction",
       "requesting_agent": {
-        "platform_id": "platform_openai_example",
-        "client_id": "client_123"
+        "authenticated_actor": {
+          "actor_type": "ai_platform",
+          "actor_id": "platform_openai_example"
+        },
+        "client_application": {
+          "platform_id": "platform_openai_example",
+          "client_id": "client_123"
+        },
+        "authority_context": {
+          "represented_principal_type": "consumer",
+          "authority_basis": "user_session",
+          "permitted_scopes": ["atah:find"],
+          "expires_at": "2026-04-10T15:21:00Z"
+        }
       },
       "consent_receipt_id": "cr-01HQXRB1S6TUVZ8A9BCD0EFGHI",
       "matter": {

@@ -201,6 +201,20 @@ People whose AI systems query an ATAH-conformant registry on their behalf. Their
 
 ATAH never communicates with consumers directly. All consumer interaction is through the AI platform.
 
+### 6.6 Principal and Delegation Model
+
+Every ATAH protocol action records who is authenticated, on whose authority they are acting, and what they are permitted to do. v0.8.2 makes this structure explicit through a shared `principal-delegation.schema.json` shape used wherever actor or asserter information is recorded.
+
+Three sub-objects compose the model:
+
+- **`authenticated_actor`** — the directly authenticated party (one of `ai_platform`, `professional`, `partner`, `verifier`, `admin`, `system`). Consumers do not authenticate to ATAH directly; consumer-mediated flows authenticate as `ai_platform` and identify the consumer in the authority context (per the F-16 decision in the master patch plan).
+- **`client_application`** — the platform/client identification, required when the actor is an AI platform; optional otherwise.
+- **`authority_context`** — the represented principal type (`consumer`, `professional`, `firm_admin`, `partner`, `verifier`, `governance_admin`, or `none` for system events), the credential class establishing the authority (`user_session`, `professional_delegated_token`, `firm_delegation`, `partner_credential`, `handoff_access_token`, `governance_admin_role`, `system_role`), the permitted action scopes, expiry where the authority is time-bounded, and any object-level constraints narrowing the action's permitted target.
+
+This shape replaces the v0.8.1 coarse-actor model. The §7.3 authorisation matrix in the spec is expressed in these terms; OpenAPI security and MCP tool authentication map to the `authority_basis` values; every audit event records all three sub-objects so accountability is traceable not only to who acted but to the authority basis under which they acted.
+
+ATAH verifies the integrity of the principal/delegation context it is presented with. The asserting platform, professional, partner, or verifier remains responsible for the validity of the underlying credentials and consent ceremonies — see spec §4.9A and ADR 0009.
+
 ## 7. Introduction Types
 
 ATAH supports three distinct introduction types. All share the same underlying protocol infrastructure but differ in who initiates them, how personal data flows, and how consent is captured.

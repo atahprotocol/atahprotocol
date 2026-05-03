@@ -48,11 +48,11 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 
 - **Scenario.** A consumer-mediated AI platform issues a query to ATAH and declares an inaccurate `request_intent`, either to obtain a different result class than the user authorised or to mask the true purpose.
 - **Abuse / failure mode.** Misrepresentation of authority basis; downstream protocol decisions (eligibility filters, transparency obligations, audit semantics) are taken under a false premise.
-- **Expected protocol behaviour.** _To be filled in during Phase 1._
-- **Required audit events.** _To be filled in during Phase 1._
-- **Required user / professional disclosure.** _To be filled in during Phase 1._
-- **Required conformance test.** _To be filled in during Phase 1._
-- **Status.** `skeleton`
+- **Expected protocol behaviour.** Every protocol action carries a `principal-delegation.schema.json` block recording `authenticated_actor`, `client_application`, and `authority_context.represented_principal_type` / `authority_basis` / `permitted_scopes`. ATAH validates the declared `authority_basis` against the credential class actually presented (e.g. `user_session` actually backed by an authorization-code-with-PKCE token); a mismatch results in `403`. Phase 2 introduces server-side validation of `request_intent` against the action class permitted under that authority basis, completing the loop.
+- **Required audit events.** `event_type: security_event` (or the action's normal `event_type` with structured metadata indicating `intent_validation: rejected`), recording the declared `request_intent`, the authority basis presented, and the rejection reason.
+- **Required user / professional disclosure.** None to consumer (an attacker should not learn the validation logic). Audit trail is accessible to the asserting platform on request, per §13.5.
+- **Required conformance test.** Conformance suite includes a request with mismatched `request_intent` / `authority_basis` and asserts `403` plus an audit event matching the metadata schema.
+- **Phase 1 contribution.** `authenticated_actor` + `client_application` + `authority_context` shape established; per-operation authority-basis validation enforced via §7.3 matrix and OpenAPI per-operation `security` blocks. **Status: `partially-resolved`** — Phase 1 closes the structural side (declaration + binding); Phase 2's server-side `request_intent` validation closes the semantic side. Will become `resolved` after Phase 2.
 
 ### 1.2 Platform submits consent for a user who did not consent
 
@@ -62,37 +62,37 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 - **Required audit events.** _To be filled in during Phase 4._
 - **Required user / professional disclosure.** _To be filled in during Phase 4._
 - **Required conformance test.** _To be filled in during Phase 4._
-- **Status.** `skeleton` *(expected to settle as `bounded-by-protocol` per F-17 — ATAH detects tampering, replay, and mismatch via receipt integrity, but cannot prove the underlying consent ceremony was valid.)*
+- **Phase 1 contribution.** `authority_context` records the basis the asserting platform claims; `consent-receipt.schema.json` `asserted_by` now uses the principal-delegation `AuthenticatedActor` + `ClientApplication` $defs so the asserter identity is recorded with the same shape ATAH validates everywhere else. **Status: `partially-resolved`** — Phase 1 records the basis; Phase 4 adds the continuity binding (`client_id`, `pseudonymous_consumer_ref`, `data_categories_hash`) that detects replay and cross-user confusion. Per F-17 the eventual settled status is `bounded-by-protocol`: ATAH verifies receipt integrity (tampering, replay, mismatch) but cannot prove the platform's underlying consent ceremony was valid.
 
 ### 1.3 Professional delegated-agent token is stolen
 
 - **Scenario.** An attacker obtains a delegated agent's credentials or token and acts on a professional's behalf without that professional's knowledge.
 - **Abuse / failure mode.** Unauthorised actions taken under a real professional's identity; profile changes, withdrawal, response-on-behalf-of without the principal's authority.
-- **Expected protocol behaviour.** _To be filled in during Phase 1._
-- **Required audit events.** _To be filled in during Phase 1._
-- **Required user / professional disclosure.** _To be filled in during Phase 1._
-- **Required conformance test.** _To be filled in during Phase 1._
-- **Status.** `skeleton`
+- **Expected protocol behaviour.** Authority basis `professional_delegated_token` carries `expires_at` (mandatory for time-bounded credentials per `principal-delegation.schema.json`) and is bound to `object_constraints` of `professional_id` (own). Tokens are short-lived and rotated; the §7.3 matrix permits them only for `actor_type: professional` actions on the bound professional id.
+- **Required audit events.** Every action under `professional_delegated_token` records the token's `expires_at` and the bound `professional_id` in `authority_context`. Anomaly detection on the audit stream flags token use after revocation, from unexpected client applications, or against object constraints other than the bound principal.
+- **Required user / professional disclosure.** Professional-facing audit feed (`GET /v1/professionals/me/disputes` and equivalent visibility endpoints) surfaces actions taken under their delegated tokens with the token's basis and constraints.
+- **Required conformance test.** Conformance suite verifies that a request with `authority_basis: professional_delegated_token` whose `expires_at` is past, or whose `object_constraints[professional_id]` does not match the targeted principal, is rejected.
+- **Status: `resolved`** by `authority_basis: professional_delegated_token` with mandatory `expires_at` and `object_constraints`, combined with audit-event recording of the basis. Operational hardening (token rotation cadence, anomaly detection thresholds) is registry-implementation responsibility.
 
 ### 1.4 Firm admin withdraws or changes a professional profile improperly
 
 - **Scenario.** A firm admin (delegated authority over multiple professionals' profiles) withdraws or amends a professional's record outside the scope of the authority that professional granted.
 - **Abuse / failure mode.** Authority creep at the firm level; individual professional's protocol-relevant state changed without their explicit assent.
-- **Expected protocol behaviour.** _To be filled in during Phase 1._
-- **Required audit events.** _To be filled in during Phase 1._
-- **Required user / professional disclosure.** _To be filled in during Phase 1._
-- **Required conformance test.** _To be filled in during Phase 1._
-- **Status.** `skeleton`
+- **Expected protocol behaviour.** Firm admin actions carry `authenticated_actor.actor_type: professional` (or `admin` for ATAH-side firm-admin roles where applicable) with `authority_context.represented_principal_type: firm_admin` and `authority_basis: firm_delegation`. `object_constraints` MUST narrow the action to the specific professional ids the firm admin is authorised to manage; ATAH rejects actions targeting professionals outside the constrained set.
+- **Required audit events.** Every firm-admin action records `authenticated_actor`, the `firm_delegation` basis, and the `object_constraints` set; the affected professional's audit feed surfaces the firm-admin action distinctly from their own actions.
+- **Required user / professional disclosure.** The affected professional's `GET /v1/professionals/me/disputes` and notification stream surface firm-admin-originated changes with the firm and the action explicitly labelled.
+- **Required conformance test.** Conformance suite verifies that a `firm_delegation` request without `object_constraints` is rejected, and that an action targeting a `professional_id` outside the constraint set is rejected.
+- **Phase 1 contribution.** `firm_delegation` is in the `authority_basis` enum; `object_constraints` shape supports per-professional narrowing. **Status: `partially-resolved`** — Phase 1 supplies the structural basis; Phase 3's step-up authentication for high-impact withdrawal actions completes the resolution.
 
 ### 1.5 Consumer handoff is attempted from a different platform/session without continuity authority
 
 - **Scenario.** A handoff (Stage 2 / Stage 3) is attempted using identifiers or receipt that originated on a different AI platform or session than the one whose continuity binding the receipt records.
 - **Abuse / failure mode.** Cross-platform replay; consent receipt or principal-delegation context being reused outside its issuing platform/session.
-- **Expected protocol behaviour.** _To be filled in during Phase 1._
-- **Required audit events.** _To be filled in during Phase 1._
-- **Required user / professional disclosure.** _To be filled in during Phase 1._
-- **Required conformance test.** _To be filled in during Phase 1._
-- **Status.** `skeleton`
+- **Expected protocol behaviour.** _To be filled in during Phase 4 (continuity binding)._
+- **Required audit events.** _To be filled in during Phase 4._
+- **Required user / professional disclosure.** _To be filled in during Phase 4._
+- **Required conformance test.** _To be filled in during Phase 4._
+- **Phase 1 contribution.** `authority_context` records the asserting `client_application` (`platform_id`, `client_id`) and the `authority_basis` (`user_session` for the original asserter, or `handoff_access_token` for stage-changing calls). The §7.3 matrix requires original-asserter match for stage-changing calls. **Status: `partially-resolved`** — Phase 1 supplies the structural carrier; Phase 4 adds the continuity binding fields on the stored consent receipt that detect cross-platform replay end-to-end.
 
 ---
 
@@ -514,7 +514,20 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 
 - **Categories defined:** 10.
 - **Seed scenarios populated:** 41 (5 / 4 / 4 / 4 / 4 / 4 / 4 / 4 / 4 / 4).
-- **Status distribution:** 40 × `skeleton`, 1 × `deferred` (scenario 7.3, `deferred-to-v0.8.3` per Phase 7's documented engagement-liveness deferral).
+- **Status distribution at end of Phase 0A:** 40 × `skeleton`, 1 × `deferred` (scenario 7.3, `deferred-to-v0.8.3` per Phase 7's documented engagement-liveness deferral).
 - **Phase mapping coverage:** every scenario carries a phase mapping. Phase 1 → Cat 1; Phase 4 → Cat 2; Phase 5 → Cat 3; Phase 6 → Cat 4; Phase 3 → Cats 5 and 6; Phase 7 → Cat 7 (with v0.8.3 deferral); Phase 8 → Cat 8; existing v0.8.1 work + Phase 8 → Cat 9; Phase 8 + Phase 6 → Cat 10.
+
+## Phase 1 update
+
+Category 1 (Authentication and Delegation Abuse) scenarios marked per Phase 1's contribution.
+
+- **Status updates:**
+  - 1.1 (`request_intent` falsely declared) → `partially-resolved` (becomes `resolved` after Phase 2 server-side `request_intent` validation lands).
+  - 1.2 (platform submits consent the user did not give) → `partially-resolved` here (Phase 1 records the asserter shape via `principal-delegation`); fully addressed by Phase 4's continuity binding (`client_id`, `pseudonymous_consumer_ref`, `data_categories_hash`); per F-17, eventual settled status is `bounded-by-protocol` — ATAH verifies receipt integrity, not the validity of the underlying consent ceremony.
+  - 1.3 (delegated-agent token stolen) → `resolved` by `authority_basis: professional_delegated_token` with mandatory `expires_at` and `object_constraints`. Operational hardening (rotation cadence, anomaly detection thresholds) is registry-implementation responsibility.
+  - 1.4 (firm admin acts beyond delegated authority) → `partially-resolved` here (Phase 1 supplies `firm_delegation` basis + per-professional `object_constraints`); fully resolved by Phase 3's step-up authentication for high-impact actions.
+  - 1.5 (cross-platform / cross-session handoff replay) → `partially-resolved` here (Phase 1 records the asserter `client_application` and the §7.3 original-asserter match); fully resolved by Phase 4's continuity-binding fields on the stored consent receipt.
+- **New scenarios discovered during Phase 1:** none.
+- **Status distribution after Phase 1:** 35 × `skeleton`, 1 × `resolved` (1.3), 4 × `partially-resolved` (1.1, 1.2, 1.4, 1.5), 1 × `deferred` (7.3, unchanged).
 
 Phase 11 finalises the matrix as the verification artifact for v0.8.2 publication.

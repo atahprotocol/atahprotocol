@@ -29,6 +29,10 @@
         "requires_explicit_user_approval": false,
         "state_change_scope": "none"
       },
+      "permitted_authority_bases": [
+        "user_session",
+        "professional_delegated_token"
+      ],
       "examples": [
         {
           "input": {
@@ -37,8 +41,22 @@
             "protocol_version": "0.8",
             "query_type": "consumer_introduction",
             "requesting_agent": {
-              "platform_id": "platform_openai_example",
-              "client_id": "client_123"
+              "authenticated_actor": {
+                "actor_type": "ai_platform",
+                "actor_id": "platform_openai_example"
+              },
+              "client_application": {
+                "platform_id": "platform_openai_example",
+                "client_id": "client_123"
+              },
+              "authority_context": {
+                "represented_principal_type": "consumer",
+                "authority_basis": "user_session",
+                "permitted_scopes": [
+                  "atah:find"
+                ],
+                "expires_at": "2026-04-10T15:21:00Z"
+              }
             },
             "consent_receipt_id": "cr-01HQXRB1S6TUVZ8A9BCD0EFGHI",
             "matter": {
@@ -62,7 +80,13 @@
             "deprecation_warning": null,
             "presentation_disclosure": {
               "atah_is_not_recommending": true,
-              "ranking_basis": ["relevance", "verification_quality", "availability_response", "profile_completeness", "inbound_referral_signal"],
+              "ranking_basis": [
+                "relevance",
+                "verification_quality",
+                "availability_response",
+                "profile_completeness",
+                "inbound_referral_signal"
+              ],
               "commercial_weighting": false,
               "user_facing_disclosure": "ATAH does not recommend or endorse any professional. This is a provenance-visible shortlist based on the matter described and verification evidence available."
             },
@@ -76,12 +100,12 @@
                 "match_factors": {
                   "relevance": 0.93,
                   "verification_quality": 0.88,
-                  "availability_score": 1.0,
+                  "availability_score": 1,
                   "profile_completeness": 0.86,
                   "inbound_referral_signal": 0.82,
                   "verification_quality_subcomponents": {
                     "credential_verification": 0.92,
-                    "enhanced_score": 0.0,
+                    "enhanced_score": 0,
                     "review_signals": 0.84,
                     "scope_completeness": 0.95
                   }
@@ -103,18 +127,34 @@
             "type": "string",
             "pattern": "^atah-[A-Za-z0-9-]{6,64}$"
           },
-          "matter_type": { "type": "string", "minLength": 1 },
-          "location_or_jurisdiction": { "type": "string", "minLength": 1 },
+          "matter_type": {
+            "type": "string",
+            "minLength": 1
+          },
+          "location_or_jurisdiction": {
+            "type": "string",
+            "minLength": 1
+          },
           "consent_receipt_id": {
             "type": "string",
             "pattern": "^cr-[A-Za-z0-9-]{6,64}$"
           },
           "urgency": {
             "type": "string",
-            "enum": ["routine", "standard", "urgent", "emergency"]
+            "enum": [
+              "routine",
+              "standard",
+              "urgent",
+              "emergency"
+            ]
           }
         },
-        "required": ["atah_id", "matter_type", "location_or_jurisdiction", "consent_receipt_id"],
+        "required": [
+          "atah_id",
+          "matter_type",
+          "location_or_jurisdiction",
+          "consent_receipt_id"
+        ],
         "additionalProperties": false
       },
       "output_schema": {
@@ -130,14 +170,32 @@
             "minLength": 1,
             "description": "Opaque short-lived token. Required for subsequent state-changing tool calls. Treat as a credential; do not log."
           },
-          "current_state": { "type": "string", "minLength": 1 },
-          "protocol_version": { "type": "string", "const": "0.8" },
+          "current_state": {
+            "type": "string",
+            "minLength": 1
+          },
+          "protocol_version": {
+            "type": "string",
+            "const": "0.8"
+          },
           "pre_handoff_check_required": {
             "type": "string",
-            "enum": ["conflict_check", "scope_confirmation", "capacity_confirmation", "fee_alignment", "none"]
+            "enum": [
+              "conflict_check",
+              "scope_confirmation",
+              "capacity_confirmation",
+              "fee_alignment",
+              "none"
+            ]
           }
         },
-        "required": ["handoff_id", "handoff_access_token", "current_state", "protocol_version", "pre_handoff_check_required"],
+        "required": [
+          "handoff_id",
+          "handoff_access_token",
+          "current_state",
+          "protocol_version",
+          "pre_handoff_check_required"
+        ],
         "additionalProperties": false
       },
       "error_codes": [
@@ -156,6 +214,10 @@
         "requires_explicit_user_approval": true,
         "state_change_scope": "handoff"
       },
+      "permitted_authority_bases": [
+        "user_session",
+        "professional_delegated_token"
+      ],
       "examples": [
         {
           "input": {
@@ -192,7 +254,9 @@
             "description": "Cross-platform check: the calling platform's consumer reference must match the handoff's consumer_ref."
           }
         },
-        "required": ["handoff_id"],
+        "required": [
+          "handoff_id"
+        ],
         "additionalProperties": false
       },
       "output_schema": {
@@ -203,27 +267,58 @@
             "type": "string",
             "pattern": "^hf-[A-Za-z0-9-]{6,64}$"
           },
-          "current_state": { "type": "string", "minLength": 1 },
+          "current_state": {
+            "type": "string",
+            "minLength": 1
+          },
           "state_history": {
             "type": "array",
             "items": {
               "type": "object",
               "properties": {
-                "state": { "type": "string", "minLength": 1 },
-                "entered_at": { "type": "string", "format": "date-time" },
+                "state": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "entered_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
                 "actor_type": {
                   "type": "string",
-                  "enum": ["ai_platform", "professional", "consumer", "system", "admin"]
+                  "enum": [
+                    "ai_platform",
+                    "professional",
+                    "consumer",
+                    "system",
+                    "admin"
+                  ]
                 }
               },
-              "required": ["state", "entered_at", "actor_type"],
+              "required": [
+                "state",
+                "entered_at",
+                "actor_type"
+              ],
               "additionalProperties": false
             }
           },
-          "protocol_version": { "type": "string", "const": "0.8" },
-          "last_updated": { "type": "string", "format": "date-time" }
+          "protocol_version": {
+            "type": "string",
+            "const": "0.8"
+          },
+          "last_updated": {
+            "type": "string",
+            "format": "date-time"
+          }
         },
-        "required": ["handoff_id", "current_state", "state_history", "protocol_version", "last_updated"],
+        "required": [
+          "handoff_id",
+          "current_state",
+          "state_history",
+          "protocol_version",
+          "last_updated"
+        ],
         "additionalProperties": false
       },
       "error_codes": [
@@ -237,6 +332,10 @@
         "requires_explicit_user_approval": false,
         "state_change_scope": "none"
       },
+      "permitted_authority_bases": [
+        "handoff_access_token",
+        "professional_delegated_token"
+      ],
       "examples": [
         {
           "input": {
@@ -246,9 +345,21 @@
             "handoff_id": "hf-01HQXRC2T7UVWZ9ABCDE1FGHIJ",
             "current_state": "stage-1-accepted",
             "state_history": [
-              { "state": "introduction-initiated", "entered_at": "2026-04-10T14:21:00Z", "actor_type": "ai_platform" },
-              { "state": "stage-1-pending", "entered_at": "2026-04-10T14:21:01Z", "actor_type": "system" },
-              { "state": "stage-1-accepted", "entered_at": "2026-04-10T15:02:34Z", "actor_type": "professional" }
+              {
+                "state": "introduction-initiated",
+                "entered_at": "2026-04-10T14:21:00Z",
+                "actor_type": "ai_platform"
+              },
+              {
+                "state": "stage-1-pending",
+                "entered_at": "2026-04-10T14:21:01Z",
+                "actor_type": "system"
+              },
+              {
+                "state": "stage-1-accepted",
+                "entered_at": "2026-04-10T15:02:34Z",
+                "actor_type": "professional"
+              }
             ],
             "protocol_version": "0.8",
             "last_updated": "2026-04-10T15:02:34Z"
@@ -266,25 +377,44 @@
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
-          "current_state": { "type": "string", "minLength": 1 },
+          "current_state": {
+            "type": "string",
+            "minLength": 1
+          },
           "vault_reference": {
             "type": "string",
             "pattern": "^vault-[A-Za-z0-9-]{6,64}$",
             "description": "Opaque reference to the transient vault entry holding the submitted data."
           },
-          "confirmation_id": { "type": "string", "minLength": 1 },
+          "confirmation_id": {
+            "type": "string",
+            "minLength": 1
+          },
           "held_status": {
             "type": "object",
             "description": "Present when the professional has a concurrent Stage 2 in flight. The submission is held until the prior submission resolves.",
             "properties": {
-              "held_until": { "type": "string", "format": "date-time" },
-              "reason": { "type": "string", "minLength": 1 }
+              "held_until": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1
+              }
             },
-            "required": ["held_until", "reason"],
+            "required": [
+              "held_until",
+              "reason"
+            ],
             "additionalProperties": false
           }
         },
-        "required": ["current_state", "vault_reference", "confirmation_id"],
+        "required": [
+          "current_state",
+          "vault_reference",
+          "confirmation_id"
+        ],
         "additionalProperties": false
       },
       "error_codes": [
@@ -303,6 +433,9 @@
         "requires_explicit_user_approval": true,
         "state_change_scope": "handoff"
       },
+      "permitted_authority_bases": [
+        "handoff_access_token"
+      ],
       "examples": [
         {
           "input": {
@@ -332,14 +465,24 @@
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
-          "current_state": { "type": "string", "minLength": 1 },
+          "current_state": {
+            "type": "string",
+            "minLength": 1
+          },
           "vault_reference": {
             "type": "string",
             "pattern": "^vault-[A-Za-z0-9-]{6,64}$"
           },
-          "confirmation_id": { "type": "string", "minLength": 1 }
+          "confirmation_id": {
+            "type": "string",
+            "minLength": 1
+          }
         },
-        "required": ["current_state", "vault_reference", "confirmation_id"],
+        "required": [
+          "current_state",
+          "vault_reference",
+          "confirmation_id"
+        ],
         "additionalProperties": false
       },
       "error_codes": [
@@ -358,6 +501,9 @@
         "requires_explicit_user_approval": true,
         "state_change_scope": "handoff"
       },
+      "permitted_authority_bases": [
+        "handoff_access_token"
+      ],
       "examples": [
         {
           "input": {
@@ -389,21 +535,42 @@
             "type": "string",
             "pattern": "^hf-[A-Za-z0-9-]{6,64}$"
           },
-          "handoff_access_token": { "type": "string", "minLength": 1 },
-          "cancellation_reason": { "type": "string", "minLength": 1 }
+          "handoff_access_token": {
+            "type": "string",
+            "minLength": 1
+          },
+          "cancellation_reason": {
+            "type": "string",
+            "minLength": 1
+          }
         },
-        "required": ["handoff_id", "handoff_access_token"],
+        "required": [
+          "handoff_id",
+          "handoff_access_token"
+        ],
         "additionalProperties": false
       },
       "output_schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
-          "current_state": { "type": "string", "const": "consumer-cancelled" },
-          "confirmation_id": { "type": "string", "minLength": 1 },
-          "vault_data_deleted_at": { "type": "string", "format": "date-time" }
+          "current_state": {
+            "type": "string",
+            "const": "consumer-cancelled"
+          },
+          "confirmation_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "vault_data_deleted_at": {
+            "type": "string",
+            "format": "date-time"
+          }
         },
-        "required": ["current_state", "confirmation_id"],
+        "required": [
+          "current_state",
+          "confirmation_id"
+        ],
         "additionalProperties": false
       },
       "error_codes": [
@@ -418,6 +585,10 @@
         "requires_explicit_user_approval": true,
         "state_change_scope": "handoff"
       },
+      "permitted_authority_bases": [
+        "handoff_access_token",
+        "professional_delegated_token"
+      ],
       "examples": [
         {
           "input": {
@@ -450,7 +621,9 @@
             "description": "Required if the receipt is associated with a handoff; otherwise optional."
           }
         },
-        "required": ["consent_receipt_id"],
+        "required": [
+          "consent_receipt_id"
+        ],
         "additionalProperties": false
       },
       "output_schema": {
@@ -463,12 +636,26 @@
           },
           "revocation_status": {
             "type": "string",
-            "enum": ["active", "revoked", "expired"]
+            "enum": [
+              "active",
+              "revoked",
+              "expired"
+            ]
           },
-          "vault_data_deleted_at": { "type": "string", "format": "date-time" },
-          "confirmation_id": { "type": "string", "minLength": 1 }
+          "vault_data_deleted_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "confirmation_id": {
+            "type": "string",
+            "minLength": 1
+          }
         },
-        "required": ["consent_receipt_id", "revocation_status", "confirmation_id"],
+        "required": [
+          "consent_receipt_id",
+          "revocation_status",
+          "confirmation_id"
+        ],
         "additionalProperties": false
       },
       "error_codes": [
@@ -483,6 +670,9 @@
         "requires_explicit_user_approval": true,
         "state_change_scope": "consent"
       },
+      "permitted_authority_bases": [
+        "handoff_access_token"
+      ],
       "examples": [
         {
           "input": {
@@ -517,9 +707,15 @@
               "outcome_reporting"
             ]
           },
-          "category": { "type": "string", "minLength": 1 }
+          "category": {
+            "type": "string",
+            "minLength": 1
+          }
         },
-        "required": ["scope", "category"],
+        "required": [
+          "scope",
+          "category"
+        ],
         "additionalProperties": false
       },
       "output_schema": {
@@ -528,14 +724,31 @@
         "properties": {
           "required_data_categories": {
             "type": "array",
-            "items": { "type": "string", "minLength": 1 },
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
             "uniqueItems": true
           },
-          "consent_text_version": { "type": "string", "minLength": 1 },
-          "consent_text": { "type": "string", "minLength": 1 },
-          "default_expiry_seconds": { "type": "integer", "minimum": 0 }
+          "consent_text_version": {
+            "type": "string",
+            "minLength": 1
+          },
+          "consent_text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "default_expiry_seconds": {
+            "type": "integer",
+            "minimum": 0
+          }
         },
-        "required": ["required_data_categories", "consent_text_version", "consent_text", "default_expiry_seconds"],
+        "required": [
+          "required_data_categories",
+          "consent_text_version",
+          "consent_text",
+          "default_expiry_seconds"
+        ],
         "additionalProperties": false
       },
       "error_codes": [
@@ -548,6 +761,10 @@
         "requires_explicit_user_approval": false,
         "state_change_scope": "none"
       },
+      "permitted_authority_bases": [
+        "user_session",
+        "professional_delegated_token"
+      ],
       "examples": [
         {
           "input": {
@@ -555,7 +772,10 @@
             "category": "lawyer"
           },
           "output": {
-            "required_data_categories": ["consumer_name", "other_party_name"],
+            "required_data_categories": [
+              "consumer_name",
+              "other_party_name"
+            ],
             "consent_text_version": "stage2-conflict-check-v0.8",
             "consent_text": "To run a conflict check, your name and any opposing party's name will be sent to the lawyer for the purpose of confirming there is no conflict of interest. The information will not be retained beyond the period needed for that check.",
             "default_expiry_seconds": 14400
@@ -574,7 +794,10 @@
             "type": "string",
             "pattern": "^hf-[A-Za-z0-9-]{6,64}$"
           },
-          "handoff_access_token": { "type": "string", "minLength": 1 },
+          "handoff_access_token": {
+            "type": "string",
+            "minLength": 1
+          },
           "outcome_code": {
             "type": "string",
             "enum": [
@@ -592,24 +815,40 @@
               "consent-revoked"
             ]
           },
-          "outcome_notes": { "type": "string", "minLength": 1 }
+          "outcome_notes": {
+            "type": "string",
+            "minLength": 1
+          }
         },
-        "required": ["handoff_id", "handoff_access_token", "outcome_code"],
+        "required": [
+          "handoff_id",
+          "handoff_access_token",
+          "outcome_code"
+        ],
         "additionalProperties": false
       },
       "output_schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
-          "current_state": { "type": "string", "minLength": 1 },
-          "confirmation_id": { "type": "string", "minLength": 1 },
+          "current_state": {
+            "type": "string",
+            "minLength": 1
+          },
+          "confirmation_id": {
+            "type": "string",
+            "minLength": 1
+          },
           "concern_flag_id": {
             "type": "string",
             "pattern": "^flag-[A-Za-z0-9-]{6,64}$",
             "description": "Present when outcome_code is consumer-reported-concern."
           }
         },
-        "required": ["current_state", "confirmation_id"],
+        "required": [
+          "current_state",
+          "confirmation_id"
+        ],
         "additionalProperties": false
       },
       "error_codes": [
@@ -624,6 +863,10 @@
         "requires_explicit_user_approval": false,
         "state_change_scope": "handoff"
       },
+      "permitted_authority_bases": [
+        "handoff_access_token",
+        "professional_delegated_token"
+      ],
       "examples": [
         {
           "input": {

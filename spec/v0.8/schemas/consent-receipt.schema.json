@@ -20,22 +20,25 @@
     },
     "asserted_by": {
       "type": "object",
+      "description": "The party that captured and asserted the consent. Records authenticated_actor and (where the asserter is an AI platform) the client_application. Authority for the underlying consent ceremony is documented elsewhere; ATAH verifies receipt integrity, not the validity of the underlying consent.",
       "properties": {
-        "actor_type": {
-          "type": "string",
-          "enum": ["ai_platform", "professional"]
-        },
-        "platform_id": {
-          "type": "string",
-          "minLength": 1
-        },
-        "client_id": {
-          "type": "string",
-          "minLength": 1
-        }
+        "authenticated_actor": { "$ref": "principal-delegation.schema.json#/$defs/AuthenticatedActor" },
+        "client_application": { "$ref": "principal-delegation.schema.json#/$defs/ClientApplication" }
       },
-      "required": ["actor_type", "platform_id"],
-      "additionalProperties": false
+      "required": ["authenticated_actor"],
+      "additionalProperties": false,
+      "if": {
+        "properties": {
+          "authenticated_actor": {
+            "properties": { "actor_type": { "const": "ai_platform" } },
+            "required": ["actor_type"]
+          }
+        },
+        "required": ["authenticated_actor"]
+      },
+      "then": {
+        "required": ["authenticated_actor", "client_application"]
+      }
     },
     "consumer_ref": {
       "type": "string",
@@ -126,9 +129,14 @@
       "schema_version": "0.8",
       "asserted": true,
       "asserted_by": {
-        "actor_type": "ai_platform",
-        "platform_id": "platform_openai_example",
-        "client_id": "client_123"
+        "authenticated_actor": {
+          "actor_type": "ai_platform",
+          "actor_id": "platform_openai_example"
+        },
+        "client_application": {
+          "platform_id": "platform_openai_example",
+          "client_id": "client_123"
+        }
       },
       "consumer_ref": "opaque-platform-user-ref",
       "scope": "stage_2_prehandoff_submission",

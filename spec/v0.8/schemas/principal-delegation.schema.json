@@ -1,0 +1,190 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atahprotocol.org/spec/v0.8/schemas/principal-delegation.schema.json",
+  "title": "ATAH Principal and Delegation",
+  "description": "ATAH Core Protocol object: shared shape for recording who is authenticated, what client application is in use (where applicable), and on whose authority the action is taken. Every protocol action that records actor information uses this schema. Required for any ATAH-conformant implementation (spec/v0.8 Section 4.9A).",
+  "type": "object",
+  "$defs": {
+    "AuthenticatedActor": {
+      "type": "object",
+      "description": "The directly authenticated party performing the action. Consumers do not authenticate directly to ATAH; consumer-initiated flows authenticate as `ai_platform` and identify the consumer in `AuthorityContext.represented_principal_type`.",
+      "properties": {
+        "actor_type": {
+          "type": "string",
+          "enum": ["ai_platform", "professional", "partner", "verifier", "admin", "system"]
+        },
+        "actor_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Opaque identifier of the authenticated actor."
+        }
+      },
+      "required": ["actor_type", "actor_id"],
+      "additionalProperties": false
+    },
+    "ClientApplication": {
+      "type": "object",
+      "description": "The client application performing the request. Required when `AuthenticatedActor.actor_type` is `ai_platform`. Optional otherwise.",
+      "properties": {
+        "platform_id": { "type": "string", "minLength": 1 },
+        "client_id": { "type": "string", "minLength": 1 }
+      },
+      "required": ["platform_id", "client_id"],
+      "additionalProperties": false
+    },
+    "AuthorityContext": {
+      "type": "object",
+      "description": "The delegation context: on whose authority the action is taken, and what is permitted.",
+      "properties": {
+        "represented_principal_type": {
+          "type": "string",
+          "enum": [
+            "consumer",
+            "professional",
+            "firm_admin",
+            "partner",
+            "verifier",
+            "governance_admin",
+            "none"
+          ],
+          "description": "Whose authority is being exercised. `none` is used for system events with no delegation."
+        },
+        "authority_basis": {
+          "type": "string",
+          "enum": [
+            "user_session",
+            "professional_delegated_token",
+            "firm_delegation",
+            "partner_credential",
+            "handoff_access_token",
+            "governance_admin_role",
+            "system_role"
+          ],
+          "description": "The credential class establishing the authority."
+        },
+        "permitted_scopes": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true,
+          "description": "Action scopes permitted under this authority, expressed as protocol scope strings (e.g. `atah:find`, `atah:introductions:write`)."
+        },
+        "expires_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "RFC 3339 timestamp; required where the underlying authority is time-bounded (e.g. user_session, handoff_access_token, professional_delegated_token)."
+        },
+        "object_constraints": {
+          "type": "array",
+          "description": "Object-level constraints narrowing the action's permitted target (e.g. `may act only on this handoff`, `may manage this professional profile`).",
+          "items": {
+            "type": "object",
+            "properties": {
+              "constraint_type": {
+                "type": "string",
+                "enum": [
+                  "handoff_id",
+                  "proposal_id",
+                  "referral_id",
+                  "professional_id",
+                  "partner_id",
+                  "verifier_id",
+                  "consent_receipt_id"
+                ]
+              },
+              "value": { "type": "string", "minLength": 1 }
+            },
+            "required": ["constraint_type", "value"],
+            "additionalProperties": false
+          },
+          "uniqueItems": true
+        }
+      },
+      "required": ["represented_principal_type", "authority_basis"],
+      "additionalProperties": false
+    }
+  },
+  "properties": {
+    "authenticated_actor": { "$ref": "#/$defs/AuthenticatedActor" },
+    "client_application": { "$ref": "#/$defs/ClientApplication" },
+    "authority_context": { "$ref": "#/$defs/AuthorityContext" }
+  },
+  "required": ["authenticated_actor", "authority_context"],
+  "additionalProperties": false,
+  "if": {
+    "properties": {
+      "authenticated_actor": {
+        "properties": { "actor_type": { "const": "ai_platform" } },
+        "required": ["actor_type"]
+      }
+    },
+    "required": ["authenticated_actor"]
+  },
+  "then": {
+    "required": ["authenticated_actor", "client_application", "authority_context"]
+  },
+  "examples": [
+    {
+      "authenticated_actor": {
+        "actor_type": "ai_platform",
+        "actor_id": "platform_openai_example"
+      },
+      "client_application": {
+        "platform_id": "platform_openai_example",
+        "client_id": "client_123"
+      },
+      "authority_context": {
+        "represented_principal_type": "consumer",
+        "authority_basis": "user_session",
+        "permitted_scopes": ["atah:find"],
+        "expires_at": "2026-04-10T15:21:00Z"
+      }
+    },
+    {
+      "authenticated_actor": {
+        "actor_type": "partner",
+        "actor_id": "partner_solicitors_regulation_authority"
+      },
+      "authority_context": {
+        "represented_principal_type": "partner",
+        "authority_basis": "partner_credential",
+        "permitted_scopes": ["atah:partner:data.write"]
+      }
+    },
+    {
+      "authenticated_actor": {
+        "actor_type": "verifier",
+        "actor_id": "verifier_example_inc"
+      },
+      "authority_context": {
+        "represented_principal_type": "verifier",
+        "authority_basis": "partner_credential",
+        "permitted_scopes": ["atah:verifier:verification.write"]
+      }
+    },
+    {
+      "authenticated_actor": {
+        "actor_type": "professional",
+        "actor_id": "atah-01HQXR7K9NBVZ8M3PXFG2YT5WA"
+      },
+      "authority_context": {
+        "represented_principal_type": "professional",
+        "authority_basis": "professional_delegated_token",
+        "permitted_scopes": ["atah:professionals:self_write", "atah:introductions:write"],
+        "expires_at": "2026-07-10T00:00:00Z",
+        "object_constraints": [
+          { "constraint_type": "professional_id", "value": "atah-01HQXR7K9NBVZ8M3PXFG2YT5WA" }
+        ]
+      }
+    },
+    {
+      "authenticated_actor": {
+        "actor_type": "system",
+        "actor_id": "atah-system-state-machine"
+      },
+      "authority_context": {
+        "represented_principal_type": "none",
+        "authority_basis": "system_role"
+      }
+    }
+  ]
+}

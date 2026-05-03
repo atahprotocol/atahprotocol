@@ -130,6 +130,20 @@ Here is the journey ATAH supports:
 
 The whole journey is designed so that consumer personal data passes through ATAH only when explicitly needed and is destroyed as soon as it has done its job. **No personal data is ever sent through SMS or email.** Only notifications and authenticated retrieval references. ATAH is a routing and trust layer, not a database of consumer information.
 
+## Who's acting on whose authority
+
+Every ATAH action answers four questions: **who is authenticated**, **who they represent**, **on whose authority**, and **what they're allowed to do**. v0.8.2 makes that structure explicit in a single shared shape used wherever actor information is recorded — query, handoff, consent receipt, audit event.
+
+Three things get recorded:
+
+- The **authenticated actor** — the directly authenticated party (an AI platform, professional, partner, verifier, admin, or system role). Consumers don't authenticate to ATAH directly; in consumer flows the AI platform is the authenticated actor and the consumer is identified separately as the represented principal.
+- The **client application** — for AI-platform calls, which platform and client it is. Required for AI-platform actors, optional otherwise.
+- The **authority context** — on whose behalf the action is being taken (consumer, professional, firm admin, partner, verifier, governance admin, or no delegation), the credential class establishing that authority (user session, professional delegated token, partner credential, handoff access token, etc.), the scopes permitted, expiry where applicable, and any object-level constraints ("may act only on this handoff", "may manage this professional profile").
+
+A consumer-mediated discovery call looks like: `ai_platform` is the authenticated actor; the platform's `client_application` is recorded; the authority context says `represented_principal_type: consumer`, `authority_basis: user_session`. A partner data push has the partner as the authenticated actor, no client application, and a `partner_credential` authority basis representing the partner itself. A scheduled vault-erasure event is a `system` actor with `authority_basis: system_role` and no represented principal.
+
+The model lets every audit entry, consent receipt, and protocol decision be traced back not just to "who did this" but to "under what authority". ATAH verifies the integrity of the authority context it is presented with; the asserting platform, professional, partner, or verifier remains responsible for the validity of the underlying credentials and any consent ceremonies they imply.
+
 ## Consent — receipts, not tickboxes
 
 Earlier versions of ATAH treated consumer consent as a boolean flag — the AI platform asserts "consent: true" and ATAH proceeds. That's not enough for high-trust professional handoff.

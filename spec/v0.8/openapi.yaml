@@ -1554,6 +1554,32 @@ components:
       description: |
         OAuth 2.1. Client credentials for AI platforms, partners, and verifiers.
         Authorization code with PKCE for professional and admin user sessions.
+
+        **Authority-basis to OAuth-scope mapping (per spec §4.9A and §7.3).**
+        Each request carries an `authority_context.authority_basis` (declared
+        in `principal-delegation.schema.json`) that establishes the credential
+        class. The OAuth grant flow used to obtain the bearer token reflects
+        the authority basis:
+
+        - `user_session` → authorization code with PKCE (consumer-mediated
+          flows; the AI platform is the authenticated_actor and holds the
+          session token)
+        - `professional_delegated_token` → authorization code with PKCE
+          (professional account session) or a delegated-agent token issued
+          to a professional's MCP-connected AI assistant
+        - `firm_delegation` → authorization code with PKCE under a firm-admin
+          delegation chain (firm admin authority over the professional)
+        - `partner_credential` → client credentials (partners and verifiers)
+        - `handoff_access_token` → tiered handoff-access per §11.5; presented
+          alongside the OAuth bearer for stage-changing introduction calls
+        - `governance_admin_role` → authorization code with PKCE (admin user
+          session) with the `atah:admin` scope
+        - `system_role` → internal; not exposed via OAuth flows
+
+        Per F-16: `consumer` is not a valid `authenticated_actor.actor_type`;
+        consumer-initiated calls authenticate as `ai_platform` and identify
+        the consumer as `represented_principal_type: consumer` inside the
+        principal/delegation context.
       flows:
         clientCredentials:
           tokenUrl: https://api.atahprotocol.org/v1/auth/token
@@ -1665,8 +1691,17 @@ components:
         protocol_version: '0.8'
         query_type: consumer_introduction
         requesting_agent:
-          platform_id: platform_openai_example
-          client_id: client_123
+          authenticated_actor:
+            actor_type: ai_platform
+            actor_id: platform_openai_example
+          client_application:
+            platform_id: platform_openai_example
+            client_id: client_123
+          authority_context:
+            represented_principal_type: consumer
+            authority_basis: user_session
+            permitted_scopes: [atah:find]
+            expires_at: '2026-04-10T15:21:00Z'
         consent_receipt_id: cr-01HQXRB1S6TUVZ8A9BCD0EFGHI
         matter:
           category: pr_professional
