@@ -36,6 +36,10 @@
     "connected_at": {
       "type": "string",
       "format": "date-time"
+    },
+    "decision_explanation": {
+      "$ref": "decision-explanation.schema.json",
+      "description": "Optional decision-explanation object attached to Component 3 connection events (creation, withdrawal). Per §11A transparency-as-conformance. Where present, `decision_type` is `connection`. Per F-5, this is the inner object — the field name `decision_explanation` is the wrapper here, not part of the referenced schema."
     }
   },
   "required": [

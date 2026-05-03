@@ -219,6 +219,16 @@ Review platform signals — where present — supplement the transparency view b
 
 AI platforms reordering ATAH's response downstream MUST preserve the disclosure that ATAH applied non-preferential ordering. The protocol's "we are not a recommendation engine" commitment is structural, not just declarative — there is no global score in the schema, the band assignment is exposed for inspection, and the conformance test verifies that within-band ordering is observably non-deterministic across repeated queries.
 
+## Transparency — every meaningful decision is explainable
+
+Transparency is one of ATAH's primary differentiators from private recommendation engines, and v0.8.2 makes it structural rather than aspirational. Every meaningful decision in ATAH is explainable. Why a candidate appeared, why one didn't, what rules were applied, what data was used, what authority was relied on. The explanation is structured (the `decision-explanation.schema.json` object), machine-readable (returned on responses, retrievable via API), and role-appropriate (consumers see why returned candidates appeared and the aggregate reason categories for exclusions but not named excluded candidates; professionals see their own visibility view; governance/auditors see the deeper detail; the public sees high-level rules).
+
+The transparency model has three deliberate layers in match responses: a response-level `decision_explanation` for the query as a whole; a per-candidate `decision_explanation` for each returned candidate; and an aggregate `exclusion_summary` with reason-category counts. Names of excluded professionals are not surfaced through the consumer-facing summary — that detail is available only through the dedicated auditor / governance endpoint.
+
+Professionals can see why they appeared or did not appear in candidate searches — including remediation reasons like an unverified contact channel, an inactive category, or a jurisdiction mismatch. The protocol defines this obligation in v0.8.2; the dedicated endpoint may be implemented in v0.8.2 or as a v0.8.3 fast-follow, but the obligation itself is part of v0.8.2 and the spec is complete enough for an implementer to build from. **One important point**: the professional-facing view is rules-derived, not query-history-derived. It explains which inclusion rules apply and which exclusion reason categories could apply, plus the professional's current band assignment — but it does not expose actual query traffic, query counts, or demand patterns. Real query patterns expose information about consumers, AI platform integrations, and platform activity that doesn't belong in a per-professional report; even aggregated query counts can leak in low-volume categories. The rules-derived approach is the v0.8.2 position; v0.9 may revisit with privacy-preserving aggregate mechanisms.
+
+Privacy, security, and anti-gaming reasons may justify withholding details from a specific explanation. Withholding is permitted only for one of those three reasons and the reason something happened MUST still be explainable at category level. The withholding basis itself is recorded on the explanation; it's not a general escape hatch.
+
 ## Two categories of professional
 
 ATAH serves two distinct categories of professional, through identical infrastructure.

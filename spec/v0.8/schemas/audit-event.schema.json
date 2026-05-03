@@ -181,6 +181,11 @@
       "type": "string",
       "description": "Machine-readable reason code for the state transition. v0.8.2 ships with the values needed by the six §11.9 withdrawal scenarios; the enumeration grows over time as new scenarios are observed."
     },
+    "decision_explanation_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Optional reverse reference to a `decision-explanation.schema.json` instance whose `audit_event_id` matches this event's `event_id`. Set where the audit event corresponds to a recorded decision (§11A transparency-as-conformance). Absent for system-emitted events with no associated decision-explanation."
+    },
     "metadata": {
       "type": "object",
       "description": "Open object for event-type-specific structured detail. MUST NOT carry plaintext PII; implementations routing plaintext into `metadata` are non-conformant per §11.8.",

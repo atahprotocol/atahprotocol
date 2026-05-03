@@ -30,6 +30,31 @@
     "results": {
       "type": "array",
       "items": { "$ref": "#/$defs/MatchResult" }
+    },
+    "decision_explanation": {
+      "$ref": "decision-explanation.schema.json",
+      "description": "F-6 Layer 1 — response-level decision_explanation. Required. Documents the query-level rules applied, ordering policy mode, authority basis, and audit-event reference for the response as a whole. Per F-5 the referenced schema is the inner object only — the field name `decision_explanation` HERE is the wrapper; the schema's own contents are NOT separately wrapped."
+    },
+    "exclusion_summary": {
+      "type": "object",
+      "description": "F-6 Layer 3 — aggregate exclusion summary. Required when there were exclusions in this query; absent or empty when there were none. Exposes aggregate reason-category counts so consumers and consumer agents can see why the candidate set has the size it does, while protecting excluded professionals from leakage. Named excluded candidates are NOT surfaced through this object; the dedicated auditor / governance retrieval endpoint (`GET /v1/decision-explanations/{audit_event_id}`) is the only surface that returns named-excluded-candidate detail.",
+      "properties": {
+        "total_excluded": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total count of candidates excluded by hard filters or threshold exclusion (§9.1 steps 1 and 3)."
+        },
+        "reason_categories": {
+          "type": "object",
+          "description": "Map from exclusion-reason-category identifier to count. Reason-category identifiers come from the same set as `decision-explanation.schema.json` `exclusion_reason_category` (e.g. `jurisdiction_mismatch`, `matching_status_inactive`, `category_not_active`, `contact_unverified`, `profile_incomplete`, `verification_threshold_not_met`, `compliance_pending`).",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "required": ["total_excluded", "reason_categories"],
+      "additionalProperties": false
     }
   },
   "required": [
@@ -39,7 +64,8 @@
     "deprecation_warning",
     "presentation_disclosure",
     "result_count",
-    "results"
+    "results",
+    "decision_explanation"
   ],
   "additionalProperties": false,
   "$defs": {
@@ -162,9 +188,8 @@
           "additionalProperties": false
         },
         "decision_explanation": {
-          "type": "object",
-          "description": "Per-candidate decision explanation. Phase 5 declares this as an open object placeholder; Phase 6 introduces `decision-explanation.schema.json` and replaces this placeholder with `$ref: 'decision-explanation.schema.json'`, makes the field required at both response level (the response-level `presentation_disclosure` carries the response-scope explanation) and per-candidate level, and constrains the shape per F-5 / F-6.",
-          "additionalProperties": true
+          "$ref": "decision-explanation.schema.json",
+          "description": "F-6 Layer 2 — per-candidate decision_explanation. Required. Documents the candidate-level rules passed and the band assignment basis for THIS candidate's inclusion. `decision_type` is `discovery_result` for candidates appearing in the response. Per F-5 the referenced schema is the inner object only — the field name `decision_explanation` HERE is the wrapper; the schema's own contents are NOT separately wrapped."
         },
         "verification_status_summary": {
           "type": "object",
@@ -216,7 +241,7 @@
           "$ref": "provenance-map.schema.json"
         }
       },
-      "required": ["atah_id", "professional_tier", "registration_route", "filters_passed", "band_assignment"],
+      "required": ["atah_id", "professional_tier", "registration_route", "filters_passed", "band_assignment", "decision_explanation"],
       "additionalProperties": false
     }
   },
@@ -274,6 +299,26 @@
             "total_review_count": 47,
             "time_decayed_score": 0.86,
             "highest_review_platform_class": "verified_account"
+          },
+          "decision_explanation": {
+            "decision_type": "discovery_result",
+            "rules_applied": [
+              "category_match",
+              "jurisdiction_match",
+              "matching_status_active",
+              "compliance_status_active",
+              "contact_verified",
+              "availability_match",
+              "verification_threshold_met",
+              "commercial_weighting_excluded",
+              "band_assignment_applied"
+            ],
+            "ordering_policy": {
+              "mode": "stratified_random",
+              "commercial_weighting": false
+            },
+            "authority_basis": "user_session",
+            "audit_event_id": "evt-01HQXRP7K8LMNOPQRSTUVWXYZ1"
           }
         },
         {
@@ -293,9 +338,58 @@
           "ordering_policy": {
             "mode": "stratified_random",
             "within_band_policy": "uniform_random"
+          },
+          "decision_explanation": {
+            "decision_type": "discovery_result",
+            "rules_applied": [
+              "category_match",
+              "jurisdiction_match",
+              "matching_status_active",
+              "compliance_status_active",
+              "contact_verified",
+              "availability_match",
+              "verification_threshold_met",
+              "commercial_weighting_excluded",
+              "band_assignment_applied"
+            ],
+            "ordering_policy": {
+              "mode": "stratified_random",
+              "commercial_weighting": false
+            },
+            "authority_basis": "user_session",
+            "audit_event_id": "evt-01HQXRP7K8LMNOPQRSTUVWXYZ2"
           }
         }
-      ]
+      ],
+      "decision_explanation": {
+        "decision_type": "ordering",
+        "rules_applied": [
+          "category_match",
+          "jurisdiction_match",
+          "matching_status_active",
+          "compliance_status_active",
+          "contact_verified",
+          "availability_match",
+          "commercial_weighting_excluded",
+          "band_assignment_applied"
+        ],
+        "ordering_policy": {
+          "mode": "stratified_random",
+          "commercial_weighting": false
+        },
+        "authority_basis": "user_session",
+        "audit_event_id": "evt-01HQXRP7K8LMNOPQRSTUVWXYZ0"
+      },
+      "exclusion_summary": {
+        "total_excluded": 12,
+        "reason_categories": {
+          "jurisdiction_mismatch": 5,
+          "matching_status_inactive": 3,
+          "category_not_active": 2,
+          "contact_unverified": 1,
+          "verification_threshold_not_met": 1
+        }
+      }
     }
   ]
 }

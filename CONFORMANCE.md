@@ -4,13 +4,13 @@ ATAH conformance is the preservation of mandatory protocol semantics, not the re
 
 This document summarises the conformance model. The full normative text is in the specification's [Section 14](spec/v0.8/full-spec.md#14-conformance-classes).
 
-## Four conformance classes
+## Five conformance classes
 
-ATAH v0.8 defines four conformance classes. Implementations may declare which classes they support — the classes are layered rather than hierarchical, so an implementation can claim some without claiming all.
+ATAH v0.8.2 defines five conformance classes (the v0.8.1 four-class set plus the new Transparency Class introduced in Phase 6). Implementations may declare which classes they support — the classes are layered rather than hierarchical, so an implementation can claim some without claiming all.
 
 ### Core Object Conformance
 
-An implementation conforms at the core-object level if it produces and consumes ATAH schema-valid objects: professional records, provenance maps, consent receipt references, handoff records (Type 1, 2, and 3), match responses, presentation disclosures, outcome reports, and audit events.
+An implementation conforms at the core-object level if it produces and consumes ATAH schema-valid objects: professional records, provenance maps, consent receipt references, Component 2 handoff records, Component 3 referral-proposal and referral-connection records, match responses, presentation disclosures, decision-explanation objects, outcome reports, and audit events.
 
 This is the minimum a non-registry implementation may claim. Examples: a partner-side tool that prepares ATAH-valid data for submission, an analytics tool that consumes ATAH match-response payloads, a compliance tool that audits ATAH-formatted records.
 
@@ -30,9 +30,19 @@ A governed implementation conforms if it publishes its partner approval criteria
 
 Governance conformance is what allows downstream parties — AI platforms, professional bodies, regulators — to assess whether an implementation operates the protocol on terms consistent with the Charter Part One core commitments.
 
+### Transparency Conformance (new in v0.8.2)
+
+Per spec §11A and Paolo's F1.8 / F1.9 normative position, transparency is a top-level conformance requirement. An implementation conforms at the transparency level if every relevant response carries a valid response-level `decision_explanation` (Layer 1); every candidate in a Discovery response carries a valid per-candidate `decision_explanation` (Layer 2); every Discovery response with exclusions carries a valid `exclusion_summary` with aggregated reason categories (Layer 3); the professional-facing visibility-explanation behaviour (per §11A.4 / F-18 — rules-derived, NOT query-history-derived) is implementable from the v0.8.2 spec (whether the dedicated endpoint is implemented in v0.8.2 or follows in v0.8.3); the `rules_applied` list is non-empty for inclusion decisions; exclusion responses include reason categories; and the `band_definitions` for the implementation are publicly accessible.
+
+> **MUST.** Conforming implementations MUST produce machine-readable explanations for discovery, exclusion, ordering, handoff, withdrawal, suppression, and data-sharing events, subject to privacy, security, and anti-gaming limits.
+
+> **MUST NOT.** Professional-facing visibility explanations MUST NOT expose actual query-count data, query-history data, observed demand patterns, or any per-query information derived from consumer or platform traffic. They MUST present representative explanation categories at the category/jurisdiction level, derived from the implementation's documented rules and the professional's own profile data, not from observed query traffic.
+
+The conformance test for the Transparency Class (formalised in the v0.9 conformance test suite) picks three sample queries — one inclusion-only, one with exclusions, one with explicit `ordering_preference` — and verifies each response includes both layers of `decision_explanation` and (where applicable) `exclusion_summary`, with contents internally consistent with the implementation's published rules.
+
 ## Reference Registry Scope
 
-The initial ATAH reference registry is expected to conform to all four classes. Future implementations may declare narrower conformance — for example, a profile-only implementation that supports core object and binding conformance but does not run the introduction lifecycle.
+The initial ATAH reference registry is expected to conform to all five classes. Future implementations may declare narrower conformance — for example, a profile-only implementation that supports core object and binding conformance but does not run the introduction lifecycle.
 
 Finer-grained conformance profiles (such as a `profile-provider` profile or a `matching-registry` profile distinct from a `full-handoff-registry` profile) are a v0.9 candidate. v0.8 primarily specifies the full reference registry profile.
 

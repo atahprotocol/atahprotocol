@@ -43,6 +43,40 @@ v0.8.2 absorbs three rounds of post-v0.8.1 review work: GKC-COMMENTS-01 (archite
 - `inbound_referral_signal` from the matching engine and from `profession-category.matching_weight_profile`.
 - `shortlist_size` from `query.schema.json` (replaced by `limit`).
 
+### Transparency-as-conformance and decision-explanation (Phase 6)
+
+Per Paolo's F1.8 / F1.9, transparency becomes a top-level conformance requirement. v0.8.2 adds a fifth conformance class (Transparency Class) alongside Core Object, Binding, Registry, and Governance. Spec §11A carries Paolo's MUST verbatim:
+
+> Conforming implementations MUST produce machine-readable explanations for discovery, exclusion, ordering, handoff, withdrawal, suppression, and data-sharing events, subject to privacy, security, and anti-gaming limits.
+
+New `decision-explanation.schema.json` carries machine-readable explanations. Per F-5, the schema defines the inner object only — the field name `decision_explanation` is the wrapper in consuming response schemas, NOT inside the schema itself; implementers MUST NOT re-wrap when copying or referencing.
+
+Per F-6, the transparency model has three layers in match responses:
+
+- **Layer 1** — response-level `decision_explanation` (required on `match-response.schema.json`).
+- **Layer 2** — per-candidate `decision_explanation` (required for every candidate in the results array).
+- **Layer 3** — aggregate `exclusion_summary` with reason-category counts (required when there were exclusions). Names of excluded candidates are NOT surfaced through Layer 3; the dedicated auditor endpoint is the only surface for named-excluded-candidate detail.
+
+Per F-6, the professional-facing transparency obligation is part of v0.8.2 even where the dedicated endpoint implementation is deferred to v0.8.3:
+
+- New OpenAPI endpoint: `GET /v1/professionals/me/visibility-explanations` (fully specified; implementations MAY return 501 in v0.8.2 by declaring `x-implementation-deferred-to: v0.8.3`).
+- New MCP tool: `get_my_visibility_explanations`.
+- Authority basis: `professional_delegated_token` (or `firm_delegation`); each retrieval is audit-logged; rate-limited per professional account.
+
+Per F-18 (rules-derived, not query-history-derived):
+
+> Professional-facing visibility explanations MUST NOT expose actual query-count data, query-history data, observed demand patterns, or any per-query information derived from consumer or platform traffic. They MUST present representative explanation categories at the category/jurisdiction level, derived from the implementation's documented rules and the professional's own profile data, not from observed query traffic.
+
+The existing `docs/professional/visibility-report.md` posture is preserved and codified as a normative MUST NOT in spec §11A.4. Implementations cannot use observed query traffic to populate the professional-facing view; the view is derived from `band_definitions`, the professional's own profile, and the implementation's published rules. v0.9 may revisit with privacy-preserving aggregate mechanisms (k-anonymity floors, differential privacy) but v0.8.2's position is rules-derived only.
+
+New OpenAPI endpoint `GET /v1/decision-explanations/{audit_event_id}` (governance / auditor only) returns named-excluded-candidate detail and full per-decision rationale; restricted to `governance_admin_role` authority; each retrieval is itself audit-logged.
+
+`audit-event.schema.json` adds optional reverse reference `decision_explanation_id`. `handoff-component2.schema.json`, `referral-proposal.schema.json`, and `referral-connection.schema.json` add optional `decision_explanation` for lifecycle events. `match-response.schema.json` makes `decision_explanation` required at both response level and per-candidate level (replacing the Phase 5 placeholder), and adds `exclusion_summary`.
+
+Privacy / security / anti-gaming withholding (per §11A.5) is permitted only for those three reasons and is recorded on the explanation via `withholding_basis` (`personal_data_protection`, `security_vulnerability_protection`, `anti_gaming_protection`, `no_withholding`); the reason something happened MUST still be explainable at category level.
+
+ADR 0013 records the decision and acknowledges Paolo Piponi's peer review as the source.
+
 ### Ordering, randomisation, and no global match_score (Phase 5)
 
 Replaces the v0.8.1 weighted-scoring matching engine with hard-filters-then-stratified-randomisation per Paolo's F1.10 normative position:

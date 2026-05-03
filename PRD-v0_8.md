@@ -332,6 +332,18 @@ Review platforms are sub-classified by verification rigour: `verified_transactio
 
 Review-derived signals contribute only above a minimum volume threshold (default 10 reviews per professional) and are time-decayed (full weight under 24 months, reduced weight 24–60 months, no contribution beyond 60 months). **Review weight is capped per category** in `profession-categories.json` — for high-stakes regulated categories the cap is ≤0.10 within verification quality. Reviews are tagged as a separate sub-component, never blended into a single opaque trust score.
 
+### 8.4A Transparency and Explainability
+
+Per spec §11A, transparency is a v0.8.2 top-level conformance requirement, not a documentation aspiration. Every meaningful protocol decision is explainable through the `decision-explanation.schema.json` object. The transparency model has three layers in match responses (response-level `decision_explanation`, per-candidate `decision_explanation`, aggregate `exclusion_summary`) and is role-specific (consumers, professionals, AI platforms, governance/auditors, public).
+
+> **MUST.** Conforming implementations MUST produce machine-readable explanations for discovery, exclusion, ordering, handoff, withdrawal, suppression, and data-sharing events, subject to privacy, security, and anti-gaming limits.
+
+The professional-facing visibility-explanation obligation (per F-6 / F-18) is part of v0.8.2; the dedicated endpoint (`GET /v1/professionals/me/visibility-explanations` and the `get_my_visibility_explanations` MCP tool) is fully specified, with implementation possibly deferred to v0.8.3. The obligation itself is part of v0.8.2.
+
+> **MUST NOT.** Professional-facing visibility explanations MUST NOT expose actual query-count data, query-history data, observed demand patterns, or any per-query information derived from consumer or platform traffic. They MUST present representative explanation categories at the category/jurisdiction level, derived from the implementation's documented rules and the professional's own profile data, not from observed query traffic.
+
+A new Transparency Class is added to `CONFORMANCE.md` alongside Core Object, Binding, Registry, and Governance.
+
 ### 8.5 Matching Engine
 
 AI systems query an ATAH-conformant registry via the MCP or REST binding. The registry runs the matching algorithm and returns a candidate set of verified professional options with the full trusted partner data payload, the `presentation_disclosure` block (carrying the ordering policy), per-candidate `band_assignment`, and per-candidate `decision_explanation` (Phase 6). The AI system applies its own contextual layer to refine and present options.

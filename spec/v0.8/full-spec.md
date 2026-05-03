@@ -1940,6 +1940,94 @@ Step-up authentication MUST require re-authentication or an enhanced authenticat
 
 **No separate withdrawal-record schema.** Every withdrawal generates a structured audit event with the required fields above. A separate `withdrawal-record.schema.json` is not introduced in v0.8.2 because the audit-event schema already carries the F1.17 required fields and a separate record would duplicate the audit information.
 
+## 11A. Transparency and Explainability
+
+Transparency is one of ATAH's primary differentiators from private recommendation engines. v0.8.2 makes transparency a top-level conformance requirement, not a documentation aspiration. Every meaningful protocol decision is explainable through a machine-readable `decision-explanation` object; explanations are role-specific; the obligation is structurally enforced through the schemas and the conformance test suite.
+
+> **MUST.** Conforming implementations MUST produce machine-readable explanations for discovery, exclusion, ordering, handoff, withdrawal, suppression, and data-sharing events, subject to privacy, security, and anti-gaming limits.
+
+### 11A.1 What an explanation answers
+
+For every discovery, exclusion, ordering, handoff, withdrawal, suppression, conflict flag, referral proposal, or data-sharing event, the protocol records and exposes (subject to role-appropriate visibility) answers to:
+
+- what happened
+- who initiated it
+- on whose authority (per the §4.9A principal/delegation model)
+- what data was used
+- which rules were applied
+- which candidates were included
+- why candidates were excluded, at least by reason category
+- what ordering or randomisation policy was applied (per §9)
+- whether commercial relationships existed with visible parties
+- what was disclosed to the user or professional
+- what consent receipt or authority basis was relied on (per §4.10)
+- what audit event was recorded (per §11.8)
+
+These answers are encoded in the `decision-explanation.schema.json` object. The schema defines the inner object directly (per F-5); the field name `decision_explanation` is the wrapper in consuming response schemas, NOT inside `decision-explanation.schema.json` itself. Implementers MUST NOT re-wrap when copying or referencing.
+
+### 11A.2 Three transparency layers (F-6)
+
+ATAH's transparency model has three deliberate layers:
+
+**Layer 1 — Response-level `decision_explanation`.** Every relevant response carries a top-level `decision_explanation` object documenting the query-level rules applied, the ordering policy mode, the authority basis, and the audit-event reference. Required on `match-response.schema.json`; required on Component 2 / Component 3 / withdrawal responses where applicable.
+
+**Layer 2 — Per-candidate `decision_explanation`.** Every candidate in a Discovery response carries its own `decision_explanation` object documenting the candidate-level rules passed (`category_match`, `jurisdiction_match`, `verification_threshold_met`, etc.) and the audit-event reference for that candidate's inclusion. Required per-candidate on `match-response.schema.json`.
+
+**Layer 3 — Aggregate exclusion summary.** Every Discovery response with exclusions carries a response-level `exclusion_summary` object listing aggregate reason-category counts (e.g. `jurisdiction_mismatch: 5`, `matching_status_inactive: 3`). Names of excluded candidates are NOT surfaced through this object. Named-excluded-candidate detail is available only through the dedicated auditor / governance retrieval endpoint (`GET /v1/decision-explanations/{audit_event_id}`) under `governance_admin_role` authority.
+
+The three-layer model protects excluded candidates from leakage while still providing aggregate-level explainability. Implementations producing only Layer 1 (without Layer 2 or Layer 3) are non-conformant.
+
+### 11A.3 Role-specific transparency
+
+- **Consumers and consumer agents.** See per-candidate `decision_explanation` (Layer 2) explaining why each returned candidate appeared, what was verified, what was not, what data was shared. See aggregate `exclusion_summary` (Layer 3); do NOT see named excluded candidates. See response-level `presentation_disclosure.ordering_policy` (per §9.4).
+- **Professionals.** See their own visibility-decision view (per §11A.4 below). The view is rules-derived, not query-history-derived; this is a normative MUST NOT (per F-18).
+- **Platforms.** Receive machine-readable explanation metadata at response level (Layer 1), per-candidate level (Layer 2), and aggregate (Layer 3). Per §9.4, AI platforms reordering downstream MUST preserve the response-level disclosure verbatim.
+- **Governance and auditors.** Have deeper audit access for neutrality, abuse, dispute, and conformance review. Can retrieve named-excluded-candidate detail via `GET /v1/decision-explanations/{audit_event_id}` under `governance_admin_role` authority.
+- **Public.** See high-level rules (matching engine §9), fee schedules, partner scopes, category annexes, conformance status. Do not see per-query data.
+
+### 11A.4 Professional-facing visibility-explanation obligation (per F-6 / F-18)
+
+A conforming implementation MUST provide a mechanism for an authenticated professional to retrieve their own visibility-decision view for a given category and jurisdiction. The view is rules-derived: it explains which inclusion rules apply to the professional in this category/jurisdiction (and which would apply if conditions changed), and the professional's current band assignment, derived from `profession-categories.json` `band_definitions` and the professional's own profile data. It does NOT reflect actual query traffic or query-count data.
+
+> **MUST NOT.** Professional-facing visibility explanations MUST NOT expose actual query-count data, query-history data, observed demand patterns, or any per-query information derived from consumer or platform traffic. They MUST present representative explanation categories at the category/jurisdiction level, derived from the implementation's documented rules and the professional's own profile data, not from observed query traffic.
+
+**Required fields in the professional-facing view.**
+
+- Representative inclusion rules that apply to the professional in this category/jurisdiction (e.g. `matching_status_active`, `contact_verified for preferred notification channel`, `category_fit score above threshold X`).
+- Representative exclusion reason categories that could apply (e.g. `matching_status would exclude if flipped to inactive`; `contact_verification would exclude if last_verified is over 90 days for high-stakes categories`; `jurisdiction_mismatch would exclude if professional's licensed jurisdictions don't overlap with query`).
+- The professional's current band assignment in this category — band names and threshold values, derived from `profession-category.schema.json` `band_definitions`, NOT from observed query traffic.
+- The implementation's published ordering policy (mode + within-band fairness policy from §9).
+
+**Rationale for the rules-derived approach.** Real query patterns expose information about consumers, AI platform integrations, demand signals, matter types, urgency, and platform activity that does not belong in a per-professional report. Even aggregated query counts can leak in low-volume categories. The professional-facing view is therefore structurally derived from documented rules and the professional's own profile data, not from observed query traffic. The existing `docs/professional/visibility-report.md` posture is preserved and codified as the v0.8.2 normative MUST NOT.
+
+**Honest gap.** The rules-derived view tells a professional what would-or-would-not include them, not whether they were actually included in a real query. Some professionals may want the latter, especially when investigating why their referral pipeline has changed. v0.8.2 explicitly does not provide that. v0.9 may revisit with a privacy-preserving aggregate mechanism (k-anonymity floors, differential privacy, or category-level aggregates with high-volume thresholds), but v0.8.2's position is rules-derived only.
+
+**Authority controls.** The professional retrieves their own data only. Authority basis: `professional_delegated_token` (or `firm_delegation` where applicable). Cross-platform-session retrieval requires fresh authentication; the endpoint is rate-limited per professional account.
+
+**Audit linkage.** Each retrieval is logged as an audit event with the actor identified.
+
+**Endpoint implementation.** The dedicated REST endpoint `GET /v1/professionals/me/visibility-explanations` is fully specified in `openapi.yaml`. Implementations MAY mark the endpoint as v0.8.3-deferred via the OpenAPI extension `x-implementation-deferred-to: v0.8.3`; the **obligation itself is part of v0.8.2** and the spec is complete enough (behaviour, fields, authority controls, audit linkage, F-18 MUST NOT rule) for an implementer to build from v0.8.2 alone. The matching MCP tool `get_my_visibility_explanations` mirrors the REST endpoint.
+
+### 11A.5 Privacy / security / anti-gaming withholding
+
+Privacy, security, and anti-gaming reasons MAY justify withholding details from a decision-explanation. Withholding is permitted only where disclosure would (a) leak personal data, (b) reveal a security vulnerability, or (c) enable gaming of the matching engine. The reason something happened MUST still be explainable at category level. Where a detail is withheld, `decision-explanation.schema.json` `withholding_basis` records the basis (`personal_data_protection`, `security_vulnerability_protection`, `anti_gaming_protection`); `no_withholding` is the default.
+
+Withholding is not a general escape hatch. Implementations declaring `withholding_basis` other than `no_withholding` on a high proportion of explanations are subject to conformance review.
+
+### 11A.6 Conformance class
+
+Transparency is added to `CONFORMANCE.md` as a fifth conformance class — **Transparency Class** — alongside Core Object, Binding, Registry, and Governance. The class requires:
+
+- Every relevant response includes a valid response-level `decision_explanation` (Layer 1).
+- Every candidate in a Discovery response includes a valid per-candidate `decision_explanation` (Layer 2).
+- Every Discovery response with exclusions includes a valid `exclusion_summary` with aggregated reason categories (Layer 3).
+- The professional-facing visibility-explanation behaviour is implementable from the v0.8.2 spec (whether the dedicated endpoint is implemented in v0.8.2 or follows in v0.8.3).
+- The `rules_applied` list is non-empty for inclusion decisions.
+- Exclusion responses include reason categories.
+- The `band_definitions` for the implementation are publicly accessible.
+
+Conformance test: pick three sample queries (one inclusion-only, one with exclusions, one with explicit `ordering_preference`); verify each response includes both layers of `decision_explanation` and (where applicable) `exclusion_summary`; verify the contents are internally consistent with the implementation's published rules.
+
 ## 12. Notification Service
 
 ### 12.1 Phase 1 — Professional Notifications

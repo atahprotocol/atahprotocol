@@ -114,6 +114,10 @@
       ],
       "default": "not_withdrawn",
       "description": "Coarse withdrawal-scenario classification per §11.9. Default `not_withdrawn` for active handoffs. The granular state-transition history (with previous_state, resulting_state, reason_code, and actor authority basis per F1.17) lives in the audit log; this field is a summary classification for quick lookup. Independent of `current_state` (which carries the lifecycle state machine); a handoff in `current_state: consumer-cancelled` typically has `withdrawal_state: consumer_withdrew_pre_share` (or post-stage2/post-stage3 depending on when cancellation occurred)."
+    },
+    "decision_explanation": {
+      "$ref": "decision-explanation.schema.json",
+      "description": "Optional decision-explanation object attached to introduction lifecycle events (initiation, stage transition, cancellation, withdrawal). Per §11A transparency-as-conformance. Where present, `decision_type` is `handoff` for stage transitions or `withdrawal` for cancellation / consent revocation. Per F-5, this is the inner object — the field name `decision_explanation` is the wrapper here, not part of the referenced schema."
     }
   },
   "required": [

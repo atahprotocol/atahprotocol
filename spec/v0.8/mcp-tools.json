@@ -1217,6 +1217,77 @@
       ]
     },
     {
+      "name": "get_my_visibility_explanations",
+      "description": "Component-1-adjacent — professional-facing visibility-explanation view (rules-derived per spec §11A.4 / F-18). Mirrors REST `GET /v1/professionals/me/visibility-explanations`. The view explains which inclusion rules apply to the professional in this category/jurisdiction, which exclusion reason categories could apply, the professional's current band assignment (derived from `profession-categories.json` `band_definitions`, NOT from observed query traffic), and the implementation's published ordering policy. **MUST NOT expose actual query-count data, query-history data, observed demand patterns, or any per-query information derived from consumer or platform traffic** — the view is rules-derived only. Authority basis: professional_delegated_token (or firm_delegation). Each retrieval is audit-logged. Implementations MAY defer the endpoint implementation to v0.8.3; the obligation itself is part of v0.8.2.",
+      "input_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "category": { "type": "string", "minLength": 1 },
+          "jurisdiction": { "type": "string", "minLength": 1 }
+        },
+        "required": ["category"],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "category": { "type": "string" },
+          "jurisdiction": { "type": "string" },
+          "representative_inclusion_rules": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 }
+          },
+          "representative_exclusion_reason_categories": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 }
+          },
+          "current_band_assignment": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "band_name": { "type": "string", "minLength": 1 },
+                "band_position": { "type": "integer", "minimum": 1 },
+                "threshold_rule": { "type": "string", "minLength": 1 }
+              },
+              "required": ["band_name", "band_position", "threshold_rule"],
+              "additionalProperties": false
+            }
+          },
+          "published_ordering_policy": {
+            "type": "object",
+            "properties": {
+              "mode": { "type": "string", "minLength": 1 },
+              "within_band_policy": { "type": "string", "minLength": 1 }
+            },
+            "required": ["mode"],
+            "additionalProperties": false
+          },
+          "retrieved_at": { "type": "string", "format": "date-time" }
+        },
+        "required": ["category", "representative_inclusion_rules", "representative_exclusion_reason_categories", "current_band_assignment", "published_ordering_policy", "retrieved_at"],
+        "additionalProperties": false
+      },
+      "error_codes": [
+        "implementation_deferred_to_v0_8_3",
+        "validation_error",
+        "unauthorized",
+        "rate_limited"
+      ],
+      "safety_metadata": {
+        "is_read_only": true,
+        "transmits_personal_data": false,
+        "requires_explicit_user_approval": false,
+        "state_change_scope": "none"
+      },
+      "permitted_authority_bases": [
+        "professional_delegated_token",
+        "firm_delegation"
+      ]
+    },
+    {
       "name": "withdraw_from_matching",
       "description": "Professional withdrawal from matching — Component 2 withdrawal scenario 5 per spec §11.9. Sets the professional's matching_status to withdrawn; the professional is removed from inclusion in Discovery, but their record, required audit trail, dispute records, regulatory metadata, and existing Component 3 connections are RETAINED per §11.8. **High-impact action**: this tool MUST require step-up authentication at the point of action — re-auth via OAuth flow, second factor via TOTP, out-of-band push approval, or equivalent. The protocol mandates the requirement; the specific mechanism is implementation choice in v0.8.2. The audit event records previous_state, resulting_state, reason_code, the principal-delegation context, and the auth_tier reflecting the step-up authentication applied.",
       "input_schema": {

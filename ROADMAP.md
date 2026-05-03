@@ -36,6 +36,14 @@ The v0.8.2 patch round is confirmed and absorbs the following work:
 - **Align `check_introduction_status` response shapes across MCP and REST.** OpenAPI returns the full `handoff-component2.schema.json` payload; MCP returns a five-field subset. Both are PII-free. v0.8.2 either aligns the OpenAPI response to the MCP subset or documents the divergence in spec §11.5.
 - **Non-handoff-bound consent revocation endpoint.** OpenAPI's `postIntroductionRevokeConsent` is path-bound to `/v1/introductions/{handoff_id}/revoke-consent` and so cannot revoke a query-scope consent receipt that has no handoff yet (MCP `revoke_consent` keyed on `consent_receipt_id` works for this case). v0.8.2 adds `POST /v1/consent-receipts/{consent_receipt_id}/revoke` to close the gap, or documents the divergence.
 
+## v0.8.3 candidates
+
+Items where the v0.8.2 spec defines the obligation but the endpoint implementation MAY follow in v0.8.3:
+
+- **Professional-facing visibility-explanation endpoint.** `GET /v1/professionals/me/visibility-explanations` (REST) and `get_my_visibility_explanations` (MCP). Spec §11A.4 defines the rules-derived behaviour, required fields, authority controls, audit linkage, and the F-18 MUST NOT rule (no query-history exposure). Implementations MAY declare `x-implementation-deferred-to: v0.8.3` and return 501 in v0.8.2. The obligation itself is part of v0.8.2; only the endpoint implementation is permitted to defer.
+- **Component 3 dense-cluster pattern detection.** Stress-test scenario 1.6 — repeat-toggling and proposal-spam pattern detection. Phase 2 closes the structural side via toggle gating + rate limits + audit recording; harassment-monitoring (dense-cluster pattern detection) is `deferred-to-v0.8.3`.
+- **Engagement liveness (response-rate tracking).** Stress-test scenario 7.3. Phase 7 covers contact-channel verification only; response-rate tracking is `deferred-to-v0.8.3`.
+
 ## v0.8.1.x candidates
 
 Items expected to be small enough to land as patch releases rather than wait for v0.9:

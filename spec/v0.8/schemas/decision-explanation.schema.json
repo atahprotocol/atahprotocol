@@ -1,0 +1,157 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atahprotocol.org/spec/v0.8/schemas/decision-explanation.schema.json",
+  "title": "ATAH Decision Explanation",
+  "description": "ATAH Core Protocol object: machine-readable explanation of a single protocol decision (discovery result, exclusion, ordering choice, handoff state transition, withdrawal, suppression, Component 3 proposal/connection event, or data-sharing event). Per Paolo's F1.8/F1.9 normative position, every meaningful protocol decision is explainable; per spec §11A, transparency is a top-level conformance requirement. **F-5 design rule (important).** This schema defines the decision-explanation object DIRECTLY — i.e. the object IS the explanation. Where a response schema references this object, the field name in the consuming response is `decision_explanation`, but this schema does NOT wrap its own contents in a `decision_explanation` key. Implementers MUST NOT re-wrap when copying or referencing; doing so produces a double-nesting bug. The two-layer transparency model in §11A is delivered by including TWO `decision_explanation` fields in `match-response.schema.json` (one at response level, one per candidate), each a separate instance of this schema. Required for any ATAH-conformant implementation that produces or consumes responses carrying explanations.",
+  "type": "object",
+  "properties": {
+    "decision_type": {
+      "type": "string",
+      "enum": [
+        "discovery_result",
+        "exclusion",
+        "ordering",
+        "handoff",
+        "withdrawal",
+        "suppression",
+        "proposal",
+        "connection",
+        "data_sharing"
+      ],
+      "description": "What kind of decision this explanation covers. `discovery_result` for an included candidate in a Discovery response; `exclusion` for an excluded candidate or excluded class; `ordering` for the ordering-policy decision at response level; `handoff` for a Component 2 lifecycle transition; `withdrawal` for any §11.9 withdrawal scenario; `suppression` for a partner-data-conflict or admin-suppression event; `proposal` for a Component 3 referral-proposal event; `connection` for a Component 3 referral-connection event; `data_sharing` for vault retrieval or contact-detail release."
+    },
+    "rules_applied": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Rule identifiers covering the rules a candidate or action passed (or, for `exclusion`, failed). v0.8.2 ships with the following canonical initial set; the enum is extensible through governance review and grows as the protocol matures. Initial v0.8.2 set: `category_match`, `jurisdiction_match`, `matching_status_active`, `compliance_status_active`, `contact_verified`, `availability_match`, `verification_threshold_met`, `category_qualification_match`, `commercial_weighting_excluded`, `band_assignment_applied`, `professional_delegated_authority_present` (Component 3), `consent_receipt_continuity_verified` (Component 2 consumption), `step_up_authentication_completed` (high-impact withdrawal). Implementations MAY extend with additional rule identifiers; the field is open so v0.8.3 / v0.9 can add canonical values without a breaking schema change.",
+      "uniqueItems": true,
+      "minItems": 1
+    },
+    "ordering_policy": {
+      "type": "object",
+      "description": "The ordering policy applied to this decision. For `decision_type: discovery_result` and `ordering`, this mirrors the response-level `presentation_disclosure.ordering_policy` from `match-response.schema.json`. For `decision_type: exclusion`, the policy is recorded for traceability (the candidate would have been ordered under this policy if not excluded). For other decision types, the field MAY be omitted or carry only `commercial_weighting: false`.",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": [
+            "stratified_random",
+            "nearest",
+            "soonest_available",
+            "remote_available",
+            "specific_language",
+            "highest_verification_confidence",
+            "specific_category_qualification",
+            "professional_type",
+            "jurisdiction",
+            "not_applicable"
+          ],
+          "description": "Mirrors the eight Phase 5 ordering modes plus `not_applicable` for non-ordering decision types."
+        },
+        "commercial_weighting": { "type": "boolean", "const": false }
+      },
+      "required": ["mode", "commercial_weighting"],
+      "additionalProperties": false
+    },
+    "authority_basis": {
+      "type": "string",
+      "enum": [
+        "user_session",
+        "professional_delegated_token",
+        "firm_delegation",
+        "partner_credential",
+        "handoff_access_token",
+        "governance_admin_role",
+        "system_role"
+      ],
+      "description": "The principal-delegation `authority_basis` under which the decision was taken (mirrors `principal-delegation.schema.json#/$defs/AuthorityContext.authority_basis`). For consumer-mediated decisions, `user_session`. For professional-side actions, `professional_delegated_token` or `firm_delegation`. For partner / verifier actions, `partner_credential`. For state-changing introduction calls, `handoff_access_token`. For admin actions, `governance_admin_role`. For internal state-machine events, `system_role`."
+    },
+    "audit_event_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Identifier of the corresponding audit event recorded for this decision (`audit-event.schema.json` `event_id`). Lets governance / audit retrieval cross-reference the decision-explanation object back to the audit log entry. Per the §11A transparency-as-conformance rule, every recorded decision-explanation MUST link to its audit event."
+    },
+    "exclusion_reason_category": {
+      "type": "string",
+      "description": "For `decision_type: exclusion` only. The reason category for the exclusion (e.g. `jurisdiction_mismatch`, `matching_status_inactive`, `category_not_active`, `contact_unverified`, `profile_incomplete`, `verification_threshold_not_met`, `compliance_pending`). Aggregated reason-category counts appear in the response-level `exclusion_summary` on `match-response.schema.json`. Named excluded candidates are not surfaced to consumers; only governance/auditor retrieval (`GET /v1/decision-explanations/{audit_event_id}`) returns the per-candidate detail."
+    },
+    "withholding_basis": {
+      "type": "string",
+      "enum": [
+        "personal_data_protection",
+        "security_vulnerability_protection",
+        "anti_gaming_protection",
+        "no_withholding"
+      ],
+      "default": "no_withholding",
+      "description": "Per §11A, privacy / security / anti-gaming reasons MAY justify withholding details from the explanation. When a detail is withheld, this field records the basis. The reason something happened MUST still be explainable at category level even when specific details are withheld; `no_withholding` is the default and indicates full disclosure of the explanation fields."
+    }
+  },
+  "required": [
+    "decision_type",
+    "rules_applied",
+    "ordering_policy",
+    "authority_basis",
+    "audit_event_id"
+  ],
+  "additionalProperties": false,
+  "examples": [
+    {
+      "decision_type": "discovery_result",
+      "rules_applied": [
+        "category_match",
+        "jurisdiction_match",
+        "matching_status_active",
+        "compliance_status_active",
+        "contact_verified",
+        "availability_match",
+        "verification_threshold_met",
+        "commercial_weighting_excluded",
+        "band_assignment_applied"
+      ],
+      "ordering_policy": {
+        "mode": "stratified_random",
+        "commercial_weighting": false
+      },
+      "authority_basis": "user_session",
+      "audit_event_id": "evt-01HQXRP7K8LMNOPQRSTUVWXYZ1"
+    },
+    {
+      "decision_type": "exclusion",
+      "rules_applied": ["category_match", "jurisdiction_match"],
+      "ordering_policy": {
+        "mode": "stratified_random",
+        "commercial_weighting": false
+      },
+      "authority_basis": "user_session",
+      "audit_event_id": "evt-01HQXRP8L9MNOPQRSTUVWXYZ12",
+      "exclusion_reason_category": "verification_threshold_not_met"
+    },
+    {
+      "decision_type": "withdrawal",
+      "rules_applied": [
+        "step_up_authentication_completed",
+        "professional_delegated_authority_present"
+      ],
+      "ordering_policy": {
+        "mode": "not_applicable",
+        "commercial_weighting": false
+      },
+      "authority_basis": "professional_delegated_token",
+      "audit_event_id": "evt-01HQXRM4G9HIJKLMNOPQRSTUVW"
+    },
+    {
+      "decision_type": "suppression",
+      "rules_applied": ["partner_data_conflict_detected"],
+      "ordering_policy": {
+        "mode": "not_applicable",
+        "commercial_weighting": false
+      },
+      "authority_basis": "system_role",
+      "audit_event_id": "evt-01HQXRP9M0NOPQRSTUVWXYZ123",
+      "withholding_basis": "personal_data_protection"
+    }
+  ]
+}

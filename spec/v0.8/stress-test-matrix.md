@@ -263,41 +263,92 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 
 - **Scenario.** A verified professional, expecting to appear in eligible result sets, queries the protocol about exclusion reasons.
 - **Abuse / failure mode.** No mechanism for professional-facing transparency; or the mechanism leaks query-history / volume data inappropriately.
-- **Expected protocol behaviour.** _To be filled in during Phase 6._ Per F-18: protocol response MUST surface representative explanation categories at category / jurisdiction level, derived from documented rules — MUST NOT expose actual query-count or query-history data.
-- **Required audit events.** _To be filled in during Phase 6._
-- **Required user / professional disclosure.** _To be filled in during Phase 6._
-- **Required conformance test.** _To be filled in during Phase 6._
-- **Status.** `skeleton`
+- **Expected protocol behaviour.** Per spec §11A.4 (Phase 6), a conforming implementation MUST provide a mechanism for an authenticated professional to retrieve their own visibility-decision view. The view is **rules-derived**: representative inclusion rules that apply, representative exclusion reason categories that could apply, current band assignment from `band_definitions`, and the implementation's published ordering policy. Per F-18 verbatim MUST NOT, the view does NOT expose actual query-count or query-history data. Endpoint: `GET /v1/professionals/me/visibility-explanations` (REST) and `get_my_visibility_explanations` (MCP). Implementations MAY defer the endpoint implementation to v0.8.3 via `x-implementation-deferred-to`; the obligation is part of v0.8.2.
+- **Required audit events.** Each retrieval generates a `security_event` (or equivalent) recording the principal-delegation context, the category and jurisdiction queried, and the timestamp.
+- **Required user / professional disclosure.** Authority basis: `professional_delegated_token` or `firm_delegation`. Rate-limited per professional account.
+- **Required conformance test.** Conformance suite verifies the endpoint returns the rules-derived shape (representative inclusion rules, representative exclusion reason categories, current band assignment, published ordering policy); verifies absence of query-history fields in the response; verifies authority-basis enforcement.
+- **Status: `resolved`** by §11A.4 verbatim normative rule + dedicated endpoint specification (implementation may defer to v0.8.3 but obligation is v0.8.2).
 
 ### 4.2 Consumer asks why a candidate appeared
 
 - **Scenario.** A consumer (via the AI platform) asks why a particular professional was returned in the eligible set, or why one candidate appeared above another in the stratified ordering.
 - **Abuse / failure mode.** Decision basis is opaque; ordering looks like a recommendation; consumer trust depends on a transparent rationale.
-- **Expected protocol behaviour.** _To be filled in during Phase 6._
-- **Required audit events.** _To be filled in during Phase 6._
-- **Required user / professional disclosure.** _To be filled in during Phase 6._
-- **Required conformance test.** _To be filled in during Phase 6._
-- **Status.** `skeleton`
+- **Expected protocol behaviour.** Per spec §11A.2 (Phase 6), the per-candidate `decision_explanation` (Layer 2) on `match-response.schema.json` documents the rules each candidate passed, the band assignment basis, and the ordering policy applied. The response-level `decision_explanation` (Layer 1) documents the query-level rules and ordering policy. Both layers reference the audit event for traceability.
+- **Required audit events.** Discovery responses produce audit events linked from `decision_explanation.audit_event_id`; the audit event records the principal-delegation context.
+- **Required user / professional disclosure.** AI platforms surface the per-candidate `decision_explanation` to the consumer through their UI. Per §9.4, the response-level `presentation_disclosure.ordering_policy` MUST be preserved verbatim through any AI-platform reordering.
+- **Required conformance test.** Conformance suite verifies both layers of `decision_explanation` are populated on every Discovery response with non-empty results; verifies content is internally consistent with the implementation's published rules.
+- **Status: `resolved`** by §11A.2 two-layer model + per-candidate `decision_explanation` required field on `match-response.schema.json`.
 
 ### 4.3 Auditor asks whether commercial weighting affected results
 
 - **Scenario.** A regulator, conformance auditor, or governance reviewer asks whether commercial relationships influenced eligibility, ordering, or presentation in a given response.
 - **Abuse / failure mode.** Without per-response transparency artifacts, the question is unanswerable from the protocol record alone.
-- **Expected protocol behaviour.** _To be filled in during Phase 6._
-- **Required audit events.** _To be filled in during Phase 6._
-- **Required user / professional disclosure.** _To be filled in during Phase 6._
-- **Required conformance test.** _To be filled in during Phase 6._
-- **Status.** `skeleton`
+- **Expected protocol behaviour.** Per `decision-explanation.schema.json`, every `decision_explanation` carries `ordering_policy.commercial_weighting: false` (const-asserted). Per §9.6, no weight is assigned to ATAH-partner commercial relationships, partner status, enhanced-verification payment, review-platform identity, or registration route. Auditors retrieve the full per-decision rationale via `GET /v1/decision-explanations/{audit_event_id}` under `governance_admin_role` authority — this returns the named-excluded-candidate detail and the full explanation object.
+- **Required audit events.** Audit log retains the principal-delegation context and the linked `decision_explanation_id` reverse reference for cross-correlation.
+- **Required user / professional disclosure.** None additional — the auditor surface is governance-only and itself audit-logged.
+- **Required conformance test.** Conformance suite verifies (a) `commercial_weighting: false` is asserted on every `decision_explanation` and at the response-level `presentation_disclosure`; (b) the auditor retrieval endpoint returns the full explanation including any excluded-candidate detail; (c) auditor retrievals themselves produce audit events.
+- **Status: `resolved`** by `decision_explanation.ordering_policy.commercial_weighting: false` (const) + `GET /v1/decision-explanations/{audit_event_id}` governance endpoint.
 
 ### 4.4 Partner data conflict suppresses a profile and the professional appeals
 
 - **Scenario.** A trusted-partner data feed reports a conflict (suspended licence, sanction, complaint) that suppresses or downgrades a professional's appearance; the professional appeals on the grounds the conflict record is wrong.
 - **Abuse / failure mode.** Partner errors propagate without correction path; or the appeal mechanism is opaque.
-- **Expected protocol behaviour.** _To be filled in during Phase 6._
-- **Required audit events.** _To be filled in during Phase 6._
-- **Required user / professional disclosure.** _To be filled in during Phase 6._
-- **Required conformance test.** _To be filled in during Phase 6._
-- **Status.** `skeleton`
+- **Expected protocol behaviour.** Per §11A.2 / §11A.4, the suppression is recorded as a `decision_explanation` with `decision_type: suppression`; the affected professional sees the suppression reason category through their visibility-explanation view. The partner data conflict records (`conflict-record.schema.json`) and dispute machinery (`dispute-record.schema.json` + `POST /v1/professionals/me/disputes`) are the existing v0.8.1 appeal surfaces; v0.8.2 §11A makes the transparency component required.
+- **Required audit events.** `meaningful_conflict_detected` (existing event_type) records the suppression with `decision_explanation_id` reverse reference; the dispute lifecycle produces `dispute_raised` and `dispute_resolved` events.
+- **Required user / professional disclosure.** The professional's visibility-explanation view shows the suppression reason category; the dispute portal (existing v0.8.1) gives the professional a structured appeal path.
+- **Required conformance test.** Conformance suite verifies suppression events generate `decision_explanation` with `decision_type: suppression`; verifies the dispute machinery produces audit-linked events.
+- **Phase 6 contribution.** Transparency on suppression reason — `resolved`. Detailed appeal-workflow and timeline-of-resolution work — flagged as v0.9 deeper-dispute-resolution work.
+- **Status: `partially-resolved`** — Phase 6 closes the transparency side (suppression reason visible; dispute path visible). The fuller dispute-resolution timeline / escalation criteria / evidence-handling specification is v0.9 work (already on ROADMAP under "Detailed dispute resolution process").
+
+### 4.5 Implementation provides response-level explanation only and claims conformance
+
+- **Scenario.** An implementation produces a response-level `decision_explanation` but omits per-candidate `decision_explanation` on individual results, claiming response-level alone is sufficient.
+- **Abuse / failure mode.** Per-candidate "why this specific candidate" question becomes unanswerable from the response alone; conformance gap exploited.
+- **Expected protocol behaviour.** Per §11A.2 (F-6), the Transparency Class requires both layers. `match-response.schema.json` `MatchResult` `required` includes `decision_explanation`; a response without per-candidate explanations fails schema validation.
+- **Required audit events.** Schema-validation failures produce conformance-test failures; not directly audit-logged at runtime.
+- **Required user / professional disclosure.** Conformance test failure surfaces through the conformance test suite (v0.9).
+- **Required conformance test.** Conformance suite picks a Discovery response with non-empty `results` and verifies every result item has `decision_explanation` populated. Schema validation rejects response payloads missing the field.
+- **Status: `resolved`** by Transparency Class conformance requirement + schema-level required field.
+
+### 4.6 Exclusion summary leaks excluded professional identities
+
+- **Scenario.** An implementation populates `exclusion_summary` with named excluded professionals or with reason-category granularity small enough to single-out individual professionals (e.g. one entry per excluded professional with a reason-specific name).
+- **Abuse / failure mode.** Exclusion data leaks excluded professionals' identities and match-status to a consumer who didn't ask.
+- **Expected protocol behaviour.** Per §11A.2, `exclusion_summary` is **aggregate-only**: a `total_excluded` count and a `reason_categories` map from category identifier to count. The schema's `exclusion_summary` shape does not permit per-candidate detail. Named-excluded-candidate detail is available only through the dedicated `GET /v1/decision-explanations/{audit_event_id}` endpoint under `governance_admin_role` authority.
+- **Required audit events.** Auditor retrievals via `GET /v1/decision-explanations/{audit_event_id}` are audit-logged.
+- **Required user / professional disclosure.** The aggregate `exclusion_summary` is surfaced to consumers; named detail is not.
+- **Required conformance test.** Conformance suite verifies `exclusion_summary` matches the schema's aggregate shape (no per-candidate detail leakage); verifies named-detail access requires `governance_admin_role`.
+- **Status: `resolved`** by aggregate-only `exclusion_summary` schema structure + governance-only retrieval for named detail.
+
+### 4.7 Professional-facing endpoint is deferred and the obligation becomes invisible
+
+- **Scenario.** An implementation marks `GET /v1/professionals/me/visibility-explanations` as `x-implementation-deferred-to: v0.8.3` and treats the obligation itself as deferred; the professional-facing transparency commitment is not honoured at v0.8.2 launch.
+- **Abuse / failure mode.** "Deferred endpoint implementation" is misread as "deferred obligation"; v0.8.2 ships without the substance of the F-6 commitment.
+- **Expected protocol behaviour.** Per §11A.4 / F-6 spec discipline, the v0.8.2 spec defines the required behaviour, fields, authority controls, audit linkage, and the F-18 MUST NOT rule. The deferral covers the dedicated endpoint implementation; it does NOT cover the obligation itself. Implementations MAY return 501 in v0.8.2 — but the spec is complete enough that an implementer can build from v0.8.2 alone. The CHANGELOG and ROADMAP record the deferral honestly.
+- **Required audit events.** None specific (the structural verification is via spec-completeness review).
+- **Required user / professional disclosure.** The CHANGELOG entry and the ROADMAP "v0.8.3 candidates" section make the deferral visible.
+- **Required conformance test.** Conformance suite review verifies that the v0.8.2 spec section §11A.4 contains all five required components (behaviour, fields, authority controls, audit linkage, F-18 MUST NOT). The endpoint implementation deferral is a registry-side decision verified through binding-conformance review.
+- **Status: `bounded-by-protocol`** — F-6 spec discipline keeps the obligation visible at the spec level even when implementation defers. The protocol bounds the deferral risk; implementations choosing to defer are explicit about it.
+
+### 4.8 Professional-facing endpoint exposes actual query data, leaking consumer/platform information
+
+- **Scenario.** An implementation builds the visibility-explanation endpoint by aggregating actual query traffic ("here's how many queries this category received last month and what fraction included you").
+- **Abuse / failure mode.** Real query patterns expose information about consumers, AI platform integrations, demand signals, matter types, urgency, and platform activity that does not belong in a per-professional report. Even aggregated counts can leak in low-volume categories.
+- **Expected protocol behaviour.** Per F-18 verbatim MUST NOT in §11A.4: professional-facing visibility explanations MUST NOT expose actual query-count data, query-history data, observed demand patterns, or any per-query information derived from consumer or platform traffic. The view MUST be rules-derived from the implementation's documented rules and the professional's own profile data.
+- **Required audit events.** Implementations producing query-history-derived visibility views fail conformance review.
+- **Required user / professional disclosure.** N/A — the failure mode is implementation-side and the spec rule is the verification surface.
+- **Required conformance test.** Conformance suite reviews the implementation's visibility-explanation response payloads for any field derived from query traffic; the absence of query-history fields is the structural test. The reviewer also examines the implementation's documentation and source where available.
+- **Status: `resolved`** by F-18 verbatim MUST NOT in spec §11A.4 + cross-references in CHANGELOG, EXPLAINER, PRD, and `docs/professional/visibility-report.md`.
+
+### 4.9 Professional-facing endpoint exposes inferred query patterns via low-volume category leakage
+
+- **Scenario.** An implementation provides aggregated query counts at category level only, not per-professional, but the category is low-volume enough that "lawyers in Wyoming, county court matters" effectively names individual professionals.
+- **Abuse / failure mode.** Low-volume aggregation leaks demand information for narrow categories or jurisdictions, indirectly identifying professionals.
+- **Expected protocol behaviour.** The rules-derived approach (per F-18) is structurally immune to this failure mode: the explanation is derived from documented rules and the professional's own profile, not from observed query traffic. There are no aggregate counts in the visibility-explanation response (the schema does not include any field that could carry them); low-volume leakage is impossible by construction.
+- **Required audit events.** N/A.
+- **Required user / professional disclosure.** N/A.
+- **Required conformance test.** Conformance suite verifies the visibility-explanation response schema does not include query-count fields; the field absence is the structural test.
+- **Status: `resolved`** by F-18 rules-derived approach + structural absence of query-count fields in the response schema.
 
 ---
 
@@ -677,5 +728,24 @@ New scenarios discovered during Phase 5 (entries 3.5, 3.6 added in Cat 3 above):
 - **3.6 — Implementation chooses a non-uniform random algorithm that systematically favours certain candidates** → **`partially-resolved`** by §9.5 (model + non-determinism conformance test); full statistical-distribution conformance lands in Phase 6 / Phase 11; v0.9 may standardise the algorithm.
 
 **Status distribution after Phase 5:** 19 × `skeleton`, 19 × `resolved` (1.1, 1.3, 2.1, 2.2, 2.4, 2.5, 2.6, 2.7, 3.1, 3.2, 3.3, 3.5, 5.1, 5.3, 5.4, 6.2, 6.3, 6.4, 6.5), 3 × `bounded-by-protocol` (1.2, 2.3, 5.2), 1 × `allocated-to-platform-responsibility` (3.4), 5 × `partially-resolved` (1.4, 1.5, 1.6, 3.6, 6.1), 1 × `deferred` (7.3). Total: **48 scenarios** (46 prior + 2 new in Phase 5).
+
+## Phase 6 update
+
+Transparency-as-conformance and decision-explanation (Paolo's F1.8 / F1.9 + F-5 inner-object-only + F-6 two-layer + F-18 rules-derived professional-facing view) ship in Phase 6. Status changes:
+
+- **4.1 (professional asks why excluded)** → **`resolved`** by §11A.4 verbatim normative rule + dedicated endpoint specification (implementation may defer to v0.8.3 but obligation is v0.8.2).
+- **4.2 (consumer asks why a candidate appeared)** → **`resolved`** by §11A.2 two-layer model + per-candidate `decision_explanation` required on `match-response.schema.json`.
+- **4.3 (auditor asks whether commercial weighting affected results)** → **`resolved`** by `decision_explanation.ordering_policy.commercial_weighting: false` (const) + `GET /v1/decision-explanations/{audit_event_id}` governance endpoint.
+- **4.4 (partner data conflict suppresses, professional appeals)** → **`partially-resolved`**. Phase 6 closes the transparency side (suppression reason visible; existing dispute path visible). Detailed dispute-resolution timeline / escalation criteria remains v0.9 work (already on ROADMAP).
+
+New scenarios discovered during Phase 6 work (added to Cat 4 above):
+
+- **4.5 (response-level only, claims conformance)** → **`resolved`** by Transparency Class conformance + schema-level required field on `MatchResult`.
+- **4.6 (exclusion summary leaks excluded professional identities)** → **`resolved`** by aggregate-only `exclusion_summary` schema structure + governance-only retrieval for named detail.
+- **4.7 (endpoint deferred; obligation becomes invisible)** → **`bounded-by-protocol`**. F-6 spec discipline keeps the obligation visible at the spec level; deferring implementations are explicit about it via the `x-implementation-deferred-to` extension and the CHANGELOG / ROADMAP record.
+- **4.8 (endpoint exposes actual query data)** → **`resolved`** by F-18 verbatim MUST NOT + cross-references across spec, CHANGELOG, EXPLAINER, PRD, and `docs/professional/visibility-report.md`.
+- **4.9 (low-volume category leakage of inferred query patterns)** → **`resolved`** by F-18 rules-derived approach + structural absence of query-count fields in the visibility-explanation response schema.
+
+**Status distribution after Phase 6:** 14 × `skeleton`, 26 × `resolved` (1.1, 1.3, 2.1, 2.2, 2.4, 2.5, 2.6, 2.7, 3.1, 3.2, 3.3, 3.5, 4.1, 4.2, 4.3, 4.5, 4.6, 4.8, 4.9, 5.1, 5.3, 5.4, 6.2, 6.3, 6.4, 6.5), 4 × `bounded-by-protocol` (1.2, 2.3, 4.7, 5.2), 1 × `allocated-to-platform-responsibility` (3.4), 6 × `partially-resolved` (1.4, 1.5, 1.6, 3.6, 4.4, 6.1), 1 × `deferred` (7.3). Total: **53 scenarios** (48 prior + 5 new in Phase 6).
 
 Phase 11 finalises the matrix as the verification artifact for v0.8.2 publication.

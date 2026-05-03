@@ -56,6 +56,10 @@
     "last_updated": {
       "type": "string",
       "format": "date-time"
+    },
+    "decision_explanation": {
+      "$ref": "decision-explanation.schema.json",
+      "description": "Optional decision-explanation object attached to Component 3 proposal events (creation, response, withdrawal, lapse). Per §11A transparency-as-conformance. Where present, `decision_type` is `proposal`. Per F-5, this is the inner object — the field name `decision_explanation` is the wrapper here, not part of the referenced schema."
     }
   },
   "required": [

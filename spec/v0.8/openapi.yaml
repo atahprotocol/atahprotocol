@@ -537,6 +537,155 @@ paths:
                 required: [consent_receipt_id, revocation_status, confirmation_id]
                 additionalProperties: false
 
+  /v1/decision-explanations/{audit_event_id}:
+    get:
+      tags: [Admin]
+      operationId: getDecisionExplanation
+      summary: Retrieve a decision-explanation by its audit-event id (governance / auditor).
+      description: |
+        Per spec §11A.3, governance and auditor roles can retrieve named-
+        excluded-candidate detail and full per-decision rationale through
+        this endpoint. The endpoint is restricted to `governance_admin_role`
+        authority. Each retrieval is itself logged as an audit event.
+
+        The endpoint resolves the `audit_event_id` to the corresponding
+        `decision-explanation.schema.json` instance. For exclusion events,
+        the response includes the named excluded candidate (which is NOT
+        surfaced through the consumer-facing `exclusion_summary` aggregate).
+        For other decision types, the response is the full
+        decision-explanation object as recorded.
+      security:
+        - oauth2: [atah:admin]
+      parameters:
+        - name: audit_event_id
+          in: path
+          required: true
+          schema:
+            type: string
+            minLength: 1
+        - $ref: '#/components/parameters/AcceptVersion'
+      responses:
+        '200':
+          description: Decision-explanation record.
+          content:
+            application/json:
+              schema: { $ref: './schemas/decision-explanation.schema.json' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /v1/professionals/me/visibility-explanations:
+    get:
+      tags: [Professional]
+      operationId: getMyVisibilityExplanations
+      summary: Professional-facing visibility-explanation view (rules-derived per F-18).
+      description: |
+        Per spec §11A.4, the professional retrieves their own visibility-
+        decision view for a given category and jurisdiction. The view is
+        **rules-derived**: it explains which inclusion rules apply, which
+        exclusion reason categories could apply, the professional's current
+        band assignment, and the published ordering policy. It is NOT
+        derived from observed query traffic.
+
+        > **MUST NOT.** Professional-facing visibility explanations MUST
+        > NOT expose actual query-count data, query-history data, observed
+        > demand patterns, or any per-query information derived from
+        > consumer or platform traffic. They MUST present representative
+        > explanation categories at the category/jurisdiction level,
+        > derived from the implementation's documented rules and the
+        > professional's own profile data, not from observed query
+        > traffic.
+
+        Authority basis: `professional_delegated_token` (or
+        `firm_delegation` where applicable). The professional retrieves
+        their own data only. Each retrieval is logged as an audit event.
+        Endpoint rate-limited per professional account.
+
+        **Implementation deferral.** The endpoint specification is
+        complete in v0.8.2; implementations MAY defer the
+        implementation to v0.8.3 (declared via the
+        `x-implementation-deferred-to` extension below). The obligation
+        itself is part of v0.8.2.
+      x-implementation-deferred-to: v0.8.3
+      security:
+        - oauth2: [atah:professionals:self_read]
+      parameters:
+        - name: category
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 1
+          description: The profession category to compute visibility for.
+        - name: jurisdiction
+          in: query
+          required: false
+          schema:
+            type: string
+            minLength: 1
+          description: Optional jurisdiction filter (e.g. `US-TX`). When omitted, the response covers the professional's licensed jurisdictions.
+        - $ref: '#/components/parameters/AcceptVersion'
+      responses:
+        '200':
+          description: Visibility-explanation view (rules-derived).
+          content:
+            application/json:
+              schema:
+                type: object
+                description: |
+                  Per §11A.4 — the rules-derived visibility view. Required
+                  fields cover representative inclusion rules, representative
+                  exclusion reason categories, the professional's current
+                  band assignment, and the implementation's ordering policy.
+                  No query-history fields are permitted in the response
+                  body; conformance verifies their absence.
+                properties:
+                  category:
+                    type: string
+                  jurisdiction:
+                    type: string
+                  representative_inclusion_rules:
+                    type: array
+                    items: { type: string, minLength: 1 }
+                    description: Rule identifiers from the §11A `rules_applied` set that currently apply to the professional in this category/jurisdiction.
+                  representative_exclusion_reason_categories:
+                    type: array
+                    items: { type: string, minLength: 1 }
+                    description: Exclusion reason categories that could apply if conditions changed (e.g. `matching_status would exclude if flipped to inactive`).
+                  current_band_assignment:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        band_name: { type: string, minLength: 1 }
+                        band_position: { type: integer, minimum: 1 }
+                        threshold_rule: { type: string, minLength: 1 }
+                      required: [band_name, band_position, threshold_rule]
+                      additionalProperties: false
+                  published_ordering_policy:
+                    type: object
+                    properties:
+                      mode: { type: string, minLength: 1 }
+                      within_band_policy: { type: string, minLength: 1 }
+                    required: [mode]
+                    additionalProperties: false
+                  retrieved_at:
+                    type: string
+                    format: date-time
+                required:
+                  - category
+                  - representative_inclusion_rules
+                  - representative_exclusion_reason_categories
+                  - current_band_assignment
+                  - published_ordering_policy
+                  - retrieved_at
+                additionalProperties: false
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '501':
+          description: Endpoint specification implemented for v0.8.3 — implementations MAY return 501 in v0.8.2.
+
   /v1/consent-receipts:
     post:
       tags: [External]
