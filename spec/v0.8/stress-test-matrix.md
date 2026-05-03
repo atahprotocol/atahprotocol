@@ -802,4 +802,17 @@ New scenarios discovered during Phase 9: none.
 
 **Status distribution after Phase 9:** unchanged from Phase 8 — 0 × `skeleton`, 35 × `resolved`, 4 × `bounded-by-protocol`, 1 × `allocated-to-platform-responsibility`, 11 × `partially-resolved`, 2 × `deferred`. Total: 53 scenarios. Phase 9's contribution is structural reinforcement of existing `resolved` and `partially-resolved` statuses rather than transition of any scenario across statuses.
 
+## Phase 10 update
+
+Commercial positioning (F2.6 / F2.7 / F2.8 / F2.9 with F-9 / F-10 wording corrections) ships in Phase 10. Status changes: none directly — Phase 10 is documentation/positioning, not protocol behaviour.
+
+Verification performed in Phase 10:
+
+- **Cat 4 (Transparency / Explainability) re-verified.** The 4.3 sub-scenario "Auditor asks whether commercial weighting affected results" remains `resolved` after Phase 10's framing refinement — the F2.6 *defensible auditable basis* framing is consistent with the Phase 6 transparency commitments and with the `presentation_disclosure.commercial_weighting: false` `const` field. No degradation to the auditor's path; the framing reinforces it.
+- **Cat 8 (Partner / Governance Capture) re-verified.** Phase 10's refinement of "no commercial weighting" — explicitly acknowledging that data-quality investment produces structural advantages, with provenance exposing the trade-off — strengthens 8.1 / 8.4 by removing the gap between the (true) "no commercial weighting" claim and the (also true) "data-quality investment shapes verification-quality signals" reality. Auditors and partner reviewers now have explicit framing that surfaces the structural trade-off rather than letting it be inferred.
+
+New scenario (low priority, flagged for v0.9 review): "Platform misuses ATAH framing in marketing, claiming ATAH 'guarantees' candidates" — partial mitigation via the F-9 corrected language (no `liability shifts` / `transfers` / `outsource liability` language; the Phase 10 grep verifies zero hits). Full mitigation requires contractual obligations on platforms in the AI Platform Developer Terms, which is post-publication operational work. Logged here for v0.9 framing audit; not assigned a Cat number in v0.8.2 because the protocol-level mitigation is what Phase 10 ships.
+
+**Status distribution after Phase 10:** unchanged from Phase 9 — 0 × `skeleton`, 35 × `resolved`, 4 × `bounded-by-protocol`, 1 × `allocated-to-platform-responsibility`, 11 × `partially-resolved`, 2 × `deferred`. Total: 53 scenarios. Phase 10's contribution is documentation reinforcement of existing `resolved` Cat 4 / Cat 8 scenarios, plus the v0.9-flagged platform-misframing scenario.
+
 Phase 11 finalises the matrix as the verification artifact for v0.8.2 publication.

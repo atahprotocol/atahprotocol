@@ -116,6 +116,10 @@ v0.8 satisfies right-to-erasure through the transient-only design for ATAH-held 
 
 v0.8 ships in English. Multilingual category metadata, multilingual consent text versioning, and multilingual conformance-statement requirements are deferred to v0.9.
 
+### `presentation_disclosure.verification_tier` field for consumer-facing rendering
+
+Per Phase 10 / F2.8 brand-dilution mitigation, AI platforms MUST surface the credentialled-vs-established verification-tier distinction to consumers. v0.8.2 carries the structural distinction through the existing `professional_tier` field on professional-identity schemas, the `_provenance` map, and the Phase 6 Transparency Class. Master plan §12 F2.8 third bullet contemplated a dedicated `presentation_disclosure.verification_tier` field with values like `regulator_verified` / `body_verified` / `self_declared` so AI platforms can render the distinction prominently without inferring it from the underlying schema. Decision deferred to v0.9 — review whether the existing structural distinction (Transparency Class plus `professional_tier`) is operationally sufficient for consistent consumer-facing rendering across AI-platform UX, or whether a dedicated `presentation_disclosure.verification_tier` field is needed to harden the rendering obligation.
+
 ## v1.0 target
 
 v1.0 is the stable target. The criteria for declaring v1.0 are not yet final, but the working list is:
