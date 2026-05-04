@@ -565,7 +565,7 @@ Three separate objects compose the model:
 
 - **`authenticated_actor`** — the directly authenticated party performing the action. `actor_type` is one of `ai_platform`, `professional`, `partner`, `verifier`, `admin`, `system`. `actor_id` is opaque. Consumers do not authenticate directly to ATAH; consumer-initiated flows authenticate as `ai_platform` and identify the consumer in `authority_context.represented_principal_type`.
 - **`client_application`** — the client application performing the request. Required when `authenticated_actor.actor_type` is `ai_platform` (`platform_id` and `client_id`); optional otherwise.
-- **`authority_context`** — the delegation context. `represented_principal_type` is one of `consumer`, `professional`, `firm_admin`, `partner`, `verifier`, `governance_admin`, `none` (the last for system events with no delegation). `authority_basis` is one of `user_session`, `professional_delegated_token`, `firm_delegation`, `partner_credential`, `handoff_access_token`, `governance_admin_role`, `system_role`. Optional fields: `permitted_scopes` (array of action scopes), `expires_at` (RFC 3339, required where the underlying authority is time-bounded), and `object_constraints` (object-level constraints such as "may act only on this handoff" or "may manage this professional profile").
+- **`authority_context`** — the delegation context. `represented_principal_type` is one of `consumer`, `professional`, `partner`, `verifier`, `governance_admin`, `none` (the last for system events with no delegation). `authority_basis` is one of `user_session`, `professional_delegated_token`, `partner_credential`, `handoff_access_token`, `governance_admin_role`, `system_role`. Optional fields: `permitted_scopes` (array of action scopes), `expires_at` (RFC 3339, required where the underlying authority is time-bounded), and `object_constraints` (object-level constraints such as "may act only on this handoff" or "may manage this professional profile").
 
 **Combination rules.** `authenticated_actor` and `authority_context` are always required. `client_application` is conditionally required: it is required when `authenticated_actor.actor_type` is `ai_platform` and optional otherwise. `authority_context` may declare `represented_principal_type: none` and `authority_basis: system_role` for system events with no delegation.
 
@@ -1177,9 +1177,9 @@ The matrix is grouped by `authenticated_actor.actor_type`. Implementations MUST 
 
 | Endpoint(s) | `represented_principal_type` | `authority_basis` | OAuth scope | Object-level constraint |
 |---|---|---|---|---|
-| `GET /v1/professionals/me` | `professional` | `professional_delegated_token` (or `firm_delegation` for firm-managed records) | `atah:professionals:self_read` | `professional_id` = own |
-| `PUT /v1/professionals/me`, `POST /v1/professionals/me/verify-document`, `/me/mcp-connect` | `professional` | `professional_delegated_token` (or `firm_delegation`) | `atah:professionals:self_write` | `professional_id` = own; only fields not partner-managed |
-| `GET /v1/professionals/me/disputes`, `POST /v1/professionals/me/disputes`, `GET /v1/professionals/me/enhanced-verifications`, `GET /v1/professionals/me/concern-flags`, `POST /v1/professionals/me/concern-flags/:flag_id/reply` | `professional` | `professional_delegated_token` (or `firm_delegation`) | `atah:professionals:self_read` / `:self_write` per operation | `professional_id` = own; flag/dispute/verification subject = own |
+| `GET /v1/professionals/me` | `professional` | `professional_delegated_token` | `atah:professionals:self_read` | `professional_id` = own |
+| `PUT /v1/professionals/me`, `POST /v1/professionals/me/verify-document`, `/me/mcp-connect` | `professional` | `professional_delegated_token` | `atah:professionals:self_write` | `professional_id` = own; only fields not partner-managed |
+| `GET /v1/professionals/me/disputes`, `POST /v1/professionals/me/disputes`, `GET /v1/professionals/me/enhanced-verifications`, `GET /v1/professionals/me/concern-flags`, `POST /v1/professionals/me/concern-flags/:flag_id/reply` | `professional` | `professional_delegated_token` | `atah:professionals:self_read` / `:self_write` per operation | `professional_id` = own; flag/dispute/verification subject = own |
 | `GET /v1/introductions/received`, `POST /v1/introductions/:handoff_id/respond` | `professional` | `professional_delegated_token` | `atah:introductions:read` / `atah:introductions:write` | only introductions addressed to this `professional_id` |
 | `POST /v1/introductions/:handoff_id/outcome` (target side) | `professional` | `professional_delegated_token` | `atah:outcomes:write` | only as target professional of `handoff_id` |
 
@@ -1876,7 +1876,7 @@ These fields are part of the `audit-event.schema.json` shape; see the schema for
 **Step-up authentication requirement.** The following withdrawals are **high-impact** and MUST require step-up authentication at the point of action:
 
 - Professional withdrawal from matching (scenario 5).
-- Revocation of a professional delegated-agent token (the professional revoking a token they issued to an AI assistant or firm admin).
+- Revocation of a professional delegated-agent token (the professional revoking a token they issued to an AI assistant).
 - Professional record deletion (where supported by deployment).
 
 Step-up authentication MUST require re-authentication or an enhanced authentication factor at the point of action; the specific mechanism (re-auth via OAuth flow, second factor via TOTP, out-of-band push approval, or equivalent) is an implementation choice documented in the deployment notes. The protocol MANDATES the requirement; the protocol does NOT standardise the mechanism in v0.8.2 — that is a candidate for v0.9 standardisation.
@@ -1945,7 +1945,7 @@ A conforming implementation MUST provide a mechanism for an authenticated profes
 
 **Honest gap.** The rules-derived view tells a professional what would-or-would-not include them, not whether they were actually included in a real query. Some professionals may want the latter, especially when investigating why their referral pipeline has changed. v0.8.2 explicitly does not provide that. v0.9 may revisit with a privacy-preserving aggregate mechanism (k-anonymity floors, differential privacy, or category-level aggregates with high-volume thresholds), but v0.8.2's position is rules-derived only.
 
-**Authority controls.** The professional retrieves their own data only. Authority basis: `professional_delegated_token` (or `firm_delegation` where applicable). Cross-platform-session retrieval requires fresh authentication; the endpoint is rate-limited per professional account.
+**Authority controls.** The professional retrieves their own data only. Authority basis: `professional_delegated_token`. Cross-platform-session retrieval requires fresh authentication; the endpoint is rate-limited per professional account.
 
 **Audit linkage.** Each retrieval is logged as an audit event with the actor identified.
 

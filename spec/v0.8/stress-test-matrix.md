@@ -12,14 +12,14 @@
 
 ## Summary table
 
-**Total scenarios: 53** across 10 categories. Final v0.8.2 status distribution:
+**Total scenarios: 52** across 10 categories. Final v0.8.2 status distribution:
 
 | Status | Count | % | What it means |
 |---|---:|---:|---|
-| `resolved` | 33 | 62.3% | Protocol behaviour fully addresses the scenario; conforming implementations close the loop. |
-| `bounded-by-protocol` | 5 | 9.4% | Protocol detects, limits, or makes verifiable; does not fully eliminate (e.g. consent-receipt integrity vs underlying-ceremony validity). |
+| `resolved` | 33 | 63.5% | Protocol behaviour fully addresses the scenario; conforming implementations close the loop. |
+| `bounded-by-protocol` | 5 | 9.6% | Protocol detects, limits, or makes verifiable; does not fully eliminate (e.g. consent-receipt integrity vs underlying-ceremony validity). |
 | `allocated-to-platform-responsibility` | 1 | 1.9% | Resolution belongs to AI platform / partner / verifier under their own obligations; ATAH publishes the disclosure surface. |
-| `partially-resolved` | 12 | 22.6% | Substantially addressed in v0.8.2; remaining work in a later v0.8.3 / v0.9 phase, with explicit reference. |
+| `partially-resolved` | 11 | 21.2% | Substantially addressed in v0.8.2; remaining work in a later v0.8.3 / v0.9 phase, with explicit reference. |
 | `deferred` | 2 | 3.8% | Acknowledged but not addressed in v0.8.2; explicit target version. |
 | `skeleton` | **0** | 0% | **All seed-scenario skeleton statuses processed.** |
 
@@ -27,7 +27,7 @@
 
 | Cat | Title | Total | Statuses |
 |---:|---|---:|---|
-| 1 | Authentication and Delegation Abuse | 5 | 2 resolved · 1 bounded-by-protocol · 2 partially-resolved |
+| 1 | Authentication and Delegation Abuse | 4 | 2 resolved · 1 bounded-by-protocol · 1 partially-resolved |
 | 2 | Consent Boundary Failure | 6 | 5 resolved · 1 bounded-by-protocol |
 | 3 | Ordering and Recommendation Drift | 6 | 4 resolved · 1 allocated-to-platform-responsibility · 1 partially-resolved |
 | 4 | Transparency and Explainability Failure | 9 | 7 resolved · 1 bounded-by-protocol · 1 partially-resolved |
@@ -45,7 +45,6 @@
 
 **`partially-resolved` scenarios with explicit residual-work targets:**
 
-- **1.4** Phase 1 structural basis + **Phase 3** step-up authentication completes resolution.
 - **1.5** Phase 1 structural carrier + **Phase 4** continuity-binding fields complete cross-platform-replay detection.
 - **3.6** Phase 5 model + non-determinism conformance test; **algorithm standardisation → v0.9**.
 - **4.4** Phase 6 transparency surface + dispute path; **fuller dispute-resolution timeline / escalation criteria / evidence handling → v0.9**.
@@ -129,17 +128,6 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 - **Required user / professional disclosure.** Professional-facing audit feed (`GET /v1/professionals/me/disputes` and equivalent visibility endpoints) surfaces actions taken under their delegated tokens with the token's basis and constraints.
 - **Required conformance test.** Conformance suite verifies that a request with `authority_basis: professional_delegated_token` whose `expires_at` is past, or whose `object_constraints[professional_id]` does not match the targeted principal, is rejected.
 - **Status: `resolved`** by `authority_basis: professional_delegated_token` with mandatory `expires_at` and `object_constraints`, combined with audit-event recording of the basis. Operational hardening (token rotation cadence, anomaly detection thresholds) is registry-implementation responsibility.
-
-### 1.4 Firm admin withdraws or changes a professional profile improperly
-
-- **Scenario.** A firm admin (delegated authority over multiple professionals' profiles) withdraws or amends a professional's record outside the scope of the authority that professional granted.
-- **Abuse / failure mode.** Authority creep at the firm level; individual professional's protocol-relevant state changed without their explicit assent.
-- **Expected protocol behaviour.** Firm admin actions carry `authenticated_actor.actor_type: professional` (or `admin` for ATAH-side firm-admin roles where applicable) with `authority_context.represented_principal_type: firm_admin` and `authority_basis: firm_delegation`. `object_constraints` MUST narrow the action to the specific professional ids the firm admin is authorised to manage; ATAH rejects actions targeting professionals outside the constrained set.
-- **Required audit events.** Every firm-admin action records `authenticated_actor`, the `firm_delegation` basis, and the `object_constraints` set; the affected professional's audit feed surfaces the firm-admin action distinctly from their own actions.
-- **Required user / professional disclosure.** The affected professional's `GET /v1/professionals/me/disputes` and notification stream surface firm-admin-originated changes with the firm and the action explicitly labelled.
-- **Required conformance test.** Conformance suite verifies that a `firm_delegation` request without `object_constraints` is rejected, and that an action targeting a `professional_id` outside the constraint set is rejected.
-- **Phase 1 contribution.** `firm_delegation` is in the `authority_basis` enum; `object_constraints` shape supports per-professional narrowing.
-- **Status: `partially-resolved`** — Phase 1 supplies the structural basis; Phase 3's step-up authentication for high-impact withdrawal actions completes the resolution.
 
 ### 1.5 Consumer handoff is attempted from a different platform/session without continuity authority
 
@@ -292,7 +280,7 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 - **Abuse / failure mode.** No mechanism for professional-facing transparency; or the mechanism leaks query-history / volume data inappropriately.
 - **Expected protocol behaviour.** Per spec §11A.4 (Phase 6), a conforming implementation MUST provide a mechanism for an authenticated professional to retrieve their own visibility-decision view. The view is **rules-derived**: representative inclusion rules that apply, representative exclusion reason categories that could apply, current band assignment from `band_definitions`, and the implementation's published ordering policy. Per F-18 verbatim MUST NOT, the view does NOT expose actual query-count or query-history data. Endpoint: `GET /v1/professionals/me/visibility-explanations` (REST) and `get_my_visibility_explanations` (MCP). Implementations MAY defer the endpoint implementation to v0.8.3 via `x-implementation-deferred-to`; the obligation is part of v0.8.2.
 - **Required audit events.** Each retrieval generates a `security_event` (or equivalent) recording the principal-delegation context, the category and jurisdiction queried, and the timestamp.
-- **Required user / professional disclosure.** Authority basis: `professional_delegated_token` or `firm_delegation`. Rate-limited per professional account.
+- **Required user / professional disclosure.** Authority basis: `professional_delegated_token`. Rate-limited per professional account.
 - **Required conformance test.** Conformance suite verifies the endpoint returns the rules-derived shape (representative inclusion rules, representative exclusion reason categories, current band assignment, published ordering policy); verifies absence of query-history fields in the response; verifies authority-basis enforcement.
 - **Status: `resolved`** by §11A.4 verbatim normative rule + dedicated endpoint specification (implementation may defer to v0.8.3 but obligation is v0.8.2).
 

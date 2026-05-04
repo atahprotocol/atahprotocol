@@ -592,10 +592,9 @@ paths:
         > professional's own profile data, not from observed query
         > traffic.
 
-        Authority basis: `professional_delegated_token` (or
-        `firm_delegation` where applicable). The professional retrieves
-        their own data only. Each retrieval is logged as an audit event.
-        Endpoint rate-limited per professional account.
+        Authority basis: `professional_delegated_token`. The professional
+        retrieves their own data only. Each retrieval is logged as an audit
+        event. Endpoint rate-limited per professional account.
 
         **Implementation deferral.** The endpoint specification is
         complete in v0.8.2; implementations MAY defer the
@@ -1065,8 +1064,7 @@ paths:
         Update self-managed fields on the professional's record. Changes to
         partner-managed fields (e.g. licence status) are rejected. Per F1.2,
         requires authenticated professional account or delegated
-        professional-agent token; firm admin actions use `firm_delegation`
-        with appropriate `object_constraints`.
+        professional-agent token.
       security:
         - oauth2: [atah:professionals:self_write]
       requestBody:
@@ -2103,8 +2101,6 @@ components:
         - `professional_delegated_token` → authorization code with PKCE
           (professional account session) or a delegated-agent token issued
           to a professional's MCP-connected AI assistant
-        - `firm_delegation` → authorization code with PKCE under a firm-admin
-          delegation chain (firm admin authority over the professional)
         - `partner_credential` → client credentials (partners and verifiers)
         - `handoff_access_token` → tiered handoff-access per §11.5; presented
           alongside the OAuth bearer for stage-changing introduction calls

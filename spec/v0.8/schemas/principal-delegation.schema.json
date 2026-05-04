@@ -10,7 +10,6 @@
       "enum": [
         "user_session",
         "professional_delegated_token",
-        "firm_delegation",
         "partner_credential",
         "handoff_access_token",
         "governance_admin_role",

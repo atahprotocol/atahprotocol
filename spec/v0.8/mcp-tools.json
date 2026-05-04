@@ -964,8 +964,7 @@
         "state_change_scope": "none"
       },
       "permitted_authority_bases": [
-        "professional_delegated_token",
-        "firm_delegation"
+        "professional_delegated_token"
       ]
     },
     {
@@ -1033,13 +1032,12 @@
         "state_change_scope": "professional_profile"
       },
       "permitted_authority_bases": [
-        "professional_delegated_token",
-        "firm_delegation"
+        "professional_delegated_token"
       ]
     },
     {
       "name": "get_my_visibility_explanations",
-      "description": "Component-1-adjacent — professional-facing visibility-explanation view (rules-derived per spec §11A.4 / F-18). Mirrors REST `GET /v1/professionals/me/visibility-explanations`. The view explains which inclusion rules apply to the professional in this category/jurisdiction, which exclusion reason categories could apply, the professional's current band assignment (derived from `profession-categories.json` `band_definitions`, NOT from observed query traffic), and the implementation's published ordering policy. **MUST NOT expose actual query-count data, query-history data, observed demand patterns, or any per-query information derived from consumer or platform traffic** — the view is rules-derived only. Authority basis: professional_delegated_token (or firm_delegation). Each retrieval is audit-logged. Implementations MAY defer the endpoint implementation to v0.8.3; the obligation itself is part of v0.8.2.",
+      "description": "Component-1-adjacent — professional-facing visibility-explanation view (rules-derived per spec §11A.4 / F-18). Mirrors REST `GET /v1/professionals/me/visibility-explanations`. The view explains which inclusion rules apply to the professional in this category/jurisdiction, which exclusion reason categories could apply, the professional's current band assignment (derived from `profession-categories.json` `band_definitions`, NOT from observed query traffic), and the implementation's published ordering policy. **MUST NOT expose actual query-count data, query-history data, observed demand patterns, or any per-query information derived from consumer or platform traffic** — the view is rules-derived only. Authority basis: professional_delegated_token. Each retrieval is audit-logged. Implementations MAY defer the endpoint implementation to v0.8.3; the obligation itself is part of v0.8.2.",
       "input_schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
@@ -1153,8 +1151,7 @@
         "state_change_scope": "none"
       },
       "permitted_authority_bases": [
-        "professional_delegated_token",
-        "firm_delegation"
+        "professional_delegated_token"
       ]
     },
     {
@@ -1216,8 +1213,7 @@
         "state_change_scope": "professional_profile"
       },
       "permitted_authority_bases": [
-        "professional_delegated_token",
-        "firm_delegation"
+        "professional_delegated_token"
       ]
     },
     {
