@@ -801,13 +801,13 @@ The Discovery query is the foundation of the protocol. Components 2 (Consumer-se
 
 `limit` (1–100) is required. Discovery returns a working candidate set, not an exhaustive directory; AI agents requesting larger sets should narrow `matter` filters rather than expanding `limit`. The v0.8.1 `shortlist_size` field is removed in v0.8.2; client implementations migrating from v0.8.1 MUST send `limit` in its place.
 
-The `consent_receipt_id` references a previously-issued consent receipt with scope `query_submission`. The asserting platform must have captured consumer consent before issuing the query.
+The `consent_receipt_id` references a previously-issued consent receipt with scope `query_submission`. The asserting platform must have captured consumer consent before issuing the query. Note that the v0.8.2 requirement for `consent_receipt_id` on every Discovery query is targeted for refinement to conditional requirements by `request_intent` in v0.8.3.
 
 The `enhanced_verification_required` filter, when true, returns only professionals with at least one active enhanced verification record.
 
 ### 4.12 Match Response Schema
 
-Every match response includes `protocol_version`, a `deprecation_warning` field, and a `presentation_disclosure` object that AI platforms MUST surface to the user. Per F1.10 / F1.11 (Phase 5), v0.8.2 replaces the v0.8.1 weighted-scoring fields (`match_score`, `match_factors`, `presentation_disclosure.ranking_basis`, `inbound_referral_signal`) with eligibility metadata: `filters_passed`, `band_assignment`, and `ordering_policy` per candidate, plus a response-level `presentation_disclosure.ordering_policy` declaring the ordering mode.
+Every match response includes `protocol_version`, a `deprecation_warning` field, and a `presentation_disclosure` object that AI platforms MUST surface to the user. The match response carries eligibility metadata per candidate (`filters_passed`, `band_assignment`, `ordering_policy`) and a response-level `presentation_disclosure.ordering_policy` declaring the ordering mode.
 
 ```json
 {

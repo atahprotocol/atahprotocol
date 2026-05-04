@@ -31,7 +31,8 @@
     },
     "consent_receipt_id": {
       "type": "string",
-      "pattern": "^cr-[A-Za-z0-9-]{6,64}$"
+      "pattern": "^cr-[A-Za-z0-9-]{6,64}$",
+      "description": "Identifier for the consent receipt covering this Discovery query. Currently required for all Discovery queries at v0.8.2. Conditional requirements by `request_intent` are targeted for v0.8.3 (see ROADMAP); under those conditional requirements, the precise scope of the `consent_receipt_id` requirement may vary by intent context."
     },
     "matter": {
       "type": "object",
