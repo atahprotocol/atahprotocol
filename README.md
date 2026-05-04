@@ -5,7 +5,7 @@
 An open protocol layer for AI-to-authenticated-human professional handoff. ATAH defines the trust, provenance, consent, and lifecycle contract that conforming registries and AI platforms can implement — exposed through MCP and REST bindings, with the ATAH reference registry as the first operational implementation.
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
-[![Spec Version](https://img.shields.io/badge/spec-v0.8.1-orange.svg)](spec/v0.8/)
+[![Spec Version](https://img.shields.io/badge/spec-v0.8.2-orange.svg)](spec/v0.8/)
 [![Status: Release Candidate](https://img.shields.io/badge/status-release_candidate-yellow.svg)](#status)
 
 ---
@@ -37,15 +37,9 @@ Every data point in a profile carries its own verification status — registry-v
 
 Two routes exist for professionals to be represented in an ATAH-conformant registry: through their professional body when that body has joined as a trusted partner, or by individual self-registration where no partnered body covers them. Both routes coexist permanently, and matching treatment is identical between them. At launch, those records live in the ATAH reference registry; future conforming registries may exist once federation mechanics are specified.
 
-The protocol is structured as three components in v0.8.2 (the v0.8.1 "Type 1 / Type 2 / Type 3" terminology is retired). **Component 1 (Discovery)** is the foundation — a query for candidate professionals with a required `request_intent` parameter (`self`, `on_behalf_of_client`, `referral_partner_search`) that gates which next-step components are available and a required `limit` (1–100) for candidate-set size. **Component 2 (Consumer-self handoff)** is the staged consent / vault / authenticated-retrieval flow, available only when Discovery was called with `request_intent: 'self'`; the AI agent chooses one of three flow variants (off-protocol, contact-share, full Stage 1 / Stage 2 / Stage 3) based on user preference and category requirements. **Component 3 (Referral connection-making)** is AI-mediated mutual matching between professionals seeking new referral partners; opt-in via the `looking_for_referral_partners` toggle (default off), with persistent six-month proposals that silently lapse if unanswered.
+The protocol is structured as two components. **Component 1 (Discovery)** is the foundation — a query for candidate professionals with a required `request_intent` parameter (`self`, `on_behalf_of_client`) that gates whether Component 2 is available next, and a required `limit` (1–100) for candidate-set size. **Component 2 (Consumer-self handoff)** is the staged consent / vault / authenticated-retrieval flow, available only when Discovery was called with `request_intent: 'self'`; the AI agent chooses one of three flow variants (off-protocol, contact-share, full Stage 1 / Stage 2 / Stage 3) based on user preference and category requirements.
 
-### Referral relationships between professionals (Component 3)
-
-Component 3 lets professionals find new referral partners through ATAH. A professional opts in by setting `looking_for_referral_partners: true` (default off, toggleable). They run Discovery with `request_intent: 'referral_partner_search'`, which returns verified candidates excluding anyone they are already connected to. They propose a connection to one or more candidates; ATAH records each proposal with a default six-month expiry. The target professional may accept (creating a mutual connection record), decline (proposal deleted), or ignore (proposal silently lapses and is deleted at expiry, no notification). Either party may withdraw an active connection at any time.
-
-Connection records are kept for one operational purpose only: de-duplication of future `request_intent: 'referral_partner_search'` Discovery results so already-connected professionals do not see each other in their candidate sets. They are **not used as a competence or trust signal** anywhere in the matching engine — this is a deliberate v0.8.2 architectural commitment that resolves the gaming and overclaim problems v0.8.1's "inbound referral signal" had. The referral network ATAH lets professionals build is structured, machine-readable, and respected for what it is (a working relationship between two professionals), not turned into a ranking signal.
-
-The professional-on-behalf-of-client referral case (formerly v0.8.1's "Type 3") is served by Component 1 (Discovery) alone, with `request_intent: 'on_behalf_of_client'`. The professional gets the candidate set; they handle the introduction off-platform under their own consent capture with the client. ATAH does not deliver client contact details based on professional attestation, ever.
+The professional-on-behalf-of-client referral case is served by Component 1 (Discovery) alone, with `request_intent: 'on_behalf_of_client'`. The professional gets the candidate set; they handle the introduction off-platform under their own consent capture with the client. ATAH does not deliver client contact details based on professional attestation, ever.
 
 ## What ATAH is *not*
 
@@ -118,7 +112,7 @@ ATAH does not duplicate the work of identity, credential, or commerce standards.
 
 **Professional associations.** A practical answer to the question every member is asking: *how do I stay visible and trusted when AI becomes the first call for professional advice?* Associations participate as trusted partners — contributing what they already know about their members, and giving those members structured machine-readable presence in AI-mediated environments. Public partner fee schedules; waivers available for public-interest bodies.
 
-**Credentialled and established professionals.** A way to be discoverable by AI systems as part of their AI-discoverability infrastructure, and to build verified referral relationships with complementary professionals across firms, fields, and professional bodies. No platform lock-in. Standing verified and kept current. Concern flag protections (admin-only visibility, right of reply).
+**Credentialled and established professionals.** A way to be discoverable by AI systems as part of their AI-discoverability infrastructure. No platform lock-in. Standing verified and kept current. Concern flag protections (admin-only visibility, right of reply).
 
 ATAH is not a replacement for a professional's existing marketing or visibility work. It is infrastructure for being represented to AI systems consistently and credibly. Professionals continue to need their own marketing for direct consumer reach; ATAH addresses the specific moment an AI system needs to identify and hand off to a verified human professional. There is no guarantee of introduction volume, ranking, or work; the protocol is designed to become a trusted handoff rail as platforms integrate.
 
@@ -150,9 +144,9 @@ ATAH is not a replacement for a professional's existing marketing or visibility 
 
 ## Status
 
-**v0.8.1 — Release candidate.**
+**v0.8.2 — Release candidate.**
 
-The v0.8.1 specification is intended to be implementable and is ready for technical review and reference implementation. It defines the core data model, introduction lifecycle, provenance model, matching principles, consent stages, and governance commitments. Machine-readable schemas, OpenAPI contracts, and the MCP tool definitions are included for review and will be hardened through reference implementation work.
+The v0.8.2 specification is intended to be implementable and is ready for technical review and reference implementation. It defines the core data model, introduction lifecycle, provenance model, matching principles, consent stages, transparency-as-conformance, and governance commitments. Machine-readable schemas, OpenAPI contracts, and the MCP tool definitions are included for review and will be hardened through reference implementation work.
 
 The protocol moves to v1.0 once at least one trusted partner integration is live, the reference implementation has run end-to-end, and at least one external implementation has been built against the spec.
 
@@ -200,7 +194,7 @@ You may freely implement, build on, fork, or extend the protocol. No permission 
 
 ## Get involved
 
-This is a v0.8.1 release candidate. The work that comes next is hardening the spec through community review, talking to professional bodies and AI platforms, and building the first reference integrations.
+This is a v0.8.2 release candidate. The work that comes next is hardening the spec through community review, talking to professional bodies and AI platforms, and building the first reference integrations.
 
 If you build AI products, work in professional standards, run a professional body, or have eyes on related work in the standards space, your input is welcome. The most useful next steps:
 
@@ -213,4 +207,4 @@ If you build AI products, work in professional standards, run a professional bod
 
 ---
 
-*ATAH — Agent to Authenticated Human Protocol · v0.8.1 · April 2026 · [atahprotocol.org](https://atahprotocol.org)*
+*ATAH — Agent to Authenticated Human Protocol · v0.8.2 · May 2026 · [atahprotocol.org](https://atahprotocol.org)*

@@ -6,11 +6,11 @@ This document summarises the conformance model. The full normative text is in th
 
 ## Five conformance classes
 
-ATAH v0.8.2 defines five conformance classes (the v0.8.1 four-class set plus the new Transparency Class introduced in Phase 6). Implementations may declare which classes they support — the classes are layered rather than hierarchical, so an implementation can claim some without claiming all.
+ATAH defines five conformance classes: Core Object, Binding, Registry, Governance, and Transparency. Implementations may declare which classes they support — the classes are layered rather than hierarchical, so an implementation can claim some without claiming all.
 
 ### Core Object Conformance
 
-An implementation conforms at the core-object level if it produces and consumes ATAH schema-valid objects: professional records, provenance maps, consent receipt references, Component 2 handoff records, Component 3 referral-proposal and referral-connection records, match responses, presentation disclosures, decision-explanation objects, outcome reports, and audit events.
+An implementation conforms at the core-object level if it produces and consumes ATAH schema-valid objects: professional records, provenance maps, consent receipt references, Component 2 handoff records, match responses, presentation disclosures, decision-explanation objects, outcome reports, and audit events.
 
 This is the minimum a non-registry implementation may claim. Examples: a partner-side tool that prepares ATAH-valid data for submission, an analytics tool that consumes ATAH match-response payloads, a compliance tool that audits ATAH-formatted records.
 

@@ -28,7 +28,7 @@ This creates a structural problem for three groups.
 
 **For consumers.** When an AI reaches the limit of what it can handle alone — a legal matter requiring licensed advice, a property and casualty insurance question requiring a licensed agent, a tax matter requiring a qualified planner, a PR crisis requiring experienced judgment, a structural concern requiring a certified engineer — there is currently no common, trusted, machine-readable way for it to move a user from AI interaction to verified human help.
 
-**For professionals.** Credentialled and established professionals across every field are largely invisible to AI systems. There is no machine-readable standard for representing who they are, what they handle, where they practise, and how they want to be engaged. Answer Engine Optimisation is a specialism most professionals will never master. They need infrastructure that supports this consistently, at scale, through a structure they can join without becoming AI experts. At the same time, professionals have always relied on referral networks. Building those manually takes years.
+**For professionals.** Credentialled and established professionals across every field are largely invisible to AI systems. There is no machine-readable standard for representing who they are, what they handle, where they practise, and how they want to be engaged. Answer Engine Optimisation is a specialism most professionals will never master. They need infrastructure that supports this consistently, at scale, through a structure they can join without becoming AI experts.
 
 **For AI platforms.** Without a trusted, structured, and machine-readable source of professional identity and trust signals, AI systems cannot safely and consistently move users from general AI interaction to verified human help. Building bespoke integrations with every professional directory in every jurisdiction is not feasible. A shared open standard addresses this for every platform simultaneously.
 
@@ -48,7 +48,7 @@ This avoids the framing trap that "more AI use means more handoffs because AI wi
 
 ## 3. Vision
 
-ATAH aims to become the common trust, provenance, consent, and handoff protocol layer through which AI systems can move from AI-only interaction to verified human professional engagement — across multiple sectors and jurisdictions worldwide — while also supporting verified professional-to-professional referral pathways.
+ATAH aims to become the common trust, provenance, consent, and handoff protocol layer through which AI systems can move from AI-only interaction to verified human professional engagement — across multiple sectors and jurisdictions worldwide.
 
 The initial ATAH reference registry is the first implementation of that layer, not the limit of the protocol. Where MCP standardises AI access to tools and data, ATAH standardises the trust and handoff payload for reaching verified human professionals. ATAH composes with MCP, A2A, OAuth 2.1, and W3C Verifiable Credentials rather than competing with them — and can itself be exposed through MCP, REST, or future bindings.
 
@@ -58,7 +58,7 @@ The initial ATAH reference registry is the first implementation of that layer, n
 - **Open by default.** The protocol specification is public and royalty-free to implement. The MCP endpoint is free to query (free meaning no per-query or licensing fee — querying still requires authentication for protocol integrity). ATAH does not impose commercial weighting on matching.
 - **Composes with existing standards.** ATAH builds on OAuth 2.1, OpenID Connect, and W3C Verifiable Credentials. ATAH's contribution is the layer above — professional identity, the introduction lifecycle, the matching engine, the trust model. Where existing standards already do part of the job, ATAH uses them rather than reinventing.
 - **Honest about what it knows.** Every data point carries explicit verification status and source via a parallel provenance map. Self-declared, partner-verified, registry-verified, and VC-verified are tagged distinctly. Never presented with false confidence.
-- **Neutral by design.** Matching uses hard filters (eligibility), transparent bands (verification confidence, category fit, availability window, contact freshness), and within-band randomisation under a documented fairness policy. No global match score. No commercial weighting. No promoted positions. The v0.8.1 weighted-score architecture (`match_score`, `match_factors`, `inbound_referral_signal`) was removed in full at v0.8.2 (Phase 5).
+- **Neutral by design.** Matching uses hard filters (eligibility), transparent bands (verification confidence, category fit, availability window, contact freshness), and within-band randomisation under a documented fairness policy. No global match score. No commercial weighting. No promoted positions.
 - **Non-endorsement by design.** ATAH is not a recommendation engine. It returns provenance-visible shortlists. The user or calling AI platform remains responsible for selection. Every match response carries a `presentation_disclosure` block making this machine-readable.
 - **Structural separation of trust and commercial logic.** Commercial participation, integration fees, verifier governance fees, and partner status do not directly determine user-facing ordering or matching outcomes. Where paid services generate verification evidence, that evidence is scored under the same public rubric available to all approved sources.
 - **Bidirectional by design.** ATAH manages the full lifecycle of every introduction in both directions, with explicit consent at each stage captured as a structured consent receipt.
@@ -134,7 +134,6 @@ Any professional in any field where expertise and standing can be verified or at
 
 - Being discoverable by AI systems as part of their AI-discoverability infrastructure
 - Receiving qualified, well-prepared introductions
-- Building verified referral relationships with complementary professionals
 - Responding through familiar channels
 - Maintaining an accurate, current profile with minimal ongoing effort
 - Protection from defamation through bad-faith concern flags (admin-only visibility, right of reply, pattern-based review)
@@ -233,15 +232,13 @@ This shape replaces the v0.8.1 coarse-actor model. The §7.3 authorisation matri
 
 ATAH verifies the integrity of the principal/delegation context it is presented with. The asserting platform, professional, partner, or verifier remains responsible for the validity of the underlying credentials and consent ceremonies — see spec §4.9A and ADR 0009.
 
-## 7. Three Protocol Components
+## 7. Two Protocol Components
 
-ATAH is structured as three components in v0.8.2 (the v0.8.1 "Type 1 / Type 2 / Type 3" terminology is retired). Component 1 is the foundation; Components 2 and 3 are optional layers on top, invoked by AI agents based on what the user wants to do next.
+ATAH is structured as two components. Component 1 is the foundation; Component 2 is an optional layer on top, invoked by AI agents based on what the user wants to do next.
 
-**Component 1 — Discovery.** A query to ATAH for candidate professionals. The required `request_intent` parameter declares purpose (`self`, `on_behalf_of_client`, `referral_partner_search`) and gates which next-step components are available. Discovery returns a working candidate set with provenance, verification status, and the `presentation_disclosure` block that AI platforms must surface. No personal data flows in Component 1.
+**Component 1 — Discovery.** A query to ATAH for candidate professionals. The required `request_intent` parameter declares purpose (`self`, `on_behalf_of_client`) and gates whether Component 2 is available next. Discovery returns a working candidate set with provenance, verification status, and the `presentation_disclosure` block that AI platforms must surface. No personal data flows in Component 1.
 
-**Component 2 — Consumer-self handoff.** Available only when the originating Discovery query had `request_intent: 'self'`. The AI agent chooses one of three flow variants based on user preference and category requirements: `off_protocol` (the AI takes Discovery results and acts independently), `contact_share` (a single ATAH-mediated step — consent receipt, vault delivery, crypto-erasure on retrieval; no Stage 1 / Stage 2), or `full_lifecycle` (the Stage 1 / Stage 2 / Stage 3 lifecycle previously described as the universal handoff path; appropriate for regulated categories where the pre-handoff check is operationally meaningful). The professional-on-behalf-of-client case (formerly "Type 3") is **not** part of Component 2; it is served by Discovery alone (Component 1 with `request_intent: 'on_behalf_of_client'`), and the professional handles the introduction off-platform under their own consent capture. ATAH does not deliver client contact details based on professional attestation.
-
-**Component 3 — Referral connection-making.** AI-mediated mutual matching for professionals who want to find new referral partners. A professional opts in by setting `looking_for_referral_partners: true` (default off, toggleable). When professional A proposes a connection, ATAH records a persistent proposal with a default six-month expiry. Professional B may accept (creating a mutual connection record), decline (proposal deleted), or ignore (proposal silently lapses and is deleted at expiry, no notification). Connection records are kept for one operational purpose only — de-duplication of future referral-partner Discovery results — and **do not feed matching as a competence or trust signal** anywhere in the protocol. Component 3 actions are governed by professional delegated authority recorded via `principal-delegation.schema.json`; consumer consent receipts are not accepted on Component 3 endpoints (per F-4). The protocol's normative rule: Component 3 professional referral-connection actions MUST be authorised through authenticated professional delegation; they MUST NOT use consumer disclosure-consent receipts and MUST NOT imply consumer involvement.
+**Component 2 — Consumer-self handoff.** Available only when the originating Discovery query had `request_intent: 'self'`. The AI agent chooses one of three flow variants based on user preference and category requirements: `off_protocol` (the AI takes Discovery results and acts independently), `contact_share` (a single ATAH-mediated step — consent receipt, vault delivery, crypto-erasure on retrieval; no Stage 1 / Stage 2), or `full_lifecycle` (the Stage 1 / Stage 2 / Stage 3 lifecycle appropriate for regulated categories where the pre-handoff check is operationally meaningful). The professional-on-behalf-of-client case is **not** part of Component 2; it is served by Discovery alone (Component 1 with `request_intent: 'on_behalf_of_client'`), and the professional handles the introduction off-platform under their own consent capture with the client. ATAH does not deliver client contact details based on professional attestation.
 
 ## 8. Core Capabilities
 
@@ -262,7 +259,6 @@ Each profile contains the following data categories. Fields returned only where 
 - Professional indemnity insurance — whether held, coverage level, insurer where applicable
 - Response time commitment — declared response time, with operating timezone for clarity
 - Engagement preferences — fee model, consultation terms, virtual or in-person, languages, geographic reach, availability status
-- Referral network — established mutual referral relationships contributing to consumer matching quality signal, subject to anti-gaming controls
 - Trusted partner data — extensible array of data points contributed by trusted partners, each tagged with source, validator class, vetting strength, trust tier, and last updated timestamp
 - Enhanced verification records — optional array of independently audited verification records (Section 8.4)
 - `_provenance` map — parallel record of verification status, source, and last-updated timestamp for every verifiable field
@@ -377,7 +373,7 @@ Paolo's normative MUST NOT applies verbatim:
 
 > ATAH may determine eligibility and exclusion, but MUST NOT express preference among eligible candidates unless the ordering basis is explicit, non-commercial, and disclosed. Where no user-requested ordering criterion is supplied, candidate order MUST be randomised or rotated using a documented fairness policy.
 
-**No global match_score.** v0.8.1's weighted-score fields (`match_score`, `match_factors`, `presentation_disclosure.ranking_basis`, `inbound_referral_signal`) are removed in full. The "we are not a recommendation engine" commitment is structural, not just declarative — there is no global score in `match-response.schema.json`, the band assignment is exposed for inspection per candidate, and the conformance test verifies that within-band ordering is observably non-deterministic across repeated queries.
+**No global match_score.** The "we are not a recommendation engine" commitment is structural, not just declarative — there is no global score in `match-response.schema.json`, the band assignment is exposed for inspection per candidate, and the conformance test verifies that within-band ordering is observably non-deterministic across repeated queries.
 
 **User-requested ordering.** When the user has an explicit ordering preference, the Discovery query carries an `ordering_preference` parameter (modes: `nearest`, `soonest_available`, `remote_available`, `specific_language`, `highest_verification_confidence`, `specific_category_qualification`, `professional_type`, `jurisdiction`). ATAH applies the named mode and records the choice on the response's `presentation_disclosure.ordering_policy.mode`. The user-requested mode does not override hard filters or threshold exclusion; it changes ordering only.
 
@@ -632,7 +628,7 @@ their compliance annex.
 
 Each additional AI platform integration increases the practical usefulness of ATAH because the same structured trust layer can support repeated high-stakes handoff moments across different user environments.
 
-ATAH creates a structural incentive for AI platforms to support and promote the protocol. Every professional represented in an ATAH-conformant registry has an incentive to connect their AI assistant. Introductions arrive in their AI environment. Referral relationships are managed there. Profile stays current automatically.
+ATAH creates a structural incentive for AI platforms to support and promote the protocol. Every professional represented in an ATAH-conformant registry has an incentive to connect their AI assistant. Introductions arrive in their AI environment. Profile stays current automatically.
 
 This creates a shared route to AI platforms at no per-platform integration cost — across every professional category, credentialled and established alike. The more platforms support ATAH, the richer the registry. The richer the registry, the better the consumer matches. The better the matches, the more AI systems integrate with conforming registries.
 
@@ -832,7 +828,7 @@ The transition to independent governance is not a Phase 3 deliverable; it is tri
 
 ### Phase 4 — Federation and broader adoption
 
-Federation mechanics specified in v0.9 / v1.0: cross-registry trust, atah_id resolution across registries, handoff routing between registries, federated governance. Broader trusted partner network. Additional jurisdictions opened as partner agreements and compliance annexes mature. Native support for digital twin identity and data sharing as personal AI agent standards emerge. Sybil/referral-ring detection beyond v0.8 baseline.
+Federation mechanics specified in v0.9 / v1.0: cross-registry trust, atah_id resolution across registries, handoff routing between registries, federated governance. Broader trusted partner network. Additional jurisdictions opened as partner agreements and compliance annexes mature. Native support for digital twin identity and data sharing as personal AI agent standards emerge.
 
 ### Phase 5 — Maturity
 
