@@ -2396,7 +2396,6 @@ atahprotocol/
   CODE_OF_CONDUCT.md
   SECURITY.md
   CHANGELOG.md
-  CHANGES-FROM-V0_7-TO-V0_8.md
   LICENSE
   docs/
     decisions/                       ← Architecture Decision Records
@@ -2584,7 +2583,7 @@ The v0.8 MVP is complete when all of the following are true.
 - Stateless cross-platform status check support validated
 - Public MCP endpoint live and accessible
 - End-to-end audit trail reconstructable for any introduction
-- `SECURITY.md`, `GOVERNANCE.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `CHANGELOG.md`, `CHANGES-FROM-V0_7-TO-V0_8.md` published
+- `SECURITY.md`, `GOVERNANCE.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `CHANGELOG.md` published
 - Interim advisory group convened per Charter (Section: Transition to independent governance) when suitable members are identified and available to serve
 - Press materials updated to reflect v0.8
 

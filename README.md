@@ -138,7 +138,6 @@ ATAH is not a replacement for a professional's existing marketing or visibility 
 - **[CHANGELOG.md](CHANGELOG.md)** — release history
 - **[COVERAGE.md](COVERAGE.md)** — launch coverage matrix by category and jurisdiction
 - **[docs/consent-storage-rationale.md](docs/consent-storage-rationale.md)** — design rationale for the consent receipt split between AI platform and ATAH
-- **[CHANGES-FROM-V0_7-TO-V0_8.md](CHANGES-FROM-V0_7-TO-V0_8.md)** — detailed change log between v0.7 and v0.8
 - **[spec/v0.8/](spec/v0.8/)** — full technical specification, OpenAPI definition, MCP tool schemas, JSON Schema files
 - **[press/](press/)** — launch announcements for media, professional associations, and AI platforms
 

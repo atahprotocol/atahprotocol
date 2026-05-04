@@ -7,10 +7,10 @@
 
 Identifiers across ATAH refer to professionals, partners, verifiers,
 review platforms, consent receipts, handoffs, enhanced verifications,
-queries, attestations, dispute records, concern flags, vault references,
-referrals, and proposals. There is a spectrum from "fully structured"
-(country code + profession code + sequence) to "fully opaque"
-(uncorrelated random tokens).
+queries, attestations, dispute records, concern flags, and vault
+references. There is a spectrum from "fully structured" (country code +
+profession code + sequence) to "fully opaque" (uncorrelated random
+tokens).
 
 A structured id like `lawyer-tx-12345` is human-readable and
 self-describing. It is also a bug magnet: it breaks when the professional
@@ -27,9 +27,8 @@ Identifiers are **opaque ULID-style** with **typed prefixes**:
   partners), `iv-` (independent verifiers), `rp-` (review platforms),
   `cr-` (consent receipts), `hf-` (handoffs), `ev-` (enhanced
   verifications), `q-` (queries), `att-` (attestations), `dispute-`
-  (dispute records), `flag-` (concern flags), `vault-` (transient vault
-  references), `ref-` (Type 3 referrals), `proposal-` (Type 2
-  proposals).
+  (dispute records), `flag-` (concern flags), and `vault-` (transient
+  vault references).
 
 The suffix encodes nothing about the entity. Country, profession,
 category, status, and sequence are stored as attributes on the record,
