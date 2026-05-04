@@ -166,7 +166,7 @@ These are recommendations for the reference implementation, not requirements of 
 All ATAH schemas conform to the following conventions:
 
 - **Schema language:** JSON Schema Draft 2020-12.
-- **Identifier format:** opaque ULID-style identifiers with a typed prefix. The reference registry uses the following prefixes (non-exhaustive): `atah-` (professionals), `tp-` (trusted partners — including review platforms, identified via their `partner_id`), `iv-` (independent verifiers), `cr-` (consent receipts), `hf-` (handoffs), `ev-` (enhanced verifications), `q-` (queries), `dispute-` (dispute records), `flag-` (concern flags), `vault-` (transient vault references), `proposal-` (Component 3 referral proposals), and `conn-` (Component 3 referral connections). Additional prefixes used in records and audit events (such as `evt-`, `req-`, `conflict-`, `rollup-`, `batch-`, `cdim-`, `conf-`) follow the same convention. Regional or future federated registries use distinct prefixes (e.g. `atah-eu-`, `atah-uk-`). Identifiers are case-sensitive and must match the regex `^[a-z]{2,8}-[A-Za-z0-9-]{6,64}$` (the typed prefix is lowercase ASCII; the suffix accepts ULID-style mixed-case alphanumerics, matching every `pattern` declaration on identifier fields across the schema set).
+- **Identifier format:** opaque ULID-style identifiers with a typed prefix. The reference registry uses the following prefixes (non-exhaustive): `atah-` (professionals), `tp-` (trusted partners — including review platforms, identified via their `partner_id`), `iv-` (independent verifiers), `cr-` (consent receipts), `hf-` (handoffs), `ev-` (enhanced verifications), `q-` (queries), `dispute-` (dispute records), `flag-` (concern flags), and `vault-` (transient vault references). Additional prefixes used in records and audit events (such as `evt-`, `req-`, `conflict-`, `rollup-`, `batch-`, `cdim-`, `conf-`) follow the same convention. Regional or future federated registries use distinct prefixes (e.g. `atah-eu-`, `atah-uk-`). Identifiers are case-sensitive and must match the regex `^[a-z]{2,8}-[A-Za-z0-9-]{6,64}$` (the typed prefix is lowercase ASCII; the suffix accepts ULID-style mixed-case alphanumerics, matching every `pattern` declaration on identifier fields across the schema set).
 - **Timestamps:** RFC 3339 in UTC, e.g. `"2026-04-10T14:21:00Z"`. All response time SLAs are measured in elapsed wall-clock hours, not business hours. Availability is expressed with the timezone of operation.
 - **Schema versioning:** every schema-bearing object carries a `schema_version` field. The protocol-level version is carried in `protocol_version`.
 - **Closed enums by default.** Open enums are explicitly marked.
@@ -277,8 +277,7 @@ The full set of supported profession categories is maintained in `profession-cat
     "may_upgrade_band": false,
     "regulated_category_max_effect": "no_band_upgrade"
   },
-  "stage2_auth_tier": "tier_3",
-  "referral_proposal_expiry_months": 6
+  "stage2_auth_tier": "tier_3"
 }
 ```
 
@@ -302,8 +301,7 @@ The full set of supported profession categories is maintained in `profession-cat
     "may_upgrade_band": true,
     "regulated_category_max_effect": "documented_corroboration_required"
   },
-  "stage2_auth_tier": "tier_1",
-  "referral_proposal_expiry_months": 6
+  "stage2_auth_tier": "tier_1"
 }
 ```
 
@@ -561,7 +559,7 @@ The dimension list is extensible. New core dimensions are proposed by verifiers 
 
 ### 4.9A Principal and Delegation Model
 
-Every protocol action records who is authenticated, what client application is in use (where applicable), and on whose authority the action is taken. The shape is captured by `principal-delegation.schema.json` and is used wherever actor or asserter information appears (`requesting_agent` on `query.schema.json` and `handoff-component2.schema.json`; `asserted_by` on `consent-receipt.schema.json`; the actor/authority block on `audit-event.schema.json`; the proposing-side `proposing_principal_delegation` on `referral-proposal.schema.json`).
+Every protocol action records who is authenticated, what client application is in use (where applicable), and on whose authority the action is taken. The shape is captured by `principal-delegation.schema.json` and is used wherever actor or asserter information appears (`requesting_agent` on `query.schema.json` and `handoff-component2.schema.json`; `asserted_by` on `consent-receipt.schema.json`; the actor/authority block on `audit-event.schema.json`).
 
 Three separate objects compose the model:
 
@@ -631,7 +629,7 @@ The principal/delegation model is foundational. The §7.3 authorisation matrix e
 
 ### 4.10 Consent Receipt Object
 
-Every consent action in ATAH — consent to a Discovery query, to Stage 2 pre-handoff data submission, to Stage 3 contact release in the `full_lifecycle` Component 2 variant, to Stage 3 contact release in the `contact_share` Component 2 variant, to outcome reporting — is captured as a structured consent receipt rather than a boolean flag. A boolean consent flag is not sufficient for ATAH conformance. Component 3 actions (referral-connection making) are governed by professional delegated authority recorded in the principal/delegation context, not by consumer consent receipts.
+Every consent action in ATAH — consent to a Discovery query, to Stage 2 pre-handoff data submission, to Stage 3 contact release in the `full_lifecycle` Component 2 variant, to Stage 3 contact release in the `contact_share` Component 2 variant, to outcome reporting — is captured as a structured consent receipt rather than a boolean flag. A boolean consent flag is not sufficient for ATAH conformance.
 
 #### Three consent types
 
@@ -705,11 +703,11 @@ ATAH stores a hash of the consent receipt and its continuity-binding metadata. T
 
 `consent_type` — one of `query_authorization` or `disclosure_consent` (the two ATAH-supported types). Engagement consent is excluded by design and is not a valid value.
 
-`asserted_by` — the party that captured and asserted the consent. Records `authenticated_actor` and (where the asserter is an AI platform) `client_application`, using the shapes defined in §4.9A and `principal-delegation.schema.json`. For Component 2 (consumer-self handoff) consent receipts the asserter's `authenticated_actor.actor_type` is `ai_platform`. Component 3 (referral connection-making) actions are NOT recorded via consumer consent receipts — see §6.4 and the F-4 normative rule below — and therefore do not produce `asserted_by` records of this shape. ATAH verifies receipt integrity (the receipt has not been altered after the fact); the asserting platform remains responsible for the validity of the underlying consent ceremony.
+`asserted_by` — the party that captured and asserted the consent. Records `authenticated_actor` and (where the asserter is an AI platform) `client_application`, using the shapes defined in §4.9A and `principal-delegation.schema.json`. For Component 2 (consumer-self handoff) consent receipts the asserter's `authenticated_actor.actor_type` is `ai_platform`. ATAH verifies receipt integrity (the receipt has not been altered after the fact); the asserting platform remains responsible for the validity of the underlying consent ceremony.
 
 `consumer_ref` — opaque platform-side reference to the consumer. Not a personally identifiable identifier. ATAH does not learn the identity of the consumer from this field. The stored form retains only an HMAC of this value (`pseudonymous_consumer_ref`) for continuity binding.
 
-`scope` — what the consent covers. Defined values: `query_submission`, `stage_1_introduction`, `stage_2_prehandoff_submission`, `stage_3_contact_release`, `outcome_reporting`. The v0.8.1 `type_2_referral_participation` and `type_3_referred_client` values are removed in v0.8.2 per F-4; Component 3 actions are governed by professional delegated authority. Each scope has corresponding required `data_categories` defined in the schema.
+`scope` — what the consent covers. Defined values: `query_submission`, `stage_1_introduction`, `stage_2_prehandoff_submission`, `stage_3_contact_release`, `outcome_reporting`. Each scope has corresponding required `data_categories` defined in the schema.
 
 `data_categories` — list of categories of data covered by the consent. Defined values include `matter_summary`, `jurisdiction`, `contact_details`, `consumer_name`, `other_party_name`, `engagement_timeline`, `budget_range`, `client_summary`, and `contact_preference`. The set is closed and expanded through governance review.
 
@@ -799,8 +797,7 @@ The Discovery query is the foundation of the protocol. Components 2 (Consumer-se
 `request_intent` gates downstream components:
 
 - `self` — the requesting AI is acting on behalf of someone seeking a professional for themselves; Component 2 (Consumer-self handoff) is available next.
-- `on_behalf_of_client` — the requesting AI is a professional's AI assistant identifying candidates for a client referral; Component 2 is NOT available; the professional handles the introduction off-protocol.
-- `referral_partner_search` — the requesting AI is a professional's AI assistant searching for new referral partners; Component 3 is available next; the candidate set excludes professionals the requester is already connected to via an active `referral-connection`.
+- `on_behalf_of_client` — the requesting AI is a professional's AI assistant identifying candidates for a client referral; Component 2 is NOT available; the professional handles the introduction off-protocol under their own consent capture with the client.
 
 `limit` (1–100) is required. Discovery returns a working candidate set, not an exhaustive directory; AI agents requesting larger sets should narrow `matter` filters rather than expanding `limit`. The v0.8.1 `shortlist_size` field is removed in v0.8.2; client implementations migrating from v0.8.1 MUST send `limit` in its place.
 
@@ -1120,58 +1117,6 @@ Rules for the candidate set returned by Discovery:
 - The required `limit` parameter (1–100) determines candidate set size. ATAH does not enforce a single-introduction-per-query rule.
 - v0.8.1's default-of-1 / max-of-5 `shortlist_size` posture is removed in v0.8.2.
 
-### 6.4 Component 3 — Referral connection-making
-
-Component 3 is AI-mediated mutual matching for professionals seeking new referral partners. It is standalone — not connected to Components 1 or 2 in a lifecycle sense, though it uses Discovery (with `request_intent: 'referral_partner_search'`) as its candidate-identification step.
-
-**Authority model (per F-4).** Component 3 actions are professional-to-professional. Proposing, accepting, declining, or withdrawing a referral connection is a professional act, performed under professional delegated authority recorded via the principal/delegation model (§4.9A).
-
-> **MUST.** Component 3 professional referral-connection actions MUST be authorised through authenticated professional delegation. They MUST NOT use consumer disclosure-consent receipts and MUST NOT imply consumer involvement.
-
-The §7.3 authorisation matrix documents Component 3 endpoints under `actor_type: professional` with `authority_basis: professional_delegated_token` (or `firm_delegation`); the §4.10 consent-receipt scope enum excludes `type_2_referral_participation` and `type_3_referred_client` for the same reason. Implementations MUST NOT accept `consent_receipt_id` on Component 3 endpoints or tools.
-
-The professional-on-behalf-of-client case is served by Discovery alone (Component 1 with `request_intent: 'on_behalf_of_client'`); the referring professional handles the introduction off-platform using their own channels and the consent they captured directly with the client. ATAH does not deliver client contact details based on professional attestation, ever.
-
-**Lifecycle.**
-
-**Step 1 — Looking-toggle (default off).** A professional sets `looking_for_referral_partners: true` on their record when they want to be in the candidate pool for incoming Component 3 proposals. This is opt-in, default off, toggleable on and off at any time. Professionals are not in the Component 3 pool unless they have actively asked to be.
-
-**Step 2 — Discovery with referral-partner intent.** Professional A's AI runs Discovery with `request_intent: 'referral_partner_search'`. ATAH returns verified candidates matching A's criteria, **excluding** anyone A is already connected to via a recorded `referral-connection`. Standard `limit` parameter applies; standard provenance signals.
-
-**Step 3 — A reviews candidates and proposes.** A's AI tells ATAH "A proposes connection to B" (and optionally C, D, …). Each proposal is a separate `referral-proposal` record.
-
-**Step 4 — ATAH records persistent proposals.** Proposal record fields (per `referral-proposal.schema.json`): `proposal_id`, `proposing_professional_id`, `target_professional_id`, `proposing_principal_delegation` (per F-4: professional delegated authority, no consent_receipt_id), `category_scope`, optional `proposal_message`, `state` (`pending`), `created_at`, `expires_at`. The default `expires_at` is `created_at + 6 months`; per-category overrides via `referral_proposal_expiry_months` in `profession-categories.json` are supported (v0.8.2 ships with 6 months across all categories).
-
-**Step 5 — Expiry rule communicated at proposal time.** ATAH's response to the proposal action includes `expires_at` and the deletion-on-lapse rule. A's AI is responsible for surfacing this to A in whatever form the AI platform's UX supports.
-
-**Step 6 — B may respond asynchronously within the window.** When B's AI surfaces inbound proposals (during a "looking" session, or whenever B's AI is configured to surface them), B sees A's proposal:
-- **Accept** → ATAH creates a `referral-connection` record (Step 7) and deletes the proposal record.
-- **Decline** → ATAH deletes the proposal record. A's AI may surface "B declined" if it asks for status; otherwise silent.
-- **Ignore** → proposal continues to its expiry date.
-
-**Step 7 — On acceptance, mutual connection recorded.** ATAH records (per `referral-connection.schema.json`): `connection_id`, `professional_a_id`, `professional_b_id`, `category_scope`, `originating_proposal_id`, `connected_at`. The connection persists indefinitely until either party withdraws. While the connection is active, neither A nor B will see the other in their Component 3 Discovery results (de-duplication).
-
-**Step 8 — On withdrawal, connection deleted.** Either party may withdraw at any time. The connection record is deleted. Counterparty notification is an AI-platform UX choice, not a protocol mandate. After withdrawal, the de-duplication exclusion no longer applies.
-
-**Step 9 — On lapse (no response by expiry), proposal silently deleted.** ATAH runs a periodic cleanup that deletes any proposal whose `expires_at` has passed without resolution. **No notification fired.** A's AI may keep its own local record and surface "your proposal to B has lapsed" if A asks; ATAH does not push a notification. Post-lapse `GET` against the proposal id returns 404 — same response as if the proposal never existed. Three reasons for silent lapse with deletion: cleaner protocol surface (no required callback mechanism), better data minimisation (no indefinite retention of "intent to connect" that produced nothing), honest reflection of the realistic interpretation that B isn't interested or never saw it.
-
-**Connection records persist but do NOT feed matching.** This is the architectural commitment that resolves the gaming and overclaim problems in v0.8.1's "inbound referral signal." Connection records are kept for one operational purpose: de-duplication of `request_intent: 'referral_partner_search'` Discovery results. They are not used as a competence or trust signal anywhere in the protocol. The §9 matching engine in v0.8.2 has no `inbound_referral_signal` component.
-
-**State summary.**
-
-```
-referral-proposal:
-  pending → accepted (folded into referral-connection; proposal deleted)
-          → declined (proposal deleted)
-          → withdrawn (proposal deleted)
-          → lapsed (proposal deleted)
-
-referral-connection:
-  active → withdrawn (connection deleted)
-```
-
-ATAH's persistent state for Component 3 is small and bounded: pending proposals (within their expiry window) and active connections. Declined, lapsed, withdrawn, and terminated states all result in deletion.
-
 ## 7. API Endpoints
 
 ### 7.1 Versioning and Backward Compatibility
@@ -1205,8 +1150,6 @@ Required on:
 - `POST /v1/introductions/:handoff_id/outcome`
 - `POST /v1/introductions/:handoff_id/cancel`
 - `POST /v1/introductions/:handoff_id/revoke-consent`
-- `POST /v1/referral-proposals`
-- `POST /v1/referral-proposals/:proposal_id/respond`
 - `POST /v1/partners/:partner_id/data` (per-batch)
 - `POST /v1/verifiers/:verifier_id/verifications`
 
@@ -1239,7 +1182,6 @@ The matrix is grouped by `authenticated_actor.actor_type`. Implementations MUST 
 | `GET /v1/professionals/me/disputes`, `POST /v1/professionals/me/disputes`, `GET /v1/professionals/me/enhanced-verifications`, `GET /v1/professionals/me/concern-flags`, `POST /v1/professionals/me/concern-flags/:flag_id/reply` | `professional` | `professional_delegated_token` (or `firm_delegation`) | `atah:professionals:self_read` / `:self_write` per operation | `professional_id` = own; flag/dispute/verification subject = own |
 | `GET /v1/introductions/received`, `POST /v1/introductions/:handoff_id/respond` | `professional` | `professional_delegated_token` | `atah:introductions:read` / `atah:introductions:write` | only introductions addressed to this `professional_id` |
 | `POST /v1/introductions/:handoff_id/outcome` (target side) | `professional` | `professional_delegated_token` | `atah:outcomes:write` | only as target professional of `handoff_id` |
-| `POST /v1/referral-proposals`, `GET /v1/referral-proposals/inbound`, `GET /v1/referral-proposals/outbound`, `GET /v1/referral-proposals/:proposal_id`, `POST /v1/referral-proposals/:proposal_id/respond`, `POST /v1/referral-proposals/:proposal_id/withdraw`, `GET /v1/referral-connections`, `POST /v1/referral-connections/:connection_id/withdraw` | `professional` | `professional_delegated_token` (or `firm_delegation`) | `atah:introductions:create` / `atah:introductions:read` / `atah:introductions:write` / `atah:professionals:self_read` / `atah:professionals:self_write` per operation | own `proposing_professional_id` / `target_professional_id` / `professional_a_id` / `professional_b_id`; per F-4 / F1.2, Component 3 actions are governed by professional delegated authority and MUST NOT accept `consent_receipt_id` |
 
 #### `authenticated_actor.actor_type: partner`
 
@@ -1293,19 +1235,11 @@ GET    /v1/capabilities                                Detailed implementation c
 ```
 POST   /v1/professionals/register
 GET    /v1/professionals/me
-PUT    /v1/professionals/me                                              Self-managed update; carries `looking_for_referral_partners` toggle.
+PUT    /v1/professionals/me                                              Self-managed update.
 POST   /v1/professionals/me/verify-document
 POST   /v1/professionals/me/mcp-connect
 GET    /v1/introductions/received
 POST   /v1/introductions/:handoff_id/respond
-POST   /v1/referral-proposals                                            Component 3 — propose a referral connection.
-GET    /v1/referral-proposals/inbound                                    Component 3 — list inbound proposals.
-GET    /v1/referral-proposals/outbound                                   Component 3 — list outbound proposals.
-GET    /v1/referral-proposals/:proposal_id                               Component 3 — get proposal status.
-POST   /v1/referral-proposals/:proposal_id/respond                       Component 3 — accept or decline.
-POST   /v1/referral-proposals/:proposal_id/withdraw                      Component 3 — proposer withdraws before resolution.
-GET    /v1/referral-connections                                          Component 3 — list active connections.
-POST   /v1/referral-connections/:connection_id/withdraw                  Component 3 — either party withdraws connection.
 POST   /v1/professionals/me/disputes
 GET    /v1/professionals/me/disputes
 GET    /v1/professionals/me/enhanced-verifications
@@ -1431,11 +1365,10 @@ These flags are advisory metadata for client-side surfacing, not authorisation e
 
 Find a credentialled or established professional for a matter requiring human expertise. Returns a candidate set produced by the §9.1 four-step pipeline (hard filters → band assignment → threshold exclusion → stratified-random ordering within bands), with full trusted partner data payload, `presentation_disclosure`, per-candidate `band_assignment`, per-candidate `decision_explanation`, and `protocol_version`.
 
-- Required inputs: `matter` (object containing `category`, `matter_type`, `location`, and `urgency`) and `consent_receipt_id`
-- Required inputs: `request_intent` (`self`, `on_behalf_of_client`, `referral_partner_search`), `limit` (1–100), `matter`, `consent_receipt_id`, `requesting_agent`
+- Required inputs: `request_intent` (`self`, `on_behalf_of_client`), `limit` (1–100), `matter` (object containing `category`, `matter_type`, `location`, and `urgency`), `consent_receipt_id`, `requesting_agent`
 - Optional inputs: `professional_tier`, additional `filters`
 
-Professionals with `matching_status` of `compliance-pending`, `regulatory-suspended`, or `admin-suspended` are excluded from all results regardless of other filters. For `request_intent: 'referral_partner_search'`, the candidate set additionally excludes professionals the requester is already connected to via an active Component 3 `referral-connection`.
+Matching results exclude profiles in any of the following `matching_status` values: `compliance-pending`, `regulatory-suspended`, `admin-suspended`, `withdrawn`, `pending-rollup`, `pending-integrity-review`, `deceased`. Profiles with `contact_unverified == true` are also excluded by the contact-freshness band rule (§9.1 step 1).
 
 #### Tool: `initiate_introduction`
 
@@ -1714,7 +1647,7 @@ ATAH handles consumer personal data as a transient conduit, not a repository. Co
 
 **Three-concept separation.** ATAH distinguishes three operations on data, each with its own rules and retention semantics:
 
-- **Payload erasure** — removing or crypto-erasing sensitive content. Applies to vault payloads (Stage 2 pre-handoff data, Stage 3 contact details, Component 3 free-text proposal messages where applicable). Mechanism: crypto-erasure as defined in §11.6.
+- **Payload erasure** — removing or crypto-erasing sensitive content. Applies to vault payloads (Stage 2 pre-handoff data, Stage 3 contact details). Mechanism: crypto-erasure as defined in §11.6.
 - **Audit retention** — preserving tamper-evident metadata about what happened. Applies to event identifiers, pseudonymous references, state transitions, authority bases, timestamps, and the integrity references (consent receipt id and hash, request_intent, stage, payload_type, retrieval_actor, auth_tier, abuse_flags). Mechanism: append-only audit log per §11.8 retained for the audit-policy retention period.
 - **Withdrawal** — a state transition stopping future protocol processing. Withdrawal does NOT erase audit records, consent receipt metadata, state history, abuse signals, dispute records, or legally required retention records (§11.9).
 
@@ -1737,8 +1670,6 @@ The table is organised by the three-concept separation introduced in §11.1: eac
 | Analytics / metrics | None — anonymised outcome data only | None — anonymised outcome events | n/a | 2 years |
 | Backups | Mirrors primary; ciphertext only (no plaintext payload) | Mirror primary | Mirror primary | Mirror primary; subject to crypto-erasure when keys are destroyed |
 | Dead-letter queue | None (sanitised) | None | n/a | 30 days |
-| Component 3 referral-proposal records | None (professional ids only) | Audit log records proposal lifecycle events | `state` enum (`pending` is non-terminal; terminal states delete the record) | While pending; deleted on `accepted` (folded into connection), `declined`, `withdrawn`, `lapsed` |
-| Component 3 referral-connection records | None (professional ids only) | Audit log records connection lifecycle events | Implicit (existence indicates `active`); terminal states delete the record | Indefinite while active; deleted on withdrawal by either party |
 | Notification-channel records (per §12A on professional identity schemas) | None — `destination_reference` is HMAC of the destination, not plaintext | `last_verified` timestamps; verification audit events (`channel_verification_challenged` / `_confirmed` / `_escalated`) | `verification_status` per channel; `matching_status: contact_unverified` on the parent professional record after escalation grace period | Retained while the professional is registered; deleted when the professional withdraws |
 
 If a personal data field is detected in a store where it is not allowed, the entry is automatically purged and a critical audit event is logged. The privacy floor is enforced at validation time for the main registry database and the consent receipt store (`consent-receipt-stored.schema.json` is the canonical privacy-floor-enforced shape; a build-time test reads the file and rejects the literal field names that the privacy floor excludes).
@@ -1749,7 +1680,7 @@ If a personal data field is detected in a store where it is not allowed, the ent
 
 **Stage 3 contact details (Component 2 `full_lifecycle` and `contact_share`):** stored in the transient encrypted vault. Crypto-erased immediately after successful authenticated retrieval by the professional.
 
-**Component 3 records:** carry no consumer PII; consumer data does not flow through Component 3. Proposal records persist while pending (up to expiry) and are deleted on resolution; connection records persist while active and are deleted on withdrawal. The professional-on-behalf-of-client referral case is served by Discovery alone (Component 1 with `request_intent: 'on_behalf_of_client'`) and does not produce ATAH-mediated contact-detail delivery; the referring professional handles delivery off-platform.
+**Professional-on-behalf-of-client referral:** served by Discovery alone (Component 1 with `request_intent: 'on_behalf_of_client'`). ATAH does not produce mediated contact-detail delivery for this case; the referring professional handles delivery off-platform under their own consent capture with the client.
 
 **Post-introduction data:** anonymised outcome data only. Retained two years. Schema:
 
@@ -1922,14 +1853,13 @@ Withdrawal is a state transition that stops future protocol processing. It is **
 
 > Withdrawal stops future processing but does not erase audit records, consent receipt metadata, state history, abuse signals, dispute records, or legally required retention records.
 
-**Six withdrawal scenarios.** ATAH distinguishes the following scenarios; each carries distinct semantics:
+**Five withdrawal scenarios.** ATAH distinguishes the following scenarios; each carries distinct semantics:
 
 1. **Consumer withdrawal before data sharing.** Stop the handoff and do not share further data. No vault payload to erase (Stage 2 / Stage 3 not yet reached); the consent receipt's `revocation_status` flips to `revoked`; the handoff's `current_state` advances to `consumer-cancelled` or `consent-revoked` per the request.
 2. **Consumer withdrawal after Stage 2 viewed.** Stop future processing. Acknowledge the professional has already seen Stage 2 data; ATAH cannot retract that. The vault payload for Stage 2 has typically already been crypto-erased by the post-retrieval rule (§11.6); future stages do not advance.
 3. **Consumer withdrawal after Stage 3 retrieval.** Erase any remaining vault payload immediately and stop ATAH processing. Acknowledge ATAH cannot force deletion from the professional's systems — the professional has retrieved the contact details into their own systems, and any erasure obligation there rests with the professional under their own privacy framework.
 4. **Professional withdrawal from an introduction.** The professional declines or is no longer willing to proceed at any stage. The handoff transitions to a terminal `professional-declined-*` state with the appropriate reason code; the professional's response time and record are unaffected.
 5. **Professional withdrawal from matching.** The professional sets `matching_status: withdrawn` (or equivalent). They are removed from inclusion in Discovery, but their record, required audit trail, dispute records, and regulatory metadata are retained per §11.8 / §11.7. **High-impact action — see step-up authentication requirement below.**
-6. **Component 3 referral proposal / connection withdrawal.** The proposing professional withdraws a pending proposal (proposal record deleted; audit metadata retained), or either party withdraws an active connection (connection record deleted; audit metadata retained). The de-duplication exclusion is removed; either party may appear in the other's `request_intent: 'referral_partner_search'` Discovery results in future.
 
 **Withdrawal action recording.** Every withdrawal action MUST record the following on the audit event:
 
@@ -1941,7 +1871,7 @@ Withdrawal is a state transition that stops future protocol processing. It is **
 - Resulting state (`resulting_state`)
 - Reason code (`reason_code`)
 
-These fields are part of the `audit-event.schema.json` shape; see the schema for the canonical structure. The reason_code enumeration is documented in the schema and grows over time as new scenarios are observed; v0.8.2 ships with the values needed by the six scenarios above.
+These fields are part of the `audit-event.schema.json` shape; see the schema for the canonical structure. The reason_code enumeration is documented in the schema and grows over time as new scenarios are observed; v0.8.2 ships with the values needed by the five scenarios above.
 
 **Step-up authentication requirement.** The following withdrawals are **high-impact** and MUST require step-up authentication at the point of action:
 
@@ -1961,7 +1891,7 @@ Transparency is one of ATAH's primary differentiators from private recommendatio
 
 ### 11A.1 What an explanation answers
 
-For every discovery, exclusion, ordering, handoff, withdrawal, suppression, conflict flag, referral proposal, or data-sharing event, the protocol records and exposes (subject to role-appropriate visibility) answers to:
+For every discovery, exclusion, ordering, handoff, withdrawal, suppression, conflict flag, or data-sharing event, the protocol records and exposes (subject to role-appropriate visibility) answers to:
 
 - what happened
 - who initiated it
@@ -1982,7 +1912,7 @@ These answers are encoded in the `decision-explanation.schema.json` object. The 
 
 ATAH's transparency model has three deliberate layers:
 
-**Layer 1 — Response-level `decision_explanation`.** Every relevant response carries a top-level `decision_explanation` object documenting the query-level rules applied, the ordering policy mode, the authority basis, and the audit-event reference. Required on `match-response.schema.json`; required on Component 2 / Component 3 / withdrawal responses where applicable.
+**Layer 1 — Response-level `decision_explanation`.** Every relevant response carries a top-level `decision_explanation` object documenting the query-level rules applied, the ordering policy mode, the authority basis, and the audit-event reference. Required on `match-response.schema.json`; required on Component 2 and withdrawal responses where applicable.
 
 **Layer 2 — Per-candidate `decision_explanation`.** Every candidate in a Discovery response carries its own `decision_explanation` object documenting the candidate-level rules passed (`category_match`, `jurisdiction_match`, `verification_threshold_met`, etc.) and the audit-event reference for that candidate's inclusion. Required per-candidate on `match-response.schema.json`.
 
@@ -2202,7 +2132,6 @@ A separate `SECURITY.md` provides the full threat model, responsible disclosure 
 - Partner data poisoning
 - Insider admin abuse
 - Handoff_id leakage (mitigated by tiered access per Section 11.5)
-- Component 3 proposal spam (new in v0.8.2 — mitigated by `looking_for_referral_partners` defaulting to false, per-period rate limits on proposals per proposer, and silent lapse with deletion of unresolved proposals)
 - Verification-challenge phishing (new in v0.8.2 with §12A — mitigated by the §12A.4 anti-phishing format requirement: distinctive sender domain, content-template enforcement, no embedded redirect URLs, single-use challenge tokens with short TTL, confirmation surface displays the professional's `atah_id` and challenge timestamp; the standardised format itself is a v0.8.3 / v0.9 standardisation candidate)
 
 **v0.8.2 closes two threat classes that v0.8.1 had to manage actively.** The removal of the professional-attestation-of-client-consent path closes a class of consent-fraud risk: professionals can no longer assert client consent via attestation to obtain ATAH-mediated client contact-detail delivery. The professional-on-behalf-of-client case is served by Discovery alone (Component 1 with `request_intent: 'on_behalf_of_client'`); the referring professional handles delivery off-platform under their own consent capture. Separately, the removal of the `inbound_referral_signal` matching component (and its reciprocal-cap, time-decay, dense-cluster, and Sybil controls) closes a class of collusion / gaming risk: with no signal to game, the gaming incentive itself is removed.
@@ -2231,7 +2160,7 @@ An implementation conforms at the core-object level if it produces and consumes 
 - professional records;
 - provenance maps;
 - consent receipt references;
-- Component 2 handoff records, Component 3 referral-proposal and referral-connection records;
+- Component 2 handoff records;
 - match responses;
 - presentation disclosures;
 - outcome reports;
@@ -2300,7 +2229,7 @@ The reference registry publishes its conformance statement as part of the v0.8 l
 
 ### 14.8 AI Platform Minimal Profile
 
-For AI platforms integrating with an ATAH-conformant registry, this section defines the smallest safe integration. An AI platform meeting this profile can support consumer-self (Component 1 with `request_intent: 'self'` followed by Component 2) introductions end-to-end without supporting Component 3 referral connection-making or partner/verifier write paths. Component 1 with `request_intent: 'on_behalf_of_client'` (Discovery-only) is also supportable at this profile level.
+For AI platforms integrating with an ATAH-conformant registry, this section defines the smallest safe integration. An AI platform meeting this profile can support consumer-self (Component 1 with `request_intent: 'self'` followed by Component 2) introductions end-to-end without supporting partner/verifier write paths. Component 1 with `request_intent: 'on_behalf_of_client'` (Discovery-only) is also supportable at this profile level.
 
 **Required tool support (from `mcp-tools.json` or REST equivalents):**
 
@@ -2327,7 +2256,6 @@ For AI platforms integrating with an ATAH-conformant registry, this section defi
 
 **Not required at this profile level:**
 
-- Component 3 (professional-to-professional referral connection-making) tool support — the eight `*_referral_proposal` / `*_referral_connection` / `set_looking_for_referral_partners` tools.
 - Partner data write paths.
 - Verifier write paths.
 - Hosting an MCP server (the platform is a client; it consumes the registry's MCP server).
@@ -2335,7 +2263,7 @@ For AI platforms integrating with an ATAH-conformant registry, this section defi
 
 A platform meeting this profile claims **minimal binding conformance** in its conformance statement and may state: "Supports ATAH v0.8 AI Platform Minimal Profile."
 
-The minimal profile is intentionally narrow. Platforms that want to support professional-to-professional referrals, partner data submission, or verifier integration extend beyond it as their use case requires.
+The minimal profile is intentionally narrow. Platforms that want to support partner data submission or verifier integration extend beyond it as their use case requires.
 
 ## 15. Professional Records and Registration
 
@@ -2441,19 +2369,15 @@ When a professional claims a partner-created record, that claim must be authenti
 - **Review platform** — specialised partner class providing aggregated review/feedback data with anti-gaming controls
 - **Stage 1 / Stage 2 / Stage 3** — the three stages of a Component 2 `full_lifecycle` handoff: introduction acceptance, pre-handoff check, contact release
 - **Transient vault** — the encrypted, time-limited store for consumer personal data passing through introductions
-- **Component 1 / Component 2 / Component 3** — the three architectural components of v0.8.2: Discovery (Component 1, the foundation), Consumer-self handoff (Component 2, available when `request_intent: 'self'`), and Referral connection-making (Component 3, professional-to-professional). Components 2 and 3 are optional layers on top of Component 1
-- **Connection record** — an active mutual-connection record between two professionals, produced when a Component 3 referral proposal is accepted. Used by Discovery for de-duplication of `request_intent: 'referral_partner_search'` results only; does NOT feed matching as a competence or trust signal
+- **Component 1 / Component 2** — the two architectural components of v0.8.2: Discovery (Component 1, the foundation) and Consumer-self handoff (Component 2, available when `request_intent: 'self'`). Component 2 is an optional layer on top of Component 1
 - **contact_unverified (matching status)** — terminal state in the §12A Layer 2 escalation path. After full grace period elapses without successful verification, the professional's `matching_status` flips to `contact_unverified` and they stop appearing in Discovery results until re-verified. Same exclusion treatment as `regulatory-suspended` or `admin-suspended`
 - **contact_verification_cadence** — per-category field on `profession-categories.json` declaring how often ATAH issues Layer 1 periodic verification challenges. Values: `quarterly`, `biannual`, `annual`, `none`. Default `annual` (§12A.1)
 - **Engagement liveness** — whether a professional with verified contact details actually responds to introductions (response-rate tracking, missed-Stage-1 patterns). Distinct from channel reachability (§12A); engagement liveness is **deferred to v0.8.3** in v0.8.2's scope. The gap is documented in §12A and is a known v0.8.2 limit
-- **De-duplication exclusion** — the rule that, while a Component 3 connection between two professionals is active, neither party appears in the other's `request_intent: 'referral_partner_search'` Discovery results
 - **flow_variant** — Component 2 sub-mode declared on `handoff-component2.schema.json`. One of `off_protocol`, `contact_share`, `full_lifecycle`. See §6.1
 - **last_verified** — per-channel timestamp on `notification_channels` array entries (per §12A) recording the last successful verification challenge confirmation. `null` permitted only for newly-added channels not yet through their first verification cycle (`verification_status: not_yet_verified`)
-- **looking_for_referral_partners** — boolean toggle on the professional record (default `false`) determining whether the professional is in the candidate pool for Component 3 referral-partner Discovery
 - **notification_channels** — array on the credentialled and established professional identity schemas (per F-15 / §12A) carrying the professional's notification channels with verification status. Drives Layer 1 periodic verification, Layer 2 escalation, and Layer 3 pre-handoff freshness check. Each channel record carries an HMAC of the destination address, not the plaintext, per §11.8
-- **Proposal lapse** — the silent transition of an unresolved Component 3 proposal to `lapsed` and deletion of the record after `expires_at`. No notification fired
 - **pre_handoff_freshness_window_days** — per-category field on `profession-categories.json` (optional, populated for high-stakes categories) declaring the recency window for the §12A Layer 3 pre-handoff freshness check. v0.8.2 ships with 30 for high-stakes categories
-- **request_intent** — required parameter on the Discovery query (one of `self`, `on_behalf_of_client`, `referral_partner_search`) that gates which next-step components are available. See §4.11
+- **request_intent** — required parameter on the Discovery query (one of `self`, `on_behalf_of_client`) that gates which next-step components are available. See §4.11
 - **verification_status** — per-channel field on `notification_channels` array entries (per §12A). Lifecycle: `not_yet_verified` → `verification_pending` (challenge issued) → `verified` (challenge confirmed) → `escalation_pending` (Layer 2 escalation triggered) → `unverified` (full grace period elapsed; matching_status flips to `contact_unverified`)
 - **VC / Verifiable Credential** — W3C Verifiable Credential. Accepted as a partner data submission format.
 - **Vetting strength** — characterisation of a partner's standards: `regulatory`, `strong_membership`, or `open_membership`. Affects matching weight.
@@ -2507,8 +2431,6 @@ atahprotocol/
         consent-receipt-stored.schema.json
         principal-delegation.schema.json
         handoff-component2.schema.json
-        referral-proposal.schema.json
-        referral-connection.schema.json
         stage2-prehandoff.schema.json
         stage3-contact.schema.json
         trusted-partner.schema.json
@@ -2532,7 +2454,7 @@ atahprotocol/
 
 The reference implementation code does not live in the specification repository.
 
-**Schema reference surface (per F1.10 audit).** Schemas referenced directly from `openapi.yaml` request or response bodies are: `query`, `match-response`, `consent-receipt`, `consent-receipt-stored`, `handoff-component2`, `stage2-prehandoff`, `stage3-contact`, `referral-proposal`, `referral-connection`, `decision-explanation`, `partner-data-push`, `enhanced-verification`, `professional-identity-credentialled`, `professional-identity-established`, `trusted-partner`, `independent-verifier`, `concern-flag-record`, `conflict-record`, `dispute-record`, `rollup-match-record`, `error`. The remaining schemas are **internal-only data shapes** transitively reachable via `$ref` chains rather than via a dedicated REST endpoint: `principal-delegation` (sub-schema referenced by `query`, `handoff-component2`, `consent-receipt`, `audit-event`, `decision-explanation`, `referral-proposal`), `provenance-map` (sub-schema referenced by `match-response` and the two professional-identity schemas), `verification-scope` (sub-schema referenced by `trusted-partner`), `profession-category` (describes `profession-categories.json` and is referenced from `match-response`), `review-platform` (cross-schema enum-source-of-truth referenced from `match-response` `review_signal_summary`), and `audit-event` (canonical event shape recorded by the registry but not surfaced through a public read path; auditors retrieve event-anchored explanations through `GET /v1/decision-explanations/{audit_event_id}` per Phase 6). Implementations conforming to v0.8.2 MUST treat the internal-only schemas as authoritative for their fields wherever a transitive `$ref` carries them, and MUST NOT introduce divergent inline shapes with the same field names.
+**Schema reference surface (per F1.10 audit).** Schemas referenced directly from `openapi.yaml` request or response bodies are: `query`, `match-response`, `consent-receipt`, `consent-receipt-stored`, `handoff-component2`, `stage2-prehandoff`, `stage3-contact`, `decision-explanation`, `partner-data-push`, `enhanced-verification`, `professional-identity-credentialled`, `professional-identity-established`, `trusted-partner`, `independent-verifier`, `concern-flag-record`, `conflict-record`, `dispute-record`, `rollup-match-record`, `error`. The remaining schemas are **internal-only data shapes** transitively reachable via `$ref` chains rather than via a dedicated REST endpoint: `principal-delegation` (sub-schema referenced by `query`, `handoff-component2`, `consent-receipt`, `audit-event`, `decision-explanation`), `provenance-map` (sub-schema referenced by `match-response` and the two professional-identity schemas), `verification-scope` (sub-schema referenced by `trusted-partner`), `profession-category` (describes `profession-categories.json` and is referenced from `match-response`), `review-platform` (cross-schema enum-source-of-truth referenced from `match-response` `review_signal_summary`), and `audit-event` (canonical event shape recorded by the registry but not surfaced through a public read path; auditors retrieve event-anchored explanations through `GET /v1/decision-explanations/{audit_event_id}` per Phase 6). Implementations conforming to v0.8.2 MUST treat the internal-only schemas as authoritative for their fields wherever a transitive `$ref` carries them, and MUST NOT introduce divergent inline shapes with the same field names.
 
 ## 18. Build Sequence
 

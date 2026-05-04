@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://atahprotocol.org/spec/v0.8/schemas/query.schema.json",
   "title": "ATAH Query — Component 1 (Discovery)",
-  "description": "ATAH Registry Operation Profile object: Discovery query body for POST /v1/query and the `find_professional` MCP tool input (spec/v0.8 Section 4.11). Component 1 is the foundation of the protocol; Components 2 and 3 are gated by `request_intent`. Required for implementations claiming Registry Conformance.",
+  "description": "ATAH Registry Operation Profile object: Discovery query body for POST /v1/query and the `find_professional` MCP tool input (spec/v0.8 Section 4.11). Component 1 is the foundation of the protocol; Component 2 (Consumer-self handoff) is gated by `request_intent: 'self'`. Required for implementations claiming Registry Conformance.",
   "type": "object",
   "properties": {
     "query_id": {
@@ -17,8 +17,8 @@
     },
     "request_intent": {
       "type": "string",
-      "enum": ["self", "on_behalf_of_client", "referral_partner_search"],
-      "description": "Gates which next-step components are available. `self`: requesting AI is acting for someone seeking a professional for themselves; Component 2 (Consumer-self handoff) is available next. `on_behalf_of_client`: requesting AI is a professional's AI assistant identifying candidates for a client referral; Component 2 is NOT available — the professional handles the introduction off-platform. `referral_partner_search`: requesting AI is a professional's AI assistant searching for referral partners; Component 3 is available next."
+      "enum": ["self", "on_behalf_of_client"],
+      "description": "Gates which next-step components are available. `self`: requesting AI is acting for someone seeking a professional for themselves; Component 2 (Consumer-self handoff) is available next. `on_behalf_of_client`: requesting AI is a professional's AI assistant identifying candidates for a client referral; Component 2 is NOT available — the professional handles the introduction off-platform under their own consent capture with the client."
     },
     "limit": {
       "type": "integer",

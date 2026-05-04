@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://atahprotocol.org/spec/v0.8/schemas/decision-explanation.schema.json",
   "title": "ATAH Decision Explanation",
-  "description": "ATAH Core Protocol object: machine-readable explanation of a single protocol decision (discovery result, exclusion, ordering choice, handoff state transition, withdrawal, suppression, Component 3 proposal/connection event, or data-sharing event). Per Paolo's F1.8/F1.9 normative position, every meaningful protocol decision is explainable; per spec §11A, transparency is a top-level conformance requirement. **F-5 design rule (important).** This schema defines the decision-explanation object DIRECTLY — i.e. the object IS the explanation. Where a response schema references this object, the field name in the consuming response is `decision_explanation`, but this schema does NOT wrap its own contents in a `decision_explanation` key. Implementers MUST NOT re-wrap when copying or referencing; doing so produces a double-nesting bug. The two-layer transparency model in §11A is delivered by including TWO `decision_explanation` fields in `match-response.schema.json` (one at response level, one per candidate), each a separate instance of this schema. Required for any ATAH-conformant implementation that produces or consumes responses carrying explanations.",
+  "description": "ATAH Core Protocol object: machine-readable explanation of a single protocol decision (discovery result, exclusion, ordering choice, handoff state transition, withdrawal, suppression, or data-sharing event). Per Paolo's F1.8/F1.9 normative position, every meaningful protocol decision is explainable; per spec §11A, transparency is a top-level conformance requirement. **F-5 design rule (important).** This schema defines the decision-explanation object DIRECTLY — i.e. the object IS the explanation. Where a response schema references this object, the field name in the consuming response is `decision_explanation`, but this schema does NOT wrap its own contents in a `decision_explanation` key. Implementers MUST NOT re-wrap when copying or referencing; doing so produces a double-nesting bug. The two-layer transparency model in §11A is delivered by including TWO `decision_explanation` fields in `match-response.schema.json` (one at response level, one per candidate), each a separate instance of this schema. Required for any ATAH-conformant implementation that produces or consumes responses carrying explanations.",
   "type": "object",
   "properties": {
     "decision_type": {
@@ -14,11 +14,9 @@
         "handoff",
         "withdrawal",
         "suppression",
-        "proposal",
-        "connection",
         "data_sharing"
       ],
-      "description": "What kind of decision this explanation covers. `discovery_result` for an included candidate in a Discovery response; `exclusion` for an excluded candidate or excluded class; `ordering` for the ordering-policy decision at response level; `handoff` for a Component 2 lifecycle transition; `withdrawal` for any §11.9 withdrawal scenario; `suppression` for a partner-data-conflict or admin-suppression event; `proposal` for a Component 3 referral-proposal event; `connection` for a Component 3 referral-connection event; `data_sharing` for vault retrieval or contact-detail release."
+      "description": "What kind of decision this explanation covers. `discovery_result` for an included candidate in a Discovery response; `exclusion` for an excluded candidate or excluded class; `ordering` for the ordering-policy decision at response level; `handoff` for a Component 2 lifecycle transition; `withdrawal` for any §11.9 withdrawal scenario; `suppression` for a partner-data-conflict or admin-suppression event; `data_sharing` for vault retrieval or contact-detail release."
     },
     "rules_applied": {
       "type": "array",
@@ -26,7 +24,7 @@
         "type": "string",
         "minLength": 1
       },
-      "description": "Rule identifiers covering the rules a candidate or action passed (or, for `exclusion`, failed). v0.8.2 ships with the following canonical initial set; the enum is extensible through governance review and grows as the protocol matures. Initial v0.8.2 set: `category_match`, `jurisdiction_match`, `matching_status_active`, `compliance_status_active`, `contact_verified`, `availability_match`, `verification_threshold_met`, `category_qualification_match`, `commercial_weighting_excluded`, `band_assignment_applied`, `professional_delegated_authority_present` (Component 3), `consent_receipt_continuity_verified` (Component 2 consumption), `step_up_authentication_completed` (high-impact withdrawal). Implementations MAY extend with additional rule identifiers; the field is open so v0.8.3 / v0.9 can add canonical values without a breaking schema change.",
+      "description": "Rule identifiers covering the rules a candidate or action passed (or, for `exclusion`, failed). v0.8.2 ships with the following canonical initial set; the enum is extensible through governance review and grows as the protocol matures. Initial v0.8.2 set: `category_match`, `jurisdiction_match`, `matching_status_active`, `compliance_status_active`, `contact_verified`, `availability_match`, `verification_threshold_met`, `category_qualification_match`, `commercial_weighting_excluded`, `band_assignment_applied`, `professional_delegated_authority_present` (professional acting under delegated authority), `consent_receipt_continuity_verified` (Component 2 consumption), `step_up_authentication_completed` (high-impact withdrawal). Implementations MAY extend with additional rule identifiers; the field is open so v0.8.3 / v0.9 can add canonical values without a breaking schema change.",
       "uniqueItems": true,
       "minItems": 1
     },

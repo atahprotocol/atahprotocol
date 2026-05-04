@@ -72,12 +72,6 @@
       "type": "string",
       "enum": ["tier_1", "tier_2", "tier_3"]
     },
-    "referral_proposal_expiry_months": {
-      "type": "integer",
-      "minimum": 1,
-      "maximum": 36,
-      "description": "Default expiry for Component 3 referral proposals targeting professionals in this category, in months. Categories without a value use the protocol-level default of 6 months. v0.8.2 ships with 6 as the only populated value across categories."
-    },
     "contact_verification_cadence": {
       "type": "string",
       "enum": ["quarterly", "biannual", "annual", "none"],
@@ -126,7 +120,6 @@
         "regulated_category_max_effect": "no_band_upgrade"
       },
       "stage2_auth_tier": "tier_2",
-      "referral_proposal_expiry_months": 6,
       "contact_verification_cadence": "quarterly",
       "pre_handoff_freshness_window_days": 30
     },
@@ -151,7 +144,6 @@
         "regulated_category_max_effect": "documented_corroboration_required"
       },
       "stage2_auth_tier": "tier_1",
-      "referral_proposal_expiry_months": 6,
       "contact_verification_cadence": "annual"
     }
   ]

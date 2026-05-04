@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://atahprotocol.org/spec/v0.8/schemas/consent-receipt.schema.json",
   "title": "ATAH Consent Receipt (full)",
-  "description": "ATAH Core Protocol object: the full structured consent receipt issued by the asserting platform (spec/v0.8 §4.10). Replaces a boolean `consumer_consent` flag. ATAH supports two consent types — `query_authorization` and `disclosure_consent` — and explicitly excludes a third concept, `engagement_consent`, which covers any professional-client agreement, fee agreement, treatment consent, regulated advice consent, conflict waiver, scope-of-work acceptance, or instruction to act. Engagement consent is outside ATAH by design and MUST NOT be issued through this schema. ATAH consent receipts MUST NOT be represented as professional engagement consent. ATAH stores only the hash and continuity-binding metadata — see consent-receipt-stored.schema.json for the form ATAH retains. Component 3 referral-connection actions are governed by professional delegated authority (per F-4) and do not use this schema. Required for any ATAH-conformant implementation.",
+  "description": "ATAH Core Protocol object: the full structured consent receipt issued by the asserting platform (spec/v0.8 §4.10). Replaces a boolean `consumer_consent` flag. ATAH supports two consent types — `query_authorization` and `disclosure_consent` — and explicitly excludes a third concept, `engagement_consent`, which covers any professional-client agreement, fee agreement, treatment consent, regulated advice consent, conflict waiver, scope-of-work acceptance, or instruction to act. Engagement consent is outside ATAH by design and MUST NOT be issued through this schema. ATAH consent receipts MUST NOT be represented as professional engagement consent. ATAH stores only the hash and continuity-binding metadata — see consent-receipt-stored.schema.json for the form ATAH retains. Required for any ATAH-conformant implementation.",
   "type": "object",
   "properties": {
     "consent_receipt_id": {
@@ -59,7 +59,7 @@
         "stage_3_contact_release",
         "outcome_reporting"
       ],
-      "description": "The protocol action the consent covers. `query_submission` pairs with `consent_type: query_authorization`; the remaining values pair with `consent_type: disclosure_consent`. Per F-4, the v0.8.1 `type_2_referral_participation` and `type_3_referred_client` values are removed in v0.8.2: Component 3 referral-connection actions are governed by professional delegated authority (not consumer consent receipts), and the professional-on-behalf-of-client referral case is served by Discovery alone with `request_intent: 'on_behalf_of_client'`."
+      "description": "The protocol action the consent covers. `query_submission` pairs with `consent_type: query_authorization`; the remaining values pair with `consent_type: disclosure_consent`. The professional-on-behalf-of-client case is served by Discovery alone with `request_intent: 'on_behalf_of_client'`; the referring professional handles the introduction off-platform under their own consent capture and does not use this schema for that step."
     },
     "professional_id": {
       "type": "string",

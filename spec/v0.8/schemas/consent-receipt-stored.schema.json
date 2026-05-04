@@ -37,7 +37,7 @@
         "stage_3_contact_release",
         "outcome_reporting"
       ],
-      "description": "Per F-4, the v0.8.1 `type_2_referral_participation` and `type_3_referred_client` scope values are removed in v0.8.2. Component 3 actions are governed by professional delegated authority, not consumer consent receipts."
+      "description": "The protocol action the stored receipt covers. Mirrors the scope on the full receipt. `query_submission` pairs with `consent_type: query_authorization`; the remaining values pair with `consent_type: disclosure_consent`."
     },
     "pseudonymous_consumer_ref": {
       "type": "string",

@@ -111,14 +111,6 @@
       },
       "additionalProperties": false
     },
-    "referral_network": {
-      "type": "object",
-      "properties": {
-        "inbound_relationship_count": { "type": "integer", "minimum": 0 },
-        "inbound_relationship_quality_score": { "type": "number", "minimum": 0, "maximum": 1 }
-      },
-      "additionalProperties": false
-    },
     "trusted_partner_data": {
       "type": "array",
       "items": { "$ref": "#/$defs/PartnerDataPayload" }
@@ -136,11 +128,6 @@
     "ai_assistant_connected": { "type": "boolean" },
     "profile_completeness_score": { "type": "number", "minimum": 0, "maximum": 1 },
     "profile_maintained": { "type": "boolean" },
-    "looking_for_referral_partners": {
-      "type": "boolean",
-      "default": false,
-      "description": "Component 3 visibility toggle. When `true`, the professional is in the candidate pool for incoming Component 3 referral-partner Discovery and may receive `referral-proposal` records. When `false` (default), the professional is excluded from `request_intent: 'referral_partner_search'` results and cannot be the `target_professional_id` of a new proposal. Toggleable on and off at any time. Existing v0.8.1 records that omit the field MUST be read as `false`."
-    },
     "notification_channels": {
       "type": "array",
       "description": "Per F-15 / spec §12A: the professional's notification channels with verification status. Drives the Layer 1 periodic verification mechanism, the Layer 2 escalation path, and the Layer 3 pre-handoff freshness check for high-stakes categories. Channels are stored on the professional record itself (not in a separate operational schema) so the matching engine's `contact_unverified` check is a single record read. Channel records carry an HMAC of the destination address (per the §11.8 HMAC-not-plain-hash requirement); the plaintext destination is held in the partner's or the implementation's own credential store. Migration note: existing v0.8.1 records have no `notification_channels` array (the array is new in v0.8.2); implementations create the array on first read for any existing record, populate channel records from existing notification configuration data, and set `last_verified: null` and `verification_status: not_yet_verified` for all migrated channels.",
@@ -204,8 +191,6 @@
             "handoff_stage_2",
             "handoff_stage_3",
             "handoff_stage_3_alternate",
-            "referral_proposal",
-            "referral_connection",
             "account_alert",
             "verification_challenge"
           ]
@@ -301,7 +286,6 @@
       "data_conflicts": [],
       "ai_assistant_connected": false,
       "profile_completeness_score": 0.88,
-      "looking_for_referral_partners": false,
       "notification_channels": [
         {
           "channel_id": "ch-01HQXRQ4D5EFGHIJKLMNOPQRST",

@@ -7,7 +7,7 @@
   "tools": [
     {
       "name": "find_professional",
-      "description": "Component 1 (Discovery) — find a credentialled or established professional for a matter requiring human expertise. Required `request_intent` (`self`, `on_behalf_of_client`, `referral_partner_search`) gates which next-step components are available. Required `limit` (1-100) replaces v0.8.1 `shortlist_size`. Returns a candidate set with the full trusted partner data payload, presentation_disclosure that AI platforms MUST surface to the user, and protocol_version. Matching results exclude profiles in any of the following `matching_status` values: `compliance-pending`, `regulatory-suspended`, `admin-suspended`, `withdrawn`, `pending-rollup`, `pending-integrity-review`, `deceased`. Profiles with `contact_unverified == true` are also excluded by the contact-freshness band rule (see matching engine specification). For `request_intent: 'referral_partner_search'`, the candidate set excludes professionals the requester is already connected to via an active referral-connection. The input conforms to the ATAH query schema; the output conforms to the ATAH match-response schema.",
+      "description": "Component 1 (Discovery) — find a credentialled or established professional for a matter requiring human expertise. Required `request_intent` (`self`, `on_behalf_of_client`) gates whether Component 2 is available next. Required `limit` (1-100) sets candidate-set size. Returns a candidate set with the full trusted partner data payload, presentation_disclosure that AI platforms MUST surface to the user, and protocol_version. Matching results exclude profiles in any of the following `matching_status` values: `compliance-pending`, `regulatory-suspended`, `admin-suspended`, `withdrawn`, `pending-rollup`, `pending-integrity-review`, `deceased`. Profiles with `contact_unverified == true` are also excluded by the contact-freshness band rule (see matching engine specification). The input conforms to the ATAH query schema; the output conforms to the ATAH match-response schema.",
       "input_schema": {
         "$ref": "https://atahprotocol.org/spec/v0.8/schemas/query.schema.json"
       },
@@ -83,8 +83,20 @@
               "atah_is_not_recommending": true,
               "ordering_policy": {
                 "mode": "stratified_random",
-                "hard_filters_applied": ["category", "jurisdiction", "matching_status", "compliance_status", "contact_verified", "availability"],
-                "strata": ["verification_confidence", "category_fit", "availability_window", "contact_freshness"],
+                "hard_filters_applied": [
+                  "category",
+                  "jurisdiction",
+                  "matching_status",
+                  "compliance_status",
+                  "contact_verified",
+                  "availability"
+                ],
+                "strata": [
+                  "verification_confidence",
+                  "category_fit",
+                  "availability_window",
+                  "contact_freshness"
+                ],
                 "commercial_weighting": false,
                 "atah_expresses_preference": false,
                 "randomization_seed_disclosure": "not_disclosed_to_prevent_gaming"
@@ -98,13 +110,36 @@
                 "atah_id": "atah-01HQXR8M2P3QRV5WTYZAB6CDEF",
                 "professional_tier": "established",
                 "registration_route": "partner",
-                "filters_passed": ["category", "jurisdiction", "matching_status", "compliance_status", "contact_verified", "availability"],
+                "filters_passed": [
+                  "category",
+                  "jurisdiction",
+                  "matching_status",
+                  "compliance_status",
+                  "contact_verified",
+                  "availability"
+                ],
                 "band_assignment": {
                   "bands": [
-                    { "band_name": "verification_confidence", "band_position": 1, "threshold_rule": "verification_confidence == multi_source_corroborated OR multi_source_with_enhanced_verification" },
-                    { "band_name": "category_fit", "band_position": 1, "threshold_rule": "category_fit >= 0.6" },
-                    { "band_name": "availability_window", "band_position": 1, "threshold_rule": "availability_score >= 0.7" },
-                    { "band_name": "contact_freshness", "band_position": 1, "threshold_rule": "contact_unverified == false" }
+                    {
+                      "band_name": "verification_confidence",
+                      "band_position": 1,
+                      "threshold_rule": "verification_confidence == multi_source_corroborated OR multi_source_with_enhanced_verification"
+                    },
+                    {
+                      "band_name": "category_fit",
+                      "band_position": 1,
+                      "threshold_rule": "category_fit >= 0.6"
+                    },
+                    {
+                      "band_name": "availability_window",
+                      "band_position": 1,
+                      "threshold_rule": "availability_score >= 0.7"
+                    },
+                    {
+                      "band_name": "contact_freshness",
+                      "band_position": 1,
+                      "threshold_rule": "contact_unverified == false"
+                    }
                   ],
                   "position_in_response": 1
                 },
@@ -131,7 +166,11 @@
           },
           "flow_variant": {
             "type": "string",
-            "enum": ["off_protocol", "contact_share", "full_lifecycle"]
+            "enum": [
+              "off_protocol",
+              "contact_share",
+              "full_lifecycle"
+            ]
           },
           "matter_type": {
             "type": "string",
@@ -890,334 +929,6 @@
       ]
     },
     {
-      "name": "propose_referral_connection",
-      "description": "Component 3 — propose a referral connection from the calling professional to a target professional. Per F-4, governed by professional delegated authority; this tool does not accept consent_receipt_id. The target professional must have looking_for_referral_partners: true at the time of the call. Persistent proposal with default six-month expiry; silent lapse with deletion if unresolved by expiry. Multiple proposals may be issued in a single call by listing several target_professional_ids; each produces a separate proposal record.",
-      "input_schema": {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "type": "object",
-        "properties": {
-          "target_professional_ids": {
-            "type": "array",
-            "items": { "type": "string", "pattern": "^atah-[A-Za-z0-9-]{6,64}$" },
-            "minItems": 1,
-            "uniqueItems": true
-          },
-          "category_scope": {
-            "type": "array",
-            "items": { "type": "string", "minLength": 1 },
-            "minItems": 1,
-            "uniqueItems": true
-          },
-          "proposal_message": { "type": "string" }
-        },
-        "required": ["target_professional_ids", "category_scope"],
-        "additionalProperties": false
-      },
-      "output_schema": {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "type": "object",
-        "properties": {
-          "proposals": {
-            "type": "array",
-            "items": { "$ref": "https://atahprotocol.org/spec/v0.8/schemas/referral-proposal.schema.json" }
-          }
-        },
-        "required": ["proposals"],
-        "additionalProperties": false
-      },
-      "error_codes": [
-        "target_not_looking",
-        "target_not_found",
-        "validation_error",
-        "unauthorized",
-        "rate_limited"
-      ],
-      "safety_metadata": {
-        "is_read_only": false,
-        "transmits_personal_data": false,
-        "requires_explicit_user_approval": true,
-        "state_change_scope": "referral_proposal"
-      },
-      "permitted_authority_bases": [
-        "professional_delegated_token",
-        "firm_delegation"
-      ],
-      "examples": [
-        {
-          "input": {
-            "target_professional_ids": ["atah-01HQXR8M2P3QRV5WTYZAB6CDEF"],
-            "category_scope": ["lawyer", "tax_planner"],
-            "proposal_message": "Frequent cross-referrals for cross-border M&A; would value a recorded ATAH connection."
-          },
-          "output": {
-            "proposals": [
-              {
-                "proposal_id": "proposal-01HQXRE4V9WXYABCDEF3HIJKLM",
-                "schema_version": "0.8",
-                "protocol_version": "0.8",
-                "proposing_professional_id": "atah-01HQXR7K9NBVZ8M3PXFG2YT5WA",
-                "target_professional_id": "atah-01HQXR8M2P3QRV5WTYZAB6CDEF",
-                "proposing_principal_delegation": {
-                  "authenticated_actor": { "actor_type": "professional", "actor_id": "atah-01HQXR7K9NBVZ8M3PXFG2YT5WA" },
-                  "authority_context": {
-                    "represented_principal_type": "professional",
-                    "authority_basis": "professional_delegated_token",
-                    "permitted_scopes": ["atah:introductions:create"],
-                    "expires_at": "2026-07-10T00:00:00Z",
-                    "object_constraints": [
-                      { "constraint_type": "professional_id", "value": "atah-01HQXR7K9NBVZ8M3PXFG2YT5WA" }
-                    ]
-                  }
-                },
-                "category_scope": ["lawyer", "tax_planner"],
-                "proposal_message": "Frequent cross-referrals for cross-border M&A; would value a recorded ATAH connection.",
-                "state": "pending",
-                "created_at": "2026-04-10T14:21:00Z",
-                "expires_at": "2026-10-10T14:21:00Z",
-                "last_updated": "2026-04-10T14:21:00Z"
-              }
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "list_inbound_referral_proposals",
-      "description": "Component 3 — list pending referral proposals targeting the calling professional. Per F-4, governed by professional delegated authority.",
-      "input_schema": {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "type": "object",
-        "properties": {},
-        "additionalProperties": false
-      },
-      "output_schema": {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "type": "object",
-        "properties": {
-          "proposals": {
-            "type": "array",
-            "items": { "$ref": "https://atahprotocol.org/spec/v0.8/schemas/referral-proposal.schema.json" }
-          }
-        },
-        "required": ["proposals"],
-        "additionalProperties": false
-      },
-      "error_codes": ["unauthorized"],
-      "safety_metadata": {
-        "is_read_only": true,
-        "transmits_personal_data": false,
-        "requires_explicit_user_approval": false,
-        "state_change_scope": "none"
-      },
-      "permitted_authority_bases": [
-        "professional_delegated_token",
-        "firm_delegation"
-      ]
-    },
-    {
-      "name": "list_outbound_referral_proposals",
-      "description": "Component 3 — list pending referral proposals the calling professional has sent. Per F-4, governed by professional delegated authority.",
-      "input_schema": {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "type": "object",
-        "properties": {},
-        "additionalProperties": false
-      },
-      "output_schema": {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "type": "object",
-        "properties": {
-          "proposals": {
-            "type": "array",
-            "items": { "$ref": "https://atahprotocol.org/spec/v0.8/schemas/referral-proposal.schema.json" }
-          }
-        },
-        "required": ["proposals"],
-        "additionalProperties": false
-      },
-      "error_codes": ["unauthorized"],
-      "safety_metadata": {
-        "is_read_only": true,
-        "transmits_personal_data": false,
-        "requires_explicit_user_approval": false,
-        "state_change_scope": "none"
-      },
-      "permitted_authority_bases": [
-        "professional_delegated_token",
-        "firm_delegation"
-      ]
-    },
-    {
-      "name": "respond_to_referral_proposal",
-      "description": "Component 3 — accept or decline an inbound referral proposal. On accept, ATAH creates a referral-connection record and deletes the proposal; on decline, the proposal record is deleted. Per F-4, governed by professional delegated authority.",
-      "input_schema": {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "type": "object",
-        "properties": {
-          "proposal_id": { "type": "string", "pattern": "^proposal-[A-Za-z0-9-]{6,64}$" },
-          "response": { "type": "string", "enum": ["accept", "decline"] }
-        },
-        "required": ["proposal_id", "response"],
-        "additionalProperties": false
-      },
-      "output_schema": {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "type": "object",
-        "properties": {
-          "result": { "type": "string", "enum": ["accepted", "declined"] },
-          "connection": {
-            "$ref": "https://atahprotocol.org/spec/v0.8/schemas/referral-connection.schema.json",
-            "description": "Present only when result is 'accepted'."
-          }
-        },
-        "required": ["result"],
-        "additionalProperties": false
-      },
-      "error_codes": ["proposal_not_found", "validation_error", "unauthorized"],
-      "safety_metadata": {
-        "is_read_only": false,
-        "transmits_personal_data": false,
-        "requires_explicit_user_approval": true,
-        "state_change_scope": "referral_proposal"
-      },
-      "permitted_authority_bases": [
-        "professional_delegated_token",
-        "firm_delegation"
-      ]
-    },
-    {
-      "name": "withdraw_referral_proposal",
-      "description": "Component 3 — the proposing professional withdraws a pending proposal before resolution. The proposal record is deleted; the audit event records the withdrawal. Per F-4, governed by professional delegated authority.",
-      "input_schema": {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "type": "object",
-        "properties": {
-          "proposal_id": { "type": "string", "pattern": "^proposal-[A-Za-z0-9-]{6,64}$" }
-        },
-        "required": ["proposal_id"],
-        "additionalProperties": false
-      },
-      "output_schema": {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "type": "object",
-        "properties": {
-          "result": { "type": "string", "const": "withdrawn" }
-        },
-        "required": ["result"],
-        "additionalProperties": false
-      },
-      "error_codes": ["proposal_not_found", "unauthorized"],
-      "safety_metadata": {
-        "is_read_only": false,
-        "transmits_personal_data": false,
-        "requires_explicit_user_approval": true,
-        "state_change_scope": "referral_proposal"
-      },
-      "permitted_authority_bases": [
-        "professional_delegated_token",
-        "firm_delegation"
-      ]
-    },
-    {
-      "name": "list_my_referral_connections",
-      "description": "Component 3 — list active referral connections involving the calling professional. Connection records are kept for de-duplication of `request_intent: 'referral_partner_search'` Discovery only; they are not used as a competence or trust signal anywhere in the protocol. Per F-4, governed by professional delegated authority.",
-      "input_schema": {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "type": "object",
-        "properties": {},
-        "additionalProperties": false
-      },
-      "output_schema": {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "type": "object",
-        "properties": {
-          "connections": {
-            "type": "array",
-            "items": { "$ref": "https://atahprotocol.org/spec/v0.8/schemas/referral-connection.schema.json" }
-          }
-        },
-        "required": ["connections"],
-        "additionalProperties": false
-      },
-      "error_codes": ["unauthorized"],
-      "safety_metadata": {
-        "is_read_only": true,
-        "transmits_personal_data": false,
-        "requires_explicit_user_approval": false,
-        "state_change_scope": "none"
-      },
-      "permitted_authority_bases": [
-        "professional_delegated_token",
-        "firm_delegation"
-      ]
-    },
-    {
-      "name": "withdraw_referral_connection",
-      "description": "Component 3 — either party withdraws from an active referral connection; the connection record is deleted. After withdrawal the de-duplication exclusion no longer applies. Per F-4, governed by professional delegated authority.",
-      "input_schema": {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "type": "object",
-        "properties": {
-          "connection_id": { "type": "string", "pattern": "^conn-[A-Za-z0-9-]{6,64}$" }
-        },
-        "required": ["connection_id"],
-        "additionalProperties": false
-      },
-      "output_schema": {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "type": "object",
-        "properties": {
-          "result": { "type": "string", "const": "withdrawn" }
-        },
-        "required": ["result"],
-        "additionalProperties": false
-      },
-      "error_codes": ["connection_not_found", "unauthorized"],
-      "safety_metadata": {
-        "is_read_only": false,
-        "transmits_personal_data": false,
-        "requires_explicit_user_approval": true,
-        "state_change_scope": "referral_connection"
-      },
-      "permitted_authority_bases": [
-        "professional_delegated_token",
-        "firm_delegation"
-      ]
-    },
-    {
-      "name": "set_looking_for_referral_partners",
-      "description": "Component 3 — set the calling professional's `looking_for_referral_partners` toggle. When true, the professional is in the candidate pool for incoming Component 3 referral-partner Discovery and may receive `referral-proposal` records; when false, the professional is excluded from `request_intent: 'referral_partner_search'` results and cannot be the target of new proposals. Toggleable on and off at any time. Per F-4 / F1.2, governed by professional delegated authority. Updates to the same field via `PUT /v1/professionals/me` (or its REST equivalent) are also permitted.",
-      "input_schema": {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "type": "object",
-        "properties": {
-          "looking_for_referral_partners": { "type": "boolean" }
-        },
-        "required": ["looking_for_referral_partners"],
-        "additionalProperties": false
-      },
-      "output_schema": {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "type": "object",
-        "properties": {
-          "looking_for_referral_partners": { "type": "boolean" }
-        },
-        "required": ["looking_for_referral_partners"],
-        "additionalProperties": false
-      },
-      "error_codes": ["validation_error", "unauthorized"],
-      "safety_metadata": {
-        "is_read_only": false,
-        "transmits_personal_data": false,
-        "requires_explicit_user_approval": false,
-        "state_change_scope": "professional_profile"
-      },
-      "permitted_authority_bases": [
-        "professional_delegated_token",
-        "firm_delegation"
-      ]
-    },
-    {
       "name": "list_my_notification_channels_with_verification_status",
       "description": "Component 12A — list the calling professional's notification channels with their verification status (last_verified timestamps, verification_status values). The professional's AI surfaces this so the professional can act on any pending challenges before Layer 2 escalation triggers a matching_status flip to contact_unverified. Returns the array shape from `NotificationChannel` $defs on `professional-identity-credentialled.schema.json` / `professional-identity-established.schema.json`. Per §11.8, `destination_reference` is HMAC of the destination, not plaintext.",
       "input_schema": {
@@ -1238,10 +949,14 @@
             }
           }
         },
-        "required": ["channels"],
+        "required": [
+          "channels"
+        ],
         "additionalProperties": false
       },
-      "error_codes": ["unauthorized"],
+      "error_codes": [
+        "unauthorized"
+      ],
       "safety_metadata": {
         "is_read_only": true,
         "transmits_personal_data": false,
@@ -1260,22 +975,48 @@
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
-          "channel_id": { "type": "string", "minLength": 1 },
-          "challenge_token": { "type": "string", "minLength": 1 }
+          "channel_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "challenge_token": {
+            "type": "string",
+            "minLength": 1
+          }
         },
-        "required": ["channel_id", "challenge_token"],
+        "required": [
+          "channel_id",
+          "challenge_token"
+        ],
         "additionalProperties": false
       },
       "output_schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
-          "channel_id": { "type": "string", "minLength": 1 },
-          "verification_status": { "type": "string", "const": "verified" },
-          "last_verified": { "type": "string", "format": "date-time" },
-          "audit_event_id": { "type": "string", "minLength": 1 }
+          "channel_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "verification_status": {
+            "type": "string",
+            "const": "verified"
+          },
+          "last_verified": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "audit_event_id": {
+            "type": "string",
+            "minLength": 1
+          }
         },
-        "required": ["channel_id", "verification_status", "last_verified", "audit_event_id"],
+        "required": [
+          "channel_id",
+          "verification_status",
+          "last_verified",
+          "audit_event_id"
+        ],
         "additionalProperties": false
       },
       "error_codes": [
@@ -1303,51 +1044,100 @@
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
-          "category": { "type": "string", "minLength": 1 },
-          "jurisdiction": { "type": "string", "minLength": 1 }
+          "category": {
+            "type": "string",
+            "minLength": 1
+          },
+          "jurisdiction": {
+            "type": "string",
+            "minLength": 1
+          }
         },
-        "required": ["category"],
+        "required": [
+          "category"
+        ],
         "additionalProperties": false
       },
       "output_schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
-          "category": { "type": "string" },
-          "jurisdiction": { "type": "string" },
+          "category": {
+            "type": "string"
+          },
+          "jurisdiction": {
+            "type": "string"
+          },
           "representative_inclusion_rules": {
             "type": "array",
-            "items": { "type": "string", "minLength": 1 }
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
           },
           "representative_exclusion_reason_categories": {
             "type": "array",
-            "items": { "type": "string", "minLength": 1 }
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
           },
           "current_band_assignment": {
             "type": "array",
             "items": {
               "type": "object",
               "properties": {
-                "band_name": { "type": "string", "minLength": 1 },
-                "band_position": { "type": "integer", "minimum": 1 },
-                "threshold_rule": { "type": "string", "minLength": 1 }
+                "band_name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "band_position": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "threshold_rule": {
+                  "type": "string",
+                  "minLength": 1
+                }
               },
-              "required": ["band_name", "band_position", "threshold_rule"],
+              "required": [
+                "band_name",
+                "band_position",
+                "threshold_rule"
+              ],
               "additionalProperties": false
             }
           },
           "published_ordering_policy": {
             "type": "object",
             "properties": {
-              "mode": { "type": "string", "minLength": 1 },
-              "within_band_policy": { "type": "string", "minLength": 1 }
+              "mode": {
+                "type": "string",
+                "minLength": 1
+              },
+              "within_band_policy": {
+                "type": "string",
+                "minLength": 1
+              }
             },
-            "required": ["mode"],
+            "required": [
+              "mode"
+            ],
             "additionalProperties": false
           },
-          "retrieved_at": { "type": "string", "format": "date-time" }
+          "retrieved_at": {
+            "type": "string",
+            "format": "date-time"
+          }
         },
-        "required": ["category", "representative_inclusion_rules", "representative_exclusion_reason_categories", "current_band_assignment", "published_ordering_policy", "retrieved_at"],
+        "required": [
+          "category",
+          "representative_inclusion_rules",
+          "representative_exclusion_reason_categories",
+          "current_band_assignment",
+          "published_ordering_policy",
+          "retrieved_at"
+        ],
         "additionalProperties": false
       },
       "error_codes": [
@@ -1369,7 +1159,7 @@
     },
     {
       "name": "withdraw_from_matching",
-      "description": "Professional withdrawal from matching — Component 2 withdrawal scenario 5 per spec §11.9. Sets the professional's matching_status to withdrawn; the professional is removed from inclusion in Discovery, but their record, required audit trail, dispute records, regulatory metadata, and existing Component 3 connections are RETAINED per §11.8. **High-impact action**: this tool MUST require step-up authentication at the point of action — re-auth via OAuth flow, second factor via TOTP, out-of-band push approval, or equivalent. The protocol mandates the requirement; the specific mechanism is implementation choice in v0.8.2. The audit event records previous_state, resulting_state, reason_code, the principal-delegation context, and the auth_tier reflecting the step-up authentication applied.",
+      "description": "Professional withdrawal from matching — withdrawal scenario 5 per spec §11.9. Sets the professional's matching_status to withdrawn; the professional is removed from inclusion in Discovery, but their record, required audit trail, dispute records, and regulatory metadata are RETAINED per §11.8. **High-impact action**: this tool MUST require step-up authentication at the point of action — re-auth via OAuth flow, second factor via TOTP, out-of-band push approval, or equivalent. The protocol mandates the requirement; the specific mechanism is implementation choice in v0.8.2. The audit event records previous_state, resulting_state, reason_code, the principal-delegation context, and the auth_tier reflecting the step-up authentication applied.",
       "input_schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
@@ -1383,18 +1173,34 @@
             "description": "Token or proof that step-up authentication was completed at the point of action. The protocol requires that step-up authentication happen; the specific token shape is implementation-specific in v0.8.2."
           }
         },
-        "required": ["reason_code", "step_up_token"],
+        "required": [
+          "reason_code",
+          "step_up_token"
+        ],
         "additionalProperties": false
       },
       "output_schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
-          "matching_status": { "type": "string", "const": "withdrawn" },
-          "withdrawn_at": { "type": "string", "format": "date-time" },
-          "audit_event_id": { "type": "string", "minLength": 1 }
+          "matching_status": {
+            "type": "string",
+            "const": "withdrawn"
+          },
+          "withdrawn_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "audit_event_id": {
+            "type": "string",
+            "minLength": 1
+          }
         },
-        "required": ["matching_status", "withdrawn_at", "audit_event_id"],
+        "required": [
+          "matching_status",
+          "withdrawn_at",
+          "audit_event_id"
+        ],
         "additionalProperties": false
       },
       "error_codes": [
@@ -1416,7 +1222,7 @@
     },
     {
       "name": "submit_consent_receipt",
-      "description": "Submit a captured consent receipt to ATAH and receive a consent_receipt_id. The asserting platform constructs the structured receipt (per consent-receipt.schema.json), captures consumer consent through its own consent ceremony, and submits the receipt here. ATAH validates, computes the SHA-256 hash, computes the F-3 continuity-binding metadata (client_id, pseudonymous_consumer_ref HMAC, data_categories_hash for disclosure_consent), stores the hash and metadata, and returns the consent_receipt_id. Subsequent consenting tools (find_professional, initiate_introduction, submit_stage2_data, submit_stage3_data, report_introduction_outcome) take consent_receipt_id by reference. Per spec §4.10: consent_type is restricted to query_authorization and disclosure_consent — engagement_consent is excluded by design. Per F-4: Component 3 actions are NOT consenting actions in the consumer-consent sense and do not use this tool.",
+      "description": "Submit a captured consent receipt to ATAH and receive a consent_receipt_id. The asserting platform constructs the structured receipt (per consent-receipt.schema.json), captures consumer consent through its own consent ceremony, and submits the receipt here. ATAH validates, computes the SHA-256 hash, computes the F-3 continuity-binding metadata (client_id, pseudonymous_consumer_ref HMAC, data_categories_hash for disclosure_consent), stores the hash and metadata, and returns the consent_receipt_id. Subsequent consenting tools (find_professional, initiate_introduction, submit_stage2_data, submit_stage3_data, report_introduction_outcome) take consent_receipt_id by reference. Per spec §4.10: consent_type is restricted to query_authorization and disclosure_consent — engagement_consent is excluded by design.",
       "input_schema": {
         "$ref": "https://atahprotocol.org/spec/v0.8/schemas/consent-receipt.schema.json"
       },

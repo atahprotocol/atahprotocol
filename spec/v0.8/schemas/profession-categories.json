@@ -8,7 +8,6 @@
     "compliance_status": "active",
     "default_pre_handoff_check": "conflict_check",
     "stage2_auth_tier": "tier_2",
-    "referral_proposal_expiry_months": 6,
     "band_definitions": [
       {
         "band_name": "verification_confidence",
@@ -53,7 +52,6 @@
     "compliance_status": "active",
     "default_pre_handoff_check": "scope_confirmation",
     "stage2_auth_tier": "tier_1",
-    "referral_proposal_expiry_months": 6,
     "band_definitions": [
       {
         "band_name": "verification_confidence",
@@ -97,7 +95,6 @@
     "compliance_status": "compliance-pending",
     "default_pre_handoff_check": "capacity_confirmation",
     "stage2_auth_tier": "tier_3",
-    "referral_proposal_expiry_months": 6,
     "band_definitions": [
       {
         "band_name": "verification_confidence",
@@ -142,7 +139,6 @@
     "compliance_status": "active",
     "default_pre_handoff_check": "scope_confirmation",
     "stage2_auth_tier": "tier_2",
-    "referral_proposal_expiry_months": 6,
     "band_definitions": [
       {
         "band_name": "verification_confidence",
@@ -186,7 +182,6 @@
     "compliance_status": "active",
     "default_pre_handoff_check": "scope_confirmation",
     "stage2_auth_tier": "tier_2",
-    "referral_proposal_expiry_months": 6,
     "band_definitions": [
       {
         "band_name": "verification_confidence",
@@ -230,7 +225,6 @@
     "compliance_status": "active",
     "default_pre_handoff_check": "scope_confirmation",
     "stage2_auth_tier": "tier_2",
-    "referral_proposal_expiry_months": 6,
     "band_definitions": [
       {
         "band_name": "verification_confidence",
@@ -275,7 +269,6 @@
     "compliance_status": "active",
     "default_pre_handoff_check": "scope_confirmation",
     "stage2_auth_tier": "tier_2",
-    "referral_proposal_expiry_months": 6,
     "band_definitions": [
       {
         "band_name": "verification_confidence",
@@ -320,7 +313,6 @@
     "compliance_status": "active",
     "default_pre_handoff_check": "scope_confirmation",
     "stage2_auth_tier": "tier_2",
-    "referral_proposal_expiry_months": 6,
     "band_definitions": [
       {
         "band_name": "verification_confidence",
@@ -365,7 +357,6 @@
     "compliance_status": "active",
     "default_pre_handoff_check": "scope_confirmation",
     "stage2_auth_tier": "tier_1",
-    "referral_proposal_expiry_months": 6,
     "band_definitions": [
       {
         "band_name": "verification_confidence",
@@ -409,7 +400,6 @@
     "compliance_status": "active",
     "default_pre_handoff_check": "scope_confirmation",
     "stage2_auth_tier": "tier_1",
-    "referral_proposal_expiry_months": 6,
     "band_definitions": [
       {
         "band_name": "verification_confidence",
@@ -453,7 +443,6 @@
     "compliance_status": "active",
     "default_pre_handoff_check": "scope_confirmation",
     "stage2_auth_tier": "tier_1",
-    "referral_proposal_expiry_months": 6,
     "band_definitions": [
       {
         "band_name": "verification_confidence",
@@ -497,7 +486,6 @@
     "compliance_status": "active",
     "default_pre_handoff_check": "scope_confirmation",
     "stage2_auth_tier": "tier_1",
-    "referral_proposal_expiry_months": 6,
     "band_definitions": [
       {
         "band_name": "verification_confidence",
@@ -541,7 +529,6 @@
     "compliance_status": "active",
     "default_pre_handoff_check": "scope_confirmation",
     "stage2_auth_tier": "tier_1",
-    "referral_proposal_expiry_months": 6,
     "band_definitions": [
       {
         "band_name": "verification_confidence",
@@ -585,7 +572,6 @@
     "compliance_status": "active",
     "default_pre_handoff_check": "scope_confirmation",
     "stage2_auth_tier": "tier_2",
-    "referral_proposal_expiry_months": 6,
     "band_definitions": [
       {
         "band_name": "verification_confidence",
@@ -629,7 +615,6 @@
     "compliance_status": "active",
     "default_pre_handoff_check": "scope_confirmation",
     "stage2_auth_tier": "tier_1",
-    "referral_proposal_expiry_months": 6,
     "band_definitions": [
       {
         "band_name": "verification_confidence",

@@ -62,20 +62,16 @@ paths:
         surface `presentation_disclosure` to the end user.
 
         The required `request_intent` parameter (`self`,
-        `on_behalf_of_client`, `referral_partner_search`) gates which
-        next-step components are available:
+        `on_behalf_of_client`) gates whether Component 2 is available next:
         - `self` → Component 2 (Consumer-self handoff) is available.
         - `on_behalf_of_client` → Component 2 is NOT available; the
-          professional handles the introduction off-protocol.
-        - `referral_partner_search` → Component 3 (Referral connection-
-          making) is available; the candidate set excludes professionals
-          the requester is already connected to via an active
-          `referral-connection`.
+          professional handles the introduction off-protocol under their
+          own consent capture with the client.
 
-        The required `limit` parameter (1–100) replaces the v0.8.1
-        `shortlist_size` field. Discovery returns a working candidate set,
-        not an exhaustive directory; AI agents requesting larger sets
-        should narrow `matter` filters.
+        The required `limit` parameter (1–100) sets candidate-set size.
+        Discovery returns a working candidate set, not an exhaustive
+        directory; AI agents requesting larger sets should narrow `matter`
+        filters.
       security:
         - oauth2: [atah:find]
       parameters:
@@ -780,12 +776,6 @@ paths:
         receipts MUST NOT be represented as professional engagement
         consent.
 
-        Per F-4 (codified in §6.4 and §7.3): Component 3 referral-
-        connection actions are governed by professional delegated
-        authority and MUST NOT use consent receipts; this endpoint accepts
-        only `consent_type: query_authorization` and `consent_type:
-        disclosure_consent`.
-
         Idempotency: required. Replay with the same Idempotency-Key
         returns the original `consent_receipt_id`.
       security:
@@ -862,141 +852,6 @@ paths:
                 required: [consent_receipt_id, revocation_status, confirmation_id]
                 additionalProperties: false
         '401': { $ref: '#/components/responses/Unauthorized' }
-        '404': { $ref: '#/components/responses/NotFound' }
-
-  /v1/referral-proposals:
-    post:
-      tags: [Professional]
-      operationId: postReferralProposal
-      summary: Component 3 — propose a referral connection.
-      description: |
-        Component 3 (Referral connection-making) — proposing professional A
-        asks ATAH to record a pending proposal targeting professional B.
-        Per F-4, this endpoint is governed by professional delegated
-        authority recorded in the request's principal-delegation context;
-        it does NOT accept `consent_receipt_id`. The target professional
-        must have `looking_for_referral_partners: true` at the time of
-        proposal creation.
-      security:
-        - oauth2: [atah:introductions:create]
-      parameters:
-        - $ref: '#/components/parameters/AcceptVersion'
-        - $ref: '#/components/parameters/IdempotencyKey'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: './schemas/referral-proposal.schema.json' }
-      responses:
-        '201':
-          description: Proposal created.
-          content:
-            application/json:
-              schema: { $ref: './schemas/referral-proposal.schema.json' }
-        '400': { $ref: '#/components/responses/ValidationError' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-        '404':
-          description: Target professional not found, or `looking_for_referral_partners` is false.
-          content:
-            application/json:
-              schema: { $ref: './schemas/error.schema.json' }
-        '429': { $ref: '#/components/responses/RateLimited' }
-
-  /v1/referral-proposals/inbound:
-    get:
-      tags: [Professional]
-      operationId: getInboundReferralProposals
-      summary: Component 3 — list inbound referral proposals.
-      description: |
-        Returns the pending Component 3 proposals targeting the calling
-        professional. Per F-4, governed by professional delegated authority.
-      security:
-        - oauth2: [atah:professionals:self_read]
-      parameters:
-        - $ref: '#/components/parameters/AcceptVersion'
-      responses:
-        '200':
-          description: Inbound proposals.
-          content:
-            application/json:
-              schema:
-                type: array
-                items: { $ref: './schemas/referral-proposal.schema.json' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-
-  /v1/referral-proposals/outbound:
-    get:
-      tags: [Professional]
-      operationId: getOutboundReferralProposals
-      summary: Component 3 — list outbound referral proposals.
-      description: |
-        Returns the pending Component 3 proposals the calling professional
-        has sent. Per F-4, governed by professional delegated authority.
-      security:
-        - oauth2: [atah:professionals:self_read]
-      parameters:
-        - $ref: '#/components/parameters/AcceptVersion'
-      responses:
-        '200':
-          description: Outbound proposals.
-          content:
-            application/json:
-              schema:
-                type: array
-                items: { $ref: './schemas/referral-proposal.schema.json' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-
-  /v1/referral-proposals/{proposal_id}:
-    get:
-      tags: [Professional]
-      operationId: getReferralProposal
-      summary: Component 3 — get proposal status.
-      security:
-        - oauth2: [atah:professionals:self_read]
-      parameters:
-        - name: proposal_id
-          in: path
-          required: true
-          schema:
-            type: string
-            pattern: '^proposal-[A-Za-z0-9-]{6,64}$'
-        - $ref: '#/components/parameters/AcceptVersion'
-      responses:
-        '200':
-          description: Proposal record.
-          content:
-            application/json:
-              schema: { $ref: './schemas/referral-proposal.schema.json' }
-        '404': { $ref: '#/components/responses/NotFound' }
-
-  /v1/referral-proposals/{proposal_id}/withdraw:
-    post:
-      tags: [Professional]
-      operationId: postReferralProposalWithdraw
-      summary: Component 3 — withdraw an outbound proposal.
-      description: |
-        The proposing professional withdraws a pending proposal before the
-        target has responded. The proposal record is deleted; the audit
-        event records the withdrawal with `resolved_at`. Per F-4, governed
-        by professional delegated authority.
-      security:
-        - oauth2: [atah:professionals:self_write]
-      parameters:
-        - name: proposal_id
-          in: path
-          required: true
-          schema:
-            type: string
-            pattern: '^proposal-[A-Za-z0-9-]{6,64}$'
-        - $ref: '#/components/parameters/IdempotencyKey'
-      responses:
-        '200':
-          description: Proposal withdrawn.
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
 
   /v1/webhooks/register:
@@ -1207,12 +1062,11 @@ paths:
       operationId: putProfessionalSelf
       summary: Update own profile (self-managed fields only).
       description: |
-        Update self-managed fields on the professional's record. Self-managed
-        fields include `looking_for_referral_partners` (Component 3 visibility
-        toggle); changes to partner-managed fields (e.g. licence status) are
-        rejected. Per F1.2, requires authenticated professional account or
-        delegated professional-agent token; firm admin actions use
-        `firm_delegation` with appropriate `object_constraints`.
+        Update self-managed fields on the professional's record. Changes to
+        partner-managed fields (e.g. licence status) are rejected. Per F1.2,
+        requires authenticated professional account or delegated
+        professional-agent token; firm admin actions use `firm_delegation`
+        with appropriate `object_constraints`.
       security:
         - oauth2: [atah:professionals:self_write]
       requestBody:
@@ -1222,14 +1076,7 @@ paths:
             schema:
               type: object
               description: |
-                Partial profile update. Self-managed fields only. The
-                `looking_for_referral_partners` toggle (Component 3) is
-                included in this update path; v0.8.2 does not introduce a
-                dedicated PATCH endpoint for the toggle.
-              properties:
-                looking_for_referral_partners:
-                  type: boolean
-                  description: Component 3 visibility toggle. Default false.
+                Partial profile update. Self-managed fields only.
               additionalProperties: true
       responses:
         '200':
@@ -1284,11 +1131,7 @@ paths:
         implementation choice in v0.8.2.
 
         The professional's record, required audit trail, dispute records,
-        regulatory metadata, and existing Component 3 referral connections
-        are **retained** per §11.8 / §11.9. Connection records are not
-        automatically withdrawn — withdrawal-from-matching does not imply
-        withdrawal-from-Component-3-connections; either can be performed
-        independently.
+        and regulatory metadata are **retained** per §11.8 / §11.9.
 
         The audit event records `previous_state`, `resulting_state`
         (`withdrawn`), `reason_code`, the principal-delegation context,
@@ -1383,99 +1226,6 @@ paths:
       responses:
         '200':
           description: Response recorded.
-
-  /v1/referral-connections:
-    get:
-      tags: [Professional]
-      operationId: getReferralConnections
-      summary: Component 3 — list active referral connections.
-      description: |
-        Returns the active Component 3 referral connections involving the
-        calling professional. Connection records are kept for de-duplication
-        of `request_intent: 'referral_partner_search'` Discovery only; they
-        are not used as a competence or trust signal anywhere in the
-        protocol.
-      security:
-        - oauth2: [atah:professionals:self_read]
-      parameters:
-        - $ref: '#/components/parameters/AcceptVersion'
-      responses:
-        '200':
-          description: Active connections.
-          content:
-            application/json:
-              schema:
-                type: array
-                items: { $ref: './schemas/referral-connection.schema.json' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-
-  /v1/referral-connections/{connection_id}/withdraw:
-    post:
-      tags: [Professional]
-      operationId: postReferralConnectionWithdraw
-      summary: Component 3 — withdraw from a referral connection.
-      description: |
-        Either party withdraws from an active connection; the connection
-        record is deleted. After withdrawal, the de-duplication exclusion
-        no longer applies (either party may appear in the other's
-        `request_intent: 'referral_partner_search'` Discovery results in
-        future). Per F-4, governed by professional delegated authority.
-      security:
-        - oauth2: [atah:professionals:self_write]
-      parameters:
-        - name: connection_id
-          in: path
-          required: true
-          schema:
-            type: string
-            pattern: '^conn-[A-Za-z0-9-]{6,64}$'
-        - $ref: '#/components/parameters/IdempotencyKey'
-      responses:
-        '200':
-          description: Connection withdrawn.
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-        '404': { $ref: '#/components/responses/NotFound' }
-
-  /v1/referral-proposals/{proposal_id}/respond:
-    post:
-      tags: [Professional]
-      operationId: postReferralProposalRespond
-      summary: Component 3 — accept or decline an inbound proposal.
-      description: |
-        The target professional accepts or declines a pending Component 3
-        proposal. On acceptance, ATAH creates a `referral-connection` record
-        and deletes the proposal record. On decline, the proposal record is
-        deleted. Per F-4, governed by professional delegated authority.
-      security:
-        - oauth2: [atah:professionals:self_write]
-      parameters:
-        - name: proposal_id
-          in: path
-          required: true
-          schema:
-            type: string
-            pattern: '^proposal-[A-Za-z0-9-]{6,64}$'
-        - $ref: '#/components/parameters/IdempotencyKey'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                response:
-                  type: string
-                  enum: [accept, decline]
-              required: [response]
-              additionalProperties: false
-      responses:
-        '200':
-          description: Response recorded.
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-        '404': { $ref: '#/components/responses/NotFound' }
 
   /v1/professionals/me/disputes:
     get:

@@ -54,7 +54,6 @@
           "enum": [
             "consumer",
             "professional",
-            "firm_admin",
             "partner",
             "verifier",
             "governance_admin",
@@ -84,8 +83,6 @@
                 "type": "string",
                 "enum": [
                   "handoff_id",
-                  "proposal_id",
-                  "referral_id",
                   "professional_id",
                   "partner_id",
                   "verifier_id",

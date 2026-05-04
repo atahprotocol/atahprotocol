@@ -37,10 +37,6 @@
         "partner_suspended",
         "verifier_suspended",
         "security_event",
-        "referral_proposal_created",
-        "referral_proposal_resolved",
-        "referral_connection_created",
-        "referral_connection_withdrawn",
         "professional_withdrew_from_matching",
         "delegated_token_revoked",
         "withdrawal_recorded",
@@ -72,8 +68,6 @@
             "consent_receipt",
             "dispute",
             "flag",
-            "referral_proposal",
-            "referral_connection",
             "vault_object",
             "delegated_token"
           ]
@@ -105,24 +99,14 @@
       "pattern": "^atah-[A-Za-z0-9-]{6,64}$",
       "description": "Professional this event is associated with, when applicable."
     },
-    "proposal_id": {
-      "type": "string",
-      "pattern": "^proposal-[A-Za-z0-9-]{6,64}$",
-      "description": "Component 3 referral-proposal this event is associated with, when applicable."
-    },
-    "connection_id": {
-      "type": "string",
-      "pattern": "^conn-[A-Za-z0-9-]{6,64}$",
-      "description": "Component 3 referral-connection this event is associated with, when applicable."
-    },
     "pseudonymous_consumer_ref": {
       "type": "string",
       "description": "Pseudonymous, HMAC-form consumer reference where appropriate. MUST be an HMAC with a protected audit key or a per-context salted hash; plain hashes of email or phone numbers are guessable and MUST NOT be placed here."
     },
     "request_intent": {
       "type": "string",
-      "enum": ["self", "on_behalf_of_client", "referral_partner_search"],
-      "description": "Discovery `request_intent` declared on the originating query (Phase 2), when the event is downstream of a Discovery query."
+      "enum": ["self", "on_behalf_of_client"],
+      "description": "Discovery `request_intent` declared on the originating query, when the event is downstream of a Discovery query."
     },
     "stage": {
       "type": "string",
@@ -130,7 +114,7 @@
     },
     "payload_type": {
       "type": "string",
-      "description": "Type label for the payload involved (e.g. `stage_2_prehandoff`, `stage_3_contact`, `referral_proposal_message`). NOT payload content."
+      "description": "Type label for the payload involved (e.g. `stage_2_prehandoff`, `stage_3_contact`). NOT payload content."
     },
     "consent_receipt_id": {
       "type": "string",
