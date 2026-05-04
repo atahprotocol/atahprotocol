@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: ATAH — Agent to Authenticated Human Protocol
-  version: 0.8.0
+  version: 0.8.2
   description: |
     ATAH REST binding (v0.8). One of the v0.8 reference bindings; alternative or
     additional bindings may be defined in future. The protocol-level requirements
@@ -10,11 +10,11 @@ info:
 
     This contract conforms to ATAH binding conformance (spec Section 14.2).
 
-    **v0.8.0 status note:** External API, Auth, and discovery endpoints carry full
+    **v0.8.2 status note:** External API, Auth, and discovery endpoints carry full
     operation definitions with examples. Professional, Partner, Independent
     Verifier, and Admin endpoints are documented at stub level — operation,
     scopes, and key body/response refs only. Per-endpoint examples for those four
-    surfaces are scheduled for v0.8.1.
+    surfaces are scheduled for v0.8.3.
   license:
     name: Apache-2.0
     url: https://www.apache.org/licenses/LICENSE-2.0
@@ -1018,7 +1018,7 @@ paths:
               schema: { type: object, additionalProperties: true }
 
   # ============================================================
-  # Professional API (stub-level for v0.8.0; full per-endpoint examples in v0.8.1)
+  # Professional API (stub-level for v0.8.2; full per-endpoint examples in v0.8.3)
   # ============================================================
   /v1/professionals/register:
     post:
@@ -1482,7 +1482,7 @@ paths:
         '404': { $ref: '#/components/responses/NotFound' }
 
   # ============================================================
-  # Partner API (stub-level for v0.8.0)
+  # Partner API (stub-level for v0.8.2)
   # ============================================================
   /v1/partners/register:
     post:
@@ -1636,7 +1636,7 @@ paths:
           description: Retraction recorded.
 
   # ============================================================
-  # Verifier API (stub-level for v0.8.0)
+  # Verifier API (stub-level for v0.8.2)
   # ============================================================
   /v1/verifiers/register:
     post:
@@ -1779,7 +1779,7 @@ paths:
           description: Audit status.
 
   # ============================================================
-  # Admin API (stub-level for v0.8.0)
+  # Admin API (stub-level for v0.8.2)
   # ============================================================
   /v1/admin/professionals:
     get:
