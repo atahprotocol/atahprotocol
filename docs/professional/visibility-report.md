@@ -54,8 +54,6 @@ For professionals who haven't read the matching engine specification (most of yo
 
 **Review platform signals — where present.** Supplement the band-input picture but do not move a candidate into a higher band in regulated categories unless corroborated by an authoritative source like a regulator or professional body. Capped per category — for high-stakes regulated categories, the review-derived contribution is bounded by the category-specific `review_signal_band_cap` regardless of review volume. Reviews complement but do not substitute for credential verification.
 
-**Component 3 looking-toggle status.** Whether the professional has set `looking_for_referral_partners: true` (default off). The toggle controls visibility in inbound Component 3 referral-partner Discovery; it does **not** feed consumer matching. Component 3 connection records are kept for de-duplication of `request_intent: 'referral_partner_search'` Discovery only and are not used as a competence or trust signal anywhere in the protocol. The v0.8.1 "inbound referral signal" component of the matching engine is removed in v0.8.2.
-
 ## Frequency and access
 
 The planned design:

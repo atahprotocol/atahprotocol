@@ -26,7 +26,7 @@ Three principles cut across categories:
 
 ## Category-specific guidance
 
-The following category-specific guidance describes signals indicating handoff is appropriate, signals indicating handoff is premature, the shape of an effective Stage 1 query, and special considerations — for each launch category covered by ATAH at v0.8.1.
+The following category-specific guidance describes signals indicating handoff is appropriate, signals indicating handoff is premature, the shape of an effective Stage 1 query, and special considerations — for each launch category covered by ATAH at v0.8.2.
 
 The categories below are the launch-supported set with the sharpest AI-discoverability questions. Refer to `profession-categories.json` for the canonical category metadata (matching weight profile, review weight cap, default Stage 2 check, auth tier).
 
@@ -82,9 +82,9 @@ The categories below are the launch-supported set with the sharpest AI-discovera
 
 ### Healthcare (deferred)
 
-**Status at v0.8.1.** Healthcare is registration-only at v0.8.1 — open for professional registration but not surfaced in matching pending HIPAA-compliant variant implementation and category compliance annex completion (per PRD §9 healthcare entry).
+**Status at v0.8.2.** Healthcare is registration-only at v0.8.2 — open for professional registration but not surfaced in matching pending HIPAA-compliant variant implementation and category compliance annex completion (per PRD §9 healthcare entry).
 
-**Platform-side guidance for v0.8.1.** AI platforms should not rely on ATAH for healthcare professional handoff at v0.8.1. Where a user requires healthcare professional input, platforms should continue to use whatever fallback they currently use (generic referral text, integration with a category-specific service, or escalation to direct user search). The AI may still help the user prepare for a healthcare conversation (questions to ask, information to bring, how to describe symptoms).
+**Platform-side guidance for v0.8.2.** AI platforms should not rely on ATAH for healthcare professional handoff at v0.8.2. Where a user requires healthcare professional input, platforms should continue to use whatever fallback they currently use (generic referral text, integration with a category-specific service, or escalation to direct user search). The AI may still help the user prepare for a healthcare conversation (questions to ask, information to bring, how to describe symptoms).
 
 **When the healthcare annex is published.** Once the HIPAA-compliant variant lands and the category compliance annex is approved, this section will be expanded with category-specific trigger guidance covering urgent care vs. routine, mental health considerations, pediatric and minor-consent edge cases, and special handling for substance use, reproductive health, and other categories with elevated privacy considerations.
 

@@ -12,27 +12,27 @@
 
 ## Summary table
 
-**Total scenarios: 56** across 10 categories. Final v0.8.2 status distribution:
+**Total scenarios: 53** across 10 categories. Final v0.8.2 status distribution:
 
 | Status | Count | % | What it means |
 |---|---:|---:|---|
-| `resolved` | 35 | 62.5% | Protocol behaviour fully addresses the scenario; conforming implementations close the loop. |
-| `bounded-by-protocol` | 5 | 8.9% | Protocol detects, limits, or makes verifiable; does not fully eliminate (e.g. consent-receipt integrity vs underlying-ceremony validity). |
-| `allocated-to-platform-responsibility` | 1 | 1.8% | Resolution belongs to AI platform / partner / verifier under their own obligations; ATAH publishes the disclosure surface. |
-| `partially-resolved` | 13 | 23.2% | Substantially addressed in v0.8.2; remaining work in a later v0.8.3 / v0.9 phase, with explicit reference. |
-| `deferred` | 2 | 3.6% | Acknowledged but not addressed in v0.8.2; explicit target version. |
-| `skeleton` | **0** | 0% | **All Phase 0A skeleton statuses processed.** |
+| `resolved` | 33 | 62.3% | Protocol behaviour fully addresses the scenario; conforming implementations close the loop. |
+| `bounded-by-protocol` | 5 | 9.4% | Protocol detects, limits, or makes verifiable; does not fully eliminate (e.g. consent-receipt integrity vs underlying-ceremony validity). |
+| `allocated-to-platform-responsibility` | 1 | 1.9% | Resolution belongs to AI platform / partner / verifier under their own obligations; ATAH publishes the disclosure surface. |
+| `partially-resolved` | 12 | 22.6% | Substantially addressed in v0.8.2; remaining work in a later v0.8.3 / v0.9 phase, with explicit reference. |
+| `deferred` | 2 | 3.8% | Acknowledged but not addressed in v0.8.2; explicit target version. |
+| `skeleton` | **0** | 0% | **All seed-scenario skeleton statuses processed.** |
 
 **Per-category distribution:**
 
 | Cat | Title | Total | Statuses |
 |---:|---|---:|---|
-| 1 | Authentication and Delegation Abuse | 6 | 2 resolved · 1 bounded-by-protocol · 3 partially-resolved |
-| 2 | Consent Boundary Failure | 7 | 6 resolved · 1 bounded-by-protocol |
+| 1 | Authentication and Delegation Abuse | 5 | 2 resolved · 1 bounded-by-protocol · 2 partially-resolved |
+| 2 | Consent Boundary Failure | 6 | 5 resolved · 1 bounded-by-protocol |
 | 3 | Ordering and Recommendation Drift | 6 | 4 resolved · 1 allocated-to-platform-responsibility · 1 partially-resolved |
 | 4 | Transparency and Explainability Failure | 9 | 7 resolved · 1 bounded-by-protocol · 1 partially-resolved |
 | 5 | Vault, Erasure, and Audit Abuse | 4 | 3 resolved · 1 bounded-by-protocol |
-| 6 | Withdrawal Abuse | 5 | 4 resolved · 1 partially-resolved |
+| 6 | Withdrawal Abuse | 4 | 3 resolved · 1 partially-resolved |
 | 7 | Contact Freshness and Engagement Liveness | 4 | 3 resolved · 1 deferred (7.3 → v0.8.3) |
 | 8 | Partner and Governance Capture | 7 | 2 resolved · 1 bounded-by-protocol · 4 partially-resolved |
 | 9 | Category and Jurisdiction Misfit | 4 | 1 resolved · 3 partially-resolved |
@@ -47,7 +47,6 @@
 
 - **1.4** Phase 1 structural basis + **Phase 3** step-up authentication completes resolution.
 - **1.5** Phase 1 structural carrier + **Phase 4** continuity-binding fields complete cross-platform-replay detection.
-- **1.6** Phase 2 toggle gating + rate limits; **dense-cluster pattern detection → v0.8.3 monitoring**.
 - **3.6** Phase 5 model + non-determinism conformance test; **algorithm standardisation → v0.9**.
 - **4.4** Phase 6 transparency surface + dispute path; **fuller dispute-resolution timeline / escalation criteria / evidence handling → v0.9**.
 - **6.1** Phase 3 withdrawal-as-state-transition + audit retention; **concrete rate-limit thresholds and dense-cluster harassment monitoring → v0.8.3**.
@@ -106,7 +105,7 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 - **Required user / professional disclosure.** None to consumer (an attacker should not learn the validation logic). Audit trail is accessible to the asserting platform on request, per §13.5.
 - **Required conformance test.** Conformance suite includes a request with mismatched `request_intent` / `authority_basis` and asserts `403` plus an audit event matching the metadata schema.
 - **Phase 1 contribution.** `authenticated_actor` + `client_application` + `authority_context` shape established; per-operation authority-basis validation enforced via §7.3 matrix and OpenAPI per-operation `security` blocks.
-- **Phase 2 contribution.** `request_intent` is now a required parameter on `query.schema.json` (`self` / `on_behalf_of_client` / `referral_partner_search`) and is the architectural lever gating Component 2 and Component 3 availability. Component 2 endpoints reject calls whose originating Discovery did not declare `request_intent: 'self'`; Component 3 endpoints reject calls under any authority basis other than `professional_delegated_token` / `firm_delegation`. The principal-delegation context recording the declared intent is persisted on the audit-event for every protocol action, so retroactive review of intent declarations is possible.
+- **Phase 2 contribution.** `request_intent` is a required parameter on `query.schema.json` (`self` / `on_behalf_of_client`) and is the architectural lever gating Component 2 availability. Component 2 endpoints reject calls whose originating Discovery did not declare `request_intent: 'self'`. The principal-delegation context recording the declared intent is persisted on the audit-event for every protocol action, so retroactive review of intent declarations is possible.
 - **Status: `resolved`** by Phase 2 — declaration is required, downstream component access is gated server-side, and the declared intent is recorded in the audit trail.
 
 ### 1.2 Platform submits consent for a user who did not consent
@@ -152,19 +151,6 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 - **Required conformance test.** _To be filled in during Phase 4._
 - **Phase 1 contribution.** `authority_context` records the asserting `client_application` (`platform_id`, `client_id`) and the `authority_basis` (`user_session` for the original asserter, or `handoff_access_token` for stage-changing calls). The §7.3 matrix requires original-asserter match for stage-changing calls.
 - **Status: `partially-resolved`** — Phase 1 supplies the structural carrier; Phase 4 adds the continuity binding fields on the stored consent receipt that detect cross-platform replay end-to-end.
-
-### 1.6 Component 3 proposal spam via looking-toggle gaming
-
-- **Scenario.** An attacker (or a poorly-bounded automated proposer) issues large volumes of Component 3 proposals targeting professionals who have set `looking_for_referral_partners: true`, harassing the targets or saturating their inbound queues. A variant: an attacker repeatedly toggles `looking_for_referral_partners` on briefly to receive proposals from waiting proposers, then off, gaming the de-duplication exclusion.
-- **Abuse / failure mode.** Proposal-flow abuse not present in v0.8.1; introduced in v0.8.2 by Component 3.
-- **Expected protocol behaviour.** Per-period rate limits on proposals per `proposing_professional_id` (configurable; default category-tier-appropriate). Audit-event records every `referral_proposal_*` action with the principal-delegation context, so abuse patterns are visible. The `looking_for_referral_partners` toggle is default-off; proposals to professionals not currently looking are rejected. Reciprocal/dense-cluster toggle patterns flagged for review (see v0.8.3 deferral below).
-- **Required audit events.** `event_type: referral_proposal_created`, `referral_proposal_resolved`, with the resolution reason recorded; for toggle changes, `event_type: profile_updated` with the field-level diff.
-- **Required user / professional disclosure.** Targets MAY surface declined / silently-lapsed proposal counts in their professional portal. Proposers MAY surface their own outbound proposal status. Implementation-side, not protocol-mandated.
-- **Required conformance test.** Conformance suite verifies that proposals to professionals with `looking_for_referral_partners: false` are rejected, and that the per-period rate limit returns `429` after threshold.
-- **Phase mapping.** Phase 2 (introduces the surface and per-period rate limits); residual harassment-monitoring deferred to v0.8.3.
-- **Status: `partially-resolved`** — Phase 2 closes the structural side (toggle gating, rate limits, audit recording). The dense-cluster / reciprocal-toggle pattern detection is `deferred-to-v0.8.3` for monitoring.
-
----
 
 ## Category 2 — Consent Boundary Failure
 
@@ -230,18 +216,6 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 - **Required conformance test.** Conformance suite issues a receipt with scope `stage_2_prehandoff_submission` then attempts consumption at `stage_3_contact_release`; verifies rejection. Also: receipt with one set of data categories, attempt to share a different set; verifies rejection.
 - **Status: `resolved`** by F-3 continuity binding (`scope` and `data_categories_hash` checks) + receipt expiry.
 
-### 2.7 Component 3 endpoint accidentally accepts a consumer consent receipt
-
-- **Scenario.** An implementation, by oversight or attempted escalation, accepts a `consent_receipt_id` parameter on a Component 3 endpoint and treats it as authorising a referral connection.
-- **Abuse / failure mode.** Category error: consumer disclosure consent is treated as professional referral-connection authorisation. Could escalate consumer consent into broader professional-side actions.
-- **Expected protocol behaviour.** Per F-4 / spec §6.4 / Charter Part Two operational commitments: Component 3 actions MUST be authorised through authenticated professional delegation; they MUST NOT use consumer disclosure-consent receipts. The `scope` enum on `consent-receipt.schema.json` and `consent-receipt-stored.schema.json` does NOT contain `type_2_referral_participation` or `type_3_referred_client`. Component 3 OpenAPI endpoints and MCP tools have no `consent_receipt_id` parameter.
-- **Required audit events.** Any attempt to register a `consent_receipt_id` against a Component 3 action fails validation; the failed attempt is recorded as a `security_event`.
-- **Required user / professional disclosure.** Failed attempt surfaces to the calling agent; the action does not proceed.
-- **Required conformance test.** Conformance suite attempts to call a Component 3 endpoint with a `consent_receipt_id` parameter; verifies rejection (the parameter is not part of the request schema). Conformance suite also verifies that no consent receipt can be issued with `consent_type: engagement_consent` or with the v0.8.1 `type_2_referral_participation` / `type_3_referred_client` scopes (those values are absent from the enum).
-- **Status: `resolved`** by F-4: `consent_receipt_id` is structurally absent from Component 3 endpoints/tools; the scope enum excludes the v0.8.1 referral values.
-
----
-
 ## Category 3 — Ordering and Recommendation Drift
 
 **Phase mapping:** Phase 5.
@@ -260,13 +234,11 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 
 - **Scenario.** Implementation publishes "no global match score" framing while internally computing a score and using it to bias ordering.
 - **Abuse / failure mode.** Recommendation in disguise; the published ordering policy does not reflect the actual ranking basis.
-- **Expected protocol behaviour.** Per spec §9.1, v0.8.2 removes `match_score`, `match_factors`, `presentation_disclosure.ranking_basis`, and every reference to `inbound_referral_signal` from `match-response.schema.json` in full. The "no global score" claim is structurally observable: no `match_score` field exists at any layer of the schema. Per F1.11, "a hidden global score plus randomised display would look cosmetic and undermine the claim that ATAH is not ranking by preference"; the structural removal closes that vector.
+- **Expected protocol behaviour.** Per spec §9.1, the "no global score" claim is structurally observable: no global score field exists at any layer of `match-response.schema.json`. Per F1.11, "a hidden global score plus randomised display would look cosmetic and undermine the claim that ATAH is not ranking by preference"; the structural absence closes that vector.
 - **Required audit events.** None specific (the structural absence is the verification surface, not an audit-event surface).
 - **Required user / professional disclosure.** Response-level `presentation_disclosure.ordering_policy` declares the mode (`stratified_random` by default) and `atah_expresses_preference: false`.
-- **Required conformance test.** Conformance suite verifies that no `match_score` or `match_factors` field is present in any match-response example or in implementation responses; that `band_assignment` is populated for every candidate; and (per §9.5) that within-band ordering is observably non-deterministic.
-- **Phase 2 contribution.** Removed `inbound_referral_signal` from `profession-category.matching_weight_profile` and from match-response example outputs.
-- **Phase 5 contribution.** Removed `match_score`, `match_factors`, `presentation_disclosure.ranking_basis` from the schema entirely; replaced with `filters_passed`, `band_assignment`, `ordering_policy`. The transitional four-component weighted model is gone.
-- **Status: `resolved`** by Phase 5's full removal of the weighted-score architecture from the schema.
+- **Required conformance test.** Conformance suite verifies that no global score field is present in any match-response example or in implementation responses; that `band_assignment` is populated for every candidate; and (per §9.5) that within-band ordering is observably non-deterministic.
+- **Status: `resolved`** by the structural absence of any global score in `match-response.schema.json` and the band-and-stratify architecture in §9.1.
 
 ### 3.3 Commercial partner candidates appear disproportionately
 
@@ -497,19 +469,6 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 - **Required conformance test.** Conformance suite verifies that an attempt to call `withdraw_from_matching` (or POST `/v1/professionals/me/withdraw`) without a valid `step_up_token` returns `403` with the appropriate error code.
 - **Status: `resolved`** by §13.2A step-up authentication requirement on high-impact withdrawals.
 
-### 6.5 Component 3 connection records persist after professional withdrawal from matching
-
-- **Scenario.** Professional A withdraws their record from matching (or their `matching_status` flips to `withdrawn`). Active Component 3 referral connections involving A continue to exist as `referral-connection` records — they were not what A's withdrawal was supposed to end.
-- **Abuse / failure mode.** Mismatch between A's mental model of withdrawal ("I am no longer in ATAH") and what protocol withdrawal removes (matching pool, not Component 3 connections); audit interpretation may be ambiguous if the design choice is not explicit.
-- **Expected protocol behaviour.** Per Phase 3 spec §11.9, withdrawal-from-matching (scenario 5) and Component 3 referral proposal / connection withdrawal (scenario 6) are **deliberately distinct withdrawal scenarios**. Withdrawal-from-matching removes the professional from inclusion in Discovery but does NOT cascade to Component 3 connections; explicit `POST /v1/referral-connections/:connection_id/withdraw` is required to withdraw each connection. The design is deliberate: Component 3 actions are governed by professional delegated authority (per F-4 / spec §6.4), not by matching presence; a professional may legitimately wish to be withdrawn from Discovery while retaining active referral relationships with known peers (e.g. not taking new clients but still referring to or receiving referrals from existing partners). The matching-status axis and the connection-axis are independent. Implementations and consumer-facing copy MUST be explicit about this independence so the professional's mental model matches the protocol's behaviour.
-- **Required audit events.** Withdrawal-from-matching (scenario 5) generates an audit event with `event_type: matching_status_changed`, `previous_state` / `resulting_state` / `reason_code` per §11.9, and step-up authentication confirmation. Connection withdrawal (scenario 6) generates an audit event with `event_type: referral_connection_withdrawn` per the connection-record lifecycle. The audit log makes it possible to distinguish between the two withdrawal axes for a given professional over time.
-- **Required user / professional disclosure.** Professional-facing portal MUST display matching-status and active Component 3 connections as **separate state surfaces**, with the independence between them made explicit in the UX (e.g. "you are withdrawn from matching but still have N active referral connections; withdraw each connection separately if intended"). This is presentation guidance for conforming implementations; the protocol-level requirement is that the two state surfaces are independently queryable through the spec's professional API.
-- **Required conformance test.** Conformance suite verifies that setting `matching_status: withdrawn` does NOT automatically delete the professional's `referral-connection` records, and that `POST /v1/referral-connections/:connection_id/withdraw` is the only way to withdraw a specific connection.
-- **Phase mapping.** Phase 2 introduces Component 3 connection records; Phase 3 specifies how withdrawal-from-matching interacts with them through §11.9's two-distinct-scenarios design.
-- **Status: `resolved`** by Phase 3 §11.9 (scenario 5 vs scenario 6 are deliberately separate; the matching-status axis and the connection axis are independent) plus the Phase 2 `referral-connection` lifecycle which makes connection withdrawal an explicit per-connection action through `POST /v1/referral-connections/:connection_id/withdraw`. The mental-model gap is closed by the documented independence; conforming implementations are required to surface the two state axes separately to the professional.
-
----
-
 ## Category 7 — Contact Freshness and Engagement Liveness
 
 **Phase mapping:** Phase 7 (channel-validity verification). Engagement liveness (response-rate tracking) is **deferred to v0.8.3** — covered by Phase 7's documented deferral.
@@ -724,200 +683,3 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 - **Required user / professional disclosure.** Federation is documented as deferred so reviewers don't expect a federation answer in v0.8.2.
 - **Required conformance test.** Federation conformance test is part of the v1.0 conformance test suite.
 - **Status: `deferred`** — `deferred-to-v1.0` (federation mechanics). The v0.8.2 architecture does not preclude federation; it does not provide federation. Documented in spec §1.6 and ROADMAP "v0.9 candidates" (federation mechanics).
-
----
-
-## Phase 0A summary
-
-- **Categories defined:** 10.
-- **Seed scenarios populated:** 41 (5 / 4 / 4 / 4 / 4 / 4 / 4 / 4 / 4 / 4).
-- **Status distribution at end of Phase 0A:** 40 × `skeleton`, 1 × `deferred` (scenario 7.3, `deferred-to-v0.8.3` per Phase 7's documented engagement-liveness deferral).
-- **Phase mapping coverage:** every scenario carries a phase mapping. Phase 1 → Cat 1; Phase 4 → Cat 2; Phase 5 → Cat 3; Phase 6 → Cat 4; Phase 3 → Cats 5 and 6; Phase 7 → Cat 7 (with v0.8.3 deferral); Phase 8 → Cat 8; existing v0.8.1 work + Phase 8 → Cat 9; Phase 8 + Phase 6 → Cat 10.
-
-## Phase 1 update
-
-Category 1 (Authentication and Delegation Abuse) scenarios marked per Phase 1's contribution.
-
-- **Status updates:**
-  - 1.1 (`request_intent` falsely declared) → `partially-resolved` (becomes `resolved` after Phase 2 server-side `request_intent` validation lands).
-  - 1.2 (platform submits consent the user did not give) → `partially-resolved` here (Phase 1 records the asserter shape via `principal-delegation`); fully addressed by Phase 4's continuity binding (`client_id`, `pseudonymous_consumer_ref`, `data_categories_hash`); per F-17, eventual settled status is `bounded-by-protocol` — ATAH verifies receipt integrity, not the validity of the underlying consent ceremony.
-  - 1.3 (delegated-agent token stolen) → `resolved` by `authority_basis: professional_delegated_token` with mandatory `expires_at` and `object_constraints`. Operational hardening (rotation cadence, anomaly detection thresholds) is registry-implementation responsibility.
-  - 1.4 (firm admin acts beyond delegated authority) → `partially-resolved` here (Phase 1 supplies `firm_delegation` basis + per-professional `object_constraints`); fully resolved by Phase 3's step-up authentication for high-impact actions.
-  - 1.5 (cross-platform / cross-session handoff replay) → `partially-resolved` here (Phase 1 records the asserter `client_application` and the §7.3 original-asserter match); fully resolved by Phase 4's continuity-binding fields on the stored consent receipt.
-- **New scenarios discovered during Phase 1:** none.
-- **Status distribution after Phase 1:** 35 × `skeleton`, 1 × `resolved` (1.3), 4 × `partially-resolved` (1.1, 1.2, 1.4, 1.5), 1 × `deferred` (7.3, unchanged).
-
-## Phase 2 update
-
-Architectural simplification (GKC-COMMENTS-01) ships in Phase 2. Status changes:
-
-- **1.1 (`request_intent` falsely declared)** → **`resolved`**. Phase 2 makes `request_intent` a required parameter on the Discovery query, gates Component 2 and Component 3 endpoints on the originating intent, and persists the principal-delegation context recording the declared intent in every audit-event. Mismatched intent is rejected at endpoint level.
-- **3.2 (hidden score influences order despite non-recommendation claims)** → **`partially-resolved`**. Phase 2 removes the `inbound_referral_signal` matching component and example output (one signal previously available for hidden weighting is gone). The four-component weighted model that remains is still weighted-score architecture; Phase 5 supersedes it with stratified randomisation, completing resolution.
-- **3.1, 3.3, 3.4** unchanged — Phase 5 territory.
-- **Cat 2, Cat 4, Cats 5–7, Cat 8, Cat 9, Cat 10** unchanged in Phase 2 — their resolutions live in later phases.
-
-New scenarios discovered during Phase 2:
-
-- **1.6 — Component 3 proposal spam via looking-toggle gaming.** Status `partially-resolved` (Phase 2 closes structural side via toggle gating + rate limits + audit recording; dense-cluster pattern detection `deferred-to-v0.8.3`).
-- **6.5 — Component 3 connection records persist after professional withdrawal from matching.** Status `skeleton` — discovered in Phase 2 but resolution falls to Phase 3's withdrawal-as-state-transition work.
-
-**Status distribution after Phase 2:** 35 × `skeleton`, 2 × `resolved` (1.1, 1.3), 5 × `partially-resolved` (1.2, 1.4, 1.5, 1.6, 3.2), 1 × `deferred` (7.3). New total: 43 scenarios (41 seed + 2 discovered in Phase 2).
-
-## Phase 3 update
-
-Three-concept separation of payload erasure / audit retention / withdrawal-as-state-transition (Paolo's F1.14–F1.17) ships in Phase 3. Status changes:
-
-- **Category 5 (Vault, Erasure, and Audit Abuse):**
-  - 5.1 (payload erased but abuse investigation needed) → **`resolved`** by §11.8 audit retention rules and the retain-field list on `audit-event.schema.json`.
-  - 5.2 (plaintext appears in logs or notification providers) → **`bounded-by-protocol`** — the protocol's normative requirements (§11.6 implementation requirements + §11.8 HMAC requirement) close the failure mode at the spec level; ATAH cannot fully prevent operational deployments from leaking plaintext into infrastructure outside its direct control. Operational-side enforcement is a registry-implementation responsibility.
-  - 5.3 (key deletion not auditable) → **`resolved`** by §11.6 normative requirement (auditable key-destruction events) and the `key_destroyed` `event_type` on the audit-event schema.
-  - 5.4 (retrieval token reused or leaked) → **`resolved`** by §11.6 single-use retrieval-token requirement and the `data_retrieved` / `security_event` audit recording.
-- **Category 6 (Withdrawal Abuse):**
-  - 6.1 (malicious actor initiates and withdraws repeated handoffs) → **`partially-resolved`**. Phase 3 closes the structural side via withdrawal-as-state-transition + audit retention. Concrete rate-limit thresholds and harassment-monitoring (dense-cluster pattern detection) `deferred-to-v0.8.3`.
-  - 6.2 (professional withdraws profile after concern flags) → **`resolved`** by §11.9 scenario 5 (audit and dispute records preserved) + §13.2A step-up authentication requirement.
-  - 6.3 (consumer withdraws after data retrieval and expects data to be unseen) → **`resolved`** by §11.9 scenario 3, with the explicit acknowledgement that ATAH cannot force deletion from the professional's systems — the protocol is honest about its limits.
-  - 6.4 (delegated agent withdraws after account compromise) → **`resolved`** by §13.2A step-up authentication requirement on high-impact withdrawals.
-  - 6.5 (Component 3 connection records persist after professional withdrawal from matching, discovered in Phase 2) → **`resolved`** by §11.9 scenario 5's explicit framing: withdrawal-from-matching does NOT imply withdrawal-from-Component-3-connections; either can be performed independently. The interaction is documented and intentional.
-
-New scenarios discovered during Phase 3: none.
-
-**Status distribution after Phase 3:** 26 × `skeleton`, 9 × `resolved` (1.1, 1.3, 5.1, 5.3, 5.4, 6.2, 6.3, 6.4, 6.5), 1 × `bounded-by-protocol` (5.2), 6 × `partially-resolved` (1.2, 1.4, 1.5, 1.6, 3.2, 6.1), 1 × `deferred` (7.3). Total: 43 scenarios.
-
-## Phase 4 update
-
-Consent boundaries (Paolo's F1.3 / F1.4 / F1.5 + F-3 continuity binding + F-4 Component 3 authority) ship in Phase 4. Status changes:
-
-- **F-17 correction to 1.2 (platform submits consent for a user who did not consent)** → settled at **`bounded-by-protocol`** (was `partially-resolved` after Phase 1; the eventual settled status was flagged in Phase 1's notes). Per the receipt-hash limitation framing: ATAH detects tampering, replay, and continuity mismatch via receipt hash + F-3 continuity binding (`client_id`, `pseudonymous_consumer_ref`, `data_categories_hash`); ATAH cannot prove the platform's underlying consent ceremony was valid.
-- **2.1 (handoff consent misrepresented as engagement consent)** → **`resolved`** by F1.4 normative rule (verbatim across spec / Charter / EXPLAINER / PRD), the `consent_type` enum restriction, and the canonical disclosure-language requirement.
-- **2.2 (user consents to one professional but data sent to another)** → **`resolved`** by F-3 continuity binding (`professional_id` binding + `data_categories_hash`).
-- **2.3 (consent text differs from stored receipt metadata)** → **`bounded-by-protocol`** — receipt integrity verified by hash; ATAH cannot prove what the consumer actually saw on the platform's UI per the receipt-hash limitation framing.
-- **2.4 (consent is revoked after Stage 2 or Stage 3)** → **`resolved`** by §4.10 `revocation_status` checks at every consumption point + Phase 3's §11.9 scenario 3 (consumer-withdrawal-after-Stage-3-retrieval semantics).
-
-New scenarios discovered during Phase 4 work and added to Cat 2:
-
-- **2.5 — Receipt replay across users (cross-user confusion).** **`resolved`** by F-3 `pseudonymous_consumer_ref` HMAC binding.
-- **2.6 — Receipt replay across sessions (same user, different action).** **`resolved`** by F-3 `scope` and `data_categories_hash` binding + receipt expiry.
-- **2.7 — Component 3 endpoint accidentally accepts a consumer consent receipt.** **`resolved`** by F-4: `consent_receipt_id` is structurally absent from Component 3 endpoints/tools; the scope enum excludes the v0.8.1 referral values.
-
-**Status distribution after Phase 4:** 22 × `skeleton`, 15 × `resolved` (1.1, 1.3, 2.1, 2.2, 2.4, 2.5, 2.6, 2.7, 5.1, 5.3, 5.4, 6.2, 6.3, 6.4, 6.5), 3 × `bounded-by-protocol` (1.2, 2.3, 5.2), 5 × `partially-resolved` (1.4, 1.5, 1.6, 3.2, 6.1), 1 × `deferred` (7.3). Total: **46 scenarios** (43 prior + 3 new in Phase 4 — 2.5, 2.6, 2.7).
-
-## Phase 5 update
-
-Stratified randomisation, no global match_score, review-signal band cap (Paolo's F1.10 / F1.11 / F1.12 / F1.13 + F-7 + F-13 + F-14) ship in Phase 5. Status changes:
-
-- **3.1 (candidates always returned in same order)** → **`resolved`** by §9.1 stratified-randomisation default + §9.5 conformance requirement on observable non-determinism.
-- **3.2 (hidden score influences order)** → promoted from `partially-resolved` to **`resolved`** by Phase 5's full removal of the weighted-score architecture from `match-response.schema.json` (no `match_score` / `match_factors` / `ranking_basis` field exists at any layer).
-- **3.3 (commercial partner candidates appear disproportionately)** → **`resolved`** by §9.6 commercial-neutrality MUST + §9.2 review-signal band cap + Phase 6 per-candidate `decision_explanation` transparency (Phase 5 sets up the structural surface; Phase 6 makes it required).
-- **3.4 (AI platform presents result one as "best")** → **`allocated-to-platform-responsibility`** per F-17. ATAH publishes the `presentation_disclosure.ordering_policy` disclosure and the §9.4 MUST; downstream presentation is the platform's obligation.
-
-New scenarios discovered during Phase 5 (entries 3.5, 3.6 added in Cat 3 above):
-
-- **3.5 — Review signals quietly upgrade a candidate's band in a regulated category** → **`resolved`** by §9.2 verbatim MUST rule + `review_signal_band_cap.may_upgrade_band: false` for regulated categories.
-- **3.6 — Implementation chooses a non-uniform random algorithm that systematically favours certain candidates** → **`partially-resolved`** by §9.5 (model + non-determinism conformance test); full statistical-distribution conformance lands in Phase 6 / Phase 11; v0.9 may standardise the algorithm.
-
-**Status distribution after Phase 5:** 19 × `skeleton`, 19 × `resolved` (1.1, 1.3, 2.1, 2.2, 2.4, 2.5, 2.6, 2.7, 3.1, 3.2, 3.3, 3.5, 5.1, 5.3, 5.4, 6.2, 6.3, 6.4, 6.5), 3 × `bounded-by-protocol` (1.2, 2.3, 5.2), 1 × `allocated-to-platform-responsibility` (3.4), 5 × `partially-resolved` (1.4, 1.5, 1.6, 3.6, 6.1), 1 × `deferred` (7.3). Total: **48 scenarios** (46 prior + 2 new in Phase 5).
-
-## Phase 6 update
-
-Transparency-as-conformance and decision-explanation (Paolo's F1.8 / F1.9 + F-5 inner-object-only + F-6 two-layer + F-18 rules-derived professional-facing view) ship in Phase 6. Status changes:
-
-- **4.1 (professional asks why excluded)** → **`resolved`** by §11A.4 verbatim normative rule + dedicated endpoint specification (implementation may defer to v0.8.3 but obligation is v0.8.2).
-- **4.2 (consumer asks why a candidate appeared)** → **`resolved`** by §11A.2 two-layer model + per-candidate `decision_explanation` required on `match-response.schema.json`.
-- **4.3 (auditor asks whether commercial weighting affected results)** → **`resolved`** by `decision_explanation.ordering_policy.commercial_weighting: false` (const) + `GET /v1/decision-explanations/{audit_event_id}` governance endpoint.
-- **4.4 (partner data conflict suppresses, professional appeals)** → **`partially-resolved`**. Phase 6 closes the transparency side (suppression reason visible; existing dispute path visible). Detailed dispute-resolution timeline / escalation criteria remains v0.9 work (already on ROADMAP).
-
-New scenarios discovered during Phase 6 work (added to Cat 4 above):
-
-- **4.5 (response-level only, claims conformance)** → **`resolved`** by Transparency Class conformance + schema-level required field on `MatchResult`.
-- **4.6 (exclusion summary leaks excluded professional identities)** → **`resolved`** by aggregate-only `exclusion_summary` schema structure + governance-only retrieval for named detail.
-- **4.7 (endpoint deferred; obligation becomes invisible)** → **`bounded-by-protocol`**. F-6 spec discipline keeps the obligation visible at the spec level; deferring implementations are explicit about it via the `x-implementation-deferred-to` extension and the CHANGELOG / ROADMAP record.
-- **4.8 (endpoint exposes actual query data)** → **`resolved`** by F-18 verbatim MUST NOT + cross-references across spec, CHANGELOG, EXPLAINER, PRD, and `docs/professional/visibility-report.md`.
-- **4.9 (low-volume category leakage of inferred query patterns)** → **`resolved`** by F-18 rules-derived approach + structural absence of query-count fields in the visibility-explanation response schema.
-
-**Status distribution after Phase 6:** 14 × `skeleton`, 26 × `resolved` (1.1, 1.3, 2.1, 2.2, 2.4, 2.5, 2.6, 2.7, 3.1, 3.2, 3.3, 3.5, 4.1, 4.2, 4.3, 4.5, 4.6, 4.8, 4.9, 5.1, 5.3, 5.4, 6.2, 6.3, 6.4, 6.5), 4 × `bounded-by-protocol` (1.2, 2.3, 4.7, 5.2), 1 × `allocated-to-platform-responsibility` (3.4), 6 × `partially-resolved` (1.4, 1.5, 1.6, 3.6, 4.4, 6.1), 1 × `deferred` (7.3). Total: **53 scenarios** (48 prior + 5 new in Phase 6).
-
-## Phase 7 update
-
-Contact-detail freshness mechanism (`GKC-COMMENTS-02` in full + F-15 `notification_channels` array) ships in Phase 7. Engagement liveness explicitly deferred to v0.8.3. Status changes:
-
-- **7.1 (licensed professional has stale email or phone)** → **`resolved`** by §12A.1 Layer 1 periodic verification + §12A.2 Layer 2 escalation path (with `matching_status: contact_unverified` flip after full grace period).
-- **7.2 (notification goes to an abandoned channel)** → **`resolved`** by §12A.1 Layer 1 detection + §12A.3 Layer 3 pre-handoff freshness check (high-stakes deferred-back status).
-- **7.3 (professional repeatedly misses Stage 1 response commitments)** → **`deferred`** (`deferred-to-v0.8.3` — engagement liveness, response-rate tracking). Status unchanged from Phase 0A `deferred` setting; v0.8.2 explicitly does not close this gap. ROADMAP "v0.8.3 candidates" section lists it as one of the three named v0.8.3 deferrals (alongside the professional-facing visibility endpoint implementation and Component 3 dense-cluster pattern detection).
-- **7.4 (professional appears active but is not reachable)** → **`resolved`** by §12A.3 Layer 3 pre-handoff freshness check for high-stakes categories.
-
-New scenarios discovered during Phase 7 work: none.
-
-**Status distribution after Phase 7:** 11 × `skeleton`, 29 × `resolved` (1.1, 1.3, 2.1, 2.2, 2.4, 2.5, 2.6, 2.7, 3.1, 3.2, 3.3, 3.5, 4.1, 4.2, 4.3, 4.5, 4.6, 4.8, 4.9, 5.1, 5.3, 5.4, 6.2, 6.3, 6.4, 6.5, 7.1, 7.2, 7.4), 4 × `bounded-by-protocol` (1.2, 2.3, 4.7, 5.2), 1 × `allocated-to-platform-responsibility` (3.4), 6 × `partially-resolved` (1.4, 1.5, 1.6, 3.6, 4.4, 6.1), 1 × `deferred` (7.3). Total: **53 scenarios** (no new scenarios in Phase 7; three scenarios moved from `skeleton` to `resolved`).
-
-## Phase 8 update
-
-Charter and governance updates (Paolo's F1.6 / F1.7) ship in Phase 8. Status changes:
-
-- **8.1 (paying partner seeks broader verification scope)** → **`resolved`** by hard-artifact (`verification-scope.schema.json`) + Charter Core Commitment 8 protocol-governance independence + GOVERNANCE.md §4.1 related-party disclosure.
-- **8.2 (review platform with weak anti-gaming wants admission)** → **`partially-resolved`** by existing `review-platform.schema.json` + Phase 5 §9.2 structural protection. Fuller minimum-criteria specification is v0.9 work via the Charter Part Two hard-artifacts list.
-- **8.3 (verifier sells enhanced verification as a purchasable badge)** → **`partially-resolved`** by existing `independent-verifier.schema.json` + Phase 5 §9.6 commercial-neutrality rule. Fuller verifier conflict and audit rules are v0.9 work.
-- **8.4 (founder-affiliated entity seeks preferential treatment)** → **`resolved`** by Charter Core Commitments 7 and 8 + GOVERNANCE.md §4.1 related-party disclosure and recusal.
-- **9.1 (legal conflict rules vary by jurisdiction)** → **`partially-resolved`** by existing v0.8.1 category-annex work + Phase 5 / Phase 6 transparency surface. Per-jurisdiction canonicalisation is v0.9 work via the canonical category-annex template.
-- **9.2 (healthcare data requires stronger compliance controls)** → **`partially-resolved`** by existing `compliance_status` mechanism + §9.1 hard filter. Per-jurisdiction healthcare compliance specification is v0.9 work.
-- **9.3 (financial-advice terminology differs by country)** → **`partially-resolved`** by existing v0.8.1 cross-jurisdiction default + per-category metadata. Per-jurisdiction terminology canonicalisation is v0.9 work.
-- **9.4 (established-practitioner categories lack authoritative regulators)** → **`resolved`** by the two-tier model + Phase 5 tier-templated `band_definitions` + provenance map.
-- **10.1 (third-party registry omits transparency metadata)** → **`resolved`** by Phase 6 Transparency Class + Charter Part Two hard-artifacts (revocable conformance mark) + Charter Core Commitment 8.
-- **10.2 (registry applies commercial ordering while preserving provenance)** → **`resolved`** by Charter + Phase 5 stratified-randomisation rule + §9.5 conformance non-determinism test.
-- **10.3 (implementation changes consent or withdrawal semantics)** → **`resolved`** by Phase 3 / Phase 4 schema-enforced semantics + Charter conformance test surface + revocable conformance mark.
-- **10.4 (federation introduces inconsistent identity or audit handling)** → **`deferred`** — `deferred-to-v1.0`. Federation mechanics are explicitly v0.9 / v1.0 work per spec §1.6.
-
-New scenarios discovered during Phase 8: none.
-
-**Status distribution after Phase 8:** 0 × `skeleton`, **35 × `resolved`** (1.1, 1.3, 2.1, 2.2, 2.4, 2.5, 2.6, 2.7, 3.1, 3.2, 3.3, 3.5, 4.1, 4.2, 4.3, 4.5, 4.6, 4.8, 4.9, 5.1, 5.3, 5.4, 6.2, 6.3, 6.4, 6.5, 7.1, 7.2, 7.4, 8.1, 8.4, 9.4, 10.1, 10.2, 10.3), 4 × `bounded-by-protocol` (1.2, 2.3, 4.7, 5.2), 1 × `allocated-to-platform-responsibility` (3.4), **11 × `partially-resolved`** (1.4, 1.5, 1.6, 3.6, 4.4, 6.1, 8.2, 8.3, 9.1, 9.2, 9.3), **2 × `deferred`** (7.3 to-v0.8.3, 10.4 to-v1.0). Total: **53 scenarios**.
-
-The skeleton-status count reaches zero at end of Phase 8. Every seed scenario has been addressed at the structural protocol level. Phase 11 will re-verify and finalise the matrix as the v0.8.2 publication artifact.
-
-## Phase 9 update
-
-Technical contract fixes (residual from `AI-PEER-REVIEW-FINDINGS-01` plus the Phase 7 schema-delta-report items 4, 5, 8, 10, 11) ship in Phase 9. Status changes: none directly — Phase 9 is technical-contract cleanup rather than scenario-resolving structural work.
-
-Per master plan §11 Phase 9 Stress-test matrix update: "this phase is technical cleanup; few stress-test scenarios map directly. Mostly validates that the matrix continues to hold after cleanup. Confirm no scenario was inadvertently un-resolved by the cleanup work."
-
-Verification performed in Phase 9:
-
-- The matrix's reliance on `acknowledged_rollup_terms: true` for individual self-registration (§10.4 / Cat 8 / Cat 10) is now structurally enforced by the new `allOf` `if/then` clause on both professional-identity schemas — strengthens 8.1 / 10.3 by closing the prose-only gap.
-- The matrix's reliance on the `compliance-pending` / `regulatory-suspended` / `admin-suspended` exclusion at §9.1 step 1 (Cat 1, Cat 7) is now also explicit at the §20 conformance ground-rule level — strengthens 1.5 / 7.1 by removing the prose-vs-conformance asymmetry.
-- The matrix's reliance on the `decision_explanation` two-layer model (Cat 4) continues to hold; the `.spectral.yaml` downgrade of `oas3-valid-media-example` does not weaken schema validation — ajv still validates examples and conformance tests still cover the layer requirements.
-- The matrix's reliance on `requesting_agent` / principal-delegation alignment (Cat 1, Cat 2) is re-verified — every `requesting_agent` field across `query.schema.json` and `handoff-component2.schema.json` references the shared `principal-delegation.schema.json` with no inline divergence.
-- The matrix's reliance on the schema reference surface (Cat 5, Cat 10) is now explicit in §17 with the F1.10 audit paragraph distinguishing OpenAPI-exposed schemas from internal-only data shapes — strengthens 5.1 / 10.1 / 10.3 by removing ambiguity about which schemas are part of the conformance surface.
-
-New scenarios discovered during Phase 9: none.
-
-**Status distribution after Phase 9:** unchanged from Phase 8 — 0 × `skeleton`, 35 × `resolved`, 4 × `bounded-by-protocol`, 1 × `allocated-to-platform-responsibility`, 11 × `partially-resolved`, 2 × `deferred`. Total: 53 scenarios. Phase 9's contribution is structural reinforcement of existing `resolved` and `partially-resolved` statuses rather than transition of any scenario across statuses.
-
-## Phase 10 update
-
-Commercial positioning (F2.6 / F2.7 / F2.8 / F2.9 with F-9 / F-10 wording corrections) ships in Phase 10. Status changes: none directly — Phase 10 is documentation/positioning, not protocol behaviour.
-
-Verification performed in Phase 10:
-
-- **Cat 4 (Transparency / Explainability) re-verified.** The 4.3 sub-scenario "Auditor asks whether commercial weighting affected results" remains `resolved` after Phase 10's framing refinement — the F2.6 *defensible auditable basis* framing is consistent with the Phase 6 transparency commitments and with the `presentation_disclosure.commercial_weighting: false` `const` field. No degradation to the auditor's path; the framing reinforces it.
-- **Cat 8 (Partner / Governance Capture) re-verified.** Phase 10's refinement of "no commercial weighting" — explicitly acknowledging that data-quality investment produces structural advantages, with provenance exposing the trade-off — strengthens 8.1 / 8.4 by removing the gap between the (true) "no commercial weighting" claim and the (also true) "data-quality investment shapes verification-quality signals" reality. Auditors and partner reviewers now have explicit framing that surfaces the structural trade-off rather than letting it be inferred.
-
-New scenario (low priority, flagged for v0.9 review): "Platform misuses ATAH framing in marketing, claiming ATAH 'guarantees' candidates" — partial mitigation via the F-9 corrected language (no `liability shifts` / `transfers` / `outsource liability` language; the Phase 10 grep verifies zero hits). Full mitigation requires contractual obligations on platforms in the AI Platform Developer Terms, which is post-publication operational work. Logged here for v0.9 framing audit; not assigned a Cat number in v0.8.2 because the protocol-level mitigation is what Phase 10 ships.
-
-**Status distribution after Phase 10:** unchanged from Phase 9 — 0 × `skeleton`, 35 × `resolved`, 4 × `bounded-by-protocol`, 1 × `allocated-to-platform-responsibility`, 11 × `partially-resolved`, 2 × `deferred`. Total: 53 scenarios. Phase 10's contribution is documentation reinforcement of existing `resolved` Cat 4 / Cat 8 scenarios, plus the v0.9-flagged platform-misframing scenario.
-
-## Phase 10A update
-
-Strategic-risk and conformance-framing addendum (F3.1 / F3.2 / F3.3 / F3.4 from `AI-PEER-REVIEW-FINDINGS-03-v0_8_1.md`) ships in Phase 10A. Documentation-only — no schema, OpenAPI, MCP, or lifecycle change. The two-axes lock (Phase 8 governance-layer distinction vs Phase 10A conformance-status distinction) is preserved.
-
-Status changes (per Cat / scenario, F-17 vocabulary):
-
-- **F3.4 — Cat 6 (Privacy and Data Boundaries) reinforcement.** New scenario implicit in F3.4: *"Consumer assumes 'transient' protocol means transient transaction"*. **`resolved`** by Phase 10A's tightened framing — EXPLAINER, PRD §9, and `consent-storage-rationale.md` now explicitly state that ATAH reduces central honeypot risk by avoiding another persistent store of consumer personal data, and that it does not control the full downstream data lifecycle inside AI platforms, professional systems, CRMs, or assistants. The privacy claim is narrower than "transient through the whole transaction" but more credible. Cat 6 sub-scenarios remain `resolved` (no degradation; the framing reinforces what the protocol-layer mechanisms already deliver).
-- **Cat 8 (Partner and Governance Capture) — three new F3.3-derived scenarios added:**
-  - *8.5 — "Implementation claims ATAH conformance using only the technical protocol while violating Charter spirit (e.g. opaque ordering, undisclosed commercial weighting)"*. **`partially-resolved`** by Phase 10A's three-level conformance-status distinction in `CONFORMANCE.md` (the framing makes the distinction clear in documentation: protocol-compatible / ATAH-conformant / ATAH-recognised neutral implementation; the recognised level is reserved for behavioural conformance, not just technical). Fully resolved when the v0.9 behavioural-neutrality / conformance-audit model is implemented per the new ROADMAP item.
-  - *8.6 — "Implementation falsely claims ATAH-recognised neutral status"*. **`partially-resolved`** by Phase 10A — the three-level distinction creates the framework for revocability (per CHARTER Part Two new commitment); GOVERNANCE.md §5.1 adds the public-contest right. Fully addressed when v0.9 operationalises the revocation procedure.
-  - *8.7 — "Well-resourced player forks the registry, complies with technical conformance, weakens governance in practice"*. **`bounded-by-protocol`** by Phase 10A — the framing makes the distinction visible to sophisticated reviewers (forks are protocol-compatible by default and cannot self-claim ATAH-recognised neutral status without meeting the governance/audit requirements). Fully addressed at v0.9 with audit verification regime; at v0.8.2 the protocol-level boundary is what's available.
-- **Cat 10 (Conformance Divergence) re-verified.** 10.1 / 10.2 / 10.3 remain `resolved`; the Phase 10A three-level distinction reinforces them by making the conformance-status framework explicit. 10.4 (federation) remains `deferred-to-v1.0`.
-
-New scenarios discovered during Phase 10A: three (8.5, 8.6, 8.7) named above. Each is documentation-mediated mitigation at v0.8.2 with the operational verification regime as v0.9 work — F-17 status `partially-resolved` (8.5, 8.6) and `bounded-by-protocol` (8.7) reflects this honestly.
-
-**Status distribution after Phase 10A:** 0 × `skeleton`, 35 × `resolved`, **5 × `bounded-by-protocol`** (1.2, 2.3, 4.7, 5.2, 8.7), 1 × `allocated-to-platform-responsibility`, **13 × `partially-resolved`** (1.4, 1.5, 1.6, 3.6, 4.4, 6.1, 8.2, 8.3, 8.5, 8.6, 9.1, 9.2, 9.3), 2 × `deferred`. Total: **56 scenarios** (53 prior + 3 new in Phase 10A).
-
-Phase 11 finalises the matrix as the verification artifact for v0.8.2 publication.

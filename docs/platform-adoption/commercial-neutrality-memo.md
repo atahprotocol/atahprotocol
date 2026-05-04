@@ -25,11 +25,11 @@ The following are not policy commitments that could be loosened later. They are 
 The matching logic carries no commercial weighting at any point. Partner integration fees, professional registration fees, AI platform relationships, enhanced verification fees, review platform integration arrangements, and any other commercial relationship in or around ATAH have no influence on:
 
 - Whether a professional is returned in a match result
-- The position of a professional in a ranked shortlist
+- The position of a professional in a candidate set
 - The trust signals attached to a professional's profile
 - The recommendation status of any professional or partner
 
-Matching is determined by hard filters (eligibility), transparent bands (verification confidence, category fit, availability window, contact freshness), and within-band randomisation under a documented fairness policy — never by who has paid what to whom. v0.8.2 retired the v0.8.1 weighted-score architecture (`match_score`, `match_factors`, `inbound_referral_signal`) entirely; there is no global match score in `match-response.schema.json` and the conformance test verifies that within-band ordering is observably non-deterministic across repeated queries. Where paid services generate verification evidence, that evidence is scored under the same public rubric available to all approved sources, regardless of who commissioned or paid for it. (Source: [Charter Part One core commitment 2](../../CHARTER.md); [spec §9.1 matching pipeline](../../spec/v0.8/full-spec.md).)
+Matching is determined by hard filters (eligibility), transparent bands (verification confidence, category fit, availability window, contact freshness), and within-band randomisation under a documented fairness policy — never by who has paid what to whom. There is no global match score in `match-response.schema.json` and the conformance test verifies that within-band ordering is observably non-deterministic across repeated queries. Where paid services generate verification evidence, that evidence is assessed under the same public rubric available to all approved sources, regardless of who commissioned or paid for it. (Source: [Charter Part One core commitment 2](../../CHARTER.md); [spec §9.1 matching pipeline](../../spec/v0.8/full-spec.md).)
 
 ### No per-query monetisation of the MCP endpoint
 

@@ -1,6 +1,6 @@
 # Firm and team administration
 
-**Status:** operational documentation for the ATAH-operated reference registry. Describes how firm-level concepts are handled at v0.8.1, where firms appear in professional records, the operational mechanisms available to firm administrators, and what is not yet supported. Firms and teams as first-class entities in the protocol data model are deferred to v0.9; this document describes the v0.8.1 reference-registry posture, not protocol-mandated behaviour.
+**Status:** operational documentation for the ATAH-operated reference registry. Describes how firm-level concepts are handled at v0.8.2, where firms appear in professional records, the operational mechanisms available to firm administrators, and what is not yet supported. Firms and teams as first-class entities in the protocol data model are deferred to v0.9; this document describes the v0.8.2 reference-registry posture, not protocol-mandated behaviour.
 
 **Audience:** firm administrators, intake managers, compliance partners, and IT/operations leads at firms where one or more professionals are (or will be) represented in an ATAH-conformant registry.
 
@@ -10,9 +10,9 @@
 
 ## Scope
 
-At v0.8.1 the protocol's data model treats professionals as the primary entity. The `firm` field appears on each professional record as a string identifying the firm; it is a property of the professional, not a separate first-class object with its own identifier, governance, or schema. This is a deliberate v0.8.1 simplification — firm and team as first-class protocol entities (with firm-level identifiers, firm-level data flow, firm-level governance, firm-managed visibility settings expressed through the data model) are a v0.9 candidate.
+At v0.8.2 the protocol's data model treats professionals as the primary entity. The `firm` field appears on each professional record as a string identifying the firm; it is a property of the professional, not a separate first-class object with its own identifier, governance, or schema. This is a deliberate v0.8.2 simplification — firm and team as first-class protocol entities (with firm-level identifiers, firm-level data flow, firm-level governance, firm-managed visibility settings expressed through the data model) are a v0.9 candidate.
 
-What that means in practice: at v0.8.1, firm administration in the reference registry runs through operational conventions on top of the per-professional record. Several of the patterns below — delegated administrator, compliance approver, branch controls — are reference-registry features layered on the underlying schema, not protocol-mandated behaviour that other conforming registries are required to implement identically.
+What that means in practice: at v0.8.2, firm administration in the reference registry runs through operational conventions on top of the per-professional record. Several of the patterns below — delegated administrator, compliance approver, branch controls — are reference-registry features layered on the underlying schema, not protocol-mandated behaviour that other conforming registries are required to implement identically.
 
 This document describes what the reference registry provides. Firms operating with another conforming registry should consult that registry's operational documentation for its equivalents.
 
@@ -91,15 +91,15 @@ Some firms ask whether they can run a private firm-internal instance of an ATAH-
 
 **Implications for firm-internal data.** Data held in a firm-internal instance is firm data, not data flowing through the ATAH ecosystem. Firms running internal instances should treat them as internal infrastructure subject to their own data protection obligations, not as ATAH-mediated data.
 
-**Bridging firm-internal and the ATAH-operated reference registry.** If a firm wants its colleagues to be visible to AI platforms that query ATAH-conformant registries, the colleagues need records in a conforming registry — at v0.8.1, that means the ATAH-operated reference registry or another conforming registry once federation lands. Firm-internal instances do not bridge to AI-platform queries unless the firm has also published a conformance statement and is operating as a public conforming registry, which is a different undertaking.
+**Bridging firm-internal and the ATAH-operated reference registry.** If a firm wants its colleagues to be visible to AI platforms that query ATAH-conformant registries, the colleagues need records in a conforming registry — at v0.8.2, that means the ATAH-operated reference registry or another conforming registry once federation lands. Firm-internal instances do not bridge to AI-platform queries unless the firm has also published a conformance statement and is operating as a public conforming registry, which is a different undertaking.
 
-## What is not yet supported at v0.8.1
+## What is not yet supported at v0.8.2
 
 A non-exhaustive list of v0.9 candidates for firm and team work:
 
 **Firm/team as first-class protocol entity.** A `firm` schema with its own identifier, governance fields, contact details, branch structure, and audit history. Today, the `firm` field is a string property on each professional record. v0.9 would introduce `firm-{ULID}` identifiers, a `firm` schema, and per-firm provenance and dispute flows.
 
-**Cross-firm permissioning.** Workflows for one professional listed at multiple firms (a barrister with chamber affiliations and consulting roles, a lawyer with both law-firm and corporate-counsel listings, etc.). At v0.8.1, the `firm` string is single-valued; multi-affiliation scenarios are handled by professional-side disclosure rather than first-class data-model support.
+**Cross-firm permissioning.** Workflows for one professional listed at multiple firms (a barrister with chamber affiliations and consulting roles, a lawyer with both law-firm and corporate-counsel listings, etc.). At v0.8.2, the `firm` string is single-valued; multi-affiliation scenarios are handled by professional-side disclosure rather than first-class data-model support.
 
 **Firm-level analytics.** Aggregated visibility analytics across the firm's listed professionals — query patterns the firm sees, conversion through Stage 1 / Stage 2 / Stage 3 by category, comparative ranking across the firm's specialisms. Analytics of this kind raise privacy considerations (consumer-side query patterns are sensitive even in aggregate); v0.9 work will scope what is and is not appropriate.
 
@@ -107,7 +107,7 @@ A non-exhaustive list of v0.9 candidates for firm and team work:
 
 **Firm-level concern flag visibility.** Whether firm administrators see concern flags raised against firm members. Currently concern flags are admin-only at the ATAH governance level (per [GOVERNANCE §7](../../GOVERNANCE.md)); whether a firm administrator should see flags against firm members is a sensitive design question that v0.9 will work through.
 
-These items are tracked in the v0.8.2 / v0.9 candidates section of [ROADMAP.md](../../ROADMAP.md) where they are scoped.
+These items are tracked in the v0.8.3 / v0.9 candidates section of [ROADMAP.md](../../ROADMAP.md) where they are scoped.
 
 ## Reference
 

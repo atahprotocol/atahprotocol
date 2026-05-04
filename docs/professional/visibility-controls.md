@@ -86,14 +86,6 @@ Two limits are worth being clear about, both flowing from the protocol's interac
 
 **Audit log entries.** Audit log entries on state transitions and consent assertions are pseudonymous and retained for seven years on a legitimate-interest basis (fraud detection, dispute resolution, regulator engagement). They do not directly identify you within ATAH alone but may constitute personal data where linkable. They are not removed on visibility change or withdrawal — withdrawal stops the record being surfaced; the audit trail of past actions on it remains. (Per [SECURITY.md §7](../../SECURITY.md) and [PRD §9](../../PRD-v0_8.md).)
 
-## A note on referral connections (Component 3)
-
-If you have established Component 3 referral connections with other professionals through ATAH, withdrawing your record from matching does not automatically end those connections. Component 3 connections persist while both parties remain connected; either party may withdraw at any time via `POST /v1/referral-connections/:connection_id/withdraw` or the equivalent MCP tool, and the connection record is then deleted.
-
-Component 3 connections are kept for one operational purpose only — de-duplication of `request_intent: 'referral_partner_search'` Discovery results so that already-connected professionals do not see each other in their referral-partner candidate sets — and **do not feed matching as a competence or trust signal** anywhere in the protocol. The looking-toggle (`looking_for_referral_partners`, default off) is the visibility control: setting it to `false` excludes you from the candidate pool for new inbound Component 3 proposals without affecting existing connections; toggling back to `true` puts you back in the pool.
-
-For full detail on Component 3 referral connection-making, see spec §6.4 and the README section on referral relationships between professionals.
-
 ## How to act on these controls
 
 The shortest path: sign in to your professional portal. Every visibility class above is configurable from the portal. The portal also surfaces a status panel showing current visibility, pending disputes, and any roll-up merges in flight.

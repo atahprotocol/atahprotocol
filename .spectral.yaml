@@ -14,14 +14,13 @@
 # cleanly.
 #
 # Per master plan §11 Phase 9 (F1.7): operation-description warnings
-# disabled until v0.8.3. Forty-nine stub descriptions exist on internal
+# disabled until v0.8.3. Stub descriptions exist on internal
 # (Professional / Partner / Verifier / Admin) endpoints. Descriptions are
 # best written with implementation experience to draw on; v0.8.2 already
-# adds substantial new surface (visibility-explanations, decision-explanations,
-# consent-receipt-revoke, consent-requirements, referral-proposals).
-# Filling the descriptions speculatively before any platform has run the
-# endpoints would create text that needs rewriting in v0.8.3. Documented
-# in CHANGELOG.
+# carries substantial surface (visibility-explanations, decision-explanations,
+# consent-receipt-revoke, consent-requirements). Filling the descriptions
+# speculatively before any platform has run the endpoints would create
+# text that needs rewriting in v0.8.3. Documented in CHANGELOG.
 extends: ["spectral:oas"]
 rules:
   operation-description: off
