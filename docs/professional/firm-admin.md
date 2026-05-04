@@ -81,18 +81,6 @@ A workflow for cases where an individual professional wants to claim a record th
 
 **Where this matters.** Firms with multiple departing-and-arriving professionals over time, or firms using ATAH for marketing presence in advance of individual professionals joining, both benefit from the firm-approval-before-claim workflow. Firms that prefer the simpler "colleague claims directly" model can leave the flag unset.
 
-## Private firm-internal instances
-
-Some firms ask whether they can run a private firm-internal instance of an ATAH-conformant registry — to handle internal client routing between colleagues at a large firm, internal directory functionality, or AI-tooling integrations that are firm-specific. The protocol's licensing posture covers this:
-
-**Apache 2.0 permits forks.** The protocol is published under Apache 2.0. A firm may fork the specification and the schemas, modify them, and run a private instance for internal use. No ATAH approval is needed for the fork itself.
-
-**Conforming-implementation status is a separate question.** A private firm-internal instance is not the same thing as operating a conforming registry. Conformance — claiming "ATAH-conformant" recognition — requires meeting the conformance criteria in [spec §14](../../spec/v0.8/full-spec.md), publishing a conformance statement at the discoverable location, and (when v0.9 ships the conformance test suite) passing the published tests. Most private firm-internal use cases do not need conformance recognition; they need internal functionality.
-
-**Implications for firm-internal data.** Data held in a firm-internal instance is firm data, not data flowing through the ATAH ecosystem. Firms running internal instances should treat them as internal infrastructure subject to their own data protection obligations, not as ATAH-mediated data.
-
-**Bridging firm-internal and the ATAH-operated reference registry.** If a firm wants its colleagues to be visible to AI platforms that query ATAH-conformant registries, the colleagues need records in a conforming registry — at v0.8.2, that means the ATAH-operated reference registry or another conforming registry once federation lands. Firm-internal instances do not bridge to AI-platform queries unless the firm has also published a conformance statement and is operating as a public conforming registry, which is a different undertaking.
-
 ## What is not yet supported at v0.8.2
 
 A non-exhaustive list of v0.9 candidates for firm and team work:
@@ -111,4 +99,4 @@ These items are tracked in the v0.8.3 / v0.9 candidates section of [ROADMAP.md](
 
 ## Reference
 
-For the protocol-level handling of professional records and registration, see [spec §15](../../spec/v0.8/full-spec.md). For roll-up and the registration routes, see [spec §10.4](../../spec/v0.8/full-spec.md). For Stage 1 appetite-check controls and how individual preferences compose with firm intake routing, see [PRD §6.1](../../PRD-v0_8.md). For visibility classes and how they apply to firm-managed records, see [`visibility-controls.md`](visibility-controls.md). For conformance criteria a private firm-internal instance would need to meet to claim conforming-implementation status, see [spec §14](../../spec/v0.8/full-spec.md) and [CONFORMANCE.md](../../CONFORMANCE.md).
+For the protocol-level handling of professional records and registration, see [spec §15](../../spec/v0.8/full-spec.md). For roll-up and the registration routes, see [spec §10.4](../../spec/v0.8/full-spec.md). For Stage 1 appetite-check controls and how individual preferences compose with firm intake routing, see [PRD §6.1](../../PRD-v0_8.md). For visibility classes and how they apply to firm-managed records, see [`visibility-controls.md`](visibility-controls.md).
