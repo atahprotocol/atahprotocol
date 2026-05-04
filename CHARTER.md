@@ -39,11 +39,11 @@ A fork or derivative work created under the open licence may not represent itsel
 The protocol's matching logic carries no commercial weighting at any point. Partner integration fees, professional registration fees, AI platform relationships, enhanced verification fees, review platform integration arrangements, and any other commercial relationship in or around ATAH have no influence on:
 
 - Whether a professional is returned in a match result
-- The position of a professional in a ranked shortlist
+- The position of a professional in a candidate set
 - The trust signals attached to a professional's profile
 - The recommendation status of any professional or partner
 
-Matching is determined by relevance, verification quality, availability, completeness, and inbound referral signal — never by who has paid what to whom. Where paid services generate verification evidence, that evidence must be scored under the same public rubric available to all approved sources, regardless of who commissioned or paid for it.
+Matching is determined by verification confidence, category fit, availability, and contact freshness — never by who has paid what to whom. Where paid services generate verification evidence, that evidence must be assessed under the same public rubric available to all approved sources, regardless of who commissioned or paid for it.
 
 ### 3. Provenance always visible
 
@@ -104,7 +104,7 @@ The Charter draws a deliberate three-layer distinction (per Paolo Piponi's peer 
 
 Legal form alone does not solve neutrality. A not-for-profit can be captured by funders or incumbents; a commercial entity can behave neutrally if constrained, audited, and transparent. The mandate above applies to the protocol governance body specifically, not to every implementation.
 
-ATAH services may be operated by service providers — contractors, technology partners, implementation partners, managed-service providers, employees, contributors, or other supporting organisations — on commercial or paid terms. No such operational arrangement may confer ownership of the protocol, exclusive control over its evolution, or any right to influence matching, ranking, provenance, conformance, partner approval, platform access, professional visibility, data access, or any other Charter-protected commitment.
+ATAH services may be operated by service providers — contractors, technology partners, implementation partners, managed-service providers, employees, contributors, or other supporting organisations — on commercial or paid terms. No such operational arrangement may confer ownership of the protocol, exclusive control over its evolution, or any right to influence matching, candidate-set ordering, provenance, conformance, partner approval, platform access, professional visibility, data access, or any other Charter-protected commitment.
 
 Any operational service-provider arrangement must be terminable on reasonable notice, replaceable, and not exclusive. Independent governance must be structurally able to replace any operational service provider. The existence of a paid service-provider relationship does not confer protocol ownership.
 
@@ -144,11 +144,11 @@ The interim advisory group's composition, terms, and operating principles will b
 
 ### Operational support and service providers
 
-ATAH may be supported and operated by service providers — independent contractors, technology partners, implementation partners, managed-service providers, employees, contributors, or other supporting organisations. Permitted commercial arrangements include documented cost reimbursement, fixed-fee build work, time-and-materials work, cost-plus support, market-rate managed-service fees, and similar service-provider compensation structures. These payments compensate work performed; they do not buy ranking, visibility, approval, conformance, access to non-public data, or influence over protocol decisions.
+ATAH may be supported and operated by service providers — independent contractors, technology partners, implementation partners, managed-service providers, employees, contributors, or other supporting organisations. Permitted commercial arrangements include documented cost reimbursement, fixed-fee build work, time-and-materials work, cost-plus support, market-rate managed-service fees, and similar service-provider compensation structures. These payments compensate work performed; they do not buy candidate-set ordering, visibility, approval, conformance, access to non-public data, or influence over protocol decisions.
 
 Where a service provider is the founder, a founder-affiliated entity, an advisor-affiliated entity, or any other related party, the arrangement is governed by the related-party disclosure rules in GOVERNANCE.md §4.1, and is subject to the operational independence commitment in Part One (Core commitment 8). Operational service-provider arrangements must be terminable on reasonable notice, replaceable, and not exclusive.
 
-No service-provider arrangement may be structured as a protocol royalty, paid-placement fee, referral fee, success fee, permanent revenue share, or commercial return linked to registry growth, professional ranking, partner approval, introduction volume, or user-facing visibility.
+No service-provider arrangement may be structured as a protocol royalty, paid-placement fee, referral fee, success fee, permanent revenue share, or commercial return linked to registry growth, candidate-set position, partner approval, introduction volume, or user-facing visibility.
 
 ### Trusted partner participation
 
@@ -176,7 +176,7 @@ The following professional participation principles apply:
 - A hardship waiver process for individual self-registration fees
 - A public fee cap or cost-recovery principle for individual fees
 - Free listing for categories lacking partner coverage until a partner route exists
-- No ranking difference between paid individual listings and partner-route listings
+- Identical matching treatment between paid individual listings and partner-route listings
 
 Where a trusted partner joins ATAH for a category, individual listings of professionals who are members of that partner are absorbed into the partner's data through the roll-up process described in the specification. The terms of professional participation are documented separately and may evolve through governance review.
 

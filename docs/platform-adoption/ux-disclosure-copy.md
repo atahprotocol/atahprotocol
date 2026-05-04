@@ -13,7 +13,7 @@
 The `presentation_disclosure` block on every match response carries four required fields:
 
 - `atah_is_not_recommending` — boolean, always `true`
-- `ranking_basis` — array of the matching components used
+- `ordering_policy` — object declaring the ordering mode (`stratified_random` when no explicit ordering preference is supplied; named modes such as `nearest`, `soonest_available`, `language`, `verification_confidence` when one is) and the hard filters applied
 - `commercial_weighting` — boolean, always `false`
 - `user_facing_disclosure` — string the platform should surface
 
@@ -133,7 +133,7 @@ Language platforms must not use. Drawn from the platform presentation obligation
 |---|---|
 | "Recommended by ATAH" | ATAH does not recommend. Match responses are candidate options against query parameters and disclosed verification signals. |
 | "Approved by ATAH" | ATAH does not approve professionals. Approval is the relevant regulator's role; ATAH surfaces what the regulator has already approved. |
-| "Best for [matter]" | ATAH does not rank for "best." Ranking is by relevance, verification quality, availability, completeness, and inbound referral signal — never by platform commercial judgement or "best fit". |
+| "Best for [matter]" | ATAH does not rank candidates or produce a global match score. Within hard-filtered candidate sets, ATAH presents results in a stratified-random order within transparent bands reflecting verification confidence, category fit, availability, and contact freshness. There is no "best" for ATAH to surface; platforms must surface this ordering policy to consumers in their presentation of results. |
 | "Endorsed by ATAH" | ATAH does not endorse. Provenance is visible per field; the user's AI applies context; the user makes the call. |
 | "Vouched for by ATAH" | ATAH does not vouch for individual professionals. ATAH attests to verification evidence, source, and freshness — not to any individual's competence or character. |
 | "Top-rated" / "Premier" / "Elite" | These imply ranking ATAH does not perform. Review-derived signals are capped per category and never blended into a single trust score. |

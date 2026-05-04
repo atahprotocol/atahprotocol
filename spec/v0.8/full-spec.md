@@ -17,7 +17,7 @@
 
 **v0.8.1** — Pre-publication review-remediation patch round on top of v0.8.0. Substantive changes are in CHANGELOG.md; spec-level additions include the `verification_confidence` signal commitment in §4.12 (schema implementation deferred to v0.8.2), the `consumer_ref` MUST NOT specification in §11.5, the roll-up objection branch in §10.4 with conditional-required `acknowledged_rollup_terms` schema field on both professional schemas, and the Stage 2 202 response folded into 200 with `held_status` indicator in `openapi.yaml`. Cross-document corrections (prefix list, scope names, find_professional input shape, dispute-flow cross-reference) align prose with schemas/OpenAPI/MCP. The protocol's purpose, actors, and lifecycle are unchanged from v0.8.0.
 
-**v0.8** — Release-candidate specification incorporating pre-publication peer review remediation. Adds: structured consent receipts replacing boolean assertions; tiered handoff_id security model with separate handoff_access_token; transient encrypted vault delivery model with notification + authenticated retrieval (no PII through SMS or email); full Type 2 and Type 3 introduction schemas; parallel provenance map for per-field provenance; explicit standards composition (OAuth 2.1, OpenID Connect, W3C Verifiable Credentials, DIDs); three-layer protocol/registry/implementation framing; federation deferral with federation-ready architecture; opaque atah_id format; idempotency requirement on mutating endpoints; authorisation matrix; deletion scope table; non-goals section; glossary; standards-composition section; concern flag protections. Earlier v0.8 changes preserved: Stage 2 reframed as a category-flexible pre-handoff check; partner records declare verification depth and vetting strength; two registration routes (partner and individual) with roll-up logic; profession category metadata; individual self-registration fee model; enhanced verification layer with independent verifier model; review platforms formalised as a specialised partner class with anti-gaming requirements and differential treatment in matching. Verification status enum tightened — profile-level states moved to a dedicated `matching_status` field. Matching engine Step 3 restructured to expose four sub-components with transparent contribution metadata. Protocol renamed from "Agent to Accredited Human Protocol" to "Agent to Authenticated Human Protocol" — acronym ATAH unchanged.
+**v0.8** — Release-candidate specification incorporating pre-publication peer review remediation. Adds: structured consent receipts replacing boolean assertions; tiered handoff_id security model with separate handoff_access_token; transient encrypted vault delivery model with notification + authenticated retrieval (no PII through SMS or email); the full introduction-lifecycle schema set; parallel provenance map for per-field provenance; explicit standards composition (OAuth 2.1, OpenID Connect, W3C Verifiable Credentials, DIDs); three-layer protocol/registry/implementation framing; federation deferral with federation-ready architecture; opaque atah_id format; idempotency requirement on mutating endpoints; authorisation matrix; deletion scope table; non-goals section; glossary; standards-composition section; concern flag protections. Earlier v0.8 changes preserved: Stage 2 reframed as a category-flexible pre-handoff check; partner records declare verification depth and vetting strength; two registration routes (partner and individual) with roll-up logic; profession category metadata; individual self-registration fee model; enhanced verification layer with independent verifier model; review platforms formalised as a specialised partner class with anti-gaming requirements and differential treatment in matching. Verification status enum tightened — profile-level states moved to a dedicated `matching_status` field. Matching engine Step 3 restructured to expose four sub-components with transparent contribution metadata. Protocol renamed from "Agent to Accredited Human Protocol" to "Agent to Authenticated Human Protocol" — acronym ATAH unchanged.
 
 **v0.7** — Five issues resolved: atomic deletion compensating action pattern specified; MCP endpoint authentication mechanism defined (OAuth 2.0); verification batching strategy made concrete; simultaneous introduction rules specified explicitly; schema versioning policy added.
 
@@ -133,7 +133,7 @@ The reference implementation consists of eight core components.
 
 - **Registry service** — stores and manages professional profiles, verification records, trusted partner data, and referral relationship data. Does not store consumer personal data.
 - **Trusted partner engine** — manages partner onboarding, data ingestion (including Verifiable Credentials where applicable), freshness tracking, conflict detection, and partner scoring.
-- **Matching engine** — in the reference implementation, runs within the ATAH registry service. Processes queries, scores candidates, returns ranked shortlists with full trusted partner data payloads and per-sub-component contribution metadata. A conforming registry MAY implement matching internally or through a delegated service, provided the match response preserves ATAH's scoring transparency, provenance, presentation disclosure, and no-commercial-weighting requirements.
+- **Matching engine** — in the reference implementation, runs within the ATAH registry service. Processes queries through the four-step pipeline (hard filters → band assignment → threshold exclusion → stratified-random ordering within bands per §9.1), and returns a candidate set with full trusted partner data payloads, per-candidate `band_assignment`, and per-candidate `decision_explanation`. A conforming registry MAY implement matching internally or through a delegated service, provided the match response preserves ATAH's transparency, provenance, presentation-disclosure, and no-commercial-weighting requirements.
 - **Introduction lifecycle manager** — manages state for all active introductions across all three types, handles transitions, enforces timeouts, triggers notifications, and enforces simultaneous introduction rules. Issues handoff_access_tokens for write operations.
 - **Transient data vault** — encrypted, time-limited store for consumer personal data passing through introductions. Strictly transient. Separate from the main registry. Crypto-erased per category retention rules.
 - **MCP server** — exposes ATAH capabilities as MCP tools to any MCP-compatible AI agent. Authenticated per current MCP authorisation guidance (OAuth 2.1-compatible). This is the v0.8 MCP binding.
@@ -234,7 +234,7 @@ Applied to fields via `_provenance`. These statuses describe how an individual d
 - `vc-verified` — confirmed via cryptographic verification of a W3C Verifiable Credential signed by an approved issuer. Treated as equivalent to `partner-verified` for matching purposes; the issuer is recorded in `source`.
 - `not-provided` — field not declared or uploaded
 
-Enhanced verification is a separate concept and does not appear in this enum. It is recorded as a structured object on the profile (Section 4.9) and contributes to the verification quality score in matching (Section 9). It is not a status applied to individual data points.
+Enhanced verification is a separate concept and does not appear in this enum. It is recorded as a structured object on the profile (Section 4.9) and feeds the verification-confidence band-input signal in matching (Section 9). It is not a status applied to individual data points.
 
 *AI agents receiving match results should present the verification status of each data point transparently. Self-declared data is surfaced as such. The absence of partner-verified data is not penalised — only its presence rewards.*
 
@@ -884,7 +884,7 @@ The `presentation_disclosure` block MUST be present on every match response and 
 
 ### Verification confidence signal (v0.8.1, schema commitment for v0.8.2)
 
-Match responses for regulated categories with single-source verification SHOULD carry a `verification_confidence` field separate from the verification-quality score components, surfacing to AI platforms whether the verification basis comes from a single source or is corroborated by multiple sources.
+Match responses for regulated categories with single-source verification SHOULD carry a `verification_confidence` field separate from the band-input signals, surfacing to AI platforms whether the verification basis comes from a single source or is corroborated by multiple sources.
 
 Defined values:
 
@@ -894,7 +894,7 @@ Defined values:
 - `multi_source_corroborated` — at least two independent sources agree on the verifiable fields (regulatory + membership; regulatory + enhanced verification; membership + independent verifier; or any other combination of independent sources).
 - `multi_source_with_enhanced_verification` — multi-source corroboration that includes an active enhanced verification record from an approved independent verifier.
 
-The signal is independent of the verification-quality score; a profile may have a high verification-quality score from a single high-strength source (regulator) yet remain `single_source_regulator` until corroborated. AI platforms presenting ATAH match results are expected to surface the confidence signal alongside the verification-quality information.
+The signal is independent of the verification-confidence band assignment; a profile may sit in the top verification-confidence band on the strength of a single high-strength source (regulator) yet remain `single_source_regulator` until corroborated. AI platforms presenting ATAH match results are expected to surface the confidence signal alongside the band-assignment information.
 
 **v0.8.1 commitment.** The field name, value enumeration, and intended semantics are committed in this section. Schema implementation in `match-response.schema.json` and the matching engine logic that populates it land in v0.8.2 alongside the schema work tracked in the v0.8.2 / v0.9 ROADMAP. Until schema implementation lands, AI platforms inferring confidence from the `_provenance` map are not in conflict with this specification.
 
@@ -1130,7 +1130,7 @@ Component 3 is AI-mediated mutual matching for professionals seeking new referra
 
 The §7.3 authorisation matrix documents Component 3 endpoints under `actor_type: professional` with `authority_basis: professional_delegated_token` (or `firm_delegation`); the §4.10 consent-receipt scope enum excludes `type_2_referral_participation` and `type_3_referred_client` for the same reason. Implementations MUST NOT accept `consent_receipt_id` on Component 3 endpoints or tools.
 
-The professional-on-behalf-of-client case that v0.8.1 modelled as "Type 3" is **not** part of Component 3. It is served by Discovery alone (Component 1 with `request_intent: 'on_behalf_of_client'`); the referring professional handles the introduction off-platform using their own channels and the consent they captured directly with the client. ATAH does not deliver client contact details based on professional attestation, ever.
+The professional-on-behalf-of-client case is served by Discovery alone (Component 1 with `request_intent: 'on_behalf_of_client'`); the referring professional handles the introduction off-platform using their own channels and the consent they captured directly with the client. ATAH does not deliver client contact details based on professional attestation, ever.
 
 **Lifecycle.**
 
@@ -1429,7 +1429,7 @@ These flags are advisory metadata for client-side surfacing, not authorisation e
 
 #### Tool: `find_professional`
 
-Find a credentialled or established professional for a matter requiring human expertise. Returns a ranked shortlist with full trusted partner data payload, `presentation_disclosure`, and `protocol_version`.
+Find a credentialled or established professional for a matter requiring human expertise. Returns a candidate set produced by the §9.1 four-step pipeline (hard filters → band assignment → threshold exclusion → stratified-random ordering within bands), with full trusted partner data payload, `presentation_disclosure`, per-candidate `band_assignment`, per-candidate `decision_explanation`, and `protocol_version`.
 
 - Required inputs: `matter` (object containing `category`, `matter_type`, `location`, and `urgency`) and `consent_receipt_id`
 - Required inputs: `request_intent` (`self`, `on_behalf_of_client`, `referral_partner_search`), `limit` (1–100), `matter`, `consent_receipt_id`, `requesting_agent`
@@ -1603,9 +1603,9 @@ The current operational scope for priority states is published in the protocol's
 
 **Concurrency limit:** maximum 10 concurrent external verification calls. Configurable. Calls beyond the limit are queued in Redis.
 
-**Rate-limit handling:** on HTTP 429, exponential backoff starting at 60 seconds, doubling on each retry, maximum 5 retries. If exhausted, profile marked `verification-deferred` and retried in the next day's batch. Profile remains active in matching but scores lower on verification quality. After 7 days beyond due date, flagged for admin review.
+**Rate-limit handling:** on HTTP 429, exponential backoff starting at 60 seconds, doubling on each retry, maximum 5 retries. If exhausted, profile marked `verification-deferred` and retried in the next day's batch. Profile remains active in matching but is assigned to a lower verification-confidence band until verification refreshes. After 7 days beyond due date, flagged for admin review.
 
-**Query-triggered verification:** if last verification was more than 30 days ago, re-verification is triggered before the result is included in a shortlist. If the external source is unavailable, the query proceeds with existing verification status; deferred verification is queued.
+**Query-triggered verification:** if last verification was more than 30 days ago, re-verification is triggered before the result is included in a candidate set. If the external source is unavailable, the query proceeds with existing verification status; deferred verification is queued.
 
 **Adverse status detection:** if verification returns an adverse status, the profile is immediately suspended (`regulatory-suspended`) and the professional is notified. Never deferred.
 
@@ -1749,7 +1749,7 @@ If a personal data field is detected in a store where it is not allowed, the ent
 
 **Stage 3 contact details (Component 2 `full_lifecycle` and `contact_share`):** stored in the transient encrypted vault. Crypto-erased immediately after successful authenticated retrieval by the professional.
 
-**Component 3 records:** carry no consumer PII; consumer data does not flow through Component 3. Proposal records persist while pending (up to expiry) and are deleted on resolution; connection records persist while active and are deleted on withdrawal. The professional-on-behalf-of-client referral case, previously modelled as "Type 3", is served by Discovery alone (Component 1 with `request_intent: 'on_behalf_of_client'`) and does not produce ATAH-mediated contact-detail delivery; the referring professional handles delivery off-platform.
+**Component 3 records:** carry no consumer PII; consumer data does not flow through Component 3. Proposal records persist while pending (up to expiry) and are deleted on resolution; connection records persist while active and are deleted on withdrawal. The professional-on-behalf-of-client referral case is served by Discovery alone (Component 1 with `request_intent: 'on_behalf_of_client'`) and does not produce ATAH-mediated contact-detail delivery; the referring professional handles delivery off-platform.
 
 **Post-introduction data:** anonymised outcome data only. Retained two years. Schema:
 
@@ -2006,7 +2006,7 @@ A conforming implementation MUST provide a mechanism for an authenticated profes
 
 **Required fields in the professional-facing view.**
 
-- Representative inclusion rules that apply to the professional in this category/jurisdiction (e.g. `matching_status_active`, `contact_verified for preferred notification channel`, `category_fit score above threshold X`).
+- Representative inclusion rules that apply to the professional in this category/jurisdiction (e.g. `matching_status_active`, `contact_verified for preferred notification channel`, `category_fit signal above threshold X`).
 - Representative exclusion reason categories that could apply (e.g. `matching_status would exclude if flipped to inactive`; `contact_verification would exclude if last_verified is over 90 days for high-stakes categories`; `jurisdiction_mismatch would exclude if professional's licensed jurisdictions don't overlap with query`).
 - The professional's current band assignment in this category — band names and threshold values, derived from `profession-category.schema.json` `band_definitions`, NOT from observed query traffic.
 - The implementation's published ordering policy (mode + within-band fairness policy from §9).
@@ -2205,7 +2205,7 @@ A separate `SECURITY.md` provides the full threat model, responsible disclosure 
 - Component 3 proposal spam (new in v0.8.2 — mitigated by `looking_for_referral_partners` defaulting to false, per-period rate limits on proposals per proposer, and silent lapse with deletion of unresolved proposals)
 - Verification-challenge phishing (new in v0.8.2 with §12A — mitigated by the §12A.4 anti-phishing format requirement: distinctive sender domain, content-template enforcement, no embedded redirect URLs, single-use challenge tokens with short TTL, confirmation surface displays the professional's `atah_id` and challenge timestamp; the standardised format itself is a v0.8.3 / v0.9 standardisation candidate)
 
-**v0.8.2 closes two threat classes that v0.8.1 had to manage actively.** The removal of the professional-attestation-of-client-consent path (formerly "Type 3 Path 2") closes a class of consent-fraud risk: professionals can no longer assert client consent via attestation to obtain ATAH-mediated client contact-detail delivery. The professional-on-behalf-of-client case is served by Discovery alone (Component 1 with `request_intent: 'on_behalf_of_client'`); the referring professional handles delivery off-platform under their own consent capture. Separately, the removal of the `inbound_referral_signal` matching component (and its reciprocal-cap, time-decay, dense-cluster, and Sybil controls) closes a class of collusion / gaming risk: with no signal to game, the gaming incentive itself is removed.
+**v0.8.2 closes two threat classes that v0.8.1 had to manage actively.** The removal of the professional-attestation-of-client-consent path closes a class of consent-fraud risk: professionals can no longer assert client consent via attestation to obtain ATAH-mediated client contact-detail delivery. The professional-on-behalf-of-client case is served by Discovery alone (Component 1 with `request_intent: 'on_behalf_of_client'`); the referring professional handles delivery off-platform under their own consent capture. Separately, the removal of the `inbound_referral_signal` matching component (and its reciprocal-cap, time-decay, dense-cluster, and Sybil controls) closes a class of collusion / gaming risk: with no signal to game, the gaming incentive itself is removed.
 
 Each threat category is addressed in the controls described in this Section and in `SECURITY.md`. Residual risks and acceptance rationale are documented in `SECURITY.md`.
 
@@ -2441,7 +2441,7 @@ When a professional claims a partner-created record, that claim must be authenti
 - **Review platform** — specialised partner class providing aggregated review/feedback data with anti-gaming controls
 - **Stage 1 / Stage 2 / Stage 3** — the three stages of a Component 2 `full_lifecycle` handoff: introduction acceptance, pre-handoff check, contact release
 - **Transient vault** — the encrypted, time-limited store for consumer personal data passing through introductions
-- **Component 1 / Component 2 / Component 3** — the three architectural components of v0.8.2: Discovery (Component 1, the foundation), Consumer-self handoff (Component 2, available when `request_intent: 'self'`), and Referral connection-making (Component 3, professional-to-professional). Components 2 and 3 are optional layers on top of Component 1; v0.8.1's "Type 1 / Type 2 / Type 3" terminology is retired in v0.8.2 (no historical aliases retained — see CHANGELOG)
+- **Component 1 / Component 2 / Component 3** — the three architectural components of v0.8.2: Discovery (Component 1, the foundation), Consumer-self handoff (Component 2, available when `request_intent: 'self'`), and Referral connection-making (Component 3, professional-to-professional). Components 2 and 3 are optional layers on top of Component 1
 - **Connection record** — an active mutual-connection record between two professionals, produced when a Component 3 referral proposal is accepted. Used by Discovery for de-duplication of `request_intent: 'referral_partner_search'` results only; does NOT feed matching as a competence or trust signal
 - **contact_unverified (matching status)** — terminal state in the §12A Layer 2 escalation path. After full grace period elapses without successful verification, the professional's `matching_status` flips to `contact_unverified` and they stop appearing in Discovery results until re-verified. Same exclusion treatment as `regulatory-suspended` or `admin-suspended`
 - **contact_verification_cadence** — per-category field on `profession-categories.json` declaring how often ATAH issues Layer 1 periodic verification challenges. Values: `quarterly`, `biannual`, `annual`, `none`. Default `annual` (§12A.1)
@@ -2540,7 +2540,7 @@ This build sequence describes the work to implement v0.8 from scratch. For imple
 
 ### Phase A — Foundation (Weeks 1–2)
 
-Protocol specification v0.8 finalised and published. All schemas including consent-receipt, handoff-type1/2/3, provenance-map, audit-event, error written and validated. Profession category metadata populated with launch categories including `matching_weight_profile`, `review_signal_weight_cap`, and `stage2_auth_tier`. Independent verifier schema. Repository structure created. Domain registered. GitHub repository public. Legal advice on structure and jurisdiction commissioned.
+Protocol specification v0.8 finalised and published. All schemas including consent-receipt, handoff-component2, principal-delegation, provenance-map, audit-event, decision-explanation, error written and validated. Profession category metadata populated with launch categories including `band_definitions`, `review_signal_band_cap`, and `stage2_auth_tier`. Independent verifier schema. Repository structure created. Domain registered. GitHub repository public. Legal advice on structure and jurisdiction commissioned.
 
 ### Phase B — Core Infrastructure (Weeks 2–4)
 
@@ -2552,11 +2552,11 @@ Partner API with `verification_scope` and `vetting_strength`. VC submission acce
 
 ### Phase D — Matching and Query (Weeks 4–6)
 
-Matching engine — all scoring components, compliance-pending hard exclusion, referral signal discount with anti-gaming controls (reciprocal cap, time decay, referrer weighting, evidence requirement), verification quality with four sub-components, vetting-strength weighted partner data, review-platform-class-weighted review signals (with category caps), declared/verified scope completeness split. Query API. Match response includes `presentation_disclosure`, full per-sub-component contribution metadata, and full provenance map.
+Matching engine — four-step pipeline (hard filters → band assignment → threshold exclusion → stratified-random ordering within bands per §9.1). Hard filters include compliance-pending exclusion and the full §9.1-step-1 `matching_status` exclusion list. Bands defined per category in `profession-categories.json` `band_definitions` — `verification_confidence`, `category_fit`, `availability_window`, `contact_freshness`. Vetting-strength qualifies which partner verifications support each band. Review-platform-class-weighted review signals supplement the verification-confidence picture but do not promote candidates into higher bands in regulated categories (per §9.2; capped by `review_signal_band_cap` per category). Query API. Match response includes `presentation_disclosure` (declaring the ordering policy), per-candidate `band_assignment`, per-candidate `decision_explanation`, response-level `decision_explanation`, aggregate `exclusion_summary`, and full provenance map.
 
 ### Phase E — Introduction Lifecycle (Weeks 5–7)
 
-Type 1, Type 2, Type 3 state machines with full schemas (Section 6). Tiered handoff access control (Section 11.5) — handoff_access_token issuance, validation, rotation. Stage 2 reframed as category-flexible pre-handoff check. Simultaneous introduction rules. Stage 2 and Stage 3 data flow through transient vault. Cancel and revoke endpoints/tools. Outcome reporting. Consumer-reported-concern routing to admin-only flag flow with professional notification and right of reply (Section 5.10).
+Component 1 (Discovery) and Component 2 (consumer-self handoff) lifecycle implementations with full schemas (Section 6). Component 2 supports the three flow variants (`off_protocol`, `contact_share`, `full_lifecycle`) per §6 and `handoff-component2.schema.json`. Tiered handoff access control (Section 11.5) — handoff_access_token issuance, validation, rotation. Stage 2 reframed as category-flexible pre-handoff check. Simultaneous introduction rules. Stage 2 and Stage 3 data flow through transient vault. Cancel and revoke endpoints/tools. Outcome reporting. Consumer-reported-concern routing to admin-only flag flow with professional notification and right of reply (Section 5.10).
 
 ### Phase F — MCP Server (Weeks 6–8)
 
@@ -2621,7 +2621,6 @@ Phase A and Phase B. Schemas, registry, transient vault, OAuth 2.1 endpoints, an
 - `Accept-Version` and `deprecation_warning` from day one.
 - Idempotency keys required on all mutating endpoints.
 - Verification batching uses rolling daily batch with concurrency limit and backoff.
-- Inbound referral signal subject to anti-gaming controls per Section 9.
 - Pre-handoff check type set per category, with optional override; lifecycle skips Stage 2 for `none`.
 - Roll-up logic with pre-merge notification for high-risk categories.
 - Independent verifier approval is admin-only.
@@ -2643,12 +2642,9 @@ The v0.8 MVP is complete when all of the following are true.
 - Tiered handoff access control working: read access via consumer_ref match; write access via handoff_access_token
 - Transient vault working with crypto-erasure, all three auth tiers, audit logging
 - Notifications confirmed PII-free across SMS and email
-- Type 1 introduction runs end-to-end for credentialled and established professionals across at least two categories
-- Type 2 referral relationship establishment runs end-to-end with structured consent
-- Type 3 client referral runs end-to-end with both consent paths (receipt and attestation) and immediate vault crypto-erasure after retrieval
+- Component 2 (consumer-self handoff) introduction runs end-to-end for credentialled and established professionals across at least two categories, covering all three flow variants (`off_protocol`, `contact_share`, `full_lifecycle`) with consent-receipt issuance, transient vault delivery, and immediate crypto-erasure after retrieval
 - Cancel and revoke endpoints/tools working with mandatory data deletion on revocation
 - Compliance-pending exclusion confirmed at Step 1 of matching
-- Inbound referral signal anti-gaming controls validated
 - Roll-up logic with pre-merge notification for high-risk categories
 - OAuth 2.1 MCP authentication working with audience validation
 - Idempotency working on all mutating endpoints
