@@ -46,7 +46,7 @@ software supply chain (Sigstore) and certificate authority (RFC 6962)
 systems. Tampering with the platform-side full receipt is detectable by
 hash comparison without ATAH holding the receipt content.
 
-### Scope of the privacy claim (per F3.4)
+### Scope of the privacy claim
 
 The hash-and-metadata pattern is what ATAH does to avoid becoming
 another persistent consumer-PII store. What it does not do, and should
@@ -68,10 +68,10 @@ consumer PII in plaintext (spec §11.8 HMAC-not-plain-hash), and
 withdrawal-as-state-transition (spec §11.9) — are the protocol-layer
 guarantees ATAH provides. They are what ATAH does, and they are what
 the consent-storage split is designed to support; they are not a
-guarantee about systems ATAH cannot reach. Cross-references the Phase 4
-continuity-binding model (F-3) and the Phase 3 three-concept separation
-of erasure / audit retention / withdrawal — those mechanisms are what
-ATAH delivers; the F3.4 framing names what they do not promise.
+guarantee about systems ATAH cannot reach. The continuity-binding model
+and the three-concept separation of erasure / audit retention /
+withdrawal are what ATAH delivers; the privacy-scope framing names what
+they do not promise.
 
 ## What happens at dispute
 

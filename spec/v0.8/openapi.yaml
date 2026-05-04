@@ -574,7 +574,7 @@ paths:
     get:
       tags: [Professional]
       operationId: getMyVisibilityExplanations
-      summary: Professional-facing visibility-explanation view (rules-derived per F-18).
+      summary: Professional-facing visibility-explanation view (rules-derived).
       description: |
         Per spec §11A.4, the professional retrieves their own visibility-
         decision view for a given category and jurisdiction. The view is
@@ -759,7 +759,7 @@ paths:
       summary: Submit a consent receipt — Phase 4 (Option B) submission endpoint.
       description: |
         The asserting AI platform submits a captured consent receipt. ATAH
-        validates the receipt, computes a SHA-256 hash, computes the F-3
+        validates the receipt, computes a SHA-256 hash, computes the
         continuity-binding metadata (`client_id`, `pseudonymous_consumer_ref`
         HMAC, `data_categories_hash` for `disclosure_consent`), stores the
         hash and metadata, and returns a `consent_receipt_id`. Subsequent
@@ -1062,9 +1062,9 @@ paths:
       summary: Update own profile (self-managed fields only).
       description: |
         Update self-managed fields on the professional's record. Changes to
-        partner-managed fields (e.g. licence status) are rejected. Per F1.2,
-        requires authenticated professional account or delegated
-        professional-agent token.
+        partner-managed fields (e.g. licence status) are rejected. Requires
+        authenticated professional account or delegated professional-agent
+        token.
       security:
         - oauth2: [atah:professionals:self_write]
       requestBody:
@@ -2108,7 +2108,7 @@ components:
           session) with the `atah:admin` scope
         - `system_role` → internal; not exposed via OAuth flows
 
-        Per F-16: `consumer` is not a valid `authenticated_actor.actor_type`;
+        `consumer` is not a valid `authenticated_actor.actor_type`;
         consumer-initiated calls authenticate as `ai_platform` and identify
         the consumer as `represented_principal_type: consumer` inside the
         principal/delegation context.

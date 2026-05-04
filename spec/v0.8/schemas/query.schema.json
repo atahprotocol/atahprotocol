@@ -70,7 +70,7 @@
     },
     "ordering_preference": {
       "type": "object",
-      "description": "Optional explicit ordering preference. When omitted, the response is ordered by stratified randomisation per spec §9 (default ordering policy). When supplied, ATAH applies the named mode and records the choice on the response's `presentation_disclosure.ordering_policy.mode`. Per Paolo's F1.10 normative rule: ATAH may determine eligibility and exclusion, but MUST NOT express preference among eligible candidates unless the ordering basis is explicit, non-commercial, and disclosed. The explicit modes here satisfy that disclosure requirement.",
+      "description": "Optional explicit ordering preference. When omitted, the response is ordered by stratified randomisation per spec §9 (default ordering policy). When supplied, ATAH applies the named mode and records the choice on the response's `presentation_disclosure.ordering_policy.mode`. Normative rule: ATAH may determine eligibility and exclusion, but MUST NOT express preference among eligible candidates unless the ordering basis is explicit, non-commercial, and disclosed. The explicit modes here satisfy that disclosure requirement.",
       "properties": {
         "mode": {
           "type": "string",

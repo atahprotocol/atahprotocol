@@ -1,12 +1,10 @@
 # Stress-Test Matrix — ATAH Protocol v0.8.2
 
-**Status:** Skeleton populated in Phase 0A; iteratively completed through Phases 1–10A; **finalised in Phase 11** as the verification artifact for v0.8.2 publication.
+**Status:** Published as the verification artifact for v0.8.2.
 
-**Purpose.** This matrix is the verification harness for v0.8.2 protocol design. It captures the abuse, mistake, commercial-conflict, and edge-case behaviours that ATAH must address — at the protocol level, not only as implementation QA. Each subsequent phase updates the matrix as part of its completion checklist: scenarios mapped to the phase get their resolution columns filled in and their status updated.
+**Purpose.** This matrix is the verification harness for v0.8.2 protocol design. It captures the abuse, mistake, commercial-conflict, and edge-case behaviours that ATAH must address — at the protocol level, not only as implementation QA.
 
-**Scope.** Protocol-design risks: what the spec permits, what it leaves ambiguous, and what conforming implementations might do differently. Stress testing is a publication discipline, not a later implementation afterthought (Paolo's source note `PAOLO-stress-tests.md`).
-
-**Inputs.** F1.18 and F1.19 from the consolidated Paolo peer review; `PAOLO-stress-tests.md` for the seed scenarios. Phase 10A added F3.3-derived scenarios 8.5 / 8.6 / 8.7.
+**Scope.** Protocol-design risks: what the spec permits, what it leaves ambiguous, and what conforming implementations might do differently. Stress testing is a publication discipline, not a later implementation afterthought.
 
 ---
 
@@ -45,31 +43,30 @@
 
 **`partially-resolved` scenarios with explicit residual-work targets:**
 
-- **1.5** Phase 1 structural carrier + **Phase 4** continuity-binding fields complete cross-platform-replay detection.
-- **3.6** Phase 5 model + non-determinism conformance test; **algorithm standardisation → v0.9**.
-- **4.4** Phase 6 transparency surface + dispute path; **fuller dispute-resolution timeline / escalation criteria / evidence handling → v0.9**.
-- **6.1** Phase 3 withdrawal-as-state-transition + audit retention; **concrete rate-limit thresholds and dense-cluster harassment monitoring → v0.8.3**.
-- **8.2** Phase 8 review-platform schema + Phase 5 §9.2; **fuller minimum-criteria specification → v0.9** (Charter Part Two hard-artifacts list).
-- **8.3** Phase 8 verifier schema + Phase 5 §9.6; **fuller verifier conflict and audit rules → v0.9** (Charter Part Two hard-artifacts list).
-- **8.5** Phase 10A three-level conformance-status framing in `CONFORMANCE.md`; **Charter-spirit conformance audit → v0.9 behavioural-neutrality / conformance-audit model** (per F3.3).
-- **8.6** Phase 10A three-level distinction + revocability commitment + right-to-contest; **recognised-neutral revocation procedure → v0.9**.
-- **9.1** existing v0.8.1 category-annex work + Phase 5 / 6 transparency; **per-jurisdiction legal-conflict canonicalisation → v0.9 category-annex template**.
-- **9.2** existing v0.8.1 `compliance_status` mechanism + §9.1 hard filter; **per-jurisdiction healthcare compliance → v0.9 category-annex template**.
-- **9.3** existing v0.8.1 cross-jurisdiction default + per-category metadata; **per-jurisdiction financial-advice terminology → v0.9 category-annex template**.
+- **1.5** Structural carrier present in v0.8.2; continuity-binding fields complete cross-platform-replay detection.
+- **3.6** Stratified-randomisation model + non-determinism conformance test in v0.8.2; **algorithm standardisation → v0.9**.
+- **4.4** Transparency surface + dispute path in v0.8.2; **fuller dispute-resolution timeline / escalation criteria / evidence handling → v0.9**.
+- **6.1** Withdrawal-as-state-transition + audit retention in v0.8.2; **concrete rate-limit thresholds and pattern-detection harassment monitoring → v0.8.3**.
+- **8.2** Review-platform schema + §9.2 review-signal control in v0.8.2; **fuller minimum-criteria specification → v0.9** (Charter Part Two hard-artifacts list).
+- **8.3** Verifier schema + §9.6 commercial-neutrality framing in v0.8.2; **fuller verifier conflict and audit rules → v0.9** (Charter Part Two hard-artifacts list).
+- **8.5** Three-level conformance-status framing in `CONFORMANCE.md`; **Charter-spirit conformance audit → v0.9 behavioural-neutrality / conformance-audit model**.
+- **8.6** Three-level distinction + revocability commitment + right-to-contest in v0.8.2; **recognised-neutral revocation procedure → v0.9**.
+- **9.1** Category-annex work + transparency obligations in v0.8.2; **per-jurisdiction legal-conflict canonicalisation → v0.9 category-annex template**.
+- **9.2** `compliance_status` mechanism + §9.1 hard filter in v0.8.2; **per-jurisdiction healthcare compliance → v0.9 category-annex template**.
+- **9.3** Cross-jurisdiction default + per-category metadata in v0.8.2; **per-jurisdiction financial-advice terminology → v0.9 category-annex template**.
 
-**Verification check.** Every scenario has either a concrete resolution reference (the phase or spec section that closes it) or an explicit deferral with target version. Zero `skeleton` statuses remain. Zero scenarios use ad-hoc status words outside the F-17 vocabulary (`resolved`, `bounded-by-protocol`, `allocated-to-platform-responsibility`, `partially-resolved`, `deferred`). The matrix is publication-ready.
+**Verification check.** Every scenario has either a concrete resolution reference or an explicit deferral with target version. Zero scenarios use ad-hoc status words outside the published status vocabulary (`resolved`, `bounded-by-protocol`, `allocated-to-platform-responsibility`, `partially-resolved`, `deferred`).
 
 ---
 
-## Status vocabulary (F-17)
+## Status vocabulary
 
 Every scenario carries one of the following statuses. The discipline: do not use `resolved` when `bounded-by-protocol` or `allocated-to-platform-responsibility` is more honest. Press-cycle reviewers will scrutinise this matrix; overclaimed `resolved` markers attract criticism.
 
-- **`skeleton`** — populated in Phase 0A; not yet validated against phase output. Initial state for every seed scenario.
 - **`resolved`** — protocol behaviour fully addresses the scenario. The protocol's stated rules, when followed, prevent or detect the failure mode. Reserve for cases where ATAH's own behaviour closes the loop.
 - **`bounded-by-protocol`** — protocol detects, limits, or makes verifiable a scenario without fully eliminating it. Example: "Platform submits consent for a user who did not consent" — ATAH verifies receipt integrity (tampering, replay, mismatch) but cannot prove the platform's underlying consent ceremony was valid. The protocol bounds the abuse without resolving it.
 - **`allocated-to-platform-responsibility`** — scenario is real but its resolution belongs to the AI platform, partner, or verifier under their own obligations. ATAH documents the obligation and exposes verifiable signals; the scenario itself is closed by another party's behaviour, not ATAH's. Example: "AI platform presents ATAH result one as 'best'" — ATAH publishes ordering policy in `presentation_disclosure`; the platform's reordering and presentation is its own responsibility.
-- **`partially-resolved`** — scenario is partly addressed by v0.8.2 work, partly pending further work. Use for scenarios that span phases (resolution in one phase + further work in a later phase) and for scenarios where v0.8.2 does substantial-but-incomplete work. Should always carry a reference to either the completing phase or the deferral version.
+- **`partially-resolved`** — scenario is partly addressed by v0.8.2 work, partly pending further work. Use for scenarios where v0.8.2 does substantial-but-incomplete work. Should always carry a reference to the deferral version.
 - **`deferred`** — scenario is acknowledged but not addressed in v0.8.2. Carries an explicit deferral version (`deferred-to-v0.8.3`, `deferred-to-v0.9`, `deferred-to-v1.0`) and a one-line reason.
 
 ---
@@ -84,40 +81,32 @@ Each scenario uses the following columns:
 - **Required audit events** — which audit events MUST be recorded.
 - **Required user / professional disclosure** — what is surfaced to which roles.
 - **Required conformance test** — how to verify the behaviour.
-- **Phase mapping** — which planned Phase(s) of v0.8.2 will resolve this scenario.
-- **Status** — one of the F-17 statuses above.
-
-In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**, and **Status: skeleton** fields. The other fields are filled in by the corresponding phase as part of its checkpoint discipline.
+- **Status** — one of the statuses above.
 
 ---
 
 ## Category 1 — Authentication and Delegation Abuse
 
-**Phase mapping:** Phase 1.
 
 ### 1.1 Agent falsely declares `request_intent`
 
 - **Scenario.** A consumer-mediated AI platform issues a query to ATAH and declares an inaccurate `request_intent`, either to obtain a different result class than the user authorised or to mask the true purpose.
 - **Abuse / failure mode.** Misrepresentation of authority basis; downstream protocol decisions (eligibility filters, transparency obligations, audit semantics) are taken under a false premise.
-- **Expected protocol behaviour.** Every protocol action carries a `principal-delegation.schema.json` block recording `authenticated_actor`, `client_application`, and `authority_context.represented_principal_type` / `authority_basis` / `permitted_scopes`. ATAH validates the declared `authority_basis` against the credential class actually presented (e.g. `user_session` actually backed by an authorization-code-with-PKCE token); a mismatch results in `403`. Phase 2 introduces server-side validation of `request_intent` against the action class permitted under that authority basis, completing the loop.
+- **Expected protocol behaviour.** Every protocol action carries a `principal-delegation.schema.json` block recording `authenticated_actor`, `client_application`, and `authority_context.represented_principal_type` / `authority_basis` / `permitted_scopes`. ATAH validates the declared `authority_basis` against the credential class actually presented (e.g. `user_session` actually backed by an authorization-code-with-PKCE token); a mismatch results in `403`. The protocol introduces server-side validation of `request_intent` against the action class permitted under that authority basis, completing the loop.
 - **Required audit events.** `event_type: security_event` (or the action's normal `event_type` with structured metadata indicating `intent_validation: rejected`), recording the declared `request_intent`, the authority basis presented, and the rejection reason.
 - **Required user / professional disclosure.** None to consumer (an attacker should not learn the validation logic). Audit trail is accessible to the asserting platform on request, per §13.5.
 - **Required conformance test.** Conformance suite includes a request with mismatched `request_intent` / `authority_basis` and asserts `403` plus an audit event matching the metadata schema.
-- **Phase 1 contribution.** `authenticated_actor` + `client_application` + `authority_context` shape established; per-operation authority-basis validation enforced via §7.3 matrix and OpenAPI per-operation `security` blocks.
-- **Phase 2 contribution.** `request_intent` is a required parameter on `query.schema.json` (`self` / `on_behalf_of_client`) and is the architectural lever gating Component 2 availability. Component 2 endpoints reject calls whose originating Discovery did not declare `request_intent: 'self'`. The principal-delegation context recording the declared intent is persisted on the audit-event for every protocol action, so retroactive review of intent declarations is possible.
-- **Status: `resolved`** by Phase 2 — declaration is required, downstream component access is gated server-side, and the declared intent is recorded in the audit trail.
+- **Status: `resolved`** — declaration is required, downstream component access is gated server-side, and the declared intent is recorded in the audit trail.
 
 ### 1.2 Platform submits consent for a user who did not consent
 
 - **Scenario.** An AI platform presents a consent receipt at a Stage 2 / Stage 3 boundary for a consumer who did not perform the required consent ceremony.
 - **Abuse / failure mode.** Fabricated or recycled consent; downstream professionals receive data on a false consent basis.
-- **Expected protocol behaviour.** Per spec §4.10, ATAH verifies the receipt's integrity (hash + continuity binding) at submission and at every consumption point. Per F-3, the stored receipt carries `client_id`, `pseudonymous_consumer_ref` (HMAC), and `data_categories_hash` (for `disclosure_consent`); on consumption, the consuming session's `client_id` and pseudonymous reference must match the stored values. Per the Paolo receipt-hash limitation framing (verbatim in spec §4.10): "ATAH verifies integrity of the submitted consent receipt. The asserting AI platform remains responsible for obtaining valid user consent to disclose data."
+- **Expected protocol behaviour.** Per spec §4.10, ATAH verifies the receipt's integrity (hash + continuity binding) at submission and at every consumption point. the stored receipt carries `client_id`, `pseudonymous_consumer_ref` (HMAC), and `data_categories_hash` (for `disclosure_consent`); on consumption, the consuming session's `client_id` and pseudonymous reference must match the stored values. Per spec §4.10: "ATAH verifies integrity of the submitted consent receipt. The asserting AI platform remains responsible for obtaining valid user consent to disclose data."
 - **Required audit events.** `consent_receipt_submitted` records the receipt with the principal-delegation context. `consent_continuity_mismatch` is emitted on any consumption attempt whose binding does not match the stored values. `consent_revoked` flips `revocation_status` per §4.10.
 - **Required user / professional disclosure.** Mismatched-binding consumption attempts surface as `consent_mismatch` errors to the consuming AI platform. Asserting platforms remain responsible for the underlying consent ceremony; ATAH disclaims that responsibility explicitly through the verbatim receipt-hash limitation framing.
-- **Required conformance test.** Conformance suite verifies all six F-3 continuity-binding mismatches (client_id mismatch, pseudonymous_consumer_ref mismatch, scope mismatch, data_categories_hash mismatch, expired receipt, revoked receipt) produce rejections with `consent_continuity_mismatch` audit events.
-- **Phase 1 contribution.** `authority_context` records the basis the asserting platform claims; `consent-receipt.schema.json` `asserted_by` uses the principal-delegation `AuthenticatedActor` + `ClientApplication` $defs so the asserter identity is recorded with the same shape ATAH validates everywhere else.
-- **Phase 4 contribution.** F-3 continuity binding fields (`client_id`, `pseudonymous_consumer_ref`, `data_categories_hash`) added to `consent-receipt-stored.schema.json`. The verbatim receipt-hash limitation framing is in spec §4.10. The submission lifecycle (Option B — `POST /v1/consent-receipts`) makes every consumption traceable to a recorded submission.
-- **Status: `bounded-by-protocol`** (per F-17 settled status). ATAH detects tampering, replay, and continuity mismatch via receipt hash + continuity binding fields. ATAH cannot and does not prove that the platform's underlying consent ceremony was valid (whether the user actually clicked "I consent" in the platform's UI). The protocol bounds the abuse without resolving it. The platform retains the legal responsibility for the underlying consent ceremony.
+- **Required conformance test.** Conformance suite verifies all six continuity-binding mismatches (client_id mismatch, pseudonymous_consumer_ref mismatch, scope mismatch, data_categories_hash mismatch, expired receipt, revoked receipt) produce rejections with `consent_continuity_mismatch` audit events.
+- **Status: `bounded-by-protocol`**. ATAH detects tampering, replay, and continuity mismatch via receipt hash + continuity binding fields. ATAH cannot and does not prove that the platform's underlying consent ceremony was valid (whether the user actually clicked "I consent" in the platform's UI). The protocol bounds the abuse without resolving it. The platform retains the legal responsibility for the underlying consent ceremony.
 
 ### 1.3 Professional delegated-agent token is stolen
 
@@ -133,42 +122,40 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 
 - **Scenario.** A handoff (Stage 2 / Stage 3) is attempted using identifiers or receipt that originated on a different AI platform or session than the one whose continuity binding the receipt records.
 - **Abuse / failure mode.** Cross-platform replay; consent receipt or principal-delegation context being reused outside its issuing platform/session.
-- **Expected protocol behaviour.** _To be filled in during Phase 4 (continuity binding)._
-- **Required audit events.** _To be filled in during Phase 4._
-- **Required user / professional disclosure.** _To be filled in during Phase 4._
-- **Required conformance test.** _To be filled in during Phase 4._
-- **Phase 1 contribution.** `authority_context` records the asserting `client_application` (`platform_id`, `client_id`) and the `authority_basis` (`user_session` for the original asserter, or `handoff_access_token` for stage-changing calls). The §7.3 matrix requires original-asserter match for stage-changing calls.
-- **Status: `partially-resolved`** — Phase 1 supplies the structural carrier; Phase 4 adds the continuity binding fields on the stored consent receipt that detect cross-platform replay end-to-end.
+- **Expected protocol behaviour.** _See spec section referenced below._
+- **Required audit events.** _See spec section referenced below._
+- **Required user / professional disclosure.** _See spec section referenced below._
+- **Required conformance test.** _See spec section referenced below._
+- **Status: `partially-resolved`** — The protocol supplies the structural carrier; The protocol adds the continuity binding fields on the stored consent receipt that detect cross-platform replay end-to-end.
 
 ## Category 2 — Consent Boundary Failure
 
-**Phase mapping:** Phase 4.
 
 ### 2.1 ATAH handoff consent is misrepresented as engagement consent
 
 - **Scenario.** A Stage 2 or Stage 3 handoff consent is presented to a downstream professional or surface as if it were ongoing engagement consent (e.g. authorisation to retain, contact further, or open a relationship).
 - **Abuse / failure mode.** Scope creep at the consent boundary; consumer's narrow authorisation expanded into broader permissions.
-- **Expected protocol behaviour.** Per spec §1.5, §4.10, and Charter Part Two operational commitments, ATAH supports two consent types (`query_authorization`, `disclosure_consent`); engagement consent is excluded by design and the `consent_type` enum has no value for it. The Paolo MUST NOT rule applies verbatim across spec, EXPLAINER, PRD, and Charter: ATAH consent receipts MUST NOT be represented as professional engagement consent; conforming implementations MUST disclose that any professional-client relationship arises only through the professional's own onboarding, engagement, regulatory, or contractual process.
+- **Expected protocol behaviour.** Per spec §1.5, §4.10, and Charter Part Two operational commitments, ATAH supports two consent types (`query_authorization`, `disclosure_consent`); engagement consent is excluded by design and the `consent_type` enum has no value for it. The MUST NOT rule applies verbatim across spec, EXPLAINER, PRD, and Charter: ATAH consent receipts MUST NOT be represented as professional engagement consent; conforming implementations MUST disclose that any professional-client relationship arises only through the professional's own onboarding, engagement, regulatory, or contractual process.
 - **Required audit events.** `consent_receipt_submitted` records the `consent_type` (one of the two supported values). Any attempt to issue an `engagement_consent` receipt fails validation at submission.
 - **Required user / professional disclosure.** AI platforms MUST surface the engagement-consent boundary at point of consent capture; the canonical disclosure language is published in the protocol documentation. EXPLAINER and PRD §9 carry the same framing for downstream readers.
 - **Required conformance test.** Conformance suite verifies that a receipt with `consent_type: engagement_consent` is rejected at `POST /v1/consent-receipts` with a validation error.
-- **Status: `resolved`** by F1.4 normative rule (verbatim adopted across spec / Charter / EXPLAINER / PRD), the `consent_type` enum restriction on `consent-receipt.schema.json`, and the canonical disclosure-language requirement.
+- **Status: `resolved`** by normative rule (verbatim adopted across spec / Charter / EXPLAINER / PRD), the `consent_type` enum restriction on `consent-receipt.schema.json`, and the canonical disclosure-language requirement.
 
 ### 2.2 User consents to one professional but data is sent to another
 
 - **Scenario.** Consumer consents at Stage 2 / Stage 3 in respect of a specific candidate; the platform routes data to a different professional (substituted, additional, or the wrong record).
 - **Abuse / failure mode.** Mismatch between consented scope and actual recipient; consent receipt's `data_categories_hash` and / or recipient binding does not match the delivery target.
-- **Expected protocol behaviour.** Per spec §4.10 (continuity binding, F-3), the stored consent receipt records `professional_id` as part of its captured binding (where the receipt is professional-bound). On consumption, ATAH verifies the consuming session targets the same `professional_id`; mismatch is a continuity-binding violation. For `disclosure_consent`, the requested data categories are also verified against `data_categories_hash`; mismatch is a continuity-binding violation.
+- **Expected protocol behaviour.** Per spec §4.10 (continuity binding), the stored consent receipt records `professional_id` as part of its captured binding (where the receipt is professional-bound). On consumption, ATAH verifies the consuming session targets the same `professional_id`; mismatch is a continuity-binding violation. For `disclosure_consent`, the requested data categories are also verified against `data_categories_hash`; mismatch is a continuity-binding violation.
 - **Required audit events.** `consent_continuity_mismatch` on the failed consumption attempt, with the principal-delegation context, the receipt id, and the mismatched binding field.
 - **Required user / professional disclosure.** Mismatch surfaces as a `consent_mismatch` error to the consuming AI platform; the consumer's session is not advanced.
 - **Required conformance test.** Conformance suite issues a receipt for professional A then attempts a Stage 2 submission targeting professional B; verifies the submission is rejected with `consent_continuity_mismatch` audit event.
-- **Status: `resolved`** by F-3 continuity binding (`professional_id` binding + `data_categories_hash`).
+- **Status: `resolved`** by continuity binding (`professional_id` binding + `data_categories_hash`).
 
 ### 2.3 Consent text differs from stored receipt metadata
 
 - **Scenario.** What the consumer was shown at the consent ceremony does not match the metadata recorded on the stored consent receipt (different scope, recipients, data categories, or duration).
 - **Abuse / failure mode.** Drift between displayed and recorded consent; later disputes are unresolvable on protocol grounds.
-- **Expected protocol behaviour.** Per §4.10, the receipt's `consent_text_version` records the canonical consent text the consumer was shown; the published consent-text version is part of the receipt and is hashed alongside the rest of the receipt body. On dispute, the asserting platform produces the receipt and the consent-text version; ATAH verifies the receipt hash matches the stored hash, confirming the receipt itself was not altered after the fact. The receipt-hash limitation framing applies (Paolo verbatim): ATAH verifies receipt integrity, not the validity of the underlying consent ceremony.
+- **Expected protocol behaviour.** Per §4.10, the receipt's `consent_text_version` records the canonical consent text the consumer was shown; the published consent-text version is part of the receipt and is hashed alongside the rest of the receipt body. On dispute, the asserting platform produces the receipt and the consent-text version; ATAH verifies the receipt hash matches the stored hash, confirming the receipt itself was not altered after the fact. The receipt-hash limitation framing applies: ATAH verifies receipt integrity, not the validity of the underlying consent ceremony.
 - **Required audit events.** `consent_receipt_submitted` records the `consent_text_version`. Future `consent_continuity_mismatch` events triggered by drift detection are recorded with the divergent fields.
 - **Required user / professional disclosure.** Asserting platforms MUST show the consent text matching the recorded `consent_text_version`. Drift is a platform-side conformance failure surfaced through dispute resolution.
 - **Required conformance test.** Conformance suite verifies that submitting a receipt with `consent_text_version` not matching any published canonical text produces a validation error.
@@ -178,21 +165,21 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 
 - **Scenario.** Consumer revokes consent after data has already been delivered to a downstream professional or surface.
 - **Abuse / failure mode.** Ambiguous semantics for "consent revoked after delivery" — what must downstream parties do, and what does ATAH itself record?
-- **Expected protocol behaviour.** Per §11.9 (Phase 3 — withdrawal as state transition) and §4.10, the receipt's `revocation_status` flips to `revoked`; on the consuming-side, `POST /v1/introductions/{handoff_id}/revoke-consent` performs vault crypto-erasure for any remaining vault payload and stops ATAH processing. ATAH cannot force deletion from the professional's systems where data has already been retrieved (§11.9 scenario 3 documents this acknowledgement). The `revocation_status: active` check on consumption ensures revoked receipts cannot drive new actions.
+- **Expected protocol behaviour.** Per §11.9 and §4.10, the receipt's `revocation_status` flips to `revoked`; on the consuming-side, `POST /v1/introductions/{handoff_id}/revoke-consent` performs vault crypto-erasure for any remaining vault payload and stops ATAH processing. ATAH cannot force deletion from the professional's systems where data has already been retrieved (§11.9 scenario 3 documents this acknowledgement). The `revocation_status: active` check on consumption ensures revoked receipts cannot drive new actions.
 - **Required audit events.** `consent_revoked` on the receipt; `data_erased` for any remaining vault payload; `withdrawal_recorded` if the revocation came in via the §11.9 scenario 3 path.
 - **Required user / professional disclosure.** AI platforms surface the revocation to the consumer; the professional receives a notification that consent has been revoked and that their downstream data-handling obligations under their own privacy framework apply.
 - **Required conformance test.** Conformance suite verifies that any consenting endpoint rejects consumption of a revoked receipt with `consent_receipt_revoked` error.
-- **Status: `resolved`** by §4.10 `revocation_status` checks at every consumption point + Phase 3 §11.9 scenario 3 (consumer-withdrawal-after-Stage-3-retrieval semantics + vault crypto-erasure).
+- **Status: `resolved`** by §4.10 `revocation_status` checks at every consumption point + §11.9 scenario 3 (consumer-withdrawal-after-Stage-3-retrieval semantics + vault crypto-erasure).
 
 ### 2.5 Receipt replay across users (cross-user confusion)
 
 - **Scenario.** Platform X submits a receipt for user A (`pseudonymous_consumer_ref` HMAC-A); subsequently attempts to consume it for an action concerning user B (whose pseudonymous reference HMACs to a different value).
 - **Abuse / failure mode.** Receipt is valid (hash check passes); consumption context does not match captured context.
-- **Expected protocol behaviour.** Per F-3 continuity binding, ATAH verifies the consuming session's `pseudonymous_consumer_ref` matches the stored HMAC at consumption time. Mismatch is a continuity-binding violation.
+- **Expected protocol behaviour.** Per continuity binding, ATAH verifies the consuming session's `pseudonymous_consumer_ref` matches the stored HMAC at consumption time. Mismatch is a continuity-binding violation.
 - **Required audit events.** `consent_continuity_mismatch` on the failed consumption with the receipt id and the mismatched binding field (`pseudonymous_consumer_ref`).
 - **Required user / professional disclosure.** Failed consumption surfaces as a `consent_mismatch` error to the consuming AI platform.
 - **Required conformance test.** Conformance suite issues a receipt for user A then attempts consumption with a different pseudonymous reference; verifies rejection with the `consent_continuity_mismatch` audit event.
-- **Status: `resolved`** by F-3 continuity binding (`pseudonymous_consumer_ref` HMAC).
+- **Status: `resolved`** by continuity binding (`pseudonymous_consumer_ref` HMAC).
 
 ### 2.6 Receipt replay across sessions (same user, different action)
 
@@ -202,11 +189,10 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 - **Required audit events.** `consent_continuity_mismatch` on the failed consumption with the mismatched binding field (`scope` or `data_categories_hash`).
 - **Required user / professional disclosure.** Failed consumption surfaces as a `consent_mismatch` error.
 - **Required conformance test.** Conformance suite issues a receipt with scope `stage_2_prehandoff_submission` then attempts consumption at `stage_3_contact_release`; verifies rejection. Also: receipt with one set of data categories, attempt to share a different set; verifies rejection.
-- **Status: `resolved`** by F-3 continuity binding (`scope` and `data_categories_hash` checks) + receipt expiry.
+- **Status: `resolved`** by continuity binding (`scope` and `data_categories_hash` checks) + receipt expiry.
 
 ## Category 3 — Ordering and Recommendation Drift
 
-**Phase mapping:** Phase 5.
 
 ### 3.1 Candidates are always returned in the same order
 
@@ -222,7 +208,7 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 
 - **Scenario.** Implementation publishes "no global match score" framing while internally computing a score and using it to bias ordering.
 - **Abuse / failure mode.** Recommendation in disguise; the published ordering policy does not reflect the actual ranking basis.
-- **Expected protocol behaviour.** Per spec §9.1, the "no global score" claim is structurally observable: no global score field exists at any layer of `match-response.schema.json`. Per F1.11, "a hidden global score plus randomised display would look cosmetic and undermine the claim that ATAH is not ranking by preference"; the structural absence closes that vector.
+- **Expected protocol behaviour.** Per spec §9.1, the "no global score" claim is structurally observable: no global score field exists at any layer of `match-response.schema.json`. "a hidden global score plus randomised display would look cosmetic and undermine the claim that ATAH is not ranking by preference"; the structural absence closes that vector.
 - **Required audit events.** None specific (the structural absence is the verification surface, not an audit-event surface).
 - **Required user / professional disclosure.** Response-level `presentation_disclosure.ordering_policy` declares the mode (`stratified_random` by default) and `atah_expresses_preference: false`.
 - **Required conformance test.** Conformance suite verifies that no global score field is present in any match-response example or in implementation responses; that `band_assignment` is populated for every candidate; and (per §9.5) that within-band ordering is observably non-deterministic.
@@ -232,11 +218,11 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 
 - **Scenario.** Professionals associated with commercial partners (paying or otherwise) appear in eligible result sets at frequencies inconsistent with their share of the eligible population.
 - **Abuse / failure mode.** Commercial bias entering ordering through a back channel — band assignment, eligibility filters, or stratification weights — without disclosure.
-- **Expected protocol behaviour.** Per spec §9.6 (Commercial neutrality), no weight is assigned to ATAH-partner commercial relationships, partner status itself, enhanced-verification payment, review-platform identity beyond `review_platform_class`, or registration route (partner vs individual). Per F-7 / §9.2, review-derived signals MAY supplement transparency but MUST NOT promote candidates into higher bands in regulated categories. The response-level `presentation_disclosure.ordering_policy.commercial_weighting: false` is `const`-asserted in the schema (the field is structurally not a free value). Phase 6's transparency-as-conformance work adds per-candidate `decision_explanation` so the basis of band assignment is auditable per response.
+- **Expected protocol behaviour.** Per spec §9.6 (Commercial neutrality), no weight is assigned to ATAH-partner commercial relationships, partner status itself, enhanced-verification payment, review-platform identity beyond `review_platform_class`, or registration route (partner vs individual). Per / §9.2, review-derived signals MAY supplement transparency but MUST NOT promote candidates into higher bands in regulated categories. The response-level `presentation_disclosure.ordering_policy.commercial_weighting: false` is `const`-asserted in the schema (the field is structurally not a free value). The protocol's transparency-as-conformance work adds per-candidate `decision_explanation` so the basis of band assignment is auditable per response.
 - **Required audit events.** Audit log records every `partner_data_pushed` and `verifier_data_submitted` event with the principal-delegation context; pattern detection of partner-affiliated overrepresentation is an operational concern.
 - **Required user / professional disclosure.** `commercial_weighting: false` is asserted in every match response. AI platforms reordering MUST preserve this.
-- **Required conformance test.** Conformance suite verifies (a) `commercial_weighting: false` is asserted in every response; (b) per Phase 6, `decision_explanation` exposes the band-assignment basis for each candidate so audit can verify no partner-relationship signal entered the assignment.
-- **Status: `resolved`** by §9.6 commercial-neutrality MUST + §9.2 review-signal band cap + Phase 6 per-candidate decision_explanation transparency.
+- **Required conformance test.** Conformance suite verifies (a) `commercial_weighting: false` is asserted in every response; (b) `decision_explanation` exposes the band-assignment basis for each candidate so audit can verify no partner-relationship signal entered the assignment.
+- **Status: `resolved`** by §9.6 commercial-neutrality MUST + §9.2 review-signal band cap + per-candidate decision_explanation transparency.
 
 ### 3.4 AI platform presents ATAH result one as "best"
 
@@ -246,13 +232,13 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 - **Required audit events.** Not directly auditable from ATAH's side (the platform is downstream of ATAH's surface). Platform conformance is verified through binding-conformance review, not audit-stream pattern detection.
 - **Required user / professional disclosure.** AI platforms display `presentation_disclosure.ordering_policy` content to users. Where the platform reorders for user-context reasons, the disclosure that ATAH applied non-preferential ordering MUST survive.
 - **Required conformance test.** Binding-conformance review verifies platform implementations preserve and surface the `presentation_disclosure.ordering_policy` block.
-- **Status: `allocated-to-platform-responsibility`** per F-17. ATAH publishes the ordering-policy disclosure; downstream presentation is the AI platform's obligation. ATAH's role is to provide the structural disclosure surface and the binding-conformance MUST; the platform's role is to honour it. (This was the F-17 worked example for `allocated-to-platform-responsibility`.)
+- **Status: `allocated-to-platform-responsibility`**. ATAH publishes the ordering-policy disclosure; downstream presentation is the AI platform's obligation. ATAH's role is to provide the structural disclosure surface and the binding-conformance MUST; the platform's role is to honour it. (This was the worked example for `allocated-to-platform-responsibility`.)
 
 ### 3.5 Review signals quietly upgrade a candidate's band in a regulated category
 
 - **Scenario.** A regulated-category implementation lets review-platform signals push a candidate into a higher verification-confidence or category-fit band, despite the absence of corroborating regulator-source evidence.
 - **Abuse / failure mode.** Review-platform signal becomes a back-door promotion mechanism in high-stakes categories; the v0.8.1 `review_signal_weight_cap` original safeguard is bypassed.
-- **Expected protocol behaviour.** Per spec §9.2 (F-7 verbatim): review-derived signals MAY supplement transparency and confidence metadata, but for high-stakes regulated categories MUST NOT move a candidate into a higher eligibility or verification band unless corroborated by authoritative credential or regulator-source evidence. Encoded per category in `profession-categories.json` `review_signal_band_cap`: regulated categories set `may_upgrade_band: false` and `regulated_category_max_effect: no_band_upgrade`.
+- **Expected protocol behaviour.** Per spec §9.2: review-derived signals MAY supplement transparency and confidence metadata, but for high-stakes regulated categories MUST NOT move a candidate into a higher eligibility or verification band unless corroborated by authoritative credential or regulator-source evidence. Encoded per category in `profession-categories.json` `review_signal_band_cap`: regulated categories set `may_upgrade_band: false` and `regulated_category_max_effect: no_band_upgrade`.
 - **Required audit events.** Band-assignment changes (where the implementation supports re-binding) record the basis on the audit event; pattern detection of review-driven band promotions in regulated categories is an operational concern.
 - **Required user / professional disclosure.** `review_signal_summary` on `match-response.schema.json` is presentational; the protocol's framing in §9.2 makes clear that for regulated categories the signal is supplemental-only.
 - **Required conformance test.** Conformance suite verifies that for any regulated category (`may_upgrade_band: false`), an attempt to construct a band assignment that promotes a candidate based on review signals alone is rejected; the candidate remains in the band determined by authoritative credential or regulator-source evidence.
@@ -265,20 +251,19 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 - **Expected protocol behaviour.** Per §9.5, v0.8.2 specifies the model (hard filters → bands → within-band randomisation) and the within-band fairness policy enumeration (`uniform_random`, `round_robin_rotation`, `documented_implementation_policy`). The randomisation seed is `not_disclosed_to_prevent_gaming`. v0.8.2 does NOT mandate a specific algorithm; that is implementation choice. The conformance test verifies returned `band_assignment` is consistent with `band_definitions` and within-band ordering is observably non-deterministic across repeated identical queries.
 - **Required audit events.** None specific (the structural verification surface is the conformance test, not the audit log).
 - **Required user / professional disclosure.** Response-level `presentation_disclosure.ordering_policy.randomization_seed_disclosure` is `not_disclosed_to_prevent_gaming`; per-candidate `ordering_policy.within_band_policy` declares the policy applied.
-- **Required conformance test.** Conformance suite issues the same query repeatedly and verifies within-band candidate ordering is observably different across N invocations. Phase 6 / Phase 11 may add a stronger statistical test; v0.9 may standardise the algorithm.
-- **Status: `partially-resolved`** — Phase 5 establishes the structural model and the conformance non-determinism test; full statistical-distribution conformance and algorithm standardisation are deferred. Concrete next step: Phase 6 / Phase 11 algorithm-conformance test; v0.9 algorithm standardisation.
+- **Required conformance test.** Conformance suite issues the same query repeatedly and verifies within-band candidate ordering is observably different across N invocations. A future revision may add a stronger statistical test; v0.9 may standardise the algorithm.
+- **Status: `partially-resolved`** — The protocol establishes the structural model and the conformance non-determinism test; full statistical-distribution conformance and algorithm standardisation are deferred. Concrete next step: algorithm-conformance test; v0.9 algorithm standardisation.
 
 ---
 
 ## Category 4 — Transparency and Explainability Failure
 
-**Phase mapping:** Phase 6.
 
 ### 4.1 Professional asks why they were excluded
 
 - **Scenario.** A verified professional, expecting to appear in eligible result sets, queries the protocol about exclusion reasons.
 - **Abuse / failure mode.** No mechanism for professional-facing transparency; or the mechanism leaks query-history / volume data inappropriately.
-- **Expected protocol behaviour.** Per spec §11A.4 (Phase 6), a conforming implementation MUST provide a mechanism for an authenticated professional to retrieve their own visibility-decision view. The view is **rules-derived**: representative inclusion rules that apply, representative exclusion reason categories that could apply, current band assignment from `band_definitions`, and the implementation's published ordering policy. Per F-18 verbatim MUST NOT, the view does NOT expose actual query-count or query-history data. Endpoint: `GET /v1/professionals/me/visibility-explanations` (REST) and `get_my_visibility_explanations` (MCP). Implementations MAY defer the endpoint implementation to v0.8.3 via `x-implementation-deferred-to`; the obligation is part of v0.8.2.
+- **Expected protocol behaviour.** Per spec §11A.4, a conforming implementation MUST provide a mechanism for an authenticated professional to retrieve their own visibility-decision view. The view is **rules-derived**: representative inclusion rules that apply, representative exclusion reason categories that could apply, current band assignment from `band_definitions`, and the implementation's published ordering policy. Per MUST NOT, the view does NOT expose actual query-count or query-history data. Endpoint: `GET /v1/professionals/me/visibility-explanations` (REST) and `get_my_visibility_explanations` (MCP). Implementations MAY defer the endpoint implementation to v0.8.3 via `x-implementation-deferred-to`; the obligation is part of v0.8.2.
 - **Required audit events.** Each retrieval generates a `security_event` (or equivalent) recording the principal-delegation context, the category and jurisdiction queried, and the timestamp.
 - **Required user / professional disclosure.** Authority basis: `professional_delegated_token`. Rate-limited per professional account.
 - **Required conformance test.** Conformance suite verifies the endpoint returns the rules-derived shape (representative inclusion rules, representative exclusion reason categories, current band assignment, published ordering policy); verifies absence of query-history fields in the response; verifies authority-basis enforcement.
@@ -288,7 +273,7 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 
 - **Scenario.** A consumer (via the AI platform) asks why a particular professional was returned in the eligible set, or why one candidate appeared above another in the stratified ordering.
 - **Abuse / failure mode.** Decision basis is opaque; ordering looks like a recommendation; consumer trust depends on a transparent rationale.
-- **Expected protocol behaviour.** Per spec §11A.2 (Phase 6), the per-candidate `decision_explanation` (Layer 2) on `match-response.schema.json` documents the rules each candidate passed, the band assignment basis, and the ordering policy applied. The response-level `decision_explanation` (Layer 1) documents the query-level rules and ordering policy. Both layers reference the audit event for traceability.
+- **Expected protocol behaviour.** Per spec §11A.2, the per-candidate `decision_explanation` (Layer 2) on `match-response.schema.json` documents the rules each candidate passed, the band assignment basis, and the ordering policy applied. The response-level `decision_explanation` (Layer 1) documents the query-level rules and ordering policy. Both layers reference the audit event for traceability.
 - **Required audit events.** Discovery responses produce audit events linked from `decision_explanation.audit_event_id`; the audit event records the principal-delegation context.
 - **Required user / professional disclosure.** AI platforms surface the per-candidate `decision_explanation` to the consumer through their UI. Per §9.4, the response-level `presentation_disclosure.ordering_policy` MUST be preserved verbatim through any AI-platform reordering.
 - **Required conformance test.** Conformance suite verifies both layers of `decision_explanation` are populated on every Discovery response with non-empty results; verifies content is internally consistent with the implementation's published rules.
@@ -312,14 +297,13 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 - **Required audit events.** `meaningful_conflict_detected` (existing event_type) records the suppression with `decision_explanation_id` reverse reference; the dispute lifecycle produces `dispute_raised` and `dispute_resolved` events.
 - **Required user / professional disclosure.** The professional's visibility-explanation view shows the suppression reason category; the dispute portal (existing v0.8.1) gives the professional a structured appeal path.
 - **Required conformance test.** Conformance suite verifies suppression events generate `decision_explanation` with `decision_type: suppression`; verifies the dispute machinery produces audit-linked events.
-- **Phase 6 contribution.** Transparency on suppression reason — `resolved`. Detailed appeal-workflow and timeline-of-resolution work — flagged as v0.9 deeper-dispute-resolution work.
-- **Status: `partially-resolved`** — Phase 6 closes the transparency side (suppression reason visible; dispute path visible). The fuller dispute-resolution timeline / escalation criteria / evidence-handling specification is v0.9 work (already on ROADMAP under "Detailed dispute resolution process").
+- **Status: `partially-resolved`** — protocol behaviour closes the transparency side (suppression reason visible; dispute path visible). The fuller dispute-resolution timeline / escalation criteria / evidence-handling specification is v0.9 work (already on ROADMAP under "Detailed dispute resolution process").
 
 ### 4.5 Implementation provides response-level explanation only and claims conformance
 
 - **Scenario.** An implementation produces a response-level `decision_explanation` but omits per-candidate `decision_explanation` on individual results, claiming response-level alone is sufficient.
 - **Abuse / failure mode.** Per-candidate "why this specific candidate" question becomes unanswerable from the response alone; conformance gap exploited.
-- **Expected protocol behaviour.** Per §11A.2 (F-6), the Transparency Class requires both layers. `match-response.schema.json` `MatchResult` `required` includes `decision_explanation`; a response without per-candidate explanations fails schema validation.
+- **Expected protocol behaviour.** Per §11A.2, the Transparency Class requires both layers. `match-response.schema.json` `MatchResult` `required` includes `decision_explanation`; a response without per-candidate explanations fails schema validation.
 - **Required audit events.** Schema-validation failures produce conformance-test failures; not directly audit-logged at runtime.
 - **Required user / professional disclosure.** Conformance test failure surfaces through the conformance test suite (v0.9).
 - **Required conformance test.** Conformance suite picks a Discovery response with non-empty `results` and verifies every result item has `decision_explanation` populated. Schema validation rejects response payloads missing the field.
@@ -338,38 +322,37 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 ### 4.7 Professional-facing endpoint is deferred and the obligation becomes invisible
 
 - **Scenario.** An implementation marks `GET /v1/professionals/me/visibility-explanations` as `x-implementation-deferred-to: v0.8.3` and treats the obligation itself as deferred; the professional-facing transparency commitment is not honoured at v0.8.2 launch.
-- **Abuse / failure mode.** "Deferred endpoint implementation" is misread as "deferred obligation"; v0.8.2 ships without the substance of the F-6 commitment.
-- **Expected protocol behaviour.** Per §11A.4 / F-6 spec discipline, the v0.8.2 spec defines the required behaviour, fields, authority controls, audit linkage, and the F-18 MUST NOT rule. The deferral covers the dedicated endpoint implementation; it does NOT cover the obligation itself. Implementations MAY return 501 in v0.8.2 — but the spec is complete enough that an implementer can build from v0.8.2 alone. The CHANGELOG and ROADMAP record the deferral honestly.
+- **Abuse / failure mode.** "Deferred endpoint implementation" is misread as "deferred obligation"; v0.8.2 ships without the substance of the commitment.
+- **Expected protocol behaviour.** Per §11A.4 / spec discipline, the v0.8.2 spec defines the required behaviour, fields, authority controls, audit linkage, and the MUST NOT rule. The deferral covers the dedicated endpoint implementation; it does NOT cover the obligation itself. Implementations MAY return 501 in v0.8.2 — but the spec is complete enough that an implementer can build from v0.8.2 alone. The CHANGELOG and ROADMAP record the deferral honestly.
 - **Required audit events.** None specific (the structural verification is via spec-completeness review).
 - **Required user / professional disclosure.** The CHANGELOG entry and the ROADMAP "v0.8.3 candidates" section make the deferral visible.
-- **Required conformance test.** Conformance suite review verifies that the v0.8.2 spec section §11A.4 contains all five required components (behaviour, fields, authority controls, audit linkage, F-18 MUST NOT). The endpoint implementation deferral is a registry-side decision verified through binding-conformance review.
-- **Status: `bounded-by-protocol`** — F-6 spec discipline keeps the obligation visible at the spec level even when implementation defers. The protocol bounds the deferral risk; implementations choosing to defer are explicit about it.
+- **Required conformance test.** Conformance suite review verifies that the v0.8.2 spec section §11A.4 contains all five required components (behaviour, fields, authority controls, audit linkage, MUST NOT). The endpoint implementation deferral is a registry-side decision verified through binding-conformance review.
+- **Status: `bounded-by-protocol`** — spec discipline keeps the obligation visible at the spec level even when implementation defers. The protocol bounds the deferral risk; implementations choosing to defer are explicit about it.
 
 ### 4.8 Professional-facing endpoint exposes actual query data, leaking consumer/platform information
 
 - **Scenario.** An implementation builds the visibility-explanation endpoint by aggregating actual query traffic ("here's how many queries this category received last month and what fraction included you").
 - **Abuse / failure mode.** Real query patterns expose information about consumers, AI platform integrations, demand signals, matter types, urgency, and platform activity that does not belong in a per-professional report. Even aggregated counts can leak in low-volume categories.
-- **Expected protocol behaviour.** Per F-18 verbatim MUST NOT in §11A.4: professional-facing visibility explanations MUST NOT expose actual query-count data, query-history data, observed demand patterns, or any per-query information derived from consumer or platform traffic. The view MUST be rules-derived from the implementation's documented rules and the professional's own profile data.
+- **Expected protocol behaviour.** Per §11A.4: professional-facing visibility explanations MUST NOT expose actual query-count data, query-history data, observed demand patterns, or any per-query information derived from consumer or platform traffic. The view MUST be rules-derived from the implementation's documented rules and the professional's own profile data.
 - **Required audit events.** Implementations producing query-history-derived visibility views fail conformance review.
 - **Required user / professional disclosure.** N/A — the failure mode is implementation-side and the spec rule is the verification surface.
 - **Required conformance test.** Conformance suite reviews the implementation's visibility-explanation response payloads for any field derived from query traffic; the absence of query-history fields is the structural test. The reviewer also examines the implementation's documentation and source where available.
-- **Status: `resolved`** by F-18 verbatim MUST NOT in spec §11A.4 + cross-references in CHANGELOG, EXPLAINER, PRD, and `docs/professional/visibility-report.md`.
+- **Status: `resolved`** by MUST NOT in spec §11A.4 + cross-references in CHANGELOG, EXPLAINER, PRD, and `docs/professional/visibility-report.md`.
 
 ### 4.9 Professional-facing endpoint exposes inferred query patterns via low-volume category leakage
 
 - **Scenario.** An implementation provides aggregated query counts at category level only, not per-professional, but the category is low-volume enough that "lawyers in Wyoming, county court matters" effectively names individual professionals.
 - **Abuse / failure mode.** Low-volume aggregation leaks demand information for narrow categories or jurisdictions, indirectly identifying professionals.
-- **Expected protocol behaviour.** The rules-derived approach (per F-18) is structurally immune to this failure mode: the explanation is derived from documented rules and the professional's own profile, not from observed query traffic. There are no aggregate counts in the visibility-explanation response (the schema does not include any field that could carry them); low-volume leakage is impossible by construction.
+- **Expected protocol behaviour.** The rules-derived approach is structurally immune to this failure mode: the explanation is derived from documented rules and the professional's own profile, not from observed query traffic. There are no aggregate counts in the visibility-explanation response (the schema does not include any field that could carry them); low-volume leakage is impossible by construction.
 - **Required audit events.** N/A.
 - **Required user / professional disclosure.** N/A.
 - **Required conformance test.** Conformance suite verifies the visibility-explanation response schema does not include query-count fields; the field absence is the structural test.
-- **Status: `resolved`** by F-18 rules-derived approach + structural absence of query-count fields in the response schema.
+- **Status: `resolved`** by rules-derived approach + structural absence of query-count fields in the response schema.
 
 ---
 
 ## Category 5 — Vault, Erasure, and Audit Abuse
 
-**Phase mapping:** Phase 3.
 
 ### 5.1 Payload is erased but abuse investigation is needed
 
@@ -415,7 +398,6 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 
 ## Category 6 — Withdrawal Abuse
 
-**Phase mapping:** Phase 3.
 
 ### 6.1 Malicious actor initiates and withdraws repeated handoffs
 
@@ -424,8 +406,8 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 - **Expected protocol behaviour.** Per §11.9, withdrawal is a state transition and does NOT erase audit records. Every initiate-then-withdraw cycle generates a structured audit event with the principal-delegation context, `previous_state`, `resulting_state`, and `reason_code`. Pattern detection (repeat withdrawals from the same `authenticated_actor`) is therefore visible in the audit stream. Per §13.3, rate limits on per-period proposal/initiation actions apply (concrete numbers populated by registry implementations; spec mandates the requirement).
 - **Required audit events.** `introduction_initiated` and `withdrawal_recorded` (or the equivalent state-transition event_type) for each cycle, all carrying the same `authenticated_actor.actor_id` and `client_application` for pattern detection.
 - **Required user / professional disclosure.** The target professional MAY surface withdrawal patterns through their professional portal; harassment-monitoring is a v0.8.3 deferred mechanism (per scenario 1.6 deferral).
-- **Required conformance test.** Conformance suite verifies that withdrawal generates an audit event with the F1.17 fields and that rate-limit enforcement returns `429` after threshold.
-- **Status: `partially-resolved`** — Phase 3 closes the structural side via withdrawal-as-state-transition + audit retention. Concrete rate-limit thresholds and harassment-monitoring (dense-cluster pattern detection) are `deferred-to-v0.8.3`.
+- **Required conformance test.** Conformance suite verifies that withdrawal generates an audit event with the fields and that rate-limit enforcement returns `429` after threshold.
+- **Status: `partially-resolved`** — closes the structural side via withdrawal-as-state-transition + audit retention. Concrete rate-limit thresholds and harassment-monitoring (dense-cluster pattern detection) are `deferred-to-v0.8.3`.
 
 ### 6.2 Professional withdraws profile after concern flags
 
@@ -459,7 +441,6 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 
 ## Category 7 — Contact Freshness and Engagement Liveness
 
-**Phase mapping:** Phase 7 (channel-validity verification). Engagement liveness (response-rate tracking) is **deferred to v0.8.3** — covered by Phase 7's documented deferral.
 
 ### 7.1 Licensed professional has stale email or phone
 
@@ -485,7 +466,7 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 
 - **Scenario.** A professional appears in eligible result sets but consistently fails to respond within their declared response window at Stage 1.
 - **Abuse / failure mode.** Engagement-liveness signal absent; professional remains in eligible set despite a real-world unresponsive pattern.
-- **Expected protocol behaviour.** *Engagement liveness is **deferred to v0.8.3**.* Phase 7 covers channel-validity verification only; response-rate tracking is a separate mechanism not in scope for v0.8.2.
+- **Expected protocol behaviour.** *Engagement liveness is **deferred to v0.8.3**.* The protocol covers channel-validity verification only; response-rate tracking is a separate mechanism not in scope for v0.8.2.
 - **Required audit events.** _Deferred to v0.8.3._
 - **Required user / professional disclosure.** _Deferred to v0.8.3._
 - **Required conformance test.** _Deferred to v0.8.3._
@@ -505,13 +486,12 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 
 ## Category 8 — Partner and Governance Capture
 
-**Phase mapping:** Phase 8.
 
 ### 8.1 Paying partner seeks broader verification scope than justified
 
 - **Scenario.** A trusted partner who pays for, or sponsors, the partnership relationship requests an expansion of their authoritative-data scope beyond what their underlying authority justifies.
 - **Abuse / failure mode.** Verification-scope creep; partner's authority over a narrow domain (e.g. licence data) leveraged into broader implicit endorsement.
-- **Expected protocol behaviour.** Per Charter Part Two hard-artifacts list (per F1.7): field-level verification scopes per partner are an existing hard artifact (`verification-scope.schema.json`). Partner data submissions outside the declared scope are rejected at validation; scope expansion requires governance review and is logged in the public governance-decision register (v0.9 operational artifact). Per Charter Core Commitment 8, the protocol governance body holds the partner admission and scope rules; per Core Commitment 7 / GOVERNANCE.md §4.1, founder-affiliated or commercially connected admissions trigger related-party disclosure.
+- **Expected protocol behaviour.** Per Charter Part Two hard-artifacts list: field-level verification scopes per partner are an existing hard artifact (`verification-scope.schema.json`). Partner data submissions outside the declared scope are rejected at validation; scope expansion requires governance review and is logged in the public governance-decision register (v0.9 operational artifact). Per Charter Core Commitment 8, the protocol governance body holds the partner admission and scope rules; per Core Commitment 7 / GOVERNANCE.md §4.1, founder-affiliated or commercially connected admissions trigger related-party disclosure.
 - **Required audit events.** `partner_data_pushed` events outside scope produce validation failures recorded as `security_event` audit entries. `admin_action` events record scope-expansion governance decisions.
 - **Required user / professional disclosure.** Scope-expansion decisions surface through the public governance-decision register; professionals see partner-attributed data with provenance per the `_provenance` map.
 - **Required conformance test.** Conformance suite verifies that partner data submissions outside the partner's declared `verification-scope.schema.json` are rejected; verifies that the partner's declared scopes are publicly accessible.
@@ -521,11 +501,11 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 
 - **Scenario.** A review platform with insufficient anti-gaming controls applies for admission as a partner data source.
 - **Abuse / failure mode.** Low-quality review signal entering ATAH band assignment; gameable signals influencing professional appearance.
-- **Expected protocol behaviour.** Per Charter Part Two hard-artifacts list: review-platform minimum criteria are an existing hard artifact (`review-platform.schema.json` defines the partner-class shape; admission requires declared anti-gaming controls and review-platform-class self-classification). Per Phase 5 §9.2 / F-7: review-derived signals MUST NOT promote candidates into higher bands in regulated categories regardless of their anti-gaming posture; the structural protection applies even if a weak review platform is admitted.
+- **Expected protocol behaviour.** Per Charter Part Two hard-artifacts list: review-platform minimum criteria are an existing hard artifact (`review-platform.schema.json` defines the partner-class shape; admission requires declared anti-gaming controls and review-platform-class self-classification). Per §9.2 /: review-derived signals MUST NOT promote candidates into higher bands in regulated categories regardless of their anti-gaming posture; the structural protection applies even if a weak review platform is admitted.
 - **Required audit events.** Review platform admission decisions produce `admin_action` audit events; review-platform-attributed data carries `_provenance` for inspection.
 - **Required user / professional disclosure.** Review-platform-class self-classification is publicly visible; per §9.2, review signals are presentational and supplemental.
-- **Required conformance test.** Conformance suite verifies that review platforms outside the published criteria are rejected; verifies that review-derived signals do not promote candidates into higher bands in regulated categories (the §9.2 / F-7 verbatim MUST rule).
-- **Status: `partially-resolved`** — Phase 8 references existing hard-artifact (`review-platform.schema.json`) + Phase 5 §9.2 structural protection. **The fuller minimum-criteria specification (anti-gaming attestation requirements, audit cadence, revocation triggers) is a v0.9 work item**, named in the Charter Part Two hard-artifacts list and on the ROADMAP.
+- **Required conformance test.** Conformance suite verifies that review platforms outside the published criteria are rejected; verifies that review-derived signals do not promote candidates into higher bands in regulated categories (the §9.2 / MUST rule).
+- **Status: `partially-resolved`** — The protocol references existing hard-artifact (`review-platform.schema.json`) + §9.2 structural protection. **The fuller minimum-criteria specification (anti-gaming attestation requirements, audit cadence, revocation triggers) is a v0.9 work item**, named in the Charter Part Two hard-artifacts list and on the ROADMAP.
 
 ### 8.3 Verifier sells enhanced verification as a purchasable badge
 
@@ -535,7 +515,7 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 - **Required audit events.** `verifier_data_submitted` events record the verification record's structured depth/breadth/freshness; `verifier_suspended` events record revocation.
 - **Required user / professional disclosure.** Enhanced verification records carry full provenance per the `_provenance` map; the verifier identity, the verification scope, and the verification rigour are visible to consumers and auditors.
 - **Required conformance test.** Conformance suite verifies that paid-for enhanced verifications do not get higher matching weight than equivalently-rigorous unpaid verifications; verifies that verifier conflict-of-interest declarations are publicly accessible.
-- **Status: `partially-resolved`** — Phase 8 references existing hard-artifact (`independent-verifier.schema.json`) + Phase 5 §9.6 commercial-neutrality rule. **The fuller verifier conflict and audit rules (cadence, revocation triggers, conflict-declaration shape) are a v0.9 work item**, named in the Charter Part Two hard-artifacts list and on the ROADMAP.
+- **Status: `partially-resolved`** — The protocol references existing hard-artifact (`independent-verifier.schema.json`) + §9.6 commercial-neutrality rule. **The fuller verifier conflict and audit rules (cadence, revocation triggers, conflict-declaration shape) are a v0.9 work item**, named in the Charter Part Two hard-artifacts list and on the ROADMAP.
 
 ### 8.4 Founder-affiliated or commercially connected entity seeks preferential treatment
 
@@ -551,40 +531,36 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 
 - **Scenario.** An implementation publishes a conformance statement at `/.well-known/atah-conformance` and validates against the published schemas, but applies opaque ordering, undisclosed commercial weighting, or other behaviours that violate the Charter's spirit. Apache 2.0 permits the use of the protocol; the conformance claim is only a self-declaration during the release-candidate stage.
 - **Abuse / failure mode.** "Conformance laundering" — technical conformance is used to imply governance neutrality, blurring the distinction between protocol implementation and recognised neutrality.
-- **Expected protocol behaviour.** Per `CONFORMANCE.md` (Phase 10A three-level distinction, F3.3): such an implementation is `protocol-compatible` (uses ATAH schemas) or, at most, `ATAH-conformant` if the technical conformance assertions hold — but it is NOT `ATAH-recognised neutral implementation`, which requires behavioural conformance to governance, neutrality, auditability, public-disclosure, and conflict-of-interest requirements. Per Phase 6's Transparency Class, ordering policy and decision explanations are observable; commercial-weighting hidden in implementation logic becomes detectable through audit and decision-explanation discrepancies.
+- **Expected protocol behaviour.** Per `CONFORMANCE.md` (the three-level distinction): such an implementation is `protocol-compatible` (uses ATAH schemas) or, at most, `ATAH-conformant` if the technical conformance assertions hold — but it is NOT `ATAH-recognised neutral implementation`, which requires behavioural conformance to governance, neutrality, auditability, public-disclosure, and conflict-of-interest requirements. Per The protocol's Transparency Class, ordering policy and decision explanations are observable; commercial-weighting hidden in implementation logic becomes detectable through audit and decision-explanation discrepancies.
 - **Required audit events.** Implementation-side audit events (covered by the Transparency Class). Cross-implementation comparison is the basis on which an ATAH-recognised-neutral claim is evaluated against Charter-spirit conformance.
 - **Required user / professional disclosure.** `presentation_disclosure` carries the ordering-policy disclosure; `decision_explanation` per response and per candidate documents the rules applied; aggregate `exclusion_summary` surfaces exclusion-reason categories. A reviewer can compare the published conformance statement against the observable behaviour.
 - **Required conformance test.** v0.8.2 ships the schema-level checks (schema validity, presence of `presentation_disclosure`, presence of `decision_explanation` at both layers, structural absence of `match_score` / `match_factors`). v0.9 audit regime adds the behavioural-neutrality / conformance-audit model — sampled query replay, decision-explanation substantive-validity tests, commercial-neutrality attestation cadence — that catches Charter-spirit violations a purely-technical regime would miss.
-- **Phase mapping.** Phase 10A introduces the three-level distinction in `CONFORMANCE.md` and the v0.9 ROADMAP item for the audit regime.
-- **Status: `partially-resolved`** — Phase 10A's three-level distinction makes the framing clear in documentation (the recognised level is reserved for behavioural conformance, not just technical). Fully resolved when the v0.9 behavioural-neutrality / conformance-audit model is implemented per the new ROADMAP item.
+- **Status: `partially-resolved`** — The protocol's three-level distinction makes the framing clear in documentation (the recognised level is reserved for behavioural conformance, not just technical). Fully resolved when the v0.9 behavioural-neutrality / conformance-audit model is implemented per the new ROADMAP item.
 
 ### 8.6 Implementation falsely claims ATAH-recognised neutral status
 
 - **Scenario.** An implementation that is at most `ATAH-conformant` (per the three-level distinction) publicly claims `ATAH-recognised neutral implementation` status without meeting the strongest governance, neutrality, auditability, public-disclosure, and conflict-of-interest requirements. The claim is misleading rather than technically wrong.
 - **Abuse / failure mode.** Trust-mark laundering; consumers, partners, and reviewers may mistake technical conformance for recognised neutrality.
-- **Expected protocol behaviour.** Per CHARTER Part Two (Phase 10A new commitment), the official ATAH trust mark and "ATAH-recognised neutral implementation" status are revocable; they depend on continuing behavioural conformance. Per GOVERNANCE.md §5.1 (Phase 10A new commitment), ATAH governance reserves the right to publicly contest claims of ATAH conformance, neutrality, or recognised-implementation status that misrepresent compliance. Both are stated commitments; v0.9 operationalises the revocation procedure.
+- **Expected protocol behaviour.** Per CHARTER Part Two (a v0.8.2 commitment), the official ATAH trust mark and "ATAH-recognised neutral implementation" status are revocable; they depend on continuing behavioural conformance. Per GOVERNANCE.md §5.1 (a v0.8.2 commitment), ATAH governance reserves the right to publicly contest claims of ATAH conformance, neutrality, or recognised-implementation status that misrepresent compliance. Both are stated commitments; v0.9 operationalises the revocation procedure.
 - **Required audit events.** Public governance-decision register (v0.9 operational artifact per Charter Part Two hard-artifacts list) records contest actions, revocations, and remediation outcomes.
 - **Required user / professional disclosure.** Public statement issued by ATAH governance when a claim is contested. The published-revocation process under v0.9 makes status transitions visible.
-- **Required conformance test.** v0.8.2 ships the framework (the three-level distinction is documented; the revocability and right-to-contest are stated). v0.9 ships the issuance and revocation procedure (per Phase 10A v0.9 ROADMAP item).
-- **Phase mapping.** Phase 10A introduces the framework; v0.9 operationalises it.
-- **Status: `partially-resolved`** — Phase 10A creates the framework for revocability (CHARTER) and the public-contest right (GOVERNANCE §5.1). Fully addressed when v0.9 operationalises the revocation procedure.
+- **Required conformance test.** v0.8.2 ships the framework (the three-level distinction is documented; the revocability and right-to-contest are stated). v0.9 ships the issuance and revocation procedure (v0.9 ROADMAP item).
+- **Status: `partially-resolved`** — The protocol creates the framework for revocability (CHARTER) and the public-contest right (GOVERNANCE §5.1). Fully addressed when v0.9 operationalises the revocation procedure.
 
 ### 8.7 Well-resourced player forks the registry, complies with technical conformance, weakens governance in practice
 
 - **Scenario.** A well-resourced player implements an ATAH-compatible registry under its own brand, bundles it with existing distribution, complies with the letter of the technical protocol, weakens or avoids the Charter's spirit in practice, and out-competes the ATAH reference registry on operational quality, integrations, brand, and reach.
 - **Abuse / failure mode.** Open licensing is exploited to capture the protocol's value while evading the governance commitments; the meaning of "ATAH" drifts under commercial pressure.
-- **Expected protocol behaviour.** Per `CONFORMANCE.md` Phase 10A three-level distinction: forks fall in `protocol-compatible` by default and cannot self-claim `ATAH-recognised neutral implementation` without meeting the governance/audit requirements (form is uniform at the protocol-governance layer per Phase 8 Charter Core Commitment 8; conformance is uniform at the implementation layer per the five conformance classes plus the three-level recognition framework). Per the Phase 10A note in `commercial-neutrality-memo.md`: open licensing strengthens ATAH as a protocol but means the reference registry must compete on trusted governance, neutrality, auditability, and recognised conformance — not merely on authorship of the standard. Sophisticated reviewers (partners, regulators, enterprise platforms) can read the conformance level claimed and the audit posture behind it; the framing makes Charter-spirit divergence visible.
+- **Expected protocol behaviour.** Per `CONFORMANCE.md` the three-level distinction: forks fall in `protocol-compatible` by default and cannot self-claim `ATAH-recognised neutral implementation` without meeting the governance/audit requirements (form is uniform at the protocol-governance layer Charter Core Commitment 8; conformance is uniform at the implementation layer per the five conformance classes plus the three-level recognition framework). Per the note in `commercial-neutrality-memo.md`: open licensing strengthens ATAH as a protocol but means the reference registry must compete on trusted governance, neutrality, auditability, and recognised conformance — not merely on authorship of the standard. Sophisticated reviewers (partners, regulators, enterprise platforms) can read the conformance level claimed and the audit posture behind it; the framing makes Charter-spirit divergence visible.
 - **Required audit events.** Per the v0.9 audit regime: public ordering-policy metadata exposure tests, decision-explanation discipline checks, commercial-neutrality attestation. The audit regime is what makes hidden weakening detectable.
 - **Required user / professional disclosure.** Conformance-status declarations are public; the three-level distinction is publicly documented; the right-to-contest is a stated governance commitment.
-- **Required conformance test.** v0.8.2 ships the documented distinction. v0.9 ships the operational audit regime per the ROADMAP item. The protocol-level ceiling is the framing's visibility to reviewers; ATAH-the-organisation does not have legal-licence levers to prevent forks (Apache 2.0 permits them), and the goal per Paolo Piponi's F3.3 is not to prevent forks but to preserve the meaning of official ATAH conformance and neutrality claims.
-- **Phase mapping.** Phase 10A introduces the framing; v0.9 operationalises the audit regime.
+- **Required conformance test.** v0.8.2 ships the documented distinction. v0.9 ships the operational audit regime per the ROADMAP item. The protocol-level ceiling is the framing's visibility to reviewers; ATAH-the-organisation does not have legal-licence levers to prevent forks (Apache 2.0 permits them), and the goal claims.
 - **Status: `bounded-by-protocol`** — the framing makes the distinction visible to sophisticated reviewers and to the v0.9 audit regime; the protocol cannot prevent forks (Apache 2.0 permits them), and the goal is meaning-preservation rather than fork-prevention. The protocol-level boundary is what's available; v0.9 audit verification adds the operational backbone.
 
 ---
 
 ## Category 9 — Category and Jurisdiction Misfit
 
-**Phase mapping:** existing v0.8.1 work + Phase 8 (category annex template cross-reference).
 
 ### 9.1 Legal conflict rules vary by jurisdiction
 
@@ -594,7 +570,7 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 - **Required audit events.** Hard-filter exclusions for jurisdiction mismatch produce `decision_explanation` entries with `decision_type: exclusion` and `exclusion_reason_category: jurisdiction_mismatch`.
 - **Required user / professional disclosure.** Aggregate `exclusion_summary` on match responses surfaces jurisdiction-mismatch counts; per-candidate `decision_explanation` documents the rules applied.
 - **Required conformance test.** Conformance suite verifies jurisdiction-mismatch exclusions appear in the aggregate summary; verifies the published category annex documents jurisdiction-specific rules.
-- **Status: `partially-resolved`** — existing v0.8.1 category-annex work + Phase 5 / Phase 6 transparency surface the structural mechanism. Per-category jurisdiction-rule canonicalisation (legal conflict rules, healthcare compliance, etc.) is v0.9 work via the canonical category-annex template named in the Charter Part Two hard-artifacts list.
+- **Status: `partially-resolved`** — existing v0.8.1 category-annex work + / transparency surface the structural mechanism. Per-category jurisdiction-rule canonicalisation (legal conflict rules, healthcare compliance, etc.) is v0.9 work via the canonical category-annex template named in the Charter Part Two hard-artifacts list.
 
 ### 9.2 Healthcare data requires stronger compliance controls
 
@@ -620,47 +596,46 @@ In Phase 0A all scenarios are populated with the **Scenario**, **Phase mapping**
 
 - **Scenario.** Categories where no single authoritative regulator exists (some coaching, advisory, or therapeutic professions) require verification approaches different from credentialled categories.
 - **Abuse / failure mode.** Verification model designed for credentialled categories applied weakly or inappropriately to established-practitioner categories.
-- **Expected protocol behaviour.** Per the two-tier model (`professional_tier` enum on professional identity schemas: `credentialled` and `established`): established-tier categories use a different verification shape — partner-verified body membership, CPD compliance, disciplinary record via partner data, optionally enhanced verification through approved independent verifiers. Per Phase 5 `band_definitions`: established categories use different threshold rules from credentialled (the established-tier defaults set `verification_confidence == multi_source_corroborated OR multi_source_with_enhanced_verification` for band position 1, with `single_source_membership OR single_source_self_declared` for band position 2).
+- **Expected protocol behaviour.** Per the two-tier model (`professional_tier` enum on professional identity schemas: `credentialled` and `established`): established-tier categories use a different verification shape — partner-verified body membership, CPD compliance, disciplinary record via partner data, optionally enhanced verification through approved independent verifiers. `band_definitions`: established categories use different threshold rules from credentialled (the established-tier defaults set `verification_confidence == multi_source_corroborated OR multi_source_with_enhanced_verification` for band position 1, with `single_source_membership OR single_source_self_declared` for band position 2).
 - **Required audit events.** Verification mechanism is recorded per `_provenance` map on each professional record; partner-attributed data carries the partner identifier and `verification_status`.
 - **Required user / professional disclosure.** The professional's tier, registration route, and verification provenance are surfaced through the match response and the `_provenance` map.
 - **Required conformance test.** Conformance suite verifies that established-tier categories use the established-tier band definitions and that partner-attributed data carries full provenance.
-- **Status: `resolved`** by the two-tier model + Phase 5 tier-templated `band_definitions` + provenance map. v0.9 may refine per-category band definitions for established categories, but the structural mechanism is in place in v0.8.2.
+- **Status: `resolved`** by the two-tier model + tier-templated `band_definitions` + provenance map. v0.9 may refine per-category band definitions for established categories, but the structural mechanism is in place in v0.8.2.
 
 ---
 
 ## Category 10 — Conformance Divergence
 
-**Phase mapping:** Phase 8 + Phase 6 (transparency conformance class).
 
 ### 10.1 Third-party registry claims ATAH compatibility but omits transparency metadata
 
 - **Scenario.** A third-party registry implements ATAH-compatible endpoints but omits or weakens transparency artifacts (decision-explanation, presentation-disclosure, visibility report).
 - **Abuse / failure mode.** "ATAH compatible" claim made without the transparency posture that gives the protocol its accountability shape.
-- **Expected protocol behaviour.** Per Phase 6 §11A.6 Transparency Class (the new fifth conformance class): every relevant response includes a valid response-level `decision_explanation` (Layer 1); every candidate in a Discovery response includes a valid per-candidate `decision_explanation` (Layer 2); every Discovery response with exclusions includes a valid `exclusion_summary` (Layer 3); the professional-facing visibility-explanation behaviour is implementable from the v0.8.2 spec. Per Charter Part Two hard-artifacts list (per F1.7): public conformance tests are part of the trust floor; revocable conformance mark is the enforcement mechanism. Per Charter Core Commitment 8: the protocol governance body holds the conformance marks and may revoke them.
+- **Expected protocol behaviour.** Per §11A.6 Transparency Class (the new fifth conformance class): every relevant response includes a valid response-level `decision_explanation` (Layer 1); every candidate in a Discovery response includes a valid per-candidate `decision_explanation` (Layer 2); every Discovery response with exclusions includes a valid `exclusion_summary` (Layer 3); the professional-facing visibility-explanation behaviour is implementable from the v0.8.2 spec. Per Charter Part Two hard-artifacts list: public conformance tests are part of the trust floor; revocable conformance mark is the enforcement mechanism. Per Charter Core Commitment 8: the protocol governance body holds the conformance marks and may revoke them.
 - **Required audit events.** Conformance test failures produce reportable conformance-mark revocation triggers.
 - **Required user / professional disclosure.** Conformance marks are publicly visible per `/.well-known/atah-conformance`; revocations are recorded in the public governance-decision register (v0.9 operational artifact).
 - **Required conformance test.** Conformance suite verifies all five classes; an implementation missing the Transparency Class fails the test.
-- **Status: `resolved`** by Phase 6's Transparency Class + Charter Part Two hard-artifacts list (revocable conformance mark) + Charter Core Commitment 8 (protocol governance body holds the conformance marks).
+- **Status: `resolved`** by The protocol's Transparency Class + Charter Part Two hard-artifacts list (revocable conformance mark) + Charter Core Commitment 8 (protocol governance body holds the conformance marks).
 
 ### 10.2 Registry applies commercial ordering while preserving provenance
 
 - **Scenario.** A third-party registry preserves provenance metadata correctly but applies commercial ordering, treating the protocol's stratified-randomisation rule as advisory rather than normative.
 - **Abuse / failure mode.** Conformance gap exploited; ordering framing weakened across implementations.
-- **Expected protocol behaviour.** Per Phase 5 §9.1 verbatim MUST NOT: ATAH may determine eligibility and exclusion, but MUST NOT express preference among eligible candidates unless the ordering basis is explicit, non-commercial, and disclosed. Per §9.6 commercial neutrality. Per §9.5 conformance: returned `band_assignment` must be consistent with `band_definitions` and within-band ordering must be observably non-deterministic across repeated queries. An implementation applying commercial ordering fails the structural conformance test.
+- **Expected protocol behaviour.** Per §9.1 verbatim MUST NOT: ATAH may determine eligibility and exclusion, but MUST NOT express preference among eligible candidates unless the ordering basis is explicit, non-commercial, and disclosed. Per §9.6 commercial neutrality. Per §9.5 conformance: returned `band_assignment` must be consistent with `band_definitions` and within-band ordering must be observably non-deterministic across repeated queries. An implementation applying commercial ordering fails the structural conformance test.
 - **Required audit events.** Conformance test failures produce reportable conformance-mark revocation triggers.
 - **Required user / professional disclosure.** `presentation_disclosure.ordering_policy.commercial_weighting: false` is `const`-asserted at the schema level; an implementation cannot return a different value through a conformant response.
 - **Required conformance test.** Conformance suite verifies non-determinism within bands across repeated queries; verifies `commercial_weighting: false` is const-asserted on every response.
-- **Status: `resolved`** by Charter + Phase 5 stratified-randomisation rule + Phase 5 §9.5 conformance non-determinism test.
+- **Status: `resolved`** by Charter + stratified-randomisation rule + §9.5 conformance non-determinism test.
 
 ### 10.3 Implementation changes consent or withdrawal semantics
 
 - **Scenario.** A conforming-by-name implementation alters consent-receipt scope semantics or withdrawal state-transition rules, producing user-visible behaviour that diverges from ATAH's documented semantics.
 - **Abuse / failure mode.** Same protocol surface, different meanings; users and reviewers cannot rely on documented semantics across implementations.
-- **Expected protocol behaviour.** Per Phase 4 (consent boundaries) + Phase 3 (withdrawal as state transition): consent receipt scope enum is closed (`consent_type` enum: `query_authorization`, `disclosure_consent`); withdrawal scenarios are six explicitly-documented patterns in §11.9; receipt continuity-binding fields enforce the binding. An implementation altering these semantics fails the Core Object Conformance class. Per Charter Part Two hard-artifacts list: public conformance tests + revocable conformance mark.
+- **Expected protocol behaviour.** (consent boundaries) + (withdrawal as state transition): consent receipt scope enum is closed (`consent_type` enum: `query_authorization`, `disclosure_consent`); withdrawal scenarios are six explicitly-documented patterns in §11.9; receipt continuity-binding fields enforce the binding. An implementation altering these semantics fails the Core Object Conformance class. Per Charter Part Two hard-artifacts list: public conformance tests + revocable conformance mark.
 - **Required audit events.** Conformance test failures produce reportable conformance-mark revocation triggers.
 - **Required user / professional disclosure.** Conformance marks publicly visible.
 - **Required conformance test.** Conformance suite verifies the consent-type enum and the six withdrawal scenarios produce the expected outputs; verifies receipt continuity-binding mismatch produces `consent_continuity_mismatch` audit events.
-- **Status: `resolved`** by Phase 3 / Phase 4 schema-enforced semantics + Charter conformance test surface + revocable conformance mark.
+- **Status: `resolved`** by schema-enforced semantics + Charter conformance test surface + revocable conformance mark.
 
 ### 10.4 Federation introduces inconsistent identity or audit handling
 

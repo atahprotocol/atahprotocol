@@ -36,7 +36,7 @@ There is also a structural commercial opportunity for professional bodies. Every
 
 ATAH — Agent to Authenticated Human Protocol — addresses these problems with a single open standard.
 
-### Market thesis framing (per F3.1)
+### Market thesis framing
 
 The thesis matters and it should be stated precisely.
 
@@ -81,7 +81,7 @@ ATAH's protocol is profession-agnostic at the architecture level, but category-s
 
 The trusted partner model handles both categories through the same infrastructure. A state bar association is a representative example of a regulator contributing licence and disciplinary data for lawyers. An authoritative licensing data source (NIPR is a representative example for US insurance) contributes licence and appointment data for insurance agents where the relevant partner agreement is in place. A communications or PR membership body (CIPR and PRSA are representative examples) contributes membership and fellowship data for PR professionals. A review platform contributes verified client scores. The evidence differs. The protocol is identical.
 
-**Brand-dilution mitigation for established professionals (per F2.8).** ATAH does not commodify established professionals into a generic "ATAH-listed" pool that would dilute the meaning of their existing standing. The protocol attaches a verifiable layer on top of an established professional's brand: their membership body confirms membership level, good standing, and CPD compliance through the trusted-partner integration; the parallel `_provenance` map labels each claim by source and verification basis; the AI platform presenting results sees a verification-tier distinction between credentialled (regulator-verified) and established (membership-body-verified) status. AI platforms presenting ATAH results to consumers MUST surface this verification-tier distinction (per Phase 6 transparency requirements and the §11A normative rules) so consumer-facing rendering can preserve the distinction between credentialled professionals (regulator-verified) and established professionals (membership-body-verified), rather than flattening both into a generic "ATAH-listed" category. Established professionals choose to register because the verification methodology gives them a verifiable basis their personal brand alone doesn't carry; the architecture protects the existing brand by making the basis of each claim explicit, not by absorbing them into a pooled signal that erases the distinction.
+**Brand-dilution mitigation for established professionals.** ATAH does not commodify established professionals into a generic "ATAH-listed" pool that would dilute the meaning of their existing standing. The protocol attaches a verifiable layer on top of an established professional's brand: their membership body confirms membership level, good standing, and CPD compliance through the trusted-partner integration; the parallel `_provenance` map labels each claim by source and verification basis; the AI platform presenting results sees a verification-tier distinction between credentialled (regulator-verified) and established (membership-body-verified) status. AI platforms presenting ATAH results to consumers MUST surface this verification-tier distinction (per the §11A normative rules) so consumer-facing rendering can preserve the distinction between credentialled professionals (regulator-verified) and established professionals (membership-body-verified), rather than flattening both into a generic "ATAH-listed" category. Established professionals choose to register because the verification methodology gives them a verifiable basis their personal brand alone doesn't carry; the architecture protects the existing brand by making the basis of each claim explicit, not by absorbing them into a pooled signal that erases the distinction.
 
 ### Two registration routes
 
@@ -140,7 +140,7 @@ Any professional in any field where expertise and standing can be verified or at
 
 Where their professional body has joined ATAH as a trusted partner, they appear in the registry through their body's data — no individual registration required. Where they are not represented by a partnered body, individual self-registration is available, free during the protocol's initial period after launch and continuing thereafter for a small annual fee with hardship waivers.
 
-**Discoverability claim — narrower and more credible (per F3.2).** ATAH should not claim to solve discoverability equally for all professionals from day one. It initially works best for professionals whose authority, standing, scope, or membership can be made verifiable and provenance-visible. That is a narrower claim, but a more credible one. ATAH initially works best for: lawyers in jurisdictions with usable regulator data; insurance agents with licensing datasets; financial advisers with authoritative registers; professional-body members with structured records; established professionals tied to credible professional bodies or verifier networks. It works less well at launch for: solo practitioners in jurisdictions without integrated professional data; emerging-market professionals where no partner exists; new-category professionals whose professional body has not joined; professionals whose value is real but not yet captured by structured verifiable sources. This is not a flaw in the design — it is the inevitable consequence of building a protocol around verifiable provenance. Cross-references the F2.8 brand-dilution mitigation (the verification-tier distinction protects established practitioners from being flattened) and the F2.9 data-quality structural advantage (richer partner data produces stronger verification signals; provenance exposes the trade-off).
+**Discoverability claim — narrower and more credible.** ATAH should not claim to solve discoverability equally for all professionals from day one. It initially works best for professionals whose authority, standing, scope, or membership can be made verifiable and provenance-visible. That is a narrower claim, but a more credible one. ATAH initially works best for: lawyers in jurisdictions with usable regulator data; insurance agents with licensing datasets; financial advisers with authoritative registers; professional-body members with structured records; established professionals tied to credible professional bodies or verifier networks. It works less well at launch for: solo practitioners in jurisdictions without integrated professional data; emerging-market professionals where no partner exists; new-category professionals whose professional body has not joined; professionals whose value is real but not yet captured by structured verifiable sources. This is not a flaw in the design — it is the inevitable consequence of building a protocol around verifiable provenance. The brand-dilution mitigation (the verification-tier distinction protects established practitioners from being flattened) and the data-quality structural advantage (richer partner data produces stronger verification signals; provenance exposes the trade-off) connect directly.
 
 **Professional-side controls at Stage 1.** Professionals control how introductions are routed to them through their profile preferences:
 
@@ -171,9 +171,9 @@ Any AI system that needs to route users to human professionals. The core role of
 
 Supporting ATAH creates a path for professionals to reach AI platforms without per-platform integrations — every professional in the registry has an incentive to connect their AI assistant, and every platform that supports ATAH is where those introductions arrive.
 
-**On liability posture (per F2.6 / F-9 correction).** ATAH does not transfer or assume an AI platform's downstream presentation liability. It gives the platform a defensible, auditable basis for the candidate pool it surfaces: who was eligible, what was verified, what was self-declared, what ordering policy applied, and what commercial weighting was excluded. The platform retains the user relationship and presentation responsibility; ATAH provides the verifiable-grounds layer. AI platforms rank everything they surface, by their nature; ATAH does not prevent ranking and does not seek to. ATAH's contribution is the verifiable basis on which candidates are eligible to be in the pool in the first place. A platform answering "did we have any reasonable basis for surfacing this provider?" can point to a concrete, partner-recorded, freshness-bounded answer rather than to whatever signals it scraped from the open web. This is the strongest commercial argument for AI platforms to integrate.
+**On liability posture.** ATAH does not transfer or assume an AI platform's downstream presentation liability. It gives the platform a defensible, auditable basis for the candidate pool it surfaces: who was eligible, what was verified, what was self-declared, what ordering policy applied, and what commercial weighting was excluded. The platform retains the user relationship and presentation responsibility; ATAH provides the verifiable-grounds layer. AI platforms rank everything they surface, by their nature; ATAH does not prevent ranking and does not seek to. ATAH's contribution is the verifiable basis on which candidates are eligible to be in the pool in the first place. A platform answering "did we have any reasonable basis for surfacing this provider?" can point to a concrete, partner-recorded, freshness-bounded answer rather than to whatever signals it scraped from the open web. This is the strongest commercial argument for AI platforms to integrate.
 
-**On non-recommendation framing (per F2.7).** "ATAH is not a recommendation engine" remains correct architecturally — there is no global match score in the schema, the matching engine uses hard filters and stratified randomisation under a documented fairness policy, and `presentation_disclosure` is required on every match response. But the honest version of the claim is structural and narrow: ATAH does not express preference among eligible candidates; AI platforms reorder downstream and are expected to preserve the disclosure when they do. ATAH's contribution is providing defensible verifiable grounds for the candidate pool, not preventing AI platforms from doing what every AI platform does with every candidate set it surfaces.
+**On non-recommendation framing.** "ATAH is not a recommendation engine" remains correct architecturally — there is no global match score in the schema, the matching engine uses hard filters and stratified randomisation under a documented fairness policy, and `presentation_disclosure` is required on every match response. But the honest version of the claim is structural and narrow: ATAH does not express preference among eligible candidates; AI platforms reorder downstream and are expected to preserve the disclosure when they do. ATAH's contribution is providing defensible verifiable grounds for the candidate pool, not preventing AI platforms from doing what every AI platform does with every candidate set it surfaces.
 
 ### 6.3 Trusted Partners
 
@@ -226,7 +226,7 @@ Every ATAH protocol action records who is authenticated, on whose authority they
 
 Three sub-objects compose the model:
 
-- **`authenticated_actor`** — the directly authenticated party (one of `ai_platform`, `professional`, `partner`, `verifier`, `admin`, `system`). Consumers do not authenticate to ATAH directly; consumer-mediated flows authenticate as `ai_platform` and identify the consumer in the authority context (per the F-16 decision in the master patch plan).
+- **`authenticated_actor`** — the directly authenticated party (one of `ai_platform`, `professional`, `partner`, `verifier`, `admin`, `system`). Consumers do not authenticate to ATAH directly; consumer-mediated flows authenticate as `ai_platform` and identify the consumer in the authority context.
 - **`client_application`** — the platform/client identification, required when the actor is an AI platform; optional otherwise.
 - **`authority_context`** — the represented principal type (`consumer`, `professional`, `partner`, `verifier`, `governance_admin`, or `none` for system events), the credential class establishing the authority (`user_session`, `professional_delegated_token`, `partner_credential`, `handoff_access_token`, `governance_admin_role`, `system_role`), the permitted action scopes, expiry where the authority is time-bounded, and any object-level constraints narrowing the action's permitted target.
 
@@ -354,7 +354,7 @@ Per spec §11A, transparency is a v0.8.2 top-level conformance requirement, not 
 
 > **MUST.** Conforming implementations MUST produce machine-readable explanations for discovery, exclusion, ordering, handoff, withdrawal, suppression, and data-sharing events, subject to privacy, security, and anti-gaming limits.
 
-The professional-facing visibility-explanation obligation (per F-6 / F-18) is part of v0.8.2; the dedicated endpoint (`GET /v1/professionals/me/visibility-explanations` and the `get_my_visibility_explanations` MCP tool) is fully specified, with implementation possibly deferred to v0.8.3. The obligation itself is part of v0.8.2.
+The professional-facing visibility-explanation obligation is part of v0.8.2; the dedicated endpoint (`GET /v1/professionals/me/visibility-explanations` and the `get_my_visibility_explanations` MCP tool) is fully specified, with implementation possibly deferred to v0.8.3. The obligation itself is part of v0.8.2.
 
 > **MUST NOT.** Professional-facing visibility explanations MUST NOT expose actual query-count data, query-history data, observed demand patterns, or any per-query information derived from consumer or platform traffic. They MUST present representative explanation categories at the category/jurisdiction level, derived from the implementation's documented rules and the professional's own profile data, not from observed query traffic.
 
@@ -362,16 +362,16 @@ A new Transparency Class is added to `CONFORMANCE.md` alongside Core Object, Bin
 
 ### 8.5 Matching Engine
 
-AI systems query an ATAH-conformant registry via the MCP or REST binding. The registry runs the matching algorithm and returns a candidate set of verified professional options with the full trusted partner data payload, the `presentation_disclosure` block (carrying the ordering policy), per-candidate `band_assignment`, and per-candidate `decision_explanation` (Phase 6). The AI system applies its own contextual layer to refine and present options.
+AI systems query an ATAH-conformant registry via the MCP or REST binding. The registry runs the matching algorithm and returns a candidate set of verified professional options with the full trusted partner data payload, the `presentation_disclosure` block (carrying the ordering policy), per-candidate `band_assignment`, and per-candidate `decision_explanation`. The AI system applies its own contextual layer to refine and present options.
 
-**Hard-filters-then-stratified-randomisation (v0.8.2).** Per Paolo's F1.10 / F1.11 normative position, v0.8.2 replaces v0.8.1's weighted-scoring architecture with a four-step model:
+**Hard-filters-then-stratified-randomisation.** ATAH's matching engine uses a four-step model:
 
 1. **Hard filters** — category, jurisdiction, matching status, compliance status, contact freshness, availability, category-required verification thresholds. Candidates not passing are excluded.
 2. **Band assignment** — group eligible candidates into transparent bands (verification confidence, category fit, availability window, contact freshness). Bands declared per-category in `profession-categories.json` `band_definitions`.
 3. **Threshold exclusion** — exclude candidates below required thresholds where the category requires it.
 4. **Randomisation within bands** — order by band (lower position first); within each band, randomise or rotate using a documented fairness policy.
 
-Paolo's normative MUST NOT applies verbatim:
+The normative MUST NOT applies verbatim:
 
 > ATAH may determine eligibility and exclusion, but MUST NOT express preference among eligible candidates unless the ordering basis is explicit, non-commercial, and disclosed. Where no user-requested ordering criterion is supplied, candidate order MUST be randomised or rotated using a documented fairness policy.
 
@@ -379,7 +379,7 @@ Paolo's normative MUST NOT applies verbatim:
 
 **User-requested ordering.** When the user has an explicit ordering preference, the Discovery query carries an `ordering_preference` parameter (modes: `nearest`, `soonest_available`, `remote_available`, `specific_language`, `highest_verification_confidence`, `specific_category_qualification`, `professional_type`, `jurisdiction`). ATAH applies the named mode and records the choice on the response's `presentation_disclosure.ordering_policy.mode`. The user-requested mode does not override hard filters or threshold exclusion; it changes ordering only.
 
-**Review-signal control (per F-7).** Review-derived signals MAY supplement transparency and confidence metadata, but for high-stakes regulated categories MUST NOT move a candidate into a higher eligibility or verification band unless corroborated by authoritative credential or regulator-source evidence. Encoded per category in `profession-categories.json` `review_signal_band_cap` (replacing the v0.8.1 `review_signal_weight_cap`). Regulated categories set `may_upgrade_band: false`.
+**Review-signal control.** Review-derived signals MAY supplement transparency and confidence metadata, but for high-stakes regulated categories MUST NOT move a candidate into a higher eligibility or verification band unless corroborated by authoritative credential or regulator-source evidence. Encoded per category in `profession-categories.json` `review_signal_band_cap`. Regulated categories set `may_upgrade_band: false`.
 
 **Presentation obligation.** AI platforms reordering ATAH's response downstream MUST preserve the `presentation_disclosure.ordering_policy` field verbatim and surface its content to the user. AI platforms MUST NOT present ATAH's response as a recommendation. Failure to preserve the disclosure is a binding-conformance failure (spec §14).
 
@@ -503,7 +503,7 @@ The core role of ATAH in AI system integration is to support the transition from
 
 ## 9. Privacy and Data Governance
 
-### Scope of the privacy claim — narrower and more precise (per F3.4)
+### Scope of the privacy claim — narrower and more precise
 
 The privacy claim should be stated precisely. ATAH's privacy architecture is strong at the protocol layer — it avoids becoming a long-term consumer-PII store, the vault is transient, sensitive payloads are crypto-erased, consent receipts are stored as hashes plus continuity-binding metadata rather than full consumer-identifying records. But the wider transaction is not fully transient. Consumer data in a real handoff may persist in the consumer's AI platform conversation history, the AI platform's logs, the professional's AI assistant if connected, the professional's CRM, the professional's engagement records, or email/phone/messaging/intake systems used after the ATAH handoff. The honest framing is therefore:
 
@@ -527,7 +527,7 @@ The system distinguishes clearly between data categories:
 - **Introduction lifecycle data** — state transitions logged with pseudonymous identifiers. No PII.
 - **Consumer personal data** — strictly transient. Held only in the encrypted vault during active handoffs. Crypto-erased on resolution. Never written to the main registry database. Never transmitted through SMS or email.
 - **Audit log** — minimised, pseudonymous identifiers; not directly identifying within ATAH alone but may constitute personal data where linkable. Tamper-evident hash-chained. Retained 7 years on legitimate-interest basis, scoped to fraud detection, dispute resolution, and regulator engagement.
-- **Notification-channel records (per spec §12A).** Per F-15 / Phase 7, professional identity records carry a `notification_channels` array with verification status. Channel `destination_reference` is HMAC of the destination address (per §11.8 HMAC-not-plain-hash); plaintext destination is held by the partner or implementation's credential store. ATAH does not learn the plaintext. Records are retained while the professional is registered; deleted when the professional withdraws.
+- **Notification-channel records (per spec §12A).** Professional identity records carry a `notification_channels` array with verification status. Channel `destination_reference` is HMAC of the destination address (per §11.8 HMAC-not-plain-hash); plaintext destination is held by the partner or implementation's credential store. ATAH does not learn the plaintext. Records are retained while the professional is registered; deleted when the professional withdraws.
 - **Anonymised post-introduction data** — non-PII outcome data only. Retained two years then deleted.
 
 ### Notification policy
@@ -732,7 +732,7 @@ Three explicit commercial commitments:
 - Where partner-provided data influences trust presentation, the source and verification basis remain transparent.
 - Where paid services generate verification evidence, that evidence is scored under the same public rubric available to all approved sources.
 
-### Structural data-quality advantage and what "no commercial weighting" actually means (per F2.9 / F-10)
+### Structural data-quality advantage and what "no commercial weighting" actually means
 
 ATAH can be structurally more useful for AI-mediated discovery than any single source alone, because it combines authoritative source data, supplemental signals, freshness, provenance, and AI-readable presentation — while preserving each source's authority and making the basis of each claim explicit. The "can be" matters: for some categories, a single authoritative source remains dominant on its own and ATAH's contribution is composability rather than supplanting that source. ATAH's value across categories is making the source, and any supplemental signals, explicit and usable by AI systems.
 
@@ -756,7 +756,7 @@ The choice of legal structure for the protocol's interim and long-term governanc
 
 ### Three governance layers (per Charter Core Commitment 8, strengthened in v0.8.2)
 
-v0.8.2 strengthens Charter Core Commitment 8 with Paolo Piponi's verbatim normative rule, distinguishing three governance layers:
+Charter Core Commitment 8 distinguishes three governance layers:
 
 - **Protocol governance body** — the entity that owns the specification, conformance marks, partner / verifier admission rules, transparency rules, and neutrality audits. **MUST be an independent not-for-profit or equivalent public-interest entity.** Form is mandated.
 - **Reference registry operator** — the entity running the canonical ATAH-operated registry. May be not-for-profit, public-benefit, community-interest company, foundation-owned subsidiary, or commercial under strict constraints (enforceable neutrality, public fee schedules, auditability, data-use limits, structural separation from the protocol governance body). Form is constrained, not mandated.
@@ -764,7 +764,7 @@ v0.8.2 strengthens Charter Core Commitment 8 with Paolo Piponi's verbatim normat
 
 Legal form alone does not solve neutrality. A not-for-profit can be captured by funders or incumbents; a commercial entity can behave neutrally if constrained, audited, and transparent. The form mandate applies to the protocol governance body specifically; the constraints at the reference-registry layer and the conformance requirements at the third-party layer carry the neutrality posture across the rest of the ecosystem.
 
-The hard-artifacts list (Charter Part Two, per Paolo's F1.7) is the structural answer to "how does the protocol stay neutral when the governance body is human and fallible". The trust floor lives in concrete published artifacts (verification scopes, partner admission criteria, mandatory audit events, the conformance test surface, the revocable conformance mark) — not in committee discretion.
+The hard-artifacts list (Charter Part Two) is the structural answer to "how does the protocol stay neutral when the governance body is human and fallible". The trust floor lives in concrete published artifacts (verification scopes, partner admission criteria, mandatory audit events, the conformance test surface, the revocable conformance mark) — not in committee discretion.
 
 ### Governance transition covenant
 

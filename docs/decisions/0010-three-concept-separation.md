@@ -69,5 +69,5 @@ The decision is recorded across the spec (§11.1 overview, §11.2 deletion table
 - Schema: [`handoff-component2.schema.json`](../../spec/v0.8/schemas/handoff-component2.schema.json) — `withdrawal_state` field.
 - OpenAPI: `POST /v1/professionals/me/withdraw` (new, high-impact, step-up required); `/cancel` and `/revoke-consent` descriptions updated per §11.9 scenarios.
 - MCP tools: `withdraw_from_matching` (new), `cancel_introduction` and `revoke_consent` descriptions updated.
-- Master patch plan v3.1.1, Phase 3 (§5) and Paolo's findings F1.14 (three-concept separation), F1.15 (crypto-erasure precise wording), F1.16 (audit retain/erase field lists + HMAC), F1.17 (withdrawal as state transition).
+- Paolo's findings F1.14 (three-concept separation), F1.15 (crypto-erasure precise wording), F1.16 (audit retain/erase field lists + HMAC), F1.17 (withdrawal as state transition).
 - Source review: `PAOLO-PEER-REVIEW-FINDINGS-01-v0_8_1.md` and `PAOLO-erasure-audit-and-withdrawal.md`.

@@ -28,7 +28,7 @@ Breaking changes are possible up to v1.0; the version negotiation and deprecatio
 
 Items where the v0.8.2 spec defines the obligation but the endpoint implementation MAY follow in v0.8.3, plus follow-on normative work surfaced during the v0.8.2 cycle:
 
-- **Professional-facing visibility-explanation endpoint.** `GET /v1/professionals/me/visibility-explanations` (REST) and `get_my_visibility_explanations` (MCP). Spec §11A.4 defines the rules-derived behaviour, required fields, authority controls, audit linkage, and the F-18 MUST NOT rule (no query-history exposure). Implementations MAY declare `x-implementation-deferred-to: v0.8.3` and return 501 in v0.8.2. The obligation itself is part of v0.8.2; only the endpoint implementation is permitted to defer.
+- **Professional-facing visibility-explanation endpoint.** `GET /v1/professionals/me/visibility-explanations` (REST) and `get_my_visibility_explanations` (MCP). Spec §11A.4 defines the rules-derived behaviour, required fields, authority controls, audit linkage, and the MUST NOT rule on query-history exposure. Implementations MAY declare `x-implementation-deferred-to: v0.8.3` and return 501 in v0.8.2. The obligation itself is part of v0.8.2; only the endpoint implementation is permitted to defer.
 - **Normative computation algorithms for band-input signals.** v0.8.2 normatively defines the band-assignment logic, the stratified-randomisation rule within bands, and the structural constraint that band assignment must not reference commercial signals. Computation algorithms for `category_fit`, `availability_score`, and contact-freshness scoring are not normatively specified at v0.8.2 — implementations document their own approach in their conformance statement. v0.8.3 will specify normative computation algorithms for these signals.
 - **Conditional `consent_receipt_id` requirements by `request_intent` in Discovery.** v0.8.2 requires `consent_receipt_id` on every Discovery query. Conditional requirements that vary by `request_intent` (e.g. narrower scope for `on_behalf_of_client` queries acting under a professional's own delegated authority) are targeted for v0.8.3 refinement.
 - **Engagement liveness (response-rate tracking).** Stress-test scenario 7.3. Phase 7 covers contact-channel verification only; response-rate tracking is `deferred-to-v0.8.3`.
@@ -98,7 +98,7 @@ v0.8 satisfies right-to-erasure through the transient-only design for ATAH-held 
 
 v0.8 ships in English. Multilingual category metadata, multilingual consent text versioning, and multilingual conformance-statement requirements are deferred to v0.9.
 
-### Behavioural-neutrality and conformance-audit model (per Paolo Piponi's F3.3 peer review)
+### Behavioural-neutrality and conformance-audit model
 
 v0.8.2 introduces a three-level conformance-status distinction in [`CONFORMANCE.md`](CONFORMANCE.md): protocol-compatible / ATAH-conformant / ATAH-recognised neutral implementation. The naming is provisional; the distinction is locked. v0.8.2's contribution is the framing. v0.9 operationalises the verification regime through a behavioural-neutrality / conformance-audit model. Items the model should consider:
 
@@ -115,7 +115,7 @@ The audit regime should not require public release of proprietary scoring code f
 
 ### `presentation_disclosure.verification_tier` field for consumer-facing rendering
 
-Per Phase 10 / F2.8 brand-dilution mitigation, AI platforms MUST surface the credentialled-vs-established verification-tier distinction to consumers. v0.8.2 carries the structural distinction through the existing `professional_tier` field on professional-identity schemas, the `_provenance` map, and the Phase 6 Transparency Class. Master plan §12 F2.8 third bullet contemplated a dedicated `presentation_disclosure.verification_tier` field with values like `regulator_verified` / `body_verified` / `self_declared` so AI platforms can render the distinction prominently without inferring it from the underlying schema. Decision deferred to v0.9 — review whether the existing structural distinction (Transparency Class plus `professional_tier`) is operationally sufficient for consistent consumer-facing rendering across AI-platform UX, or whether a dedicated `presentation_disclosure.verification_tier` field is needed to harden the rendering obligation.
+Brand-dilution mitigation requires AI platforms to surface the credentialled-vs-established verification-tier distinction to consumers. v0.8.2 carries the structural distinction through the existing `professional_tier` field on professional-identity schemas, the `_provenance` map, and the Transparency Class. A dedicated `presentation_disclosure.verification_tier` field with values like `regulator_verified` / `body_verified` / `self_declared` would let AI platforms render the distinction prominently without inferring it from the underlying schema. Decision deferred to v0.9 — review whether the existing structural distinction (Transparency Class plus `professional_tier`) is operationally sufficient for consistent consumer-facing rendering across AI-platform UX, or whether a dedicated `presentation_disclosure.verification_tier` field is needed to harden the rendering obligation.
 
 ## v1.0 target
 

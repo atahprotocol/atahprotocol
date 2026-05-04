@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://atahprotocol.org/spec/v0.8/schemas/profession-category.schema.json",
   "title": "ATAH Profession Category",
-  "description": "ATAH Registry Operation Profile object: profession category metadata record (spec/v0.8 §4.4). Per F1.10 / F1.11 (Paolo's stratified-randomisation position), v0.8.2 replaces the v0.8.1 `matching_weight_profile` with `band_definitions`: each category declares its own bands (name, position, threshold rule), and ordering within the band uses a documented fairness policy. Per F-7, the v0.8.1 `review_signal_weight_cap` is replaced with `review_signal_band_cap`, preserving the original safeguard under the band-based model. The matching engine that consumes these fields is documented in §9 of `full-spec.md`. Required for implementations claiming Registry Conformance.",
+  "description": "ATAH Registry Operation Profile object: profession category metadata record (spec/v0.8 §4.4). Each category declares its own `band_definitions` (name, position, threshold rule); ordering within the band uses a documented fairness policy. The category's `review_signal_band_cap` records the influence of review-derived signals on band assignment for the category, preserving the safeguard that review platforms do not dominate matching in regulated contexts. The matching engine that consumes these fields is documented in §9 of `full-spec.md`. Required for implementations claiming Registry Conformance.",
   "type": "object",
   "properties": {
     "category_id": {

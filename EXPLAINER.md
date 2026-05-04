@@ -24,7 +24,7 @@ That's not a completed journey. It's a dead end at the moment the user most need
 
 ATAH is the protocol layer that fills that gap.
 
-## On the market thesis (per F3.1)
+## On the market thesis
 
 A note on framing, because it matters how this is described.
 
@@ -263,7 +263,7 @@ The trusted partner model handles both categories the same way. The evidence dif
 
 This dual scope is deliberate. The professional services world is wider than the regulated subset, and AI systems will increasingly need to hand off to both groups. Restricting ATAH to formally licensed professionals would solve only half the problem.
 
-**On established-professional positioning.** ATAH does not commodify established professionals or dilute their standing into a generic "ATAH-listed" pool. The protocol attaches a verifiable layer on top of an established professional's existing brand: their membership body confirms membership level, good standing, and CPD compliance; the provenance map labels each claim by source and verification basis; the AI platform presenting results sees a `verification_tier` distinction between credentialled (regulator-verified) and established (membership-body-verified) status that makes the meaningful difference visible to consumers. Established practitioners choose to register because the verification methodology gives them a verifiable basis their personal brand alone doesn't carry, not solely because they need ATAH to be discoverable — their existing brand already carries reach. AI platforms presenting ATAH results to consumers MUST surface the verification-tier distinction (per Phase 6 transparency requirements) so consumer-facing rendering can preserve the distinction between credentialled professionals (regulator-verified) and established professionals (membership-body-verified), rather than flattening both into a generic "ATAH-listed" category.
+**On established-professional positioning.** ATAH does not commodify established professionals or dilute their standing into a generic "ATAH-listed" pool. The protocol attaches a verifiable layer on top of an established professional's existing brand: their membership body confirms membership level, good standing, and CPD compliance; the provenance map labels each claim by source and verification basis; the AI platform presenting results sees a `verification_tier` distinction between credentialled (regulator-verified) and established (membership-body-verified) status that makes the meaningful difference visible to consumers. Established practitioners choose to register because the verification methodology gives them a verifiable basis their personal brand alone doesn't carry, not solely because they need ATAH to be discoverable — their existing brand already carries reach. AI platforms presenting ATAH results to consumers MUST surface the verification-tier distinction (per the Transparency Class requirements) so consumer-facing rendering can preserve the distinction between credentialled professionals (regulator-verified) and established professionals (membership-body-verified), rather than flattening both into a generic "ATAH-listed" category.
 
 ## How professionals connect to the protocol
 
@@ -386,7 +386,7 @@ The framing matters precisely. AI platforms rank everything they surface — sea
 
 ATAH is not a replacement for a professional's existing marketing or visibility work. It is infrastructure for being represented to AI systems consistently and credibly. Professionals continue to need their own marketing for direct consumer reach; ATAH addresses the specific moment an AI system needs to identify and hand off to a verified human professional. There is no guarantee of introduction volume, candidate-set position, or work; the protocol is designed to become a trusted handoff rail as platforms integrate.
 
-**On the discoverability claim — narrower and more credible (per F3.2).** ATAH should not claim to solve discoverability equally for all professionals from day one. It initially works best for professionals whose authority, standing, scope, or membership can be made verifiable and provenance-visible. That is a narrower claim, but a more credible one. It works less well at launch for solo practitioners in jurisdictions without integrated professional data, emerging-market professionals where no partner exists, new-category professionals whose body has not joined, and professionals whose value is real but not yet captured by structured verifiable sources. This is not a flaw in the design — it is the inevitable consequence of building a protocol around verifiable provenance. The verifiable get verified first; the rest follows as partners and verifiers come on. Cross-references the F2.9 data-quality structural advantage point: richer partner data produces stronger verification signals; provenance exposes the trade-off; the discoverability claim narrows in the same direction.
+**On the discoverability claim — narrower and more credible.** ATAH should not claim to solve discoverability equally for all professionals from day one. It initially works best for professionals whose authority, standing, scope, or membership can be made verifiable and provenance-visible. That is a narrower claim, but a more credible one. It works less well at launch for solo practitioners in jurisdictions without integrated professional data, emerging-market professionals where no partner exists, new-category professionals whose body has not joined, and professionals whose value is real but not yet captured by structured verifiable sources. This is not a flaw in the design — it is the inevitable consequence of building a protocol around verifiable provenance. The verifiable get verified first; the rest follows as partners and verifiers come on. The data-quality structural advantage point connects directly: richer partner data produces stronger verification signals; provenance exposes the trade-off; the discoverability claim narrows in the same direction.
 
 **Trusted partners** sit in distinct classes. Authoritative regulatory sources and professional membership bodies are the credential-verification authority layer — what professionals are licensed or qualified to do, who has revoked or sanctioned them, what membership level they hold. Review platforms are a separate class — signal providers, not authority providers — contributing aggregated client feedback subject to anti-gaming attestations and per-category review weight caps (≤0.10 within verification quality for high-stakes regulated categories). Independent verifiers add a separate enhanced-verification layer. Each partner type gets a clean way to make verified data useful at the exact point users are deciding whether to trust a professional. Provenance is always visible. Review-derived signals complement but do not substitute for credential verification. The commercial model funds the work of maintaining the integration without compromising protocol neutrality.
 
@@ -439,7 +439,7 @@ Professionals appearing through a trusted partner are notified by their
 partner; self-registered professionals are notified at registration.
 Detailed treatment is in the PRD and specification.
 
-**On the scope of the privacy claim — narrower and more precise (per F3.4).** ATAH's privacy architecture is strong at the protocol layer, but the wider transaction is not fully transient. The honest claim is:
+**On the scope of the privacy claim — narrower and more precise.** ATAH's privacy architecture is strong at the protocol layer, but the wider transaction is not fully transient. The honest claim is:
 
 > ATAH reduces central honeypot risk by avoiding another persistent store of consumer personal data. It does not control the full downstream data lifecycle inside AI platforms, professional systems, CRMs, or assistants.
 
@@ -491,7 +491,7 @@ The founder retains a continuing advisory seat with no veto rights, no preferent
 
 ### Three governance layers — protocol, registry, third-party implementations
 
-v0.8.2 makes a deliberate distinction between three governance layers, drawing on Paolo Piponi's peer review:
+ATAH makes a deliberate distinction between three governance layers:
 
 - **Protocol governance** — the entity that owns the specification, conformance marks, partner admission rules, transparency rules, and neutrality audits — must be an independent not-for-profit or equivalent public-interest entity. Form is mandated. This layer's neutrality is what the rest of the ecosystem depends on.
 - **Reference registry operation** — the entity running the canonical ATAH-operated registry — may be a not-for-profit, public-benefit company, community-interest company, foundation-owned subsidiary, or commercial under strict constraints (enforceable neutrality, public fee schedules, auditability, data-use limits, structural separation from the governance body). Form is constrained, not mandated.

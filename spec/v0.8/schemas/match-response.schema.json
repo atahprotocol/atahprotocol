@@ -71,7 +71,7 @@
   "$defs": {
     "OrderingPolicy": {
       "type": "object",
-      "description": "Declaration of the ordering policy applied. Per Paolo's F1.10: ATAH may determine eligibility and exclusion, but MUST NOT express preference among eligible candidates unless the ordering basis is explicit, non-commercial, and disclosed. When no `ordering_preference` is supplied on the Discovery query, `mode` is `stratified_random` and order is randomised or rotated within bands per a documented fairness policy.",
+      "description": "Declaration of the ordering policy applied. ATAH may determine eligibility and exclusion, but MUST NOT express preference among eligible candidates unless the ordering basis is explicit, non-commercial, and disclosed. When no `ordering_preference` is supplied on the Discovery query, `mode` is `stratified_random` and order is randomised or rotated within bands per a documented fairness policy.",
       "properties": {
         "mode": {
           "type": "string",

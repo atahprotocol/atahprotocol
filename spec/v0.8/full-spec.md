@@ -15,15 +15,7 @@
 
 ## Version History
 
-**v0.8.1** — Pre-publication review-remediation patch round on top of v0.8.0. Substantive changes are in CHANGELOG.md; spec-level additions include the `verification_confidence` signal commitment in §4.12 (schema implementation deferred to v0.8.2), the `consumer_ref` MUST NOT specification in §11.5, the roll-up objection branch in §10.4 with conditional-required `acknowledged_rollup_terms` schema field on both professional schemas, and the Stage 2 202 response folded into 200 with `held_status` indicator in `openapi.yaml`. Cross-document corrections (prefix list, scope names, find_professional input shape, dispute-flow cross-reference) align prose with schemas/OpenAPI/MCP. The protocol's purpose, actors, and lifecycle are unchanged from v0.8.0.
-
-**v0.8** — Release-candidate specification incorporating pre-publication peer review remediation. Adds: structured consent receipts replacing boolean assertions; tiered handoff_id security model with separate handoff_access_token; transient encrypted vault delivery model with notification + authenticated retrieval (no PII through SMS or email); the full introduction-lifecycle schema set; parallel provenance map for per-field provenance; explicit standards composition (OAuth 2.1, OpenID Connect, W3C Verifiable Credentials, DIDs); three-layer protocol/registry/implementation framing; federation deferral with federation-ready architecture; opaque atah_id format; idempotency requirement on mutating endpoints; authorisation matrix; deletion scope table; non-goals section; glossary; standards-composition section; concern flag protections. Earlier v0.8 changes preserved: Stage 2 reframed as a category-flexible pre-handoff check; partner records declare verification depth and vetting strength; two registration routes (partner and individual) with roll-up logic; profession category metadata; individual self-registration fee model; enhanced verification layer with independent verifier model; review platforms formalised as a specialised partner class with anti-gaming requirements and differential treatment in matching. Verification status enum tightened — profile-level states moved to a dedicated `matching_status` field. Matching engine Step 3 restructured to expose four sub-components with transparent contribution metadata. Protocol renamed from "Agent to Accredited Human Protocol" to "Agent to Authenticated Human Protocol" — acronym ATAH unchanged.
-
-**v0.7** — Five issues resolved: atomic deletion compensating action pattern specified; MCP endpoint authentication mechanism defined (OAuth 2.0); verification batching strategy made concrete; simultaneous introduction rules specified explicitly; schema versioning policy added.
-
-**v0.6** — Targeted corrections: state bar verification scoped to priority states at MVP; webhooks and MCP push repositioned as Phase 2. Conflict field classification made explicit. Referral signal discount threshold defined concretely. Notification model corrected.
-
-**v0.5** — Initial technical specification.
+**v0.8.2** — Initial public release. See [CHANGELOG.md](../../CHANGELOG.md) for the published changes.
 
 ---
 
@@ -51,13 +43,13 @@ ATAH operates across three layers, and clarity about which layer is being discus
 
 1. **The open specification.** The protocol itself, defined in this document and the schema files, published under Apache 2.0. Anyone may implement, fork, or extend it.
 
-2. **Conforming implementations.** Software systems that implement the specification. Conformance requires preserving ATAH's mandatory principles: provenance visibility, no commercial weighting, staged consent, category compliance gating, data minimisation, and (per v0.8.2 Phase 6) machine-readable transparency. Five conformance classes — Core Object, Binding, Registry, Governance, Transparency (see CONFORMANCE.md).
+2. **Conforming implementations.** Software systems that implement the specification. Conformance requires preserving ATAH's mandatory principles: provenance visibility, no commercial weighting, staged consent, category compliance gating, data minimisation, and machine-readable transparency. Five conformance classes — Core Object, Binding, Registry, Governance, Transparency (see CONFORMANCE.md).
 
 3. **The initial reference registry.** ATAH operates an initial reference registry and MCP/REST endpoints that demonstrate and operate the protocol. The reference registry is not the protocol itself. Other registries may exist, provided they preserve the conformance principles.
 
 The initial registry exists because launching a protocol with no operational instance produces no real-world adoption. As federation develops (deferred to v0.9 or v1.0 — see Section 1.6), atah_id namespaces and cross-registry trust mechanics will be specified to support multiple conforming registries.
 
-**Three governance layers (per v0.8.2 / Charter Core Commitment 8 / Paolo Piponi's F1.6).** Distinct from the three layers above (which describe what ATAH is), the governance model has three deliberate layers that describe who runs each part on what terms:
+**Three governance layers (per Charter Core Commitment 8).** Distinct from the three layers above (which describe what ATAH is), the governance model has three deliberate layers that describe who runs each part on what terms:
 
 - **Protocol governance body.** ATAH protocol governance MUST be held by an independent not-for-profit or equivalent public-interest entity. Owns the specification, conformance marks, category annex process, partner / verifier admission rules, transparency rules, and neutrality audits. Form is mandated.
 - **Reference registry operator.** May be not-for-profit, public-benefit, community-interest company, foundation-owned subsidiary, or commercial under strict constraints. Critical requirements: enforceable neutrality, public fee schedules, auditability, data-use limits, structural separation from the protocol governance body. Form is constrained, not mandated.
@@ -253,7 +245,7 @@ Distinct from per-field verification status, every profile carries a `matching_s
 
 ### 4.4 Profession Category Metadata
 
-Profession categories are referenced throughout the spec (lawyer, pr_professional, physician, tax_planner, and so on). Each supported category has a metadata record describing its tier, body membership structure, default pre-handoff check type, compliance status, and category-specific band definitions and review-signal band cap (per F-7 / F-13).
+Profession categories are referenced throughout the spec (lawyer, pr_professional, physician, tax_planner, and so on). Each supported category has a metadata record describing its tier, body membership structure, default pre-handoff check type, compliance status, and category-specific band definitions and review-signal band cap.
 
 The full set of supported profession categories is maintained in `profession-categories.json` in the repository. New categories are added through the standard governance pull request process described in [GOVERNANCE.md](../../GOVERNANCE.md). Two representative examples are shown inline:
 
@@ -321,9 +313,9 @@ The `contact_verification_cadence` field (per spec §12A) declares how often ATA
 
 The `pre_handoff_freshness_window_days` field (optional; populated for high-stakes categories only) declares the recency window in days for the §12A Layer 3 pre-handoff freshness check. v0.8.2 ships with 30 for high-stakes categories. Absent for categories that do not require Layer 3.
 
-The `band_definitions` field declares the category's bands used by the §9 matching engine. Each band has a `band_name`, a `band_position` (lower = higher band), and a `threshold_rule` describing the predicate a candidate must satisfy to be in that band. The default bands across launch categories are `verification_confidence`, `category_fit`, `availability_window`, and `contact_freshness`; categories MAY define more or different bands. Per F-13, this field replaces the v0.8.1 `matching_weight_profile` (the weighted-scoring artefact); see §9 and ADR 0012.
+The `band_definitions` field declares the category's bands used by the §9 matching engine. Each band has a `band_name`, a `band_position` (lower = higher band), and a `threshold_rule` describing the predicate a candidate must satisfy to be in that band. The default bands across launch categories are `verification_confidence`, `category_fit`, `availability_window`, and `contact_freshness`; categories MAY define more or different bands. See §9 and ADR 0012.
 
-The `review_signal_band_cap` field controls the influence of review-derived signals on band assignment for the category, replacing the v0.8.1 `review_signal_weight_cap` (per F-7). High-stakes regulated categories set `may_upgrade_band: false` and `regulated_category_max_effect: no_band_upgrade`, preserving the original safeguard that review platforms do not dominate matching in regulated contexts. Lower-stakes categories MAY permit `may_upgrade_band: true` with documented authoritative-corroboration requirements. See §9.2 for the verbatim normative rule.
+The `review_signal_band_cap` field controls the influence of review-derived signals on band assignment for the category. High-stakes regulated categories set `may_upgrade_band: false` and `regulated_category_max_effect: no_band_upgrade`, preserving the safeguard that review platforms do not dominate matching in regulated contexts. Lower-stakes categories MAY permit `may_upgrade_band: true` with documented authoritative-corroboration requirements. See §9.2 for the verbatim normative rule.
 
 The `stage2_auth_tier` field defines the authentication tier required for Stage 2 data retrieval (Section 11.6). Values: `tier_1` (notification metadata only — used for low-sensitivity scope confirmation), `tier_2` (single-token authenticated retrieval — standard), `tier_3` (step-up authentication required — used for healthcare, sensitive legal matters, or any category where Stage 2 contains highly sensitive data).
 
@@ -649,12 +641,12 @@ Consent receipts are issued by the asserting AI platform. The platform captures 
 
 ATAH never stores the consumer-identifying fields (`consumer_ref` plaintext, `data_categories` plaintext, free-text consent content). The stored form (per `consent-receipt-stored.schema.json`) carries only the hash and the continuity-binding metadata.
 
-#### Continuity binding (per F-3)
+#### Continuity binding
 
 When a consent receipt is consumed (referenced as `consent_receipt_id` on a consenting endpoint), ATAH MUST verify that the consumption context matches the captured context:
 
 - The same `client_id` initiated the consumption (matched against the stored `client_id`).
-- For consumer-tied scopes, the same `pseudonymous_consumer_ref` is in the consuming session (matched against the stored HMAC). The reference is an HMAC of the platform-side `consumer_ref` under a per-context salted HMAC key per the F1.16 / §11.8 HMAC-not-plain-hash requirement.
+- For consumer-tied scopes, the same `pseudonymous_consumer_ref` is in the consuming session (matched against the stored HMAC). The reference is an HMAC of the platform-side `consumer_ref` under a per-context salted HMAC key per the §11.8 HMAC-not-plain-hash requirement.
 - The requested action falls within the captured `scope` and (for `disclosure_consent`) the requested data categories match the stored `data_categories_hash`.
 
 Mismatch produces a consent-mismatch error and a `consent_continuity_mismatch` audit event. The continuity-binding fields are non-identifying — `client_id` is a platform-side opaque identifier, the consumer reference is HMAC-protected, and the data-categories hash is over the canonicalised category list. The build-time privacy-floor test verifies these fields are HMAC-shaped or hash-shaped, not plaintext.
@@ -875,11 +867,11 @@ The `presentation_disclosure` block MUST be present on every match response and 
 
 `filters_passed` records which hard filters from §9.1 step 1 the candidate cleared. `band_assignment.bands` lists the bands the candidate is in (with `band_name`, `band_position`, and `threshold_rule` from `profession-categories.json`). `band_assignment.position_in_response` is the candidate's 1-based ordering position. `ordering_policy.mode` mirrors the response-level mode; `within_band_policy` records the within-band fairness policy applied (`uniform_random`, `round_robin_rotation`, or `documented_implementation_policy`).
 
-`enhanced_verification_summary` is present only if the professional has at least one active enhanced verification record. `review_signal_summary` is present only if at least one review platform is contributing data above the volume threshold; per F-7, review signals are presentational and do not promote candidates into higher bands in regulated categories. The full payload remains available via `GET /v1/professionals/:atah_id`.
+`enhanced_verification_summary` is present only if the professional has at least one active enhanced verification record. `review_signal_summary` is present only if at least one review platform is contributing data above the volume threshold; review signals are presentational and do not promote candidates into higher bands in regulated categories. The full payload remains available via `GET /v1/professionals/:atah_id`.
 
-`decision_explanation` (per Phase 6 — `decision-explanation.schema.json`) is added at both response level and per-candidate level for transparency-as-conformance. Phase 5 leaves the field as an open object placeholder; Phase 6 promotes it to required and constrains the shape.
+`decision_explanation` (`decision-explanation.schema.json`) is required at both response level and per-candidate level for transparency-as-conformance.
 
-### Verification confidence signal (v0.8.1, schema commitment for v0.8.2)
+### Verification confidence signal
 
 Match responses for regulated categories with single-source verification SHOULD carry a `verification_confidence` field separate from the band-input signals, surfacing to AI platforms whether the verification basis comes from a single source or is corroborated by multiple sources.
 
@@ -1159,7 +1151,7 @@ Optional on `POST /v1/query` (queries are read-like but stateful enough to suppo
 
 The matrix below expresses permissions in the principal/delegation terms defined in §4.9A: each row names an endpoint (or class of endpoints), the `authenticated_actor.actor_type` permitted to call it, the `authority_context.represented_principal_type` whose authority is being exercised, the `authority_context.authority_basis` (the credential class), the OAuth scope (as declared on `securitySchemes` in `openapi.yaml`), and any object-level constraints from `authority_context.object_constraints`.
 
-The matrix is grouped by `authenticated_actor.actor_type`. Implementations MUST permit a call only when every column matches the request's principal/delegation context; an authenticated_actor whose `actor_type` is `ai_platform` and whose underlying authority basis is anything other than the row's stated `authority_basis` MUST be rejected. Per the F-16 decision, `consumer` is not a valid `authenticated_actor.actor_type`; consumer-mediated calls authenticate as `ai_platform` and identify the consumer in `represented_principal_type: consumer`.
+The matrix is grouped by `authenticated_actor.actor_type`. Implementations MUST permit a call only when every column matches the request's principal/delegation context; an authenticated_actor whose `actor_type` is `ai_platform` and whose underlying authority basis is anything other than the row's stated `authority_basis` MUST be rejected. `consumer` is not a valid `authenticated_actor.actor_type`; consumer-mediated calls authenticate as `ai_platform` and identify the consumer in `represented_principal_type: consumer`.
 
 #### `authenticated_actor.actor_type: ai_platform`
 
@@ -1168,7 +1160,7 @@ The matrix is grouped by `authenticated_actor.actor_type`. Implementations MUST 
 | `POST /v1/query` | `consumer` | `user_session` | `atah:find` | `client_application` required; rate-limit posture per §13.3 |
 | `POST /v1/consent-receipts` | `consumer` | `user_session` | `atah:introductions:create` / `atah:introductions:write` | asserting platform's `client_application.platform_id` MUST match `asserted_by.client_application.platform_id`; `Idempotency-Key` required |
 | `POST /v1/consent-receipts/:consent_receipt_id/revoke` | `consumer` | `user_session` | `atah:introductions:write` | only the original asserter platform may revoke (matched against the stored `asserted_by_platform_id`); idempotent |
-| `POST /v1/introductions` | `consumer` | `user_session` | `atah:introductions:create` | `consent_receipt_id` binding required; receipt scope MUST cover the action; receipt MUST be `revocation_status: active` at consumption; continuity binding (per F-3) verified — `client_id`, `pseudonymous_consumer_ref`, and (for `disclosure_consent`) `data_categories_hash` MUST match |
+| `POST /v1/introductions` | `consumer` | `user_session` | `atah:introductions:create` | `consent_receipt_id` binding required; receipt scope MUST cover the action; receipt MUST be `revocation_status: active` at consumption; continuity binding verified — `client_id`, `pseudonymous_consumer_ref`, and (for `disclosure_consent`) `data_categories_hash` MUST match |
 | `GET /v1/introductions/:handoff_id` | `consumer` | `handoff_access_token` or `user_session` (with original-asserter match) | `atah:introductions:read` | `handoff_id` constraint; asserter match per §11.5 tiered access |
 | `POST /v1/introductions/:handoff_id/stage-2`, `/stage-3`, `/cancel`, `/revoke-consent` | `consumer` | `handoff_access_token` | `atah:introductions:write` | `handoff_id` constraint; original-asserter match required |
 | `POST /v1/introductions/:handoff_id/outcome` (asserter side) | `consumer` | `handoff_access_token` | `atah:outcomes:write` | `handoff_id` constraint; original-asserter match required |
@@ -1435,15 +1427,15 @@ On `consumer-reported-concern`: routes to the concern flag mechanism per Section
 
 ## 9. Matching Engine Design
 
-The matching engine runs entirely on the registry's servers. AI agents receive a candidate set with the full trusted partner data payload, the `presentation_disclosure` block (carrying the ordering policy), per-candidate `band_assignment`, and per-candidate `decision_explanation` (Phase 6).
+The matching engine runs entirely on the registry's servers. AI agents receive a candidate set with the full trusted partner data payload, the `presentation_disclosure` block (carrying the ordering policy), per-candidate `band_assignment`, and per-candidate `decision_explanation`.
 
 ATAH is structurally not a recommendation engine. v0.8.2 replaces the v0.8.1 weighted-scoring architecture with hard-filters-then-stratified-randomisation. There is no global match score. Eligibility is decided through hard filters; equivalent candidates are grouped into transparent bands; ordering within a band is randomised or rotated under a documented fairness policy; user-requested ordering modes (when explicit) override the default.
 
 ### 9.1 Matching Pipeline (four steps)
 
-**Step 1 — Hard filters.** Apply category, jurisdiction, `matching_status`, `compliance_status`, contact freshness (per Phase 7 — `matching_status: contact_unverified` excludes), availability, and any category-required verification thresholds. Professionals with `matching_status` of `compliance-pending`, `regulatory-suspended`, `admin-suspended`, `withdrawn`, `pending-rollup`, `pending-integrity-review`, or `deceased` are excluded at this step regardless of other filters. Candidates not passing the hard filters are excluded; they do not appear in the response.
+**Step 1 — Hard filters.** Apply category, jurisdiction, `matching_status`, `compliance_status`, contact freshness (`matching_status: contact_unverified` excludes per §12A), availability, and any category-required verification thresholds. Professionals with `matching_status` of `compliance-pending`, `regulatory-suspended`, `admin-suspended`, `withdrawn`, `pending-rollup`, `pending-integrity-review`, or `deceased` are excluded at this step regardless of other filters. Candidates not passing the hard filters are excluded; they do not appear in the response.
 
-**Step 2 — Band assignment.** Group eligible candidates into transparent bands. Default bands across launch categories: `verification_confidence`, `category_fit`, `availability_window`, `contact_freshness`. Bands are declared per-category in `profession-categories.json` `band_definitions`, each with a `band_name`, `band_position` (lower position = higher band), and `threshold_rule` describing the predicate a candidate must satisfy. Candidates are assigned to bands by evaluating the threshold rules against the candidate's signals. The assignment is exposed through `match-response.schema.json` `band_assignment` for per-candidate transparency, and through `decision-explanation.schema.json` (Phase 6) for explanation.
+**Step 2 — Band assignment.** Group eligible candidates into transparent bands. Default bands across launch categories: `verification_confidence`, `category_fit`, `availability_window`, `contact_freshness`. Bands are declared per-category in `profession-categories.json` `band_definitions`, each with a `band_name`, `band_position` (lower position = higher band), and `threshold_rule` describing the predicate a candidate must satisfy. Candidates are assigned to bands by evaluating the threshold rules against the candidate's signals. The assignment is exposed through `match-response.schema.json` `band_assignment` for per-candidate transparency, and through `decision-explanation.schema.json` for explanation.
 
 **Step 3 — Threshold exclusion.** Exclude candidates below required thresholds where the category requires it. A category MAY define a minimum `band_position` for inclusion; candidates below the threshold are excluded from the response.
 
@@ -1455,7 +1447,7 @@ ATAH is structurally not a recommendation engine. v0.8.2 replaces the v0.8.1 wei
 
 **Note on band-input computation (v0.8.2).** The computation algorithms for `category_fit` and `availability_score` are not normatively specified at v0.8.2. Implementations applying band assignment must define their own computation approach for these signals and document that approach in their conformance statement. Normative computation algorithms for band-input signals are targeted for v0.8.3. The spec normatively defines the band assignment logic, the stratified-randomisation rule within bands, and the structural constraint that band assignment must not reference commercial signals. Implementations are accountable for their own computation choices for band inputs and must surface those choices through the transparency-class conformance artefacts. `registration_route` is also excluded from band assignment: paid individual-registration listings and partner-route listings receive identical matching treatment regardless of route.
 
-### 9.2 Review-signal control (per F-7)
+### 9.2 Review-signal control
 
 Review-derived signals (the time-decayed review-platform aggregate per category) are presentational and supplemental. They appear on `match-response.schema.json` `review_signal_summary` for transparency. They do NOT feed band assignment in regulated categories.
 
@@ -1494,7 +1486,7 @@ Failure to preserve the disclosure is a binding-conformance failure (Section 14)
 
 ### 9.5 Implementation note — randomisation algorithm
 
-v0.8.2 specifies the model (hard filters → bands → within-band randomisation) and the within-band fairness policy enumeration (`uniform_random`, `round_robin_rotation`, `documented_implementation_policy`). It does NOT mandate a specific randomisation algorithm; that is implementation choice. The conformance test (Phase 6 / Phase 11) verifies that the returned `band_assignment` data is consistent with the documented `band_definitions` and that the within-band ordering is observably non-deterministic across queries (i.e. the same query repeated produces different orderings within bands, modulo the randomisation seed). v0.9 may standardise the algorithm.
+The protocol specifies the model (hard filters → bands → within-band randomisation) and the within-band fairness policy enumeration (`uniform_random`, `round_robin_rotation`, `documented_implementation_policy`). It does NOT mandate a specific randomisation algorithm; that is implementation choice. The conformance test verifies that the returned `band_assignment` data is consistent with the documented `band_definitions` and that the within-band ordering is observably non-deterministic across queries (i.e. the same query repeated produces different orderings within bands, modulo the randomisation seed). v0.9 may standardise the algorithm.
 
 ### 9.6 Commercial neutrality
 
@@ -1663,7 +1655,7 @@ The table is organised by the three-concept separation introduced in §11.1: eac
 |---|---|---|---|---|
 | Main registry database (professional records) | None (rejected at validation) | None — audit is the audit log | `matching_status` field on the record (`withdrawn`, `regulatory-suspended`, etc.) | Record retained per partner/individual lifecycle; withdrawal-state persists; required audit, dispute, and regulatory metadata retained per §11.8 / §11.9 |
 | Transient encrypted vault | Yes — Stage 2 pre-handoff data, Stage 3 contact details (active handoffs only) | None — payloads are not audit; audit log records vault events (created, retrieved, erased) without payload content | None | Crypto-erased on retrieval, expiry, cancellation, or revocation (§11.6); category-specific TTL; max 72h post-resolution |
-| Consent receipt store (stored form) | Hash only — no PII | `receipt_hash`, `asserted_by_platform_id`, `client_id`, `consent_type`, `scope`, `captured_at`, `expires_at` (the integrity metadata) plus the F-3 continuity binding (`pseudonymous_consumer_ref` HMAC, `data_categories_hash`) — all non-identifying | `revocation_status` (`active` / `revoked` / `expired`) | TTL on receipt expiry + 90 days; continuity-binding fields retained per receipt expiry + 90 days; revocation-state preserved for audit per §11.8 |
+| Consent receipt store (stored form) | Hash only — no PII | `receipt_hash`, `asserted_by_platform_id`, `client_id`, `consent_type`, `scope`, `captured_at`, `expires_at` (the integrity metadata) plus the continuity-binding fields (`pseudonymous_consumer_ref` HMAC, `data_categories_hash`) — all non-identifying | `revocation_status` (`active` / `revoked` / `expired`) | TTL on receipt expiry + 90 days; continuity-binding fields retained per receipt expiry + 90 days; revocation-state preserved for audit per §11.8 |
 | Audit log | None (consumer personal data MUST NOT appear in plaintext per §11.8) | Pseudonymous identifiers, integrity references, state transitions — the canonical record | State transitions for every withdrawal scenario per §11.9 | Audit-policy retention (default 7 years); tamper-evident hash chain |
 | Object storage (documents) | None (consumer documents not stored) | None | None | n/a |
 | SMS / email notifications | None — only notification metadata + authenticated retrieval references | Provider-managed delivery records (no ATAH audit role) | n/a | Provider-managed |
@@ -1830,10 +1822,10 @@ Crypto-erasure (§11.6) applies to vault payload content, not to audit metadata.
 **Retain fields (audit metadata — preserved on the audit-policy schedule).** The following MAY be retained in the audit log for the audit-policy retention period (default 7 years per §13.5):
 
 - Event ID
-- Handoff ID, query ID, professional ID, proposal ID, connection ID (whichever apply)
+- Handoff ID, query ID, professional ID (whichever apply)
 - Asserting platform and authenticated client (the principal-delegation context per §4.9A — `authenticated_actor`, `client_application`, `authority_context`)
 - Pseudonymous consumer reference where appropriate (HMAC form per the requirement below)
-- `request_intent` (Phase 2)
+- `request_intent`
 - Stage (Component 2 flow stage, where applicable)
 - Payload type, **not** payload content
 - Consent receipt ID and receipt hash
@@ -1883,7 +1875,7 @@ These fields are part of the `audit-event.schema.json` shape; see the schema for
 
 Step-up authentication MUST require re-authentication or an enhanced authentication factor at the point of action; the specific mechanism (re-auth via OAuth flow, second factor via TOTP, out-of-band push approval, or equivalent) is an implementation choice documented in the deployment notes. The protocol MANDATES the requirement; the protocol does NOT standardise the mechanism in v0.8.2 — that is a candidate for v0.9 standardisation.
 
-**No separate withdrawal-record schema.** Every withdrawal generates a structured audit event with the required fields above. A separate `withdrawal-record.schema.json` is not introduced in v0.8.2 because the audit-event schema already carries the F1.17 required fields and a separate record would duplicate the audit information.
+**No separate withdrawal-record schema.** Every withdrawal generates a structured audit event with the required fields above. A separate `withdrawal-record.schema.json` is not introduced because the audit-event schema already carries the required fields and a separate record would duplicate the audit information.
 
 ## 11A. Transparency and Explainability
 
@@ -1908,9 +1900,9 @@ For every discovery, exclusion, ordering, handoff, withdrawal, suppression, conf
 - what consent receipt or authority basis was relied on (per §4.10)
 - what audit event was recorded (per §11.8)
 
-These answers are encoded in the `decision-explanation.schema.json` object. The schema defines the inner object directly (per F-5); the field name `decision_explanation` is the wrapper in consuming response schemas, NOT inside `decision-explanation.schema.json` itself. Implementers MUST NOT re-wrap when copying or referencing.
+These answers are encoded in the `decision-explanation.schema.json` object. The schema defines the inner object directly; the field name `decision_explanation` is the wrapper in consuming response schemas, NOT inside `decision-explanation.schema.json` itself. Implementers MUST NOT re-wrap when copying or referencing.
 
-### 11A.2 Three transparency layers (F-6)
+### 11A.2 Three transparency layers
 
 ATAH's transparency model has three deliberate layers:
 
@@ -1925,12 +1917,12 @@ The three-layer model protects excluded candidates from leakage while still prov
 ### 11A.3 Role-specific transparency
 
 - **Consumers and consumer agents.** See per-candidate `decision_explanation` (Layer 2) explaining why each returned candidate appeared, what was verified, what was not, what data was shared. See aggregate `exclusion_summary` (Layer 3); do NOT see named excluded candidates. See response-level `presentation_disclosure.ordering_policy` (per §9.4).
-- **Professionals.** See their own visibility-decision view (per §11A.4 below). The view is rules-derived, not query-history-derived; this is a normative MUST NOT (per F-18).
+- **Professionals.** See their own visibility-decision view (per §11A.4 below). The view is rules-derived, not query-history-derived; this is a normative MUST NOT.
 - **Platforms.** Receive machine-readable explanation metadata at response level (Layer 1), per-candidate level (Layer 2), and aggregate (Layer 3). Per §9.4, AI platforms reordering downstream MUST preserve the response-level disclosure verbatim.
 - **Governance and auditors.** Have deeper audit access for neutrality, abuse, dispute, and conformance review. Can retrieve named-excluded-candidate detail via `GET /v1/decision-explanations/{audit_event_id}` under `governance_admin_role` authority.
 - **Public.** See high-level rules (matching engine §9), fee schedules, partner scopes, category annexes, conformance status. Do not see per-query data.
 
-### 11A.4 Professional-facing visibility-explanation obligation (per F-6 / F-18)
+### 11A.4 Professional-facing visibility-explanation obligation
 
 A conforming implementation MUST provide a mechanism for an authenticated professional to retrieve their own visibility-decision view for a given category and jurisdiction. The view is rules-derived: it explains which inclusion rules apply to the professional in this category/jurisdiction (and which would apply if conditions changed), and the professional's current band assignment, derived from `profession-categories.json` `band_definitions` and the professional's own profile data. It does NOT reflect actual query traffic or query-count data.
 
@@ -1951,7 +1943,7 @@ A conforming implementation MUST provide a mechanism for an authenticated profes
 
 **Audit linkage.** Each retrieval is logged as an audit event with the actor identified.
 
-**Endpoint implementation.** The dedicated REST endpoint `GET /v1/professionals/me/visibility-explanations` is fully specified in `openapi.yaml`. Implementations MAY mark the endpoint as v0.8.3-deferred via the OpenAPI extension `x-implementation-deferred-to: v0.8.3`; the **obligation itself is part of v0.8.2** and the spec is complete enough (behaviour, fields, authority controls, audit linkage, F-18 MUST NOT rule) for an implementer to build from v0.8.2 alone. The matching MCP tool `get_my_visibility_explanations` mirrors the REST endpoint.
+**Endpoint implementation.** The dedicated REST endpoint `GET /v1/professionals/me/visibility-explanations` is fully specified in `openapi.yaml`. Implementations MAY mark the endpoint as v0.8.3-deferred via the OpenAPI extension `x-implementation-deferred-to: v0.8.3`; the **obligation itself is part of v0.8.2** and the spec is complete enough (behaviour, fields, authority controls, audit linkage, MUST NOT rule on query-history exposure) for an implementer to build from v0.8.2 alone. The matching MCP tool `get_my_visibility_explanations` mirrors the REST endpoint.
 
 ### 11A.5 Privacy / security / anti-gaming withholding
 
@@ -2115,7 +2107,7 @@ Step-up authentication means re-authentication or an enhanced authentication fac
 
 - Rate limits on all public endpoints, configurable per registered platform.
 - Stricter limits on `POST /v1/query` to prevent registry scraping.
-- **Discovery rate-limit posture (per F1.2).** Discovery actions (`POST /v1/query` and the equivalent `find_professional` MCP tool) are available to any authenticated platform with no PII required, and therefore carry the strongest rate-limit posture of any operation class. The `request_intent` parameter introduced in Phase 2 (v0.8.2) refines this further: different intents imply different rate-limit profiles. The principle is documented here; concrete per-intent rate-limit numbers are populated in the Phase 2 spec change.
+- **Discovery rate-limit posture.** Discovery actions (`POST /v1/query` and the equivalent `find_professional` MCP tool) are available to any authenticated platform with no PII required, and therefore carry the strongest rate-limit posture of any operation class. The `request_intent` parameter refines this further: different intents imply different rate-limit profiles. The principle is documented here; concrete per-intent rate-limit numbers are an implementation responsibility.
 - Partner data push: per-batch rate limiting; bulk pushes must be batched.
 - Consent assertion abuse monitoring: platforms with anomalous consent assertion patterns are reviewed.
 
@@ -2377,7 +2369,7 @@ When a professional claims a partner-created record, that claim must be authenti
 - **Engagement liveness** — whether a professional with verified contact details actually responds to introductions (response-rate tracking, missed-Stage-1 patterns). Distinct from channel reachability (§12A); engagement liveness is **deferred to v0.8.3** in v0.8.2's scope. The gap is documented in §12A and is a known v0.8.2 limit
 - **flow_variant** — Component 2 sub-mode declared on `handoff-component2.schema.json`. One of `off_protocol`, `contact_share`, `full_lifecycle`. See §6.1
 - **last_verified** — per-channel timestamp on `notification_channels` array entries (per §12A) recording the last successful verification challenge confirmation. `null` permitted only for newly-added channels not yet through their first verification cycle (`verification_status: not_yet_verified`)
-- **notification_channels** — array on the credentialled and established professional identity schemas (per F-15 / §12A) carrying the professional's notification channels with verification status. Drives Layer 1 periodic verification, Layer 2 escalation, and Layer 3 pre-handoff freshness check. Each channel record carries an HMAC of the destination address, not the plaintext, per §11.8
+- **notification_channels** — array on the credentialled and established professional identity schemas (per §12A) carrying the professional's notification channels with verification status. Drives Layer 1 periodic verification, Layer 2 escalation, and Layer 3 pre-handoff freshness check. Each channel record carries an HMAC of the destination address, not the plaintext, per §11.8
 - **pre_handoff_freshness_window_days** — per-category field on `profession-categories.json` (optional, populated for high-stakes categories) declaring the recency window for the §12A Layer 3 pre-handoff freshness check. v0.8.2 ships with 30 for high-stakes categories
 - **request_intent** — required parameter on the Discovery query (one of `self`, `on_behalf_of_client`) that gates which next-step components are available. See §4.11
 - **verification_status** — per-channel field on `notification_channels` array entries (per §12A). Lifecycle: `not_yet_verified` → `verification_pending` (challenge issued) → `verified` (challenge confirmed) → `escalation_pending` (Layer 2 escalation triggered) → `unverified` (full grace period elapsed; matching_status flips to `contact_unverified`)
@@ -2455,7 +2447,7 @@ atahprotocol/
 
 The reference implementation code does not live in the specification repository.
 
-**Schema reference surface (per F1.10 audit).** Schemas referenced directly from `openapi.yaml` request or response bodies are: `query`, `match-response`, `consent-receipt`, `consent-receipt-stored`, `handoff-component2`, `stage2-prehandoff`, `stage3-contact`, `decision-explanation`, `partner-data-push`, `enhanced-verification`, `professional-identity-credentialled`, `professional-identity-established`, `trusted-partner`, `independent-verifier`, `concern-flag-record`, `conflict-record`, `dispute-record`, `rollup-match-record`, `error`. The remaining schemas are **internal-only data shapes** transitively reachable via `$ref` chains rather than via a dedicated REST endpoint: `principal-delegation` (sub-schema referenced by `query`, `handoff-component2`, `consent-receipt`, `audit-event`, `decision-explanation`), `provenance-map` (sub-schema referenced by `match-response` and the two professional-identity schemas), `verification-scope` (sub-schema referenced by `trusted-partner`), `profession-category` (describes `profession-categories.json` and is referenced from `match-response`), `review-platform` (cross-schema enum-source-of-truth referenced from `match-response` `review_signal_summary`), and `audit-event` (canonical event shape recorded by the registry but not surfaced through a public read path; auditors retrieve event-anchored explanations through `GET /v1/decision-explanations/{audit_event_id}` per Phase 6). Implementations conforming to v0.8.2 MUST treat the internal-only schemas as authoritative for their fields wherever a transitive `$ref` carries them, and MUST NOT introduce divergent inline shapes with the same field names.
+**Schema reference surface.** Schemas referenced directly from `openapi.yaml` request or response bodies are: `query`, `match-response`, `consent-receipt`, `consent-receipt-stored`, `handoff-component2`, `stage2-prehandoff`, `stage3-contact`, `decision-explanation`, `partner-data-push`, `enhanced-verification`, `professional-identity-credentialled`, `professional-identity-established`, `trusted-partner`, `independent-verifier`, `concern-flag-record`, `conflict-record`, `dispute-record`, `rollup-match-record`, `error`. The remaining schemas are **internal-only data shapes** transitively reachable via `$ref` chains rather than via a dedicated REST endpoint: `principal-delegation` (sub-schema referenced by `query`, `handoff-component2`, `consent-receipt`, `audit-event`, `decision-explanation`), `provenance-map` (sub-schema referenced by `match-response` and the two professional-identity schemas), `verification-scope` (sub-schema referenced by `trusted-partner`), `profession-category` (describes `profession-categories.json` and is referenced from `match-response`), `review-platform` (cross-schema enum-source-of-truth referenced from `match-response` `review_signal_summary`), and `audit-event` (canonical event shape recorded by the registry but not surfaced through a public read path; auditors retrieve event-anchored explanations through `GET /v1/decision-explanations/{audit_event_id}`). Implementations MUST treat the internal-only schemas as authoritative for their fields wherever a transitive `$ref` carries them, and MUST NOT introduce divergent inline shapes with the same field names.
 
 ## 18. Build Sequence
 
