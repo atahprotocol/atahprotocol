@@ -4,10 +4,10 @@
 
 **Technical Specification**
 
-| Version | 0.8.1 |
+| Version | 0.8.2 |
 | --- | --- |
 | Status | Release Candidate |
-| Date | April 2026 |
+| Date | May 2026 |
 | Founded by | Grahame Cohen |
 | Audience | Developers, AI coding agents, partner integrators, peer reviewers |
 
@@ -366,10 +366,6 @@ Example: lawyer. The `licence` object is present. The `professional_tier` field 
     "virtual": true,
     "languages": ["en", "es"],
     "availability": "accepting_new_matters"
-  },
-  "referral_network": {
-    "inbound_relationship_count": 7,
-    "inbound_relationship_quality_score": 0.84
   },
   "trusted_partner_data": [
     {

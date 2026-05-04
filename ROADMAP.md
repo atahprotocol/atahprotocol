@@ -35,6 +35,27 @@ Items where the v0.8.2 spec defines the obligation but the endpoint implementati
 - **Withdrawal-cycle harassment monitoring.** Stress-test scenario 6.1 — malicious actor initiates and withdraws repeated handoffs. Withdrawal-as-state-transition plus audit retention closes the structural side; concrete rate-limit thresholds and pattern detection on cancel/withdraw cycles are `deferred-to-v0.8.3`.
 - **Stress-testing as ongoing publication discipline.** The [stress-test matrix](spec/v0.8/stress-test-matrix.md) is the verification artifact for v0.8.2 publication. Stress-testing is a publication discipline, not a one-off artifact. v0.8.3 candidate workstream: matrix maintenance — adding scenarios as they emerge from implementation experience, peer review, or partner conversations; reviewing previously-resolved scenarios for status drift; promoting `partially-resolved` scenarios to `resolved` as their residual work completes. The matrix is a living verification artifact; updates land as patch releases.
 
+### Editorial and consistency follow-ups identified during v0.8.2 final review
+
+The following items are tracked for the v0.8.3 cycle. None are protocol-design changes; they tighten consistency between the spec, schemas, and documentation.
+
+**Spec-level:**
+
+- §14 conformance class count: §14 currently enumerates four conformance classes. CONFORMANCE.md and §11A both treat Transparency as a top-level conformance requirement (the fifth class). v0.8.3 will reconcile §14 with the rest of the protocol by adding a Transparency Conformance section and updating count references.
+- Vestigial single-value discriminator enums in `query.schema.json` (`query_type`) and `handoff-component2.schema.json` (`introduction_type`). Both will be removed in v0.8.3, with corresponding alignment in `openapi.yaml` and the example block in `full-spec.md`.
+- MCP/REST contract alignment for `initiate_introduction`: the MCP and REST bindings currently require slightly different field sets. v0.8.3 will align them per the §14.2 Binding Conformance commitment that bindings do not change required fields.
+
+**Wording and consistency:**
+
+- `contact_unverified` referenced as a boolean in `full-spec.md` and `mcp-tools.json`; it is actually a `matching_status` enum value. Wording fix in v0.8.3.
+- "Provenance-visible shortlists" in non-endorsement framing prose (`PRD-v0_8.md` and `full-spec.md`) to be replaced with "provenance-visible candidate sets" for consistency with current ordering language. State machine values and historical references unaffected.
+- `acknowledged_rollup_terms` field exists on professional-identity schemas with a normative description but is not surfaced in `full-spec.md` §15 prose. v0.8.3 will add a one-paragraph mention.
+- `spec/v0.8/CHANGELOG.md` to gain a `### Reviewers` subsection mirroring the top-level CHANGELOG attribution.
+
+**OAuth scope precision:**
+
+- Two prose scope names in `full-spec.md` (`atah:partner:data` and `atah:verifier:verification`) to be updated to include the `.write` suffix declared in `openapi.yaml`.
+
 ## v0.8.2.x candidates
 
 Items expected to be small enough to land as patch releases rather than wait for v0.8.3 or v0.9:

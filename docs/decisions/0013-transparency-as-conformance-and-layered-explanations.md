@@ -87,5 +87,5 @@ Required fields in the view: representative inclusion rules (which apply to the 
 - Charter Part Two operational commitments mirror the §11A normative rules.
 - [`docs/professional/visibility-report.md`](../professional/visibility-report.md) — existing posture cross-referenced; the "aggregate query volume" exclusion is preserved and tightened as a citation of the spec MUST NOT.
 - ROADMAP.md — new "v0.8.3 candidates" section listing the deferred professional-facing endpoint implementation.
-- Master patch plan v3.1.1, Phase 6 (§8) and Paolo's findings F1.8 (transparency as conformance, verbatim), F1.9 (decision_explanation as first-class artefact); F-5 (inner object only); F-6 (two-layer + aggregate; obligation defined in v0.8.2 even if endpoint is v0.8.3); F-18 (rules-derived professional-facing view, verbatim MUST NOT).
+- Paolo's findings F1.8 (transparency as conformance, verbatim), F1.9 (decision_explanation as first-class artefact); F-5 (inner object only); F-6 (two-layer + aggregate; obligation defined in v0.8.2 even if endpoint is v0.8.3); F-18 (rules-derived professional-facing view, verbatim MUST NOT).
 - Source review: `PAOLO-PEER-REVIEW-FINDINGS-01-v0_8_1.md` and `PAOLO-transparency-and-explainability.md`.

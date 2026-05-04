@@ -159,7 +159,7 @@ This section gives short user-facing copy that helps platforms communicate the c
 
 **Recommended:**
 - "These are verified options based on what you've described, not paid placements."
-- "Ranking is based on relevance, verification, availability, and completeness — not on commercial relationships."
+- "Candidate ordering reflects the disclosed ordering policy and verification bands — not paid placement or commercial relationships."
 - "ATAH does not earn from your selection. Your AI shows you these options because they match what you said you need."
 
 **Avoid:**

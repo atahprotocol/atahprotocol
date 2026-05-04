@@ -4,10 +4,10 @@
 
 **Product Requirements Document**
 
-| Version | 0.8.1 |
+| Version | 0.8.2 |
 | --- | --- |
 | Status | Release Candidate |
-| Date | April 2026 |
+| Date | May 2026 |
 | Founded by | Grahame Cohen |
 
 ---

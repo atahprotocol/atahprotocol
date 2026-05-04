@@ -108,7 +108,7 @@ The published [stress-test matrix](spec/v0.8/stress-test-matrix.md) is the verif
 
 Conformance testing for v0.8.2 includes verifying that each scenario marked `resolved` produces the documented protocol behaviour. The matrix is therefore both a documentation artifact (showing what the protocol addresses honestly, including its limits) and a verification anchor (each `resolved` scenario maps to a checkable behaviour). The v0.9 executable conformance test suite will operationalise the per-scenario verification; v0.8.2 ships the framing and the per-scenario references.
 
-The matrix is publicly readable: press-cycle reviewers, partners, and platforms can compare an implementation's claimed behaviour against the matrix's documented protocol behaviour. Overclaimed `resolved` markers attract criticism; the matrix is therefore conservative — `bounded-by-protocol` and `allocated-to-platform-responsibility` are used where they are more honest than `resolved`. The 13 `partially-resolved` and 2 `deferred` scenarios are explicit about what v0.8.2 does not close, with target versions for the residual work.
+The matrix is publicly readable: press-cycle reviewers, partners, and platforms can compare an implementation's claimed behaviour against the matrix's documented protocol behaviour. Overclaimed `resolved` markers attract criticism; the matrix is therefore conservative — `bounded-by-protocol` and `allocated-to-platform-responsibility` are used where they are more honest than `resolved`. The 11 `partially-resolved` and 2 `deferred` scenarios are explicit about what v0.8.2 does not close, with target versions for the residual work.
 
 ## Self-declaration during release-candidate stage
 
