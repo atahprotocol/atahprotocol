@@ -167,6 +167,8 @@ The following partner principles apply:
 
 Partner contributions are subject to data quality and freshness obligations. Partners failing to meet these obligations may have their data deprioritised, suspended, or removed under the conflict and integrity processes described in the specification. Detailed partner terms are documented in [GOVERNANCE.md](GOVERNANCE.md) and may evolve through governance review.
 
+Partner integration is funded against published cost-recovery schedules. The party bearing those fees varies by partner type and circumstance: commercial partners and most professional bodies fund integration directly; partners whose constitutional posture, statutory funding, or mission orientation makes that inappropriate may use alternative funding arrangements (member-funded, affiliated-entity-funded, or full fee waiver for public-interest partners). Funding arrangements are reviewed by governance at partner approval. The protocol does not assume any particular partner type bears integration costs directly.
+
 ### Professional participation
 
 Two routes are available for professionals to be present in the registry: via a trusted partner, or by individual self-registration. Individual self-registration is free during the protocol's initial period after launch. After that initial period closes, individual self-registration remains available but a small annual fee applies to maintain the listing.

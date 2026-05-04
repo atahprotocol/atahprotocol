@@ -198,6 +198,8 @@ Organisations that hold reliable, maintained data about professionals and meet A
 - **Independent verifier** — an approved enhanced-verification provider operating under the public verifier acceptance criteria.
 - **Public registry source** — a partner surfacing public-record data (companies-house-style data, public registries of accredited training providers, etc.).
 
+Funding arrangements are determined per partner at approval, not by classification. The classification reflects the partner's role and the vetting strength their data carries; it does not determine who funds the integration.
+
 The classification is set by ATAH governance at partner approval and may only be revised through governance review, never by the partner unilaterally. Match responses surface the classification so AI platforms can present partner-verified status with appropriate context.
 
 The commercial model is consistent across all classifications: partners pay ATAH for integration access (with published fee schedules and waivers for public-interest organisations), they may charge their members for accreditation or data services, members benefit from structured machine-readable presence in AI-mediated environments.
@@ -719,6 +721,8 @@ The protocol is designed against capture by large early partners. Specific struc
 ### Revenue streams (reference registry)
 
 Trusted partner integrations are the primary revenue stream for the reference registry. Designed to be cost-recovery for integration and maintenance work, not pay-for-ranking. Every professional body, regulator, review platform, and data provider that connects pays for integration access. With hundreds of professional bodies in the US alone, and the same again internationally, the addressable partner universe is large.
+
+Integration with ATAH carries cost-recovery fees set against published schedules. The party that bears those fees varies by partner type and circumstance. For commercial partners and most professional bodies, the partner funds integration directly. For partners whose constitutional posture, statutory funding model, or mission orientation makes direct payment by the partner inappropriate, alternative funding arrangements are available, including funding through the partner's members or affiliated commercial entities, or full fee waivers for public-interest partners. ATAH governance reviews funding arrangements at partner approval to ensure that the arrangement does not compromise the partner's independence or the protocol's commercial neutrality. The principle is that integration costs are recovered transparently, not that any particular partner type bears them directly.
 
 Independent verifier governance fees (non-refundable assessment fee + annual audit fee, both tiered by verifier scope) cover the governance and audit work that keeps the verifier model credible. ATAH does not receive a share of the verification fees the verifier charges its commissioning parties.
 
