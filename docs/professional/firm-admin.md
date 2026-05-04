@@ -83,7 +83,7 @@ A workflow for cases where an individual professional wants to claim a record th
 
 ## Private firm-internal instances
 
-Some firms ask whether they can run a private firm-internal instance of an ATAH-conformant registry — to handle internal referral relationships between colleagues at a large firm, internal directory functionality, or AI-tooling integrations that are firm-specific. The protocol's licensing posture covers this:
+Some firms ask whether they can run a private firm-internal instance of an ATAH-conformant registry — to handle internal client routing between colleagues at a large firm, internal directory functionality, or AI-tooling integrations that are firm-specific. The protocol's licensing posture covers this:
 
 **Apache 2.0 permits forks.** The protocol is published under Apache 2.0. A firm may fork the specification and the schemas, modify them, and run a private instance for internal use. No ATAH approval is needed for the fork itself.
 

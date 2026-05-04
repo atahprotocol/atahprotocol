@@ -73,7 +73,7 @@ ATAH is designed to:
 - Cover both formally licensed professionals (lawyers, doctors, engineers) and established practitioners whose standing is real but not formally licensed (PR specialists, consultants, coaches, project managers)
 - Make the basis of trust visible to AI systems and end users — every data point tagged with how it was verified and by whom, through a parallel provenance map
 - Manage the full introduction lifecycle from initial match through to professional engagement, with explicit consent at every stage captured as a structured consent receipt
-- Support consumer-to-professional handoff and professional-initiated client referral discovery
+- Support consumer-to-professional handoff, including the professional-on-behalf-of-client case where a professional acts on a client's behalf using Component 1 with on_behalf_of_client intent
 - Operate on terms that prevent any single commercial actor from controlling discoverability or access
 - Sit cleanly alongside MCP, A2A, ACP, and other agent-web protocols — composing with them rather than competing
 

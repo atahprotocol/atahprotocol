@@ -856,7 +856,7 @@ Success metrics are split into three layers — protocol, reference registry, an
 
 - Interim advisory group convened (no fixed deadline; convened when suitable members are identified and available to serve, per Charter)
 - Reference registry MCP endpoint live and queryable by at least two different AI platforms
-- All three introduction types demonstrated successfully end to end through the reference registry
+- Component 2 demonstrated successfully end to end across all three flow variants through the reference registry
 - End-to-end handoff demonstrated in at least one high-stakes category
 - Both registration routes (partner and individual) live and tested in the reference registry, including roll-up logic with pre-merge notification
 - Stage 2 pre-handoff check working for at least two categories with different check types (e.g. lawyer conflict check, tax planner scope confirmation)

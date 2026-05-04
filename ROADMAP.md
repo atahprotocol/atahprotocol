@@ -18,7 +18,7 @@ The v0.8.2 publication includes:
 ## Release strategy
 
 - **v0.8.2.x — patch-level fixes.** Editorial corrections, schema clarifications, minor inconsistencies, and small spec amendments that don't change semantics are reviewed for incorporation in subsequent patch versions as community review surfaces issues suitable for patch-level treatment. There is no committed cadence; patches land when meaningful work has accumulated.
-- **v0.8.3 — substantive next patch round.** Items listed below.
+- **v0.8.3 — substantive next patch release.** Items listed below.
 - **v0.9 — substantive next release.** Items listed below. Timing depends on feedback volume, partner integration progress, and the resources available to pick up deferred work.
 - **v1.0 — stable.** When at least one third-party conforming implementation exists, governance has transitioned to an independent structure per the Charter triggers, and the deferred items below are addressed (or deliberately deferred further with stated reasons).
 

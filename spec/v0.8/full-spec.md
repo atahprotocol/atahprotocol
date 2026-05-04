@@ -123,10 +123,10 @@ This section describes the recommended architecture for the initial ATAH referen
 
 The reference implementation consists of eight core components.
 
-- **Registry service** — stores and manages professional profiles, verification records, trusted partner data, and referral relationship data. Does not store consumer personal data.
+- **Registry service** — stores and manages professional profiles, verification records, and trusted partner data. Does not store consumer personal data.
 - **Trusted partner engine** — manages partner onboarding, data ingestion (including Verifiable Credentials where applicable), freshness tracking, conflict detection, and partner scoring.
 - **Matching engine** — in the reference implementation, runs within the ATAH registry service. Processes queries through the four-step pipeline (hard filters → band assignment → threshold exclusion → stratified-random ordering within bands per §9.1), and returns a candidate set with full trusted partner data payloads, per-candidate `band_assignment`, and per-candidate `decision_explanation`. A conforming registry MAY implement matching internally or through a delegated service, provided the match response preserves ATAH's transparency, provenance, presentation-disclosure, and no-commercial-weighting requirements.
-- **Introduction lifecycle manager** — manages state for all active introductions across all three types, handles transitions, enforces timeouts, triggers notifications, and enforces simultaneous introduction rules. Issues handoff_access_tokens for write operations.
+- **Introduction lifecycle manager** — manages state for all active Component 2 introductions across the three flow variants, handles transitions, enforces timeouts, triggers notifications, and enforces simultaneous introduction rules. Issues handoff_access_tokens for write operations.
 - **Transient data vault** — encrypted, time-limited store for consumer personal data passing through introductions. Strictly transient. Separate from the main registry. Crypto-erased per category retention rules.
 - **MCP server** — exposes ATAH capabilities as MCP tools to any MCP-compatible AI agent. Authenticated per current MCP authorisation guidance (OAuth 2.1-compatible). This is the v0.8 MCP binding.
 - **REST API** — full programmatic access for non-MCP clients. Authenticated via OAuth 2.1 client credentials for AI platforms; signed-request mechanisms for partners and verifiers; magic-link/OIDC for professionals. This is the v0.8 REST binding.
@@ -749,7 +749,7 @@ The submit-then-consume pattern introduces a small race surface: a platform subm
 
 ### 4.11 Query Schema — Component 1 (Discovery)
 
-The Discovery query is the foundation of the protocol. Components 2 (Consumer-self handoff) and 3 (Referral connection-making) are gated by the required `request_intent` parameter. The `limit` parameter (1–100) replaces v0.8.1's `shortlist_size`; ATAH returns a working candidate set, not an exhaustive directory.
+The Discovery query is the foundation of the protocol. Component 2 (Consumer-self handoff) is gated by the required `request_intent` parameter. The `limit` parameter (1–100) replaces v0.8.1's `shortlist_size`; ATAH returns a working candidate set, not an exhaustive directory.
 
 ```json
 {
@@ -1039,7 +1039,7 @@ This protects against both consumer harm (from bad actors gaming the flag system
 
 ## 6. Introduction Lifecycle
 
-ATAH supports three introduction types, each with its own state machine. All three share the same data governance protocol (Section 11).
+Component 2 is the introduction lifecycle. Its three flow variants share the same data governance protocol (Section 11).
 
 ### 6.1 Component 2 — Consumer-self handoff
 
@@ -2483,11 +2483,11 @@ SMS and email integrated with strict no-PII policy. Notification metadata + auth
 
 ### Phase H — Professional Portal (Weeks 7–9)
 
-Profile management UI for both tiers and routes. Concern flag inbox with right of reply. Authenticated retrieval portal for Stage 2/3 data. Pre-handoff check display. Referral network management. AI assistant MCP connection. Magic link/OIDC authentication. Partner data dispute flow. Enhanced verification display. Roll-up notification flow with pre-merge objection window for high-risk categories.
+Profile management UI for both tiers and routes. Concern flag inbox with right of reply. Authenticated retrieval portal for Stage 2/3 data. Pre-handoff check display. AI assistant MCP connection. Magic link/OIDC authentication. Partner data dispute flow. Enhanced verification display. Roll-up notification flow with pre-merge objection window for high-risk categories.
 
 ### Phase I — Testing and Launch Preparation (Weeks 8–11)
 
-End-to-end testing: all three introduction types, both tiers, both registration routes. Consent receipt generation, hash storage, revocation. Tiered handoff access control. Vault retrieval at all three auth tiers. Delivery-and-deletion protocol with failure paths. Compliance-pending exclusion. Referral signal anti-gaming. Priority-state lawyer verification + non-priority self-declared. Verification batching with 429 handling. OAuth 2.1 MCP authentication. `Accept-Version` and `Deprecation`. Trusted partner integration with VC submission. Enhanced verification end-to-end. Concern flag with right of reply. Security review with threat model exercise. GDPR audit. Performance testing. Founding cohort onboarded. First trusted partners. First independent verifier. Press materials finalised. Public launch.
+End-to-end testing: Component 2 across all three flow variants, both tiers, both registration routes. Consent receipt generation, hash storage, revocation. Tiered handoff access control. Vault retrieval at all three auth tiers. Delivery-and-deletion protocol with failure paths. Compliance-pending exclusion. Priority-state lawyer verification + non-priority self-declared. Verification batching with 429 handling. OAuth 2.1 MCP authentication. `Accept-Version` and `Deprecation`. Trusted partner integration with VC submission. Enhanced verification end-to-end. Concern flag with right of reply. Security review with threat model exercise. GDPR audit. Performance testing. Founding cohort onboarded. First trusted partners. First independent verifier. Press materials finalised. Public launch.
 
 ## 19. AI Coding Agent Instructions
 

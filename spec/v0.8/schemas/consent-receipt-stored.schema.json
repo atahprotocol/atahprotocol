@@ -41,7 +41,7 @@
     },
     "pseudonymous_consumer_ref": {
       "type": "string",
-      "description": "Continuity binding: HMAC of the asserting platform's `consumer_ref`, computed under a per-context salted HMAC key (per the F1.16 / §11.8 HMAC-not-plain-hash requirement). Required for consumer-tied scopes (`stage_*` and `outcome_reporting`); MAY be absent for `query_submission`. On consumption, ATAH verifies the consuming session's pseudonymous reference matches this value; mismatch is a continuity-binding violation per §4.10."
+      "description": "Continuity binding: HMAC of the asserting platform's `consumer_ref`, computed under a per-context salted HMAC key (per the §11.8 HMAC-not-plain-hash requirement). Required for consumer-tied scopes (`stage_*` and `outcome_reporting`); MAY be absent for `query_submission`. On consumption, ATAH verifies the consuming session's pseudonymous reference matches this value; mismatch is a continuity-binding violation per §4.10."
     },
     "data_categories_hash": {
       "type": "string",

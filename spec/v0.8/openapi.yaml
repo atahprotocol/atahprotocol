@@ -88,7 +88,7 @@ paths:
                 $ref: '#/components/examples/QueryExample'
       responses:
         '200':
-          description: Ranked shortlist.
+          description: Discovery candidate set.
           content:
             application/json:
               schema:
@@ -1346,7 +1346,7 @@ paths:
                     channel_id: { type: string, minLength: 1 }
                     channel_type: { type: string, enum: [email, phone_voice, phone_sms, mcp_push, webhook] }
                     destination_reference: { type: string, minLength: 1 }
-                    delivery_purpose: { type: string, enum: [discovery_notification, handoff_stage_1, handoff_stage_2, handoff_stage_3, handoff_stage_3_alternate, referral_proposal, referral_connection, account_alert, verification_challenge] }
+                    delivery_purpose: { type: string, enum: [discovery_notification, handoff_stage_1, handoff_stage_2, handoff_stage_3, handoff_stage_3_alternate, account_alert, verification_challenge] }
                     is_primary: { type: boolean }
                     last_verified: { type: ['string', 'null'], format: date-time }
                     verification_status: { type: string, enum: [verified, verification_pending, escalation_pending, unverified, not_yet_verified] }

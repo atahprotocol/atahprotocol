@@ -51,7 +51,7 @@
     },
     "review_signal_band_cap": {
       "type": "object",
-      "description": "Per F-7, this field replaces the v0.8.1 `review_signal_weight_cap`. The cap preserves the original safeguard under the band-based model: review-derived signals MAY supplement transparency and confidence metadata, but for high-stakes regulated categories MUST NOT move a candidate into a higher eligibility or verification band unless corroborated by authoritative credential or regulator-source evidence. High-stakes regulated categories set `may_upgrade_band: false` and `regulated_category_max_effect: no_band_upgrade`. Lower-stakes categories MAY permit `may_upgrade_band: true` with documented authoritative-corroboration requirements.",
+      "description": "This field replaces the v0.8.1 `review_signal_weight_cap`. The cap preserves the original safeguard under the band-based model: review-derived signals MAY supplement transparency and confidence metadata, but for high-stakes regulated categories MUST NOT move a candidate into a higher eligibility or verification band unless corroborated by authoritative credential or regulator-source evidence. High-stakes regulated categories set `may_upgrade_band: false` and `regulated_category_max_effect: no_band_upgrade`. Lower-stakes categories MAY permit `may_upgrade_band: true` with documented authoritative-corroboration requirements.",
       "properties": {
         "max_band_influence": {
           "type": "string",

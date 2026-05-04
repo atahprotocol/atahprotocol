@@ -15,7 +15,7 @@
         "governance_admin_role",
         "system_role"
       ],
-      "description": "The credential class establishing authority for a protocol action. Single source of truth for the enum; referenced by both `AuthorityContext.authority_basis` and `decision-explanation.schema.json` `authority_basis`. Per F1.8 / Phase 9 retro: extracted to a shared $defs to remove the inline-duplicate enum that previously lived in two schemas."
+      "description": "The credential class establishing authority for a protocol action. Single source of truth for the enum; referenced by both `AuthorityContext.authority_basis` and `decision-explanation.schema.json` `authority_basis`. Extracted to a shared $defs to remove the inline-duplicate enum that previously lived in two schemas."
     },
     "AuthenticatedActor": {
       "type": "object",

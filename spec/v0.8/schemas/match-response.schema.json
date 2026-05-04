@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://atahprotocol.org/spec/v0.8/schemas/match-response.schema.json",
   "title": "ATAH Match Response",
-  "description": "ATAH Core Protocol object: response from POST /v1/query and the `find_professional` MCP tool (spec/v0.8 §4.12). Per F1.10 / F1.11, v0.8.2 replaces the v0.8.1 weighted-scoring architecture with hard-filters-then-stratified-randomisation. There is no global match score; eligibility is expressed through `filters_passed` and `band_assignment`; ordering is recorded in `ordering_policy`; per-candidate transparency is provided via `decision_explanation` (Phase 6 makes this required at both response level and per-candidate level — see `decision-explanation.schema.json`). The response-level `presentation_disclosure` carries the ordering-policy disclosure that AI platforms reordering downstream MUST preserve (per §9.Y / F1.13). Required for any ATAH-conformant implementation.",
+  "description": "ATAH Core Protocol object: response from POST /v1/query and the `find_professional` MCP tool (spec/v0.8 §4.12). Per §9.1, v0.8.2 replaces the v0.8.1 weighted-scoring architecture with hard-filters-then-stratified-randomisation. There is no global match score; eligibility is expressed through `filters_passed` and `band_assignment`; ordering is recorded in `ordering_policy`; per-candidate transparency is provided via `decision_explanation` (required at both response level and per-candidate level — see `decision-explanation.schema.json`). The response-level `presentation_disclosure` carries the ordering-policy disclosure that AI platforms reordering downstream MUST preserve (per §9.4). Required for any ATAH-conformant implementation.",
   "type": "object",
   "properties": {
     "query_id": {
@@ -33,11 +33,11 @@
     },
     "decision_explanation": {
       "$ref": "decision-explanation.schema.json",
-      "description": "F-6 Layer 1 — response-level decision_explanation. Required. Documents the query-level rules applied, ordering policy mode, authority basis, and audit-event reference for the response as a whole. Per F-5 the referenced schema is the inner object only — the field name `decision_explanation` HERE is the wrapper; the schema's own contents are NOT separately wrapped."
+      "description": "Layer 1 — response-level decision_explanation. Required. Documents the query-level rules applied, ordering policy mode, authority basis, and audit-event reference for the response as a whole. The referenced schema is the inner object only — the field name `decision_explanation` HERE is the wrapper; the schema's own contents are NOT separately wrapped."
     },
     "exclusion_summary": {
       "type": "object",
-      "description": "F-6 Layer 3 — aggregate exclusion summary. Required when there were exclusions in this query; absent or empty when there were none. Exposes aggregate reason-category counts so consumers and consumer agents can see why the candidate set has the size it does, while protecting excluded professionals from leakage. Named excluded candidates are NOT surfaced through this object; the dedicated auditor / governance retrieval endpoint (`GET /v1/decision-explanations/{audit_event_id}`) is the only surface that returns named-excluded-candidate detail.",
+      "description": "Layer 3 — aggregate exclusion summary. Required when there were exclusions in this query; absent or empty when there were none. Exposes aggregate reason-category counts so consumers and consumer agents can see why the candidate set has the size it does, while protecting excluded professionals from leakage. Named excluded candidates are NOT surfaced through this object; the dedicated auditor / governance retrieval endpoint (`GET /v1/decision-explanations/{audit_event_id}`) is the only surface that returns named-excluded-candidate detail.",
       "properties": {
         "total_excluded": {
           "type": "integer",
@@ -189,7 +189,7 @@
         },
         "decision_explanation": {
           "$ref": "decision-explanation.schema.json",
-          "description": "F-6 Layer 2 — per-candidate decision_explanation. Required. Documents the candidate-level rules passed and the band assignment basis for THIS candidate's inclusion. `decision_type` is `discovery_result` for candidates appearing in the response. Per F-5 the referenced schema is the inner object only — the field name `decision_explanation` HERE is the wrapper; the schema's own contents are NOT separately wrapped."
+          "description": "Layer 2 — per-candidate decision_explanation. Required. Documents the candidate-level rules passed and the band assignment basis for THIS candidate's inclusion. `decision_type` is `discovery_result` for candidates appearing in the response. The referenced schema is the inner object only — the field name `decision_explanation` HERE is the wrapper; the schema's own contents are NOT separately wrapped."
         },
         "verification_status_summary": {
           "type": "object",
@@ -211,7 +211,7 @@
         },
         "review_signal_summary": {
           "type": "object",
-          "description": "Review-platform signal summary. Per F-7, review-derived signals MAY supplement transparency and confidence metadata, but for high-stakes regulated categories (those whose `profession-category.review_signal_band_cap.may_upgrade_band` is `false`) they MUST NOT move a candidate into a higher eligibility or verification band unless corroborated by authoritative credential or regulator-source evidence. This block is presentational; it does not feed band assignment in those categories.",
+          "description": "Review-platform signal summary. Per §9.2, review-derived signals MAY supplement transparency and confidence metadata, but for high-stakes regulated categories (those whose `profession-category.review_signal_band_cap.may_upgrade_band` is `false`) they MUST NOT move a candidate into a higher eligibility or verification band unless corroborated by authoritative credential or regulator-source evidence. This block is presentational; it does not feed band assignment in those categories.",
           "properties": {
             "platforms_contributing": {
               "type": "array",
