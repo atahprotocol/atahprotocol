@@ -18,7 +18,7 @@ Every one of those protocols solves part of the journey: tool access, agent-to-a
 
 The part they do not standardise is the moment a verified human professional is needed: who that professional is, what has been verified about them, what consent has been captured for the introduction, what data may be shared, and how the handoff state is tracked across systems.
 
-When an AI identifies that human expertise is genuinely required — a lawyer for a contract dispute, a tax planner for an unfamiliar liability, a PR consultant for a crisis, a structural engineer for a building concern — the journey breaks. The AI typically stops at a disclaimer ("you should speak to a licensed professional") and leaves the user with a search box.
+When an AI identifies that human expertise is genuinely required — a lawyer for a contract dispute, an insurance agent for a complex risk, a tax planner for an unfamiliar liability, a PR consultant for a crisis, a structural engineer for a building concern — the journey breaks. The AI typically stops at a disclaimer ("you should speak to a licensed professional") and leaves the user with a search box.
 
 That's not a completed journey. It's a dead end at the moment the user most needs help.
 
@@ -30,7 +30,7 @@ A note on framing, because it matters how this is described.
 
 > ATAH is not primarily about AI giving up. It is about the point at which AI reaches a boundary where verified human authority, accountability, consent, and provenance matter.
 
-As AI becomes more capable, routine handoffs may reduce. But the remaining human-professional handoffs are likely to become more consequential, more regulated, and more dependent on verified provenance. ATAH's strongest thesis is therefore not "more AI means more handoffs," but "more capable AI makes the remaining handoffs more important to structure properly."
+As AI becomes more capable, the handoff to a human professional becomes more consequential, more regulated, and more dependent on verified provenance. The questions a consumer brings to a professional through an AI-mediated journey are typically the ones where stakes are real and where verified expertise matters. ATAH's thesis is that as AI takes on more of the early-journey work, the structure of the handoff to a human professional matters more, not less.
 
 There will still be matters where human professional involvement is required because of legal authority, regulated action, fiduciary responsibility, signed instruments, medical treatment, insurance placement, formal proceedings, or professional accountability. ATAH is for those. The volume claim narrows; the value claim sharpens.
 

@@ -14,7 +14,7 @@ An open protocol layer for AI-to-authenticated-human professional handoff. ATAH 
 
 ## The problem
 
-AI systems can now book flights, buy products, complete transactions, and run multi-step workflows on behalf of users. But when an AI identifies that human professional expertise is genuinely needed — a lawyer for a contract, a financial advisor for a regulated decision, a PR consultant for a crisis, a structural engineer for a building concern — the journey breaks. The AI typically stops at a disclaimer and leaves the user with a search box.
+AI systems can now book flights, buy products, complete transactions, and run multi-step workflows on behalf of users. But when an AI identifies that human professional expertise is genuinely needed — a lawyer for a contract, an insurance agent for a complex risk, a financial advisor for a regulated decision, a PR consultant for a crisis, a structural engineer for a building concern — the journey breaks. The AI typically stops at a disclaimer and leaves the user with a search box.
 
 That broken handoff is the gap ATAH is designed to fill.
 

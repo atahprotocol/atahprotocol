@@ -42,7 +42,7 @@ The thesis matters and it should be stated precisely.
 
 > ATAH is not primarily about AI giving up. It is about the point at which AI reaches a boundary where verified human authority, accountability, consent, and provenance matter.
 
-As AI becomes more capable, routine handoffs may reduce. But the remaining human-professional handoffs are likely to become more consequential, more regulated, and more dependent on verified provenance. ATAH's strongest thesis is therefore not "more AI means more handoffs," but "more capable AI makes the remaining handoffs more important to structure properly."
+As AI becomes more capable, the handoff to a human professional becomes more consequential, more regulated, and more dependent on verified provenance. The questions a consumer brings to a professional through an AI-mediated journey are typically the ones where stakes are real and where verified expertise matters. ATAH's thesis is that as AI takes on more of the early-journey work, the structure of the handoff to a human professional matters more, not less.
 
 This avoids the framing trap that "more AI use means more handoffs because AI will hit more walls" — a thesis vulnerable to the obvious objection that AI systems are getting better and may hit fewer routine walls over time. ATAH's volume claim narrows under that objection; the value claim sharpens. The matters that remain are the ones where legal authority, regulated action, fiduciary responsibility, signed instruments, medical treatment, insurance placement, formal proceedings, or professional accountability are required — not because AI failed but because the boundary is structural.
 
