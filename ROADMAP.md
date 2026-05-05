@@ -44,11 +44,11 @@ The following items are tracked for the v0.8.3 cycle. None are protocol-design c
 - §14 conformance class count: §14 currently enumerates four conformance classes. CONFORMANCE.md and §11A both treat Transparency as a top-level conformance requirement (the fifth class). v0.8.3 will reconcile §14 with the rest of the protocol by adding a Transparency Conformance section and updating count references.
 - Vestigial single-value discriminator enums in `query.schema.json` (`query_type`) and `handoff-component2.schema.json` (`introduction_type`). Both will be removed in v0.8.3, with corresponding alignment in `openapi.yaml` and the example block in `full-spec.md`.
 - MCP/REST contract alignment for `initiate_introduction`: the MCP and REST bindings currently require slightly different field sets. v0.8.3 will align them per the §14.2 Binding Conformance commitment that bindings do not change required fields.
+- **GDPR retention limits for audit metadata.** v0.8.2 retains audit metadata indefinitely as a deliberate design choice (abuse investigation, dispute integrity, withdrawal-as-state-transition). v0.8.3 will define normative retention windows per audit-event class and document the lawful basis under GDPR Art. 6 / Art. 9 (and equivalents under UK GDPR, CCPA, Australian Privacy Act), before the first EU/UK partner integration. Sector-specific privilege/confidentiality analysis (attorney-client, HIPAA, fiduciary) for each regulated category compliance annex sits alongside this work.
 
 **Wording and consistency:**
 
 - `contact_unverified` referenced as a boolean in `full-spec.md` and `mcp-tools.json`; it is actually a `matching_status` enum value. Wording fix in v0.8.3.
-- "Provenance-visible shortlists" in non-endorsement framing prose (`PRD-v0_8.md` and `full-spec.md`) to be replaced with "provenance-visible candidate sets" for consistency with current ordering language. State machine values and historical references unaffected.
 - `acknowledged_rollup_terms` field exists on professional-identity schemas with a normative description but is not surfaced in `full-spec.md` §15 prose. v0.8.3 will add a one-paragraph mention.
 - `spec/v0.8/CHANGELOG.md` to gain a `### Reviewers` subsection mirroring the top-level CHANGELOG attribution.
 

@@ -39,7 +39,7 @@ Until transition to independent governance:
   of the first review platform; first commercial partner agreement; first
   category compliance annex; any Charter change.
 
-**Maintenance posture.** ATAH at v0.8.1 publication is operating with the resourcing typical of a release-candidate open standard: a small founding team, publishing the protocol openly to attract reviewers, partners, implementers, and advisors. The SLAs published in this document and in SECURITY.md are best-effort targets at release-candidate stage. As partner integrations and external implementations mature, governance and operational capacity grow alongside — which is exactly what the trigger-based transition framework anticipates. The protocol's path to sustained, well-staffed maintenance runs through partner conversations, external implementer engagement, and the eventual transition to independent governance.
+**Maintenance posture.** ATAH at v0.8.2 publication is operating with the resourcing typical of a release-candidate open standard: a small founding team, publishing the protocol openly to attract reviewers, partners, implementers, and advisors. The SLAs published in this document and in SECURITY.md are best-effort targets at release-candidate stage. As partner integrations and external implementations mature, governance and operational capacity grow alongside — which is exactly what the trigger-based transition framework anticipates. The protocol's path to sustained, well-staffed maintenance runs through partner conversations, external implementer engagement, and the eventual transition to independent governance.
 
 ## 3. Decision types
 

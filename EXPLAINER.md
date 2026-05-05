@@ -227,6 +227,8 @@ Review platform signals — where present — supplement the transparency view b
 
 AI platforms reordering ATAH's response downstream MUST preserve the disclosure that ATAH applied non-preferential ordering. The protocol's "we are not a recommendation engine" commitment is structural, not just declarative — there is no global score in the schema, the band assignment is exposed for inspection, and the conformance test verifies that within-band ordering is observably non-deterministic across repeated queries.
 
+The structural side of the commitment lives in the response payload (no global score, randomised ordering, machine-readable `presentation_disclosure`). The presentation side lives in AI platform conformance — preserved by conforming consumers via the conformance mark, not enforced technically against non-conformant consumers of the free endpoint.
+
 ## Transparency — every meaningful decision is explainable
 
 Transparency is one of ATAH's primary differentiators from private recommendation engines, and v0.8.2 makes it structural rather than aspirational. Every meaningful decision in ATAH is explainable. Why a candidate appeared, why one didn't, what rules were applied, what data was used, what authority was relied on. The explanation is structured (the `decision-explanation.schema.json` object), machine-readable (returned on responses, retrievable via API), and role-appropriate (consumers see why returned candidates appeared and the aggregate reason categories for exclusions but not named excluded candidates; professionals see their own visibility view; governance/auditors see the deeper detail; the public sees high-level rules).

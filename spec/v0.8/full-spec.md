@@ -34,7 +34,7 @@ ATAH is an open specification for AI-to-authenticated-human professional handoff
 - A standardised data model for professional identity, with verification provenance
 - A trusted partner model for surfacing regulatory and professional-body data
 - A staged introduction lifecycle with explicit consent at each stage
-- A matching engine producing provenance-visible shortlists
+- A matching engine producing provenance-visible candidate sets
 - Commercial neutrality and privacy commitments enforced by Charter
 
 ### Three layers
@@ -82,7 +82,7 @@ ATAH supports two consent types: **query authorisation** (a user permitting thei
 
 ### What ATAH is not (non-goals)
 
-- **ATAH is not a recommendation engine.** It returns provenance-visible shortlists based on declared need, verification evidence, category rules, and availability. The user or calling AI platform remains responsible for selection.
+- **ATAH is not a recommendation engine.** It returns provenance-visible candidate sets based on declared need, verification evidence, category rules, and availability. The user or calling AI platform remains responsible for selection.
 - **ATAH is not a regulator, enforcement body, or complaints adjudicator.** Professional conduct concerns are routed to the relevant regulatory or professional body. ATAH does not investigate, adjudicate, or sanction professionals based on consumer complaints.
 - **ATAH is not a payment processor or marketplace.** It carries no transaction or commerce capability.
 - **ATAH is not a directory service or AEO replacement.** Professionals are not "promoted" or "ranked for visibility" in any commercial sense — matching is determined entirely by the rubric in Section 9.
@@ -1336,7 +1336,7 @@ Where MCP authorisation guidance evolves between v0.8 publication and the actual
 
 ### 8.2 MCP Tools
 
-v0.8 defines nine MCP tools. `cancel_introduction`, `revoke_consent`, and `get_consent_requirements` are new in v0.8; `submit_stage2_consent` and `submit_stage3_consent` were renamed to `submit_stage2_data` and `submit_stage3_data` respectively.
+v0.8.2 defines 14 MCP tools. `cancel_introduction`, `revoke_consent`, and `get_consent_requirements` are among the v0.8 additions; `submit_stage2_consent` and `submit_stage3_consent` were renamed to `submit_stage2_data` and `submit_stage3_data` respectively.
 
 Full structured input and output schemas are published in `mcp-tools.json`. The summaries below describe tool purpose and the key inputs.
 
@@ -1727,11 +1727,11 @@ A `handoff_access_token` is opaque, rotatable, and never logged in URLs (passed 
 
 This model preserves cross-platform user experience for status checks while preventing possession of `handoff_id` alone from granting state-changing power.
 
-#### consumer_ref constraints (v0.8.1)
+#### consumer_ref constraints (v0.8.2)
 
-The `consumer_ref` field used in cross-platform status checks is a continuity handle, not an identity. v0.8.1 specifies what `consumer_ref` MUST NOT be; the positive specification of how `consumer_ref` is generated, salted, and bound to user-mediated continuity consent is deferred to a subsequent patch version.
+The `consumer_ref` field used in cross-platform status checks is a continuity handle, not an identity. v0.8.2 specifies what `consumer_ref` MUST NOT be; the positive specification of how `consumer_ref` is generated, salted, and bound to user-mediated continuity consent is deferred to a subsequent patch version.
 
-A v0.8.1-conforming implementation MUST NOT use any of the following as `consumer_ref`:
+A v0.8.2-conforming implementation MUST NOT use any of the following as `consumer_ref`:
 
 - A bare hash of the consumer's email address
 - A bare hash of the consumer's phone number
@@ -2215,7 +2215,7 @@ A conforming implementation publishes a public conformance statement at a discov
 - governance documents URL (charter or equivalent);
 - contact for conformance enquiries.
 
-The reference registry publishes its conformance statement as part of the v0.8 launch package.
+The reference registry publishes its conformance statement as part of the v0.8.2 launch package.
 
 ### 14.8 AI Platform Minimal Profile
 
@@ -2471,7 +2471,7 @@ Component 1 (Discovery) and Component 2 (consumer-self handoff) lifecycle implem
 
 ### Phase F — MCP Server (Weeks 6–8)
 
-OAuth 2.1 conformance: authorization server metadata, protected resource metadata, resource indicators, audience validation. All nine MCP tools (Section 8.2) implemented and tested with structured input/output schemas. `mcp-tools.json` published. Cancellation and revocation tools.
+OAuth 2.1 conformance: authorization server metadata, protected resource metadata, resource indicators, audience validation. All 14 MCP tools (Section 8.2) implemented and tested with structured input/output schemas. `mcp-tools.json` published. Cancellation and revocation tools.
 
 ### Phase G — Notification Service (Weeks 6–8)
 

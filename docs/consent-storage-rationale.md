@@ -1,7 +1,7 @@
 # Consent storage rationale
 
 This document explains how consent is captured, stored, and disputed in
-ATAH v0.8.1. It is design rationale, not legal advice. Each AI platform
+ATAH v0.8.2. It is design rationale, not legal advice. Each AI platform
 considering integration should review with their own counsel.
 
 ## What ATAH stores

@@ -89,7 +89,7 @@ A conforming implementation publishes a public conformance statement at a discov
 - governance documents URL (charter or equivalent)
 - contact for conformance enquiries
 
-The reference registry publishes its conformance statement as part of the v0.8 launch package.
+The reference registry publishes its conformance statement as part of the v0.8.2 launch package.
 
 **Self-certification status until v0.9.** Until the v0.9 conformance test
 suite is published, conformance statements are self-declarations by their

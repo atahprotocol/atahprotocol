@@ -94,7 +94,7 @@ Six common surfaces, each with a model string and a brief note on when to use it
 
 ## Worked examples by category
 
-How the disclosures cohere when assembled for a specific category. The examples assume a v0.8.1 launch state with single-source partner verification (typical at protocol launch as the partner network builds — see PRD §8.5 verification confidence signal).
+How the disclosures cohere when assembled for a specific category. The examples assume a v0.8.2 launch state with single-source partner verification (typical at protocol launch as the partner network builds — see PRD §8.5 verification confidence signal).
 
 ### Legal services (lawyer matching)
 

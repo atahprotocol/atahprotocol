@@ -6,7 +6,7 @@ The ATAH name, logo, marks, conformance badges, and official project identity ar
 
 The following uses are permitted without requiring permission, provided they are accurate:
 
-- **Descriptive references** such as "compatible with ATAH v0.8.1," "based on the ATAH specification," "uses the ATAH protocol," or "implements ATAH conformance criteria" — where the statement is factually accurate.
+- **Descriptive references** such as "compatible with ATAH v0.8.2," "based on the ATAH specification," "uses the ATAH protocol," or "implements ATAH conformance criteria" — where the statement is factually accurate.
 - **Self-declared conformance statements** describing which version of the ATAH specification an implementation preserves and which conformance classes it claims, per CONFORMANCE.md.
 - **Citing ATAH** in academic work, technical documentation, journalism, or comparative analysis.
 - **Linking to** the ATAH GitHub repository or any official ATAH project website.
@@ -16,7 +16,7 @@ The following uses are permitted without requiring permission, provided they are
 Use of the ATAH name, logo, marks, conformance badges, or official project identity must not imply endorsement, certification, governance continuity, or founder participation where none exists. Specifically:
 
 - Do not represent a fork or derivative work as the official ATAH protocol or as the ATAH-operated reference registry.
-- Do not claim official ATAH conformance recognition, certification, or endorsement unless and until ATAH has issued such a statement (which, per CONFORMANCE.md, is not currently possible at v0.8.1).
+- Do not claim official ATAH conformance recognition, certification, or endorsement unless and until ATAH has issued such a statement (which, per CONFORMANCE.md, is not currently possible at v0.8.2).
 - Do not use the ATAH name in a way that creates a substantial likelihood of confusion about whether your project is the official ATAH project.
 - Do not use ATAH marks in a way that suggests partnership, sponsorship, or affiliation that has not been agreed.
 
