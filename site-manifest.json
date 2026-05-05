@@ -1,0 +1,19 @@
+{
+  "version": "0.8.2",
+  "status": "release candidate",
+  "license": "Apache-2.0",
+  "schemas_count": 25,
+  "mcp_tools_count": 14,
+  "conformance_classes": 5,
+  "stress_test_scenarios": 52,
+  "transport_bindings": ["MCP", "REST"],
+  "charter_commitments": 8,
+  "components": 2,
+  "spec_path": "spec/v0.8/full-spec.md",
+  "repo_url": "https://github.com/atahprotocol/atahprotocol",
+  "explainer_url": "https://github.com/atahprotocol/atahprotocol/blob/main/EXPLAINER.md",
+  "charter_url": "https://github.com/atahprotocol/atahprotocol/blob/main/CHARTER.md",
+  "contact_general": "hello@atahprotocol.org",
+  "contact_partnerships": "grahame@atahprotocol.org",
+  "release_date": "2026-05-05"
+}
