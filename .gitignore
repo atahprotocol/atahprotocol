@@ -18,7 +18,7 @@ _*.md
 SESSION-HANDOVER-FOR-NEXT-CHAT.md
 HANDOVER-TO-CLAUDE-CODE.md
 private/
-notes/
+/notes/
 drafts/
 
 # Architecture diagram (kept private)
